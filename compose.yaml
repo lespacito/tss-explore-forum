@@ -1,0 +1,54 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: tanstack-postgres-forum
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: tanstack_db_forum
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d tanstack_db_forum"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # Interface web pour gérer ta base de données
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin-forum
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@local.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8081:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+  # Service de capture d'emails pour le développement
+  mailpit:
+    image: axllent/mailpit
+    container_name: mailpit-forum
+    restart: unless-stopped
+    ports:
+      - "8025:8025" # Interface web
+      - "1025:1025" # Serveur SMTP
+    environment:
+      MP_MAX_MESSAGES: 5000
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+
+volumes:
+  postgres_data:
+    driver: local
+  pgadmin_data:
+    driver: local
