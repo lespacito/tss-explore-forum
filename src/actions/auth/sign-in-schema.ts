@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import z from "zod";
 
 export const signInSchema = z.object({
-  email: z.email({ message: "Une adresse email valide est requise" }).trim(),
+  username: z.string().min(1, { message: "Le nom d'utilisateur est requis" }).max(100),
   password: z
     .string()
     .min(1, { message: "Le mot de passe est requis" })

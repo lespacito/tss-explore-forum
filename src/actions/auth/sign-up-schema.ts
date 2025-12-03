@@ -8,6 +8,8 @@ export const signUpSchema = z.object({
     .string()
     .min(6, { message: "Le mot de passe doit contenir au moins 6 caractères" })
     .max(100),
+  username: z.string().min(1, { message: "Le nom d'utilisateur est requis" }).max(100),
+  displayUsername: z.string().min(1, { message: "Le nom d'affichage est requis" }).max(100),
 });
 
 export type SignUpInput = z.infer<typeof signUpSchema>;

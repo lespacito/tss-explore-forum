@@ -15,10 +15,10 @@ import { Link, useRouter } from "@tanstack/react-router";
 import { signOut } from "@/lib/auth-client";
 import { useId, useState } from "react";
 
-import { useSession } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
 
 export default function Navbar() {
-  const { data: session, isPending } = useSession();
+  const { data: session, isPending } = authClient.useSession();
   const user = session?.user || null;
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
@@ -45,8 +45,8 @@ export default function Navbar() {
   }
 
   const getUserInitials = () => {
-    if (!user?.name) return "U";
-    return user.name
+    if (!user?.displayUsername) return "U";
+    return user.displayUsername
       .split(" ")
       .map((n) => n[0])
       .join("")
@@ -116,12 +116,12 @@ export default function Navbar() {
               >
                 <Avatar className="h-8 w-8">
                   {user.image && (
-                    <AvatarImage src={user.image} alt={user.name} />
+                    <AvatarImage src={user.image} alt={user.displayUsername} />
                   )}
                   <AvatarFallback>{getUserInitials()}</AvatarFallback>
                 </Avatar>
                 <span className="hidden sm:inline text-sm font-medium">
-                  {user.name}
+                  {user.displayUsername}
                 </span>
               </Button>
             </DropdownMenuTrigger>
@@ -129,7 +129,7 @@ export default function Navbar() {
               <DropdownMenuLabel>
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">
-                    {user.name}
+                    {user.displayUsername}
                   </p>
                   <p className="text-xs leading-none text-muted-foreground">
                     {user.email}

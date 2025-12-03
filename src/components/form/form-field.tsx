@@ -48,13 +48,12 @@ export const FormField = ({
           autoComplete={autoComplete}
         />
       )}
-      {isInvalid && (
-        <FieldError
-          errors={field.state.meta.errors.map((error: any) =>
-            typeof error === "string" ? { message: error } : error,
-          )}
-        />
-      )}
+      {isInvalid && (() => {
+        const transformedErrors = field.state.meta.errors.map((error: any) =>
+          typeof error === "string" ? { message: error } : error,
+        );
+        return <FieldError errors={transformedErrors} />;
+      })()}
     </Field>
   );
 };

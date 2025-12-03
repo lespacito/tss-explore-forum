@@ -6,7 +6,7 @@ import { FormField } from "./form-field";
 import { useRouter } from "@tanstack/react-router";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
-import { signIn } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
 import { signInSchema, type SignInInput } from "@/actions/auth/sign-in-schema";
 
 export const SignInTab = () => {
@@ -15,50 +15,43 @@ export const SignInTab = () => {
 
   const form = useForm({
     defaultValues: {
-      email: "",
+      username: "",
       password: "",
     } satisfies SignInInput,
     validators: {
       onSubmit: signInSchema,
       onBlur: signInSchema,
     },
-    onSubmit: async ({ value, formApi }) => {
-      await signIn.email({
-        email: value.email,
+    onSubmit: async ({ value}) => {
+      const { data, error } = await authClient.signIn.username({
+        username: value.username,
         password: value.password,
         callbackURL: "/",
-        fetchOptions: {
-          onResponse: () => {
-             // Optional: handle raw response
-          },
-          onRequest: () => {
-            // Optional: handle request start
-          },
-          onSuccess: async () => {
-             toast.success("Connexion réussie ! Bienvenue.");
-             form.reset();
-             await router.invalidate();
-             router.navigate({ to: "/" });
-          },
-          onError: async (ctx) => {
-             if (ctx.response) {
-               try {
-                 const data = await ctx.response.clone().json();
-                 if (data.field) {
-                   formApi.setErrorMap({
-                     [data.field]: data.error,
-                   });
-                 }
-                 toast.error(data.error || ctx.error.message);
-                 return;
-               } catch {
-                 // Ignore JSON parse errors
-               }
-             }
-             toast.error(ctx.error.message);
-          }
-        }
       });
+
+      if (error) {
+        const errorData = error;
+        if (errorData?.message) {
+             // Set field-specific error
+             // Assuming similar error structure as sign-up
+             if ((errorData as any).field) {
+               form.setFieldMeta((errorData as any).field, (prev) => ({
+                 ...prev,
+                 isTouched: true,
+                 isValid: false,
+                 errors: [(errorData as any).error],
+               }));
+               toast.error((errorData as any).error || 'Erreur de validation');
+             } else {
+               toast.error(errorData.message || 'Erreur inconnue');
+             }
+        }
+      } else {
+         toast.success("Connexion réussie ! Bienvenue.");
+         form.reset();
+         await router.invalidate();
+         router.navigate({ to: "/" });
+      }
     },
     onSubmitInvalid: () => {
       toast.error("Veuillez corriger les erreurs dans le formulaire");
@@ -76,14 +69,14 @@ export const SignInTab = () => {
       className="space-y-4"
     >
       <FieldGroup>
-        <form.Field name="email">
+        <form.Field name="username">
           {(field) => (
             <FormField
               field={field}
-              label="Email"
-              type="email"
-              placeholder="exemple@email.com"
-              autoComplete="email"
+              label="Nom d'utilisateur"
+              type="text"
+              placeholder="votre_pseudo"
+              autoComplete="username"
             />
           )}
         </form.Field>

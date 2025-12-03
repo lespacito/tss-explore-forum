@@ -1,9 +1,17 @@
-import { pgTable, boolean, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, boolean, text, timestamp} from "drizzle-orm/pg-core";
 
-export const todos = pgTable("todos", {
-  id: serial("id").primaryKey(),
+export const posts = pgTable("posts", {
+  id: text("id").primaryKey(),
+  authorId: text("author_id").notNull().references(() => user.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
+  content: text("content").notNull(),
+  content_redacted: text("content_redacted"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  editedAt: timestamp("edited_at")
+    .defaultNow()
+    .$onUpdate(() => /* @__PURE__ */ new Date())
+    .notNull(),
+  isDeleted: boolean("is_deleted").default(false).notNull(),
 });
 
 export const user = pgTable("user", {
@@ -17,6 +25,8 @@ export const user = pgTable("user", {
     .defaultNow()
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
+  username: text("username").unique(),
+  displayUsername: text("display_username"),
 });
 
 export const session = pgTable("session", {

@@ -3,6 +3,8 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { reactStartCookies } from "better-auth/react-start";
 
+import { username } from "better-auth/plugins";
+
 export const auth = betterAuth({
   socialProviders: {
     github: {
@@ -22,6 +24,8 @@ export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
   }),
-  plugins: [reactStartCookies()],
+  plugins: [username({
+    
+  }),reactStartCookies()],
   //... the rest of your config
 });

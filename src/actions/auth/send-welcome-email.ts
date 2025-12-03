@@ -7,8 +7,6 @@ const sendWelcomeEmailSchema = z.object({
   name: z.string(),
 });
 
-type SendWelcomeEmailInput = z.infer<typeof sendWelcomeEmailSchema>;
-
 /**
  * Action serveur pour envoyer un email de bienvenue après inscription
  */

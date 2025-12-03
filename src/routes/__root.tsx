@@ -12,9 +12,9 @@ import appCss from "../styles.css?url";
 
 import type { QueryClient } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
-import Navbar from "@/components/header/navbar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/header/sidebar";
+import Navbar from "@/components/shadcn-studio/blocks/navbar-component/navbar-component";
 
 interface MyRouterContext {
   queryClient: QueryClient;
@@ -62,7 +62,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <div className="flex min-h-screen w-full">
             <AppSidebar />
             <div className="flex flex-1 flex-col">
-              <Navbar />
+              <Navbar navigationData={[]}/>
               <main>{children}</main>
             </div>
           </div>
