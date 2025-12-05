@@ -1,11 +1,20 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { SignInTab } from "@/components/form/sign-in-tab";
-import { SignUpTab } from "@/components/form/sign-up-tab";
+import { getAuthSession } from "@/features/auth/server/get-auth-session";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { SignInTab } from "@/features/auth/components/sign-in-tab";
+import { SignUpTab } from "@/features/auth/components/sign-up-tab";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/auth/login/")({
   component: RouteComponent,
+  loader: async () => {
+    const session = await getAuthSession();
+    if (session?.user) {
+      throw redirect({
+        to: "/",
+      });
+    }
+  },
 });
 
 function RouteComponent() {

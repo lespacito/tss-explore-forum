@@ -2,13 +2,13 @@ import { useId } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup } from "@/components/ui/field";
 import ActionButton from "@/components/ui/action-button";
-import { FormField } from "./form-field";
 import { useRouter } from "@tanstack/react-router";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
-import { authClient } from "@/lib/auth-client";
-import { signUpSchema, type SignUpInput } from "@/actions/auth/sign-up-schema";
-import { sendWelcomeEmailFn } from "@/actions/auth/send-welcome-email";
+import { authClient } from "@/features/auth/lib/auth-client";
+import { signUpSchema, type SignUpInput } from "@/features/auth/schema/sign-up-schema";
+import { sendWelcomeEmailFn } from "@/features/auth/server/send-welcome-email";
+import { FormField } from "@/components/form/form-field";
 
 export const SignUpTab = () => {
   const id = useId();
@@ -27,7 +27,7 @@ export const SignUpTab = () => {
       onBlur: signUpSchema,
     },
     onSubmit: async ({ value}) => {
-      const { data, error } = await authClient.signUp.email({
+      const { error } = await authClient.signUp.email({
         email: value.email,
         password: value.password,
         name: value.name,
@@ -39,13 +39,6 @@ export const SignUpTab = () => {
       if (error) {
         const errorData = error;
         if (errorData?.message) {
-             // Set field-specific error using errorMap for persistence
-             // Note: Better Auth error object structure might vary, assuming error.message or similar.
-             // Based on previous code, it seems error might have 'field' property if it's a validation error.
-             // Let's assume 'error' object has the structure we need or we adapt.
-             // The user request shows: const { data, error } = await ...
-             
-             // Previous code used ctx.error. Let's assume 'error' variable here holds similar data.
              if ((errorData as any).field) {
                form.setFieldMeta((errorData as any).field, (prev) => ({
                  ...prev,
@@ -60,7 +53,6 @@ export const SignUpTab = () => {
              }
         }
       } else {
-         // Send welcome email
          await sendWelcomeEmailFn({
            data: {
              email: value.email,

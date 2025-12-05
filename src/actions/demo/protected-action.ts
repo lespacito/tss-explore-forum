@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { authMiddleware } from "@/lib/auth-middleware";
+import { authMiddleware } from "@/features/auth/lib/auth-middleware";
 
 export const protectedAction = createServerFn({ method: "POST" })
   .middleware([authMiddleware])

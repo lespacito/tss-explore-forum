@@ -29,6 +29,8 @@ export const authMiddleware = createMiddleware().server(
       emailVerified: authData.user.emailVerified,
       createdAt: authData.user.createdAt,
       updatedAt: authData.user.updatedAt,
+      username: authData.user.username,
+      displayUsername: authData.user.displayUsername,
     } as User) : null;
 
     return await next({

@@ -1,5 +1,5 @@
 import { auth } from "./auth";
-import type { SignUpInput, SignUpResult } from "@/actions/auth/sign-up-schema";
+import type { SignUpInput, SignUpResult } from "@/features/auth/schema/sign-up-schema";
 
 const ERROR_PATTERNS: Record<
   string,

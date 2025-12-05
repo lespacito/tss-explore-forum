@@ -2,12 +2,12 @@ import { useId } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup } from "@/components/ui/field";
 import ActionButton from "@/components/ui/action-button";
-import { FormField } from "./form-field";
+import { FormField } from "@/components/form/form-field";
 import { useRouter } from "@tanstack/react-router";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
-import { authClient } from "@/lib/auth-client";
-import { signInSchema, type SignInInput } from "@/actions/auth/sign-in-schema";
+import { authClient } from "@/features/auth/lib/auth-client";
+import { signInSchema, type SignInInput } from "@/features/auth/schema/sign-in-schema";
 
 export const SignInTab = () => {
   const id = useId();
@@ -23,7 +23,7 @@ export const SignInTab = () => {
       onBlur: signInSchema,
     },
     onSubmit: async ({ value}) => {
-      const { data, error } = await authClient.signIn.username({
+      const { error } = await authClient.signIn.username({
         username: value.username,
         password: value.password,
         callbackURL: "/",

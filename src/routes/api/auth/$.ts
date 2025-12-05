@@ -1,7 +1,7 @@
-import { auth } from "@/lib/auth";
 import { createFileRoute } from "@tanstack/react-router";
-import { runArcjetPolicy } from "@/lib/security/arcjet-policies";
-import { handleArcjetDenied } from "@/lib/security/protected-server-fn";
+import { runArcjetPolicy } from "@/features/auth/lib/security/arcjet-policies";
+import { handleArcjetDenied } from "@/features/auth/lib/security/protected-server-fn";
+import { auth } from "@/features/auth/lib/auth";
 
 async function handler({ request }: { request: Request }) {
   const url = new URL(request.url);

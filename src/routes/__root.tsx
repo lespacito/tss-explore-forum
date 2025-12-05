@@ -15,9 +15,11 @@ import { Toaster } from "@/components/ui/sonner";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/header/sidebar";
 import Navbar from "@/components/shadcn-studio/blocks/navbar-component/navbar-component";
+import { getAuthSession } from "@/features/auth/server/get-auth-session";
 
 interface MyRouterContext {
   queryClient: QueryClient;
+  authSession: Awaited<ReturnType<typeof getAuthSession>>;
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
@@ -42,6 +44,12 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
     ],
   }),
 
+  loader: async () => {
+    const data = await getAuthSession();
+    return {
+      authSession: data,
+    };
+  },
   shellComponent: RootDocument,
   notFoundComponent: () => (
     <div className="flex flex-col items-center justify-center h-screen text-center">

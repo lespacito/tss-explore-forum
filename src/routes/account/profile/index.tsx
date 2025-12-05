@@ -1,18 +1,19 @@
 import { Button } from "@/components/ui/button";
-import { signOut } from "@/lib/auth-client";
+
+import { signOut } from "@/features/auth/lib/auth-client";
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { getSessionFn } from "@/actions/auth/get-session";
+import { getAuthSession } from "@/features/auth/server/get-auth-session";
 
 export const Route = createFileRoute("/account/profile/")({
   component: ProfilePage,
   loader: async () => {
-    const { user, isAuthenticated } = await getSessionFn();
-    if (!isAuthenticated || !user) {
+    const session = await getAuthSession();
+    if (!session || !session.user) {
       throw redirect({
         to: "/auth/login",
       });
     }
-    return { user };
+    return { user: session.user };
   },
 });
 

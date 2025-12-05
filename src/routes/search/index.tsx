@@ -1,17 +1,20 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { createFileRoute } from "@tanstack/react-router";
+import z from "zod";
+
+const searchSchema = z.object({
+  q: z.string().min(1).max(100).optional().default(""),
+});
 
 export const Route = createFileRoute("/search/")({
   validateSearch: (search: Record<string, unknown>) => {
-    return {
-      q: typeof search.q === "string" ? search.q : "",
-    };
+    return searchSchema.parse(search)
   },
   component: SearchPage,
 });
 
 function SearchPage() {
-  const { q } = Route.useSearch();
+  const { q } = Route.useSearch()
 
   return (
     <div className="container max-w-4xl py-6 space-y-6">

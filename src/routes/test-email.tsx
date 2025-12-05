@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
 import { useState, useId } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -10,16 +9,17 @@ import {
   resetPasswordEmail,
   passwordChangedEmail,
   verifyEmailConnection,
-} from "@/lib/email";
+} from "@/features/auth/lib/email";
 import { z } from "zod";
+import { createServerFn } from "@tanstack/react-start";
 
 const testEmailInputSchema = z.object({
   type: z.string(),
-  email: z.string().email(),
+  email: z.email(),
   name: z.string(),
 });
 
-type TestEmailInput = z.infer<typeof testEmailInputSchema>;
+
 
 // Server function pour tester la connexion
 const testConnectionFn = createServerFn({ method: "GET" }).handler(async () => {

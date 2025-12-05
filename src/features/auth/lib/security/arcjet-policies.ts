@@ -8,7 +8,7 @@ import {
   type ArcjetNodeRequest,
 } from "@arcjet/node";
 import { findIp } from "@arcjet/ip";
-import { auth } from "@/lib/auth";
+import { auth } from "@/features/auth/lib/auth";
 import { arcjet } from "./arcjet-core";
 
 /**

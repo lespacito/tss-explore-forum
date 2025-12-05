@@ -1,5 +1,5 @@
-import type { auth } from "@/lib/auth";
 import z from "zod";
+import { auth } from "@/features/auth/lib/auth";
 
 export const signUpSchema = z.object({
   name: z.string().min(1, { message: "Le nom est requis" }).max(100),
