@@ -19,7 +19,6 @@ const config = defineConfig({
       'parlonsviolence.ch',
       'www.parlonsviolence.ch',
     ],
-    port: 4173,
   },
 })
 
