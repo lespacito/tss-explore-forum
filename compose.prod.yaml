@@ -17,7 +17,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       - ORIGIN=https://${DOMAIN_NAME}
     ports:
-      - "3000:3000"
+      - "3001:3000"
     networks:
       - app_network
 
