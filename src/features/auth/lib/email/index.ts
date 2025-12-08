@@ -1,12 +1,13 @@
 // Export principal du module email
-export { sendEmail, sendBulkEmail, verifyEmailConnection } from "./send";
+
 export type { SendEmailOptions, SendEmailResult } from "./send";
+export { sendBulkEmail, sendEmail, verifyEmailConnection } from "./send";
 
 export {
-  welcomeEmail,
-  verifyEmailTemplate,
-  resetPasswordEmail,
-  passwordChangedEmail,
+	passwordChangedEmail,
+	resetPasswordEmail,
+	verifyEmailTemplate,
+	welcomeEmail,
 } from "./templates";
 
-export { getEmailTransporter, emailConfig } from "./transport";
+export { emailConfig, getEmailTransporter } from "./transport";

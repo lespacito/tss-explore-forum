@@ -1,16 +1,46 @@
-import { pgTable, boolean, text, timestamp } from "drizzle-orm/pg-core";
-import { user } from "../auth/schema";
+import { boolean, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { alias } from "@/features/alias/schema";
+import { threads } from "@/features/threads/schema";
 
 export const posts = pgTable("posts", {
-  id: text("id").primaryKey(),
-  authorId: text("author_id").notNull().references(() => user.id, { onDelete: "cascade" }),
-  title: text("title").notNull(),
+  id: uuid("id").primaryKey().defaultRandom(),
   content: text("content").notNull(),
-  content_redacted: text("content_redacted"),
+  threadId: uuid("thread_id")
+    .notNull()
+    .references(() => threads.id, {
+      onDelete: "cascade",
+    }),
+  aliasId: uuid("alias_id")
+    .notNull()
+    .references(() => alias.id, {
+      onDelete: "cascade",
+    }),
+  isSensitive: boolean("is_sensitive").default(false).notNull(),
+  contentWarnings: text("content_warnings").array(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-  editedAt: timestamp("edited_at")
+  updatedAt: timestamp("updated_at")
     .defaultNow()
-    .$onUpdate(() => /* @__PURE__ */ new Date())
+    .$onUpdate(() => new Date())
     .notNull(),
-  isDeleted: boolean("is_deleted").default(false).notNull(),
+  deletedAt: timestamp("deleted_at"),
+});
+
+export const comments = pgTable("comments", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  content: text("content").notNull(),
+  postId: uuid("post_id")
+    .notNull()
+    .references(() => posts.id, { onDelete: "cascade" }),
+  aliasId: uuid("alias_id")
+    .notNull()
+    .references(() => alias.id, {
+      onDelete: "cascade",
+    }),
+  parentId: uuid("parent_id"), // Self-reference needs to be handled carefully or just assumed
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+  deletedAt: timestamp("deleted_at"),
 });

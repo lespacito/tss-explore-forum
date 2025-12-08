@@ -6,17 +6,17 @@ import { runArcjetPolicy } from "./arcjet-policies";
  * Configuration pour une policy Arcjet
  */
 export type ArcjetPolicyConfig = {
-  /**
-   * Path de l'endpoint pour sélectionner la policy appropriée
-   * @example "/auth/sign-up"
-   */
-  path: string;
+	/**
+	 * Path de l'endpoint pour sélectionner la policy appropriée
+	 * @example "/auth/sign-up"
+	 */
+	path: string;
 
-  /**
-   * Email à valider (optionnel)
-   * Utilisé pour la validation d'email dans protectSignup
-   */
-  email?: string;
+	/**
+	 * Email à valider (optionnel)
+	 * Utilisé pour la validation d'email dans protectSignup
+	 */
+	email?: string;
 };
 
 /**
@@ -42,15 +42,15 @@ export type ArcjetPolicyConfig = {
  * ```
  */
 export async function checkArcjet(
-  config: ArcjetPolicyConfig,
+	config: ArcjetPolicyConfig,
 ): Promise<ArcjetDecision> {
-  const request = getRequest();
+	const request = getRequest();
 
-  return runArcjetPolicy({
-    request,
-    path: config.path,
-    email: config.email,
-  });
+	return runArcjetPolicy({
+		request,
+		path: config.path,
+		email: config.email,
+	});
 }
 
 /**
@@ -66,62 +66,62 @@ export async function checkArcjet(
  * ```
  */
 export function handleArcjetDenied(decision: ArcjetDecision) {
-  // Rate limit dépassé
-  if (decision.reason?.isRateLimit?.()) {
-    return {
-      success: false as const,
-      error: "Trop de tentatives. Veuillez réessayer plus tard.",
-    };
-  }
+	// Rate limit dépassé
+	if (decision.reason?.isRateLimit?.()) {
+		return {
+			success: false as const,
+			error: "Trop de tentatives. Veuillez réessayer plus tard.",
+		};
+	}
 
-  // Bot détecté
-  if (decision.reason?.isBot?.()) {
-    return {
-      success: false as const,
-      error: "Accès refusé - Bot détecté",
-    };
-  }
+	// Bot détecté
+	if (decision.reason?.isBot?.()) {
+		return {
+			success: false as const,
+			error: "Accès refusé - Bot détecté",
+		};
+	}
 
-  // Validation email échouée
-  if (decision.reason?.isEmail?.()) {
-    const types = decision.reason.emailTypes || [];
+	// Validation email échouée
+	if (decision.reason?.isEmail?.()) {
+		const types = decision.reason.emailTypes || [];
 
-    if (types.includes("INVALID")) {
-      return {
-        success: false as const,
-        error: "Le format de l'adresse email est invalide",
-        field: "email" as const,
-      };
-    }
+		if (types.includes("INVALID")) {
+			return {
+				success: false as const,
+				error: "Le format de l'adresse email est invalide",
+				field: "email" as const,
+			};
+		}
 
-    if (types.includes("DISPOSABLE")) {
-      return {
-        success: false as const,
-        error: "Les adresses email jetables ne sont pas autorisées",
-        field: "email" as const,
-      };
-    }
+		if (types.includes("DISPOSABLE")) {
+			return {
+				success: false as const,
+				error: "Les adresses email jetables ne sont pas autorisées",
+				field: "email" as const,
+			};
+		}
 
-    if (types.includes("NO_MX_RECORDS")) {
-      return {
-        success: false as const,
-        error: "Le domaine de l'adresse email est invalide",
-        field: "email" as const,
-      };
-    }
+		if (types.includes("NO_MX_RECORDS")) {
+			return {
+				success: false as const,
+				error: "Le domaine de l'adresse email est invalide",
+				field: "email" as const,
+			};
+		}
 
-    return {
-      success: false as const,
-      error: "Adresse email invalide",
-      field: "email" as const,
-    };
-  }
+		return {
+			success: false as const,
+			error: "Adresse email invalide",
+			field: "email" as const,
+		};
+	}
 
-  // Cas par défaut
-  return {
-    success: false as const,
-    error: "Accès refusé",
-  };
+	// Cas par défaut
+	return {
+		success: false as const,
+		error: "Accès refusé",
+	};
 }
 
 /**

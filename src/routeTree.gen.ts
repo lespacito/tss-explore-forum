@@ -12,7 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TestEmailRouteImport } from './routes/test-email'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ThreadsIndexRouteImport } from './routes/threads/index'
 import { Route as SearchIndexRouteImport } from './routes/search/index'
+import { Route as PostsIndexRouteImport } from './routes/posts/index'
+import { Route as ThreadsThreadIdRouteImport } from './routes/threads/$threadId'
 import { Route as AuthLoginIndexRouteImport } from './routes/auth/login/index'
 import { Route as AccountSettingsIndexRouteImport } from './routes/account/settings/index'
 import { Route as AccountProfileIndexRouteImport } from './routes/account/profile/index'
@@ -33,9 +36,24 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ThreadsIndexRoute = ThreadsIndexRouteImport.update({
+  id: '/threads/',
+  path: '/threads/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SearchIndexRoute = SearchIndexRouteImport.update({
   id: '/search/',
   path: '/search/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PostsIndexRoute = PostsIndexRouteImport.update({
+  id: '/posts/',
+  path: '/posts/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ThreadsThreadIdRoute = ThreadsThreadIdRouteImport.update({
+  id: '/threads/$threadId',
+  path: '/threads/$threadId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthLoginIndexRoute = AuthLoginIndexRouteImport.update({
@@ -63,7 +81,10 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/test-email': typeof TestEmailRoute
+  '/threads/$threadId': typeof ThreadsThreadIdRoute
+  '/posts': typeof PostsIndexRoute
   '/search': typeof SearchIndexRoute
+  '/threads': typeof ThreadsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/account/profile': typeof AccountProfileIndexRoute
   '/account/settings': typeof AccountSettingsIndexRoute
@@ -73,7 +94,10 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/test-email': typeof TestEmailRoute
+  '/threads/$threadId': typeof ThreadsThreadIdRoute
+  '/posts': typeof PostsIndexRoute
   '/search': typeof SearchIndexRoute
+  '/threads': typeof ThreadsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/account/profile': typeof AccountProfileIndexRoute
   '/account/settings': typeof AccountSettingsIndexRoute
@@ -84,7 +108,10 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/test-email': typeof TestEmailRoute
+  '/threads/$threadId': typeof ThreadsThreadIdRoute
+  '/posts/': typeof PostsIndexRoute
   '/search/': typeof SearchIndexRoute
+  '/threads/': typeof ThreadsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/account/profile/': typeof AccountProfileIndexRoute
   '/account/settings/': typeof AccountSettingsIndexRoute
@@ -96,7 +123,10 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/test-email'
+    | '/threads/$threadId'
+    | '/posts'
     | '/search'
+    | '/threads'
     | '/api/auth/$'
     | '/account/profile'
     | '/account/settings'
@@ -106,7 +136,10 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/test-email'
+    | '/threads/$threadId'
+    | '/posts'
     | '/search'
+    | '/threads'
     | '/api/auth/$'
     | '/account/profile'
     | '/account/settings'
@@ -116,7 +149,10 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/test-email'
+    | '/threads/$threadId'
+    | '/posts/'
     | '/search/'
+    | '/threads/'
     | '/api/auth/$'
     | '/account/profile/'
     | '/account/settings/'
@@ -127,7 +163,10 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
   TestEmailRoute: typeof TestEmailRoute
+  ThreadsThreadIdRoute: typeof ThreadsThreadIdRoute
+  PostsIndexRoute: typeof PostsIndexRoute
   SearchIndexRoute: typeof SearchIndexRoute
+  ThreadsIndexRoute: typeof ThreadsIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   AccountProfileIndexRoute: typeof AccountProfileIndexRoute
   AccountSettingsIndexRoute: typeof AccountSettingsIndexRoute
@@ -157,11 +196,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/threads/': {
+      id: '/threads/'
+      path: '/threads'
+      fullPath: '/threads'
+      preLoaderRoute: typeof ThreadsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/search/': {
       id: '/search/'
       path: '/search'
       fullPath: '/search'
       preLoaderRoute: typeof SearchIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/posts/': {
+      id: '/posts/'
+      path: '/posts'
+      fullPath: '/posts'
+      preLoaderRoute: typeof PostsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/threads/$threadId': {
+      id: '/threads/$threadId'
+      path: '/threads/$threadId'
+      fullPath: '/threads/$threadId'
+      preLoaderRoute: typeof ThreadsThreadIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/login/': {
@@ -199,7 +259,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   TestEmailRoute: TestEmailRoute,
+  ThreadsThreadIdRoute: ThreadsThreadIdRoute,
+  PostsIndexRoute: PostsIndexRoute,
   SearchIndexRoute: SearchIndexRoute,
+  ThreadsIndexRoute: ThreadsIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   AccountProfileIndexRoute: AccountProfileIndexRoute,
   AccountSettingsIndexRoute: AccountSettingsIndexRoute,

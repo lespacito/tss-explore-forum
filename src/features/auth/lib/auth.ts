@@ -1,9 +1,11 @@
-import { db } from "@/db";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { reactStartCookies } from "better-auth/react-start";
-
 import { username } from "better-auth/plugins";
+import { tanstackStartCookies } from "better-auth/tanstack-start";
+import { createAuthMiddleware } from "better-auth/api";
+import { db } from "@/db";
+import { createPrimaryAlias } from "@/features/alias/lib/create-alias";
+import { getPrimaryAlias } from "@/features/alias/lib/get-primary-alias";
 
 export const auth = betterAuth({
   socialProviders: {
@@ -24,8 +26,32 @@ export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
   }),
-  plugins: [username({
-    
-  }),reactStartCookies()],
-  //... the rest of your config
+  plugins: [username(), tanstackStartCookies()],
+  hooks: {
+    after: createAuthMiddleware(async (ctx) => {
+      // Hook pour créer automatiquement l'alias principal après inscription email ou OAuth
+      if (ctx.path === "/sign-up/email" || ctx.path?.startsWith("/callback/")) {
+        const newSession = ctx.context.newSession;
+
+        if (newSession?.user) {
+          const userId = newSession.user.id;
+
+          try {
+            // Vérifier si l'utilisateur a déjà un alias principal
+            const existingAlias = await getPrimaryAlias(userId);
+
+            if (!existingAlias) {
+              const alias = await createPrimaryAlias(userId);
+              console.log(
+                `✅ Alias créé pour l'utilisateur ${userId}: ${alias.alias}`,
+              );
+            }
+          } catch (error) {
+            console.error(`❌ Erreur création alias pour ${userId}:`, error);
+            // Ne pas bloquer l'inscription si la création d'alias échoue
+          }
+        }
+      }
+    }),
+  },
 });

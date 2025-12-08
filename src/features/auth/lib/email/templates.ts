@@ -1,17 +1,17 @@
 // Templates d'emails pour l'authentification et autres notifications
 
 interface EmailTemplate {
-  subject: string;
-  html: string;
-  text: string;
+	subject: string;
+	html: string;
+	text: string;
 }
 
 /**
  * Template pour l'email de bienvenue après inscription
  */
 export const welcomeEmail = (name: string): EmailTemplate => ({
-  subject: "Bienvenue sur notre forum !",
-  html: `
+	subject: "Bienvenue sur notre forum !",
+	html: `
     <!DOCTYPE html>
     <html>
       <head>
@@ -53,7 +53,7 @@ export const welcomeEmail = (name: string): EmailTemplate => ({
       </body>
     </html>
   `,
-  text: `
+	text: `
 Bienvenue ${name} !
 
 Nous sommes ravis de vous accueillir sur notre forum !
@@ -76,11 +76,11 @@ Cet email a été envoyé par TSS Explore Forum
  * Template pour la vérification d'email
  */
 export const verifyEmailTemplate = (
-  name: string,
-  verificationUrl: string,
+	name: string,
+	verificationUrl: string,
 ): EmailTemplate => ({
-  subject: "Vérifiez votre adresse email",
-  html: `
+	subject: "Vérifiez votre adresse email",
+	html: `
     <!DOCTYPE html>
     <html>
       <head>
@@ -125,7 +125,7 @@ export const verifyEmailTemplate = (
       </body>
     </html>
   `,
-  text: `
+	text: `
 Bonjour ${name},
 
 Merci de vous être inscrit sur notre forum !
@@ -145,11 +145,11 @@ Cet email a été envoyé par TSS Explore Forum
  * Template pour la réinitialisation de mot de passe
  */
 export const resetPasswordEmail = (
-  name: string,
-  resetUrl: string,
+	name: string,
+	resetUrl: string,
 ): EmailTemplate => ({
-  subject: "Réinitialisation de votre mot de passe",
-  html: `
+	subject: "Réinitialisation de votre mot de passe",
+	html: `
     <!DOCTYPE html>
     <html>
       <head>
@@ -198,7 +198,7 @@ export const resetPasswordEmail = (
       </body>
     </html>
   `,
-  text: `
+	text: `
 Bonjour ${name},
 
 Nous avons reçu une demande de réinitialisation de mot de passe pour votre compte.
@@ -221,8 +221,8 @@ Cet email a été envoyé par TSS Explore Forum
  * Template pour la notification de changement de mot de passe
  */
 export const passwordChangedEmail = (name: string): EmailTemplate => ({
-  subject: "Votre mot de passe a été modifié",
-  html: `
+	subject: "Votre mot de passe a été modifié",
+	html: `
     <!DOCTYPE html>
     <html>
       <head>
@@ -257,7 +257,7 @@ export const passwordChangedEmail = (name: string): EmailTemplate => ({
       </body>
     </html>
   `,
-  text: `
+	text: `
 Bonjour ${name},
 
 Votre mot de passe a été modifié avec succès.

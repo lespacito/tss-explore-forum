@@ -1,166 +1,169 @@
+import { useForm } from "@tanstack/react-form";
+import { useRouter } from "@tanstack/react-router";
 import { useId } from "react";
+import { toast } from "sonner";
+import { FormField } from "@/components/form/form-field";
+import ActionButton from "@/components/ui/action-button";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup } from "@/components/ui/field";
-import ActionButton from "@/components/ui/action-button";
-import { useRouter } from "@tanstack/react-router";
-import { useForm } from "@tanstack/react-form";
-import { toast } from "sonner";
 import { authClient } from "@/features/auth/lib/auth-client";
-import { signUpSchema, type SignUpInput } from "@/features/auth/schema/sign-up-schema";
+import {
+	type SignUpInput,
+	signUpSchema,
+} from "@/features/auth/schema/sign-up-schema";
 import { sendWelcomeEmailFn } from "@/features/auth/server/send-welcome-email";
-import { FormField } from "@/components/form/form-field";
 
 export const SignUpTab = () => {
-  const id = useId();
-  const router = useRouter();
+	const id = useId();
+	const router = useRouter();
 
-  const form = useForm({
-    defaultValues: {
-      name: "",
-      email: "",
-      password: "",
-      username: "",
-      displayUsername: "",
-    } satisfies SignUpInput,
-    validators: {
-      onSubmit: signUpSchema,
-      onBlur: signUpSchema,
-    },
-    onSubmit: async ({ value}) => {
-      const { error } = await authClient.signUp.email({
-        email: value.email,
-        password: value.password,
-        name: value.name,
-        username: value.username,
-        displayUsername: value.displayUsername,
-        callbackURL: "/",
-      });
+	const form = useForm({
+		defaultValues: {
+			name: "",
+			email: "",
+			password: "",
+			username: "",
+			displayUsername: "",
+		} satisfies SignUpInput,
+		validators: {
+			onSubmit: signUpSchema,
+			onBlur: signUpSchema,
+		},
+		onSubmit: async ({ value }) => {
+			const { error } = await authClient.signUp.email({
+				email: value.email,
+				password: value.password,
+				name: value.name,
+				username: value.username,
+				displayUsername: value.displayUsername,
+				callbackURL: "/",
+			});
 
-      if (error) {
-        const errorData = error;
-        if (errorData?.message) {
-             if ((errorData as any).field) {
-               form.setFieldMeta((errorData as any).field, (prev) => ({
-                 ...prev,
-                 isTouched: true,
-                 errorMap: {
-                   onChange: (errorData as any).error || errorData.message,
-                 }
-               }));
-               toast.error((errorData as any).error || 'Erreur de validation');
-             } else {
-               toast.error(errorData.message || 'Erreur inconnue');
-             }
-        }
-      } else {
-         await sendWelcomeEmailFn({
-           data: {
-             email: value.email,
-             name: value.name,
-           },
-         });
+			if (error) {
+				const errorData = error;
+				if (errorData?.message) {
+					if ((errorData as any).field) {
+						form.setFieldMeta((errorData as any).field, (prev) => ({
+							...prev,
+							isTouched: true,
+							errorMap: {
+								onChange: (errorData as any).error || errorData.message,
+							},
+						}));
+						toast.error((errorData as any).error || "Erreur de validation");
+					} else {
+						toast.error(errorData.message || "Erreur inconnue");
+					}
+				}
+			} else {
+				await sendWelcomeEmailFn({
+					data: {
+						email: value.email,
+						name: value.name,
+					},
+				});
 
-         toast.success("Inscription réussie ! Vous êtes maintenant connecté.");
-         form.reset();
-         await router.invalidate();
-         router.navigate({ to: "/" });
-      }
-    },
-    onSubmitInvalid: () => {
-      toast.error("Veuillez corriger les erreurs dans le formulaire");
-    },
-  });
+				toast.success("Inscription réussie ! Vous êtes maintenant connecté.");
+				form.reset();
+				await router.invalidate();
+				router.navigate({ to: "/" });
+			}
+		},
+		onSubmitInvalid: () => {
+			toast.error("Veuillez corriger les erreurs dans le formulaire");
+		},
+	});
 
-  return (
-    <form
-      id={`register-form-${id}`}
-      onSubmit={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        form.handleSubmit();
-      }}
-      className="space-y-4"
-    >
-      <FieldGroup>
-        <form.Field name="name">
-          {(field) => (
-            <FormField
-              field={field}
-              label="Nom"
-              placeholder="Votre nom"
-              autoComplete="name"
-            />
-          )}
-        </form.Field>
-        <form.Field name="username">
-          {(field) => (
-            <FormField
-              field={field}
-              label="Nom d'utilisateur"
-              placeholder="votre_pseudo"
-              autoComplete="username"
-            />
-          )}
-        </form.Field>
-        <form.Field name="displayUsername">
-          {(field) => (
-            <FormField
-              field={field}
-              label="Nom d'affichage"
-              placeholder="Pseudo Affiché"
-              autoComplete="displayUsername"
-            />
-          )}
-        </form.Field>
-        <form.Field name="email">
-          {(field) => (
-            <FormField
-              field={field}
-              label="Email"
-              type="email"
-              placeholder="exemple@email.com"
-              autoComplete="email"
-            />
-          )}
-        </form.Field>
-        <form.Field name="password">
-          {(field) => (
-            <FormField
-              field={field}
-              label="Mot de passe"
-              placeholder="*******"
-              autoComplete="new-password"
-              isPassword
-            />
-          )}
-        </form.Field>
-      </FieldGroup>
-      <form.Subscribe
-        selector={(state) => ({
-          isSubmitting: state.isSubmitting,
-          canSubmit: state.canSubmit,
-          isDirty: state.isDirty,
-        })}
-      >
-        {({ isSubmitting, canSubmit, isDirty }) => (
-          <Field orientation="horizontal">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => form.reset()}
-              disabled={isSubmitting || !isDirty}
-            >
-              Annuler
-            </Button>
-            <ActionButton
-              isPending={isSubmitting}
-              disabled={!canSubmit || isSubmitting}
-            >
-              S'inscrire
-            </ActionButton>
-          </Field>
-        )}
-      </form.Subscribe>
-    </form>
-  );
+	return (
+		<form
+			id={`register-form-${id}`}
+			onSubmit={(e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				form.handleSubmit();
+			}}
+			className="space-y-4"
+		>
+			<FieldGroup>
+				<form.Field name="name">
+					{(field) => (
+						<FormField
+							field={field}
+							label="Nom"
+							placeholder="Votre nom"
+							autoComplete="name"
+						/>
+					)}
+				</form.Field>
+				<form.Field name="username">
+					{(field) => (
+						<FormField
+							field={field}
+							label="Nom d'utilisateur"
+							placeholder="votre_pseudo"
+							autoComplete="username"
+						/>
+					)}
+				</form.Field>
+				<form.Field name="displayUsername">
+					{(field) => (
+						<FormField
+							field={field}
+							label="Nom d'affichage"
+							placeholder="Pseudo Affiché"
+							autoComplete="displayUsername"
+						/>
+					)}
+				</form.Field>
+				<form.Field name="email">
+					{(field) => (
+						<FormField
+							field={field}
+							label="Email"
+							type="email"
+							placeholder="exemple@email.com"
+							autoComplete="email"
+						/>
+					)}
+				</form.Field>
+				<form.Field name="password">
+					{(field) => (
+						<FormField
+							field={field}
+							label="Mot de passe"
+							placeholder="*******"
+							autoComplete="new-password"
+							isPassword
+						/>
+					)}
+				</form.Field>
+			</FieldGroup>
+			<form.Subscribe
+				selector={(state) => ({
+					isSubmitting: state.isSubmitting,
+					canSubmit: state.canSubmit,
+					isDirty: state.isDirty,
+				})}
+			>
+				{({ isSubmitting, canSubmit, isDirty }) => (
+					<Field orientation="horizontal">
+						<Button
+							type="button"
+							variant="outline"
+							onClick={() => form.reset()}
+							disabled={isSubmitting || !isDirty}
+						>
+							Annuler
+						</Button>
+						<ActionButton
+							isPending={isSubmitting}
+							disabled={!canSubmit || isSubmitting}
+						>
+							S'inscrire
+						</ActionButton>
+					</Field>
+				)}
+			</form.Subscribe>
+		</form>
+	);
 };

@@ -8,17 +8,17 @@ export { arcjet } from "./arcjet-core";
 
 // Policies et context types
 export {
-  protectDefault,
-  protectSignupEndpoint,
-  protectAuthEndpoint,
-  runArcjetPolicy,
-  type ArcjetContext,
+	type ArcjetContext,
+	protectAuthEndpoint,
+	protectDefault,
+	protectSignupEndpoint,
+	runArcjetPolicy,
 } from "./arcjet-policies";
 
 // Helper pour créer des serverFns protégées
 export {
-  checkArcjet,
-  handleArcjetDenied,
-  createAuthDeniedHandler,
-  type ArcjetPolicyConfig,
+	type ArcjetPolicyConfig,
+	checkArcjet,
+	createAuthDeniedHandler,
+	handleArcjetDenied,
 } from "./protected-server-fn";

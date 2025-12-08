@@ -8,6 +8,27 @@
       "when": 1762781586546,
       "tag": "0000_ordinary_firebird",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1764969468188,
+      "tag": "0001_magenta_sprite",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1765132883444,
+      "tag": "0002_harsh_grim_reaper",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1765143719548,
+      "tag": "0003_purple_thunderbird",
+      "breakpoints": true
     }
   ]
 }
