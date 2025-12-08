@@ -14,6 +14,13 @@ const config = defineConfig({
     tanstackStart(),
     viteReact(),
   ],
+  preview: {
+    allowedHosts: [
+      'parlonsviolence.ch',
+      'www.parlonsviolence.ch',
+    ],
+    port: 4173,
+  },
 })
 
 export default config
