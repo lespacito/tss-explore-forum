@@ -1,31 +1,24 @@
-# --- Build stage ------------------------------------------------------------
-FROM node:24.11.1-slim AS builder
+# ---------- Build ----------
+FROM node:24.11.1 AS builder
 
 WORKDIR /app
 
-# Copie des fichiers de dépendances
-COPY package.json package-lock.json* bun.lockb* ./
-
-# Install deps
-RUN npm install
-
-# Copie du projet
+COPY package.json bun.lockb ./
 COPY . .
 
-# Build TanStack Start
-RUN npm run build
+RUN corepack enable && corepack prepare bun@1.1.38 --activate
 
-# --- Run stage --------------------------------------------------------------
-FROM node:24.11.1-slim AS runner
+RUN bun install
+RUN bun run build
+
+# ---------- Run ----------
+FROM node:24.11.1 AS runner
 
 WORKDIR /app
+COPY --from=builder /app/dist ./dist
+COPY package.json ./
 
-# Copie uniquement le code buildé
-COPY --from=builder /app/build ./build
-COPY package.json package-lock.json* ./
-
-RUN npm install --omit=dev
+RUN corepack enable && corepack prepare bun@1.1.38 --activate
 
 EXPOSE 3000
-
-CMD ["npm", "run", "start"]
+CMD ["bun", "run", "serve"]
