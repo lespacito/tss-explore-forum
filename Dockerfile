@@ -27,4 +27,4 @@ COPY --from=builder /app .
 EXPOSE 4173
 
 # Démarre ton app
-CMD ["npm", "run", "serve"]
+CMD ["npm", "run", "start"]
