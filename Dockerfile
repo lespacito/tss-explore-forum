@@ -24,8 +24,6 @@ WORKDIR /app
 COPY --from=builder /app .
 
 # Expose le port de ton app
-ENV HOST=0.0.0.0
-ENV PORT=3000
 EXPOSE 3000
 
 # Démarre ton app
