@@ -1,24 +1,30 @@
-# ---------- Build ----------
-FROM node:24.11.1 AS builder
+# Stage 1 : builder
+FROM node:24.11.1-slim AS builder
 
 WORKDIR /app
 
-COPY package.json bun.lockb ./
+# Copie uniquement package.json et package-lock.json pour le cache
+COPY package.json package-lock.json* ./
+
+# Installe les dépendances
+RUN npm install --legacy-peer-deps
+
+# Copie tout le projet
 COPY . .
 
-RUN corepack enable && corepack prepare bun@1.1.38 --activate
+# Build Vite
+RUN npm run build
 
-RUN bun install
-RUN bun run build
-
-# ---------- Run ----------
-FROM node:24.11.1 AS runner
+# Stage 2 : prod
+FROM node:24.11.1-slim
 
 WORKDIR /app
-COPY --from=builder /app/dist ./dist
-COPY package.json ./
 
-RUN corepack enable && corepack prepare bun@1.1.38 --activate
+# Copie le build depuis le stage builder
+COPY --from=builder /app .
 
+# Expose le port de ton app
 EXPOSE 3000
-CMD ["bun", "run", "serve"]
+
+# Démarre ton app
+CMD ["npm", "run", "serve"]
