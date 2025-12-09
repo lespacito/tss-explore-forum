@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev --port 3000",
-    "build": "bun build",
+    "build": "bun vite build",
     "serve": "vite preview --host 0.0.0.0",
     "start": "bun server.ts",
     "test": "vitest",
