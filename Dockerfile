@@ -1,30 +1,36 @@
 # Stage 1 : builder
-FROM node:24.11.1-slim AS builder
+FROM oven/bun:1 AS builder
 
 WORKDIR /app
 
-# Copie uniquement package.json et package-lock.json pour le cache
-COPY package.json package-lock.json* ./
+# Copy package files
+COPY package.json ./
+# If you have a lockfile, uncomment the next line
+# COPY bun.lockb ./
 
-# Installe les dépendances
-RUN npm install --legacy-peer-deps
+# Install dependencies
+RUN bun install
 
-# Copie tout le projet
+# Copy source
 COPY . .
 
-# Build Vite
-RUN npm run build
+# Build app
+RUN bun run build
 
 # Stage 2 : prod
-FROM node:24.11.1-slim
+FROM oven/bun:1-slim
 
 WORKDIR /app
 
-# Copie le build depuis le stage builder
+# Copy build artifacts
 COPY --from=builder /app .
 
-# Expose le port de ton app
+# Environment configuration
+ENV HOST=0.0.0.0
+ENV PORT=3000
+
+# Expose port
 EXPOSE 3000
 
-# Démarre ton app
-CMD ["npm", "run", "start"]
+# Start app
+CMD ["bun", "server.ts"]

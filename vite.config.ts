@@ -13,7 +13,9 @@ const config = defineConfig({
     tailwindcss(),
     tanstackStart(),
     viteReact(),
-    nitro()
+    nitro({
+      preset: 'bun'
+    })
   ],
   preview: {
     allowedHosts: [
