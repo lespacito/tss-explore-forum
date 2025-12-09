@@ -15,7 +15,7 @@ RUN bun install
 COPY . .
 
 # Build app
-RUN bun run build
+RUN bun vite build
 
 # Stage 2 : prod
 FROM oven/bun:1-slim
