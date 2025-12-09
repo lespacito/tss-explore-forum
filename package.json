@@ -4,9 +4,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev --port 3000",
-    "build": "bun run build",
+    "build": "bun build",
     "serve": "vite preview --host 0.0.0.0",
-    "start": "bun run server.ts",
+    "start": "bun server.ts",
     "test": "vitest",
     "format": "biome check --write",
     "lint": "biome lint",
