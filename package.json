@@ -7,7 +7,6 @@
     "build": "vite build",
     "serve": "vite preview --host 0.0.0.0",
     "start": "node .output/server/index.mjs",
-
     "test": "vitest",
     "format": "biome check --write",
     "lint": "biome lint",
