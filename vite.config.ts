@@ -13,19 +13,13 @@ const config = defineConfig({
     tailwindcss(),
     tanstackStart(),
     viteReact(),
-    nitro({
-      preset: 'bun'
-    })
+    nitro({preset: 'node-server'})
   ],
   preview: {
     allowedHosts: [
       'parlonsviolence.ch',
       'www.parlonsviolence.ch',
     ],
-  },
-  nitro: {
-    preset: 'bun',
-    
   },
 })
 
