@@ -39,8 +39,7 @@ async function handler({ request }: { request: Request }) {
 			headers: { "Content-Type": "application/json" },
 		});
 	}
-
-	return auth.handler(request);
+	return await auth.handler(request);
 }
 
 export const Route = createFileRoute("/api/auth/$")({
