@@ -10,7 +10,7 @@ const SENSITIVE_CATEGORIES = ["temoignage", "urgent", "support"];
  * @returns true si la catégorie est sensible, false sinon
  */
 export function isThreadCategorySensitive(category: string): boolean {
-  if (!category) return true;
+  if (!category) return false;
   const normalized = category.toLowerCase();
   return SENSITIVE_CATEGORIES.includes(normalized);
 }
