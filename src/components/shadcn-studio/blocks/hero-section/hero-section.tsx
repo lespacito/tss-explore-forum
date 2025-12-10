@@ -66,12 +66,46 @@ const HeroSection = () => {
 				</Button>
 			</div>
 
-			{/* Image */}
-			<img
-				src="https://cdn.shadcnstudio.com/ss-assets/blocks/marketing/hero/image-19.png"
-				alt="Soutien"
-				className="min-h-67 w-full object-cover"
-			/>
+			{/* Images Grid */}
+			<div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+				{[
+					{
+						src: "/images/hero/community-1.jpg",
+						alt: "Groupe d'amis souriants",
+					},
+					{
+						src: "/images/hero/community-2.jpg",
+						alt: "Soutien mutuel",
+					},
+					{
+						src: "/images/hero/community-3.jpg",
+						alt: "Collaboration au travail",
+					},
+					{
+						src: "/images/hero/community-4.jpg",
+						alt: "Discussion en groupe",
+					},
+					{
+						src: "/images/hero/community-5.jpg",
+						alt: "Amitié et partage",
+					},
+					{
+						src: "/images/hero/community-6.jpg",
+						alt: "Réunion conviviale",
+					},
+				].map((image, index) => (
+					<div
+						key={index}
+						className="relative aspect-[3/4] overflow-hidden rounded-xl"
+					>
+						<img
+							src={image.src}
+							alt={image.alt}
+							className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+						/>
+					</div>
+				))}
+			</div>
 		</section>
 	);
 };
