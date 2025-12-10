@@ -70,32 +70,32 @@ const HeroSection = () => {
 			<div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
 				{[
 					{
-						src: "/images/hero/community-1.jpg",
+						src: "/images/hero/community-1.webp",
 						alt: "Groupe d'amis souriants",
 					},
 					{
-						src: "/images/hero/community-2.jpg",
+						src: "/images/hero/community-2.webp",
 						alt: "Soutien mutuel",
 					},
 					{
-						src: "/images/hero/community-3.jpg",
+						src: "/images/hero/community-3.webp",
 						alt: "Collaboration au travail",
 					},
 					{
-						src: "/images/hero/community-4.jpg",
+						src: "/images/hero/community-4.webp",
 						alt: "Discussion en groupe",
 					},
 					{
-						src: "/images/hero/community-5.jpg",
+						src: "/images/hero/community-5.webp",
 						alt: "Amitié et partage",
 					},
 					{
-						src: "/images/hero/community-6.jpg",
+						src: "/images/hero/community-6.webp",
 						alt: "Réunion conviviale",
 					},
-				].map((image, index) => (
+				].map((image) => (
 					<div
-						key={index}
+						key={image.alt}
 						className="relative aspect-[3/4] overflow-hidden rounded-xl"
 					>
 						<img
