@@ -14,7 +14,7 @@ const config = defineConfig({
     tanstackStart(),
     viteReact(),
     nitro({
-      preset: 'bun'
+      preset: 'node-server'
     })
   ],
   preview: {
@@ -23,7 +23,6 @@ const config = defineConfig({
       'www.parlonsviolence.ch',
     ],
   },
-  nitro: {}
 })
 
 export default config
