@@ -23,6 +23,10 @@ const config = defineConfig({
       'www.parlonsviolence.ch',
     ],
   },
+  nitro: {
+    preset: 'bun',
+    
+  },
 })
 
 export default config
