@@ -93,9 +93,9 @@ const HeroSection = () => {
 						src: "/images/hero/community-6.jpg",
 						alt: "Réunion conviviale",
 					},
-				].map((image, index) => (
+				].map((image) => (
 					<div
-						key={index}
+						key={image.alt}
 						className="relative aspect-[3/4] overflow-hidden rounded-xl"
 					>
 						<img
