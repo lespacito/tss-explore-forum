@@ -9,7 +9,7 @@ import {
 	slidingWindow,
 } from "@arcjet/node";
 import { auth } from "@/features/auth/lib/auth";
-import { arcjet } from "./arcjet-core";
+import { ARCJET_MODE, arcjet } from "./arcjet-core";
 
 /**
  * Context pour l'exécution d'une policy Arcjet
@@ -24,24 +24,24 @@ export type ArcjetContext = {
  * Presets de configuration pour les différentes règles Arcjet
  */
 const botSettings: BotOptions = {
-	mode: "LIVE",
+	mode: ARCJET_MODE,
 	allow: ["CATEGORY:SEARCH_ENGINE"],
 };
 
 const restrictiveRateLimit: SlidingWindowRateLimitOptions<[]> = {
-	mode: "LIVE",
+	mode: ARCJET_MODE,
 	max: 10,
 	interval: "10m",
 };
 
 const laxRateLimit: SlidingWindowRateLimitOptions<[]> = {
-	mode: "LIVE",
+	mode: ARCJET_MODE,
 	max: 60,
 	interval: "1m",
 };
 
 const emailSettings: EmailOptions = {
-	mode: "LIVE",
+	mode: ARCJET_MODE,
 	block: ["DISPOSABLE", "INVALID", "NO_MX_RECORDS"],
 };
 
