@@ -1,4 +1,6 @@
 import {
+  boolean,
+  index,
   json,
   pgEnum,
   pgTable,
@@ -14,13 +16,28 @@ export const notificationTypeEnum = pgEnum("notifications_type", [
   "MODERATION_ACTION",
 ]);
 
-export const notifications = pgTable("notifications", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  userId: text("user_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  targetType: notificationTypeEnum("notifications_type").notNull(),
-  payload: json("payload").notNull(),
-  isRead: text("is_read").default("false").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+export const notifications = pgTable(
+  "notifications",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    targetType: notificationTypeEnum("notifications_type").notNull(),
+    payload: json("payload").notNull(),
+    isRead: boolean("is_read").default(false).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    // Composite index for unread notifications queries
+    userUnreadIdx: index("notifications_user_unread_idx").on(
+      table.userId,
+      table.isRead,
+    ),
+    // Index for user notification timeline
+    userCreatedIdx: index("notifications_user_created_idx").on(
+      table.userId,
+      table.createdAt.desc(),
+    ),
+  }),
+);
