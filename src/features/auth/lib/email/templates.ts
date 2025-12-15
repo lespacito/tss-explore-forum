@@ -1,17 +1,19 @@
 // Templates d'emails pour l'authentification et autres notifications
 
+import { env } from "@/data/env/server";
+
 interface EmailTemplate {
-	subject: string;
-	html: string;
-	text: string;
+  subject: string;
+  html: string;
+  text: string;
 }
 
 /**
  * Template pour l'email de bienvenue après inscription
  */
 export const welcomeEmail = (name: string): EmailTemplate => ({
-	subject: "Bienvenue sur notre forum !",
-	html: `
+  subject: "Bienvenue sur notre forum !",
+  html: `
     <!DOCTYPE html>
     <html>
       <head>
@@ -40,7 +42,7 @@ export const welcomeEmail = (name: string): EmailTemplate => ({
               <li>Interagir avec la communauté</li>
             </ul>
             <p>
-              <a href="${process.env.APP_URL || "http://localhost:3000"}" class="button">
+              <a href="${env.APP_URL || "http://localhost:3000"}" class="button">
                 Commencer à explorer
               </a>
             </p>
@@ -53,7 +55,7 @@ export const welcomeEmail = (name: string): EmailTemplate => ({
       </body>
     </html>
   `,
-	text: `
+  text: `
 Bienvenue ${name} !
 
 Nous sommes ravis de vous accueillir sur notre forum !
@@ -63,7 +65,7 @@ Vous pouvez maintenant :
 - Créer vos propres sujets
 - Interagir avec la communauté
 
-Visitez ${process.env.APP_URL || "http://localhost:3000"} pour commencer.
+Visitez ${env.APP_URL || "http://localhost:3000"} pour commencer.
 
 À très bientôt !
 
@@ -76,11 +78,11 @@ Cet email a été envoyé par TSS Explore Forum
  * Template pour la vérification d'email
  */
 export const verifyEmailTemplate = (
-	name: string,
-	verificationUrl: string,
+  name: string,
+  verificationUrl: string,
 ): EmailTemplate => ({
-	subject: "Vérifiez votre adresse email",
-	html: `
+  subject: "Vérifiez votre adresse email",
+  html: `
     <!DOCTYPE html>
     <html>
       <head>
@@ -125,7 +127,7 @@ export const verifyEmailTemplate = (
       </body>
     </html>
   `,
-	text: `
+  text: `
 Bonjour ${name},
 
 Merci de vous être inscrit sur notre forum !
@@ -145,11 +147,11 @@ Cet email a été envoyé par TSS Explore Forum
  * Template pour la réinitialisation de mot de passe
  */
 export const resetPasswordEmail = (
-	name: string,
-	resetUrl: string,
+  name: string,
+  resetUrl: string,
 ): EmailTemplate => ({
-	subject: "Réinitialisation de votre mot de passe",
-	html: `
+  subject: "Réinitialisation de votre mot de passe",
+  html: `
     <!DOCTYPE html>
     <html>
       <head>
@@ -198,7 +200,7 @@ export const resetPasswordEmail = (
       </body>
     </html>
   `,
-	text: `
+  text: `
 Bonjour ${name},
 
 Nous avons reçu une demande de réinitialisation de mot de passe pour votre compte.
@@ -221,8 +223,8 @@ Cet email a été envoyé par TSS Explore Forum
  * Template pour la notification de changement de mot de passe
  */
 export const passwordChangedEmail = (name: string): EmailTemplate => ({
-	subject: "Votre mot de passe a été modifié",
-	html: `
+  subject: "Votre mot de passe a été modifié",
+  html: `
     <!DOCTYPE html>
     <html>
       <head>
@@ -257,7 +259,7 @@ export const passwordChangedEmail = (name: string): EmailTemplate => ({
       </body>
     </html>
   `,
-	text: `
+  text: `
 Bonjour ${name},
 
 Votre mot de passe a été modifié avec succès.

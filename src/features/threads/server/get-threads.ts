@@ -12,6 +12,7 @@ export const getThreadsFn = createServerFn({ method: "GET" }).handler(
         id: threads.id,
         title: threads.title,
         body: threads.body,
+        slug: threads.slug,
         category: threads.category,
         createdAt: threads.createdAt,
         updatedAt: threads.updatedAt,

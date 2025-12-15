@@ -15,7 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ThreadsIndexRouteImport } from './routes/threads/index'
 import { Route as SearchIndexRouteImport } from './routes/search/index'
 import { Route as PostsIndexRouteImport } from './routes/posts/index'
-import { Route as ThreadsThreadIdRouteImport } from './routes/threads/$threadId'
+import { Route as ThreadsThreadSlugRouteImport } from './routes/threads/$threadSlug'
 import { Route as AuthLoginIndexRouteImport } from './routes/auth/login/index'
 import { Route as AccountSettingsIndexRouteImport } from './routes/account/settings/index'
 import { Route as AccountProfileIndexRouteImport } from './routes/account/profile/index'
@@ -51,9 +51,9 @@ const PostsIndexRoute = PostsIndexRouteImport.update({
   path: '/posts/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ThreadsThreadIdRoute = ThreadsThreadIdRouteImport.update({
-  id: '/threads/$threadId',
-  path: '/threads/$threadId',
+const ThreadsThreadSlugRoute = ThreadsThreadSlugRouteImport.update({
+  id: '/threads/$threadSlug',
+  path: '/threads/$threadSlug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthLoginIndexRoute = AuthLoginIndexRouteImport.update({
@@ -81,7 +81,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/test-email': typeof TestEmailRoute
-  '/threads/$threadId': typeof ThreadsThreadIdRoute
+  '/threads/$threadSlug': typeof ThreadsThreadSlugRoute
   '/posts': typeof PostsIndexRoute
   '/search': typeof SearchIndexRoute
   '/threads': typeof ThreadsIndexRoute
@@ -94,7 +94,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/test-email': typeof TestEmailRoute
-  '/threads/$threadId': typeof ThreadsThreadIdRoute
+  '/threads/$threadSlug': typeof ThreadsThreadSlugRoute
   '/posts': typeof PostsIndexRoute
   '/search': typeof SearchIndexRoute
   '/threads': typeof ThreadsIndexRoute
@@ -108,7 +108,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/test-email': typeof TestEmailRoute
-  '/threads/$threadId': typeof ThreadsThreadIdRoute
+  '/threads/$threadSlug': typeof ThreadsThreadSlugRoute
   '/posts/': typeof PostsIndexRoute
   '/search/': typeof SearchIndexRoute
   '/threads/': typeof ThreadsIndexRoute
@@ -123,7 +123,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/test-email'
-    | '/threads/$threadId'
+    | '/threads/$threadSlug'
     | '/posts'
     | '/search'
     | '/threads'
@@ -136,7 +136,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/test-email'
-    | '/threads/$threadId'
+    | '/threads/$threadSlug'
     | '/posts'
     | '/search'
     | '/threads'
@@ -149,7 +149,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/test-email'
-    | '/threads/$threadId'
+    | '/threads/$threadSlug'
     | '/posts/'
     | '/search/'
     | '/threads/'
@@ -163,7 +163,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
   TestEmailRoute: typeof TestEmailRoute
-  ThreadsThreadIdRoute: typeof ThreadsThreadIdRoute
+  ThreadsThreadSlugRoute: typeof ThreadsThreadSlugRoute
   PostsIndexRoute: typeof PostsIndexRoute
   SearchIndexRoute: typeof SearchIndexRoute
   ThreadsIndexRoute: typeof ThreadsIndexRoute
@@ -217,11 +217,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PostsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/threads/$threadId': {
-      id: '/threads/$threadId'
-      path: '/threads/$threadId'
-      fullPath: '/threads/$threadId'
-      preLoaderRoute: typeof ThreadsThreadIdRouteImport
+    '/threads/$threadSlug': {
+      id: '/threads/$threadSlug'
+      path: '/threads/$threadSlug'
+      fullPath: '/threads/$threadSlug'
+      preLoaderRoute: typeof ThreadsThreadSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/login/': {
@@ -259,7 +259,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   TestEmailRoute: TestEmailRoute,
-  ThreadsThreadIdRoute: ThreadsThreadIdRoute,
+  ThreadsThreadSlugRoute: ThreadsThreadSlugRoute,
   PostsIndexRoute: PostsIndexRoute,
   SearchIndexRoute: SearchIndexRoute,
   ThreadsIndexRoute: ThreadsIndexRoute,
