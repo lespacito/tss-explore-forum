@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { getThreadByIdFn } from "@/features/threads/server/get-thread-by-id";
+import { getThreadBySlugFn } from "@/features/threads/server/get-thread-by-slug";
 import { getPostsByThreadFn } from "@/features/posts/server/get-posts-by-thread";
 import { PostCard } from "@/features/posts/components/post-card";
 import { Button } from "@/components/ui/button";
@@ -17,37 +17,43 @@ import { useRouter, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { fr } from "date-fns/locale";
 import { formatDistanceToNow } from "date-fns";
-import { getAuthorDisplayName } from "@/lib/utils/thread-utils";
+import {
+  getAuthorDisplayName,
+  isThreadCategorySensitive,
+} from "@/lib/utils/thread-utils";
 
-export const Route = createFileRoute("/threads/$threadId")({
+export const Route = createFileRoute("/threads/$threadSlug")({
   component: ThreadDetailPage,
   loader: async ({ params }) => {
-    const [thread, posts] = await Promise.all([
-      getThreadByIdFn({ data: { threadId: params.threadId } }),
-      getPostsByThreadFn({ data: { threadId: params.threadId } }),
-    ]);
+    const thread = await getThreadBySlugFn({
+      data: { slug: params.threadSlug },
+    });
+    const posts = await getPostsByThreadFn({ data: { threadId: thread.id } });
     return { thread, posts };
   },
 });
 
 function ThreadDetailPage() {
   const { thread, posts } = Route.useLoaderData();
-  const { threadId } = Route.useParams();
   const router = useRouter();
+
+  // Vérifier si la catégorie du thread est sensible
+  const isThreadSensitive = isThreadCategorySensitive(thread.category);
 
   const form = useForm({
     defaultValues: {
       content: "",
-      isSensitive: false,
+      isSensitive: isThreadSensitive, // Force true si catégorie sensible
       contentWarnings: "",
     },
     onSubmit: async ({ value }) => {
       try {
         await createPostFn({
           data: {
-            threadId,
+            threadId: thread.id,
             content: value.content,
-            isSensitive: value.isSensitive,
+            // Force isSensitive à true si la catégorie du thread est sensible
+            isSensitive: isThreadSensitive || value.isSensitive,
             contentWarnings: value.contentWarnings
               ? value.contentWarnings.split(",").map((w) => w.trim())
               : [],
@@ -172,9 +178,8 @@ function ThreadDetailPage() {
             }}
             className="space-y-4"
           >
-            <form.Field
-              name="content"
-              children={(field) => (
+            <form.Field name="content">
+              {(field) => (
                 <div className="space-y-2">
                   <Label htmlFor={field.name}>Votre réponse</Label>
                   <Textarea
@@ -189,32 +194,46 @@ function ThreadDetailPage() {
                   />
                 </div>
               )}
-            />
+            </form.Field>
 
-            <div className="flex flex-col gap-4 p-4 border rounded-lg bg-muted/50">
-              <form.Field
-                name="isSensitive"
-                children={(field) => (
+            <div
+              className={`flex flex-col p-4 border rounded-lg ${
+                isThreadSensitive ? "bg-accent border-accent" : "bg-muted/50"
+              }`}
+            >
+              {isThreadSensitive && (
+                <div className="flex flex-col gap-1 mb-3">
+                  <Badge variant="outline" className="w-fit">
+                    ⚠️ Catégorie sensible
+                  </Badge>
+                  <p className="text-sm text-foreground/80">
+                    Tous les posts sont automatiquement anonymes et sensibles
+                  </p>
+                </div>
+              )}
+              <form.Field name="isSensitive">
+                {(field) => (
                   <div className="flex items-center justify-between">
                     <Label htmlFor={field.name} className="flex flex-col gap-1">
-                      <span>Contenu sensible</span>
                       <span className="font-normal text-xs text-muted-foreground">
-                        Le contenu sera flouté par défaut.
+                        {isThreadSensitive
+                          ? "Obligatoire pour cette catégorie de thread."
+                          : "Le contenu sera flouté par défaut."}
                       </span>
                     </Label>
                     <Switch
                       id={field.name}
                       checked={field.state.value}
                       onCheckedChange={field.handleChange}
+                      disabled={isThreadSensitive}
                     />
                   </div>
                 )}
-              />
+              </form.Field>
             </div>
 
-            <form.Field
-              name="contentWarnings"
-              children={(field) => (
+            <form.Field name="contentWarnings">
+              {(field) => (
                 <div className="space-y-2">
                   <Label htmlFor={field.name}>Avertissements (Optionnel)</Label>
                   <Input
@@ -227,7 +246,7 @@ function ThreadDetailPage() {
                   />
                 </div>
               )}
-            />
+            </form.Field>
 
             <div className="flex justify-end">
               <Button type="submit">Publier la réponse</Button>

@@ -18,6 +18,7 @@ interface ThreadCardProps {
     id: string;
     title: string;
     body: string;
+    slug: string;
     category: string;
     createdAt: Date;
     updatedAt: Date;
@@ -61,8 +62,8 @@ export function ThreadCard({ thread }: ThreadCardProps) {
 
   return (
     <Link
-      to="/threads/$threadId"
-      params={{ threadId: thread.id }}
+      to="/threads/$threadSlug"
+      params={{ threadSlug: thread.slug }}
       className="block"
     >
       <Card className="w-full hover:shadow-md transition-shadow cursor-pointer">
@@ -91,7 +92,7 @@ export function ThreadCard({ thread }: ThreadCardProps) {
           </div>
         </CardHeader>
         <CardContent className="p-4 pt-0 space-y-2">
-          <h3 className="font-bold text-lg hover:text-primary transition-colors">
+          <h3 className="font-bold text-lg font-serif hover:text-primary transition-colors">
             {thread.title}
           </h3>
           <p className="text-sm text-muted-foreground line-clamp-3">

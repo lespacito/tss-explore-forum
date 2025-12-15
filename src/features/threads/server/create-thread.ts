@@ -4,6 +4,7 @@ import { z } from "zod";
 import { getAuthSession } from "@/features/auth/server/get-auth-session";
 import { createServerFn } from "@tanstack/react-start";
 import { getPrimaryAlias } from "@/features/alias/lib/get-primary-alias";
+import { generateUniqueSlug } from "@/lib/utils/slug-utils";
 
 const createThreadSchema = z.object({
   title: z
@@ -34,14 +35,22 @@ export const createThreadFn = createServerFn({ method: "POST" })
       );
     }
 
-    // Créer le thread avec l'alias
+    const title = data.title.trim();
+    const body = data.body.trim();
+    const category = data.category.trim();
+
+    // Générer le slug unique à partir du titre
+    const slug = generateUniqueSlug(title);
+
+    // Créer le thread avec l'alias et le slug
     const [newThread] = await db
       .insert(threads)
       .values({
         aliasId: primaryAlias.id,
-        title: data.title.trim(),
-        body: data.body.trim(),
-        category: data.category.trim(),
+        title,
+        body,
+        category,
+        slug,
       })
       .returning();
 

@@ -6,12 +6,13 @@ import { createAuthMiddleware } from "better-auth/api";
 import { db } from "@/db";
 import { createPrimaryAlias } from "@/features/alias/lib/create-alias";
 import { getPrimaryAlias } from "@/features/alias/lib/get-primary-alias";
+import { env } from "@/data/env/server";
 
 export const auth = betterAuth({
   socialProviders: {
     github: {
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+      clientId: env.GITHUB_CLIENT_ID!,
+      clientSecret: env.GITHUB_CLIENT_SECRET!,
     },
   },
   emailAndPassword: {

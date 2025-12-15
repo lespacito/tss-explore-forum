@@ -114,9 +114,8 @@ function ThreadsPage() {
               }}
               className="space-y-4"
             >
-              <form.Field
-                name="title"
-                children={(field) => (
+              <form.Field name="title">
+                {(field) => (
                   <div className="space-y-2">
                     <Label htmlFor={field.name}>Titre</Label>
                     <Input
@@ -130,11 +129,10 @@ function ThreadsPage() {
                     />
                   </div>
                 )}
-              />
+              </form.Field>
 
-              <form.Field
-                name="category"
-                children={(field) => (
+              <form.Field name="category">
+                {(field) => (
                   <div className="space-y-2">
                     <Label htmlFor={field.name}>Catégorie</Label>
                     <Select
@@ -157,11 +155,10 @@ function ThreadsPage() {
                     </Select>
                   </div>
                 )}
-              />
+              </form.Field>
 
-              <form.Field
-                name="body"
-                children={(field) => (
+              <form.Field name="body">
+                {(field) => (
                   <div className="space-y-2">
                     <Label htmlFor={field.name}>Description</Label>
                     <Textarea
@@ -176,7 +173,7 @@ function ThreadsPage() {
                     />
                   </div>
                 )}
-              />
+              </form.Field>
 
               <div className="flex justify-end gap-2 pt-4">
                 <Button
