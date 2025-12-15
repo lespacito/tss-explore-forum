@@ -112,9 +112,8 @@ function PostsPage() {
               }}
               className="space-y-4"
             >
-              <form.Field
-                name="threadId"
-                children={(field) => (
+              <form.Field name="threadId">
+                {(field) => (
                   <div className="space-y-2">
                     <Label htmlFor={field.name}>Thread</Label>
                     <Select
@@ -140,10 +139,9 @@ function PostsPage() {
                     </Select>
                   </div>
                 )}
-              />
-              <form.Field
-                name="content"
-                children={(field) => (
+              </form.Field>
+              <form.Field name="content">
+                {(field) => (
                   <div className="space-y-2">
                     <Label htmlFor={field.name}>Contenu</Label>
                     <Textarea
@@ -158,11 +156,10 @@ function PostsPage() {
                     />
                   </div>
                 )}
-              />
+              </form.Field>
               <div className="flex flex-col gap-4 p-4 border rounded-lg bg-muted/50">
-                <form.Field
-                  name="isSensitive"
-                  children={(field) => (
+                <form.Field name="isSensitive">
+                  {(field) => (
                     <div className="flex items-center justify-between">
                       <Label
                         htmlFor={field.name}
@@ -180,11 +177,10 @@ function PostsPage() {
                       />
                     </div>
                   )}
-                />
+                </form.Field>
               </div>
-              <form.Field
-                name="contentWarnings"
-                children={(field) => (
+              <form.Field name="contentWarnings">
+                {(field) => (
                   <div className="space-y-2">
                     <Label htmlFor={field.name}>
                       Avertissements (Optionnel)
@@ -199,7 +195,7 @@ function PostsPage() {
                     />
                   </div>
                 )}
-              />
+              </form.Field>
               <div className="flex justify-end gap-2">
                 <Button
                   type="button"
