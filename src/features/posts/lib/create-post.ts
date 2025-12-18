@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { posts } from "@/features/posts/schema";
+import { posts } from "@/db/schemas/post";
 import { getPrimaryAlias } from "@/features/alias/lib/get-primary-alias";
 
 /**
@@ -29,7 +29,7 @@ export async function createPost(
     isAnonymous?: boolean;
     isSensitive?: boolean;
     contentWarnings?: string[];
-  }
+  },
 ) {
   // Validation des données
   if (!data.content || data.content.trim().length === 0) {
@@ -49,7 +49,7 @@ export async function createPost(
 
   if (!primaryAlias) {
     throw new Error(
-      "Aucun alias trouvé pour cet utilisateur. Veuillez contacter le support."
+      "Aucun alias trouvé pour cet utilisateur. Veuillez contacter le support.",
     );
   }
 
@@ -60,7 +60,6 @@ export async function createPost(
       aliasId: primaryAlias.id,
       threadId: data.threadId,
       content: data.content.trim(),
-      isAnonymous: data.isAnonymous ?? false,
       isSensitive: data.isSensitive ?? false,
       contentWarnings: data.contentWarnings ?? [],
     })
@@ -92,10 +91,9 @@ export async function createPostWithAlias(
   data: {
     threadId: string;
     content: string;
-    isAnonymous?: boolean;
     isSensitive?: boolean;
     contentWarnings?: string[];
-  }
+  },
 ) {
   // Validation des données
   if (!data.content || data.content.trim().length === 0) {
@@ -117,7 +115,6 @@ export async function createPostWithAlias(
       aliasId,
       threadId: data.threadId,
       content: data.content.trim(),
-      isAnonymous: data.isAnonymous ?? false,
       isSensitive: data.isSensitive ?? false,
       contentWarnings: data.contentWarnings ?? [],
     })

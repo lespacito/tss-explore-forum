@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { comments } from "@/features/posts/schema";
+import { comments } from "@/db/schemas/post";
 import { getPrimaryAlias } from "@/features/alias/lib/get-primary-alias";
 
 /**
@@ -27,7 +27,7 @@ export async function createComment(
     content: string;
     parentId?: string | null;
     isAnonymous?: boolean;
-  }
+  },
 ) {
   // Validation des données
   if (!data.content || data.content.trim().length === 0) {
@@ -47,7 +47,7 @@ export async function createComment(
 
   if (!primaryAlias) {
     throw new Error(
-      "Aucun alias trouvé pour cet utilisateur. Veuillez contacter le support."
+      "Aucun alias trouvé pour cet utilisateur. Veuillez contacter le support.",
     );
   }
 
@@ -59,7 +59,6 @@ export async function createComment(
       postId: data.postId,
       content: data.content.trim(),
       parentId: data.parentId ?? null,
-      isAnonymous: data.isAnonymous ?? false,
     })
     .returning();
 
@@ -90,7 +89,7 @@ export async function createCommentWithAlias(
     content: string;
     parentId?: string | null;
     isAnonymous?: boolean;
-  }
+  },
 ) {
   // Validation des données
   if (!data.content || data.content.trim().length === 0) {
@@ -113,7 +112,6 @@ export async function createCommentWithAlias(
       postId: data.postId,
       content: data.content.trim(),
       parentId: data.parentId ?? null,
-      isAnonymous: data.isAnonymous ?? false,
     })
     .returning();
 
@@ -144,7 +142,7 @@ export async function createCommentReply(
     parentCommentId: string;
     content: string;
     isAnonymous?: boolean;
-  }
+  },
 ) {
   if (!data.parentCommentId) {
     throw new Error("L'identifiant du commentaire parent est requis");

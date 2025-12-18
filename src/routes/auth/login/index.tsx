@@ -6,44 +6,48 @@ import { SignUpTab } from "@/features/auth/components/sign-up-tab";
 import { getAuthSession } from "@/features/auth/server/get-auth-session";
 
 export const Route = createFileRoute("/auth/login/")({
-	component: RouteComponent,
-	loader: async () => {
-		const session = await getAuthSession();
-		if (session?.user) {
-			throw redirect({
-				to: "/",
-			});
-		}
-	},
+  component: RouteComponent,
+  loader: async () => {
+    const session = await getAuthSession();
+    if (session?.user) {
+      throw redirect({
+        to: "/",
+      });
+    }
+    // Retourner authSession pour que le Navbar puisse y accéder
+    return {
+      authSession: session,
+    };
+  },
 });
 
 function RouteComponent() {
-	return (
-		<Tabs defaultValue="sign-up" className="w-full max-w-md mx-auto my-6 px-4">
-			<TabsList>
-				<TabsTrigger value="sign-in">Se connecter</TabsTrigger>
-				<TabsTrigger value="sign-up">S'inscrire</TabsTrigger>
-			</TabsList>
-			<TabsContent value="sign-in">
-				<Card>
-					<CardHeader className="text-2xl font-bold">
-						<CardTitle>Se connecter</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<SignInTab />
-					</CardContent>
-				</Card>
-			</TabsContent>
-			<TabsContent value="sign-up">
-				<Card>
-					<CardHeader className="text-2xl font-bold">
-						<CardTitle>S'inscrire</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<SignUpTab />
-					</CardContent>
-				</Card>
-			</TabsContent>
-		</Tabs>
-	);
+  return (
+    <Tabs defaultValue="sign-up" className="w-full mx-auto max-w-2xl my-6 px-4">
+      <TabsList>
+        <TabsTrigger value="sign-in">Se connecter</TabsTrigger>
+        <TabsTrigger value="sign-up">S'inscrire</TabsTrigger>
+      </TabsList>
+      <TabsContent value="sign-in">
+        <Card>
+          <CardHeader className="text-2xl font-bold">
+            <CardTitle>Se connecter</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <SignInTab />
+          </CardContent>
+        </Card>
+      </TabsContent>
+      <TabsContent value="sign-up">
+        <Card>
+          <CardHeader className="text-2xl font-bold">
+            <CardTitle>S'inscrire</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <SignUpTab />
+          </CardContent>
+        </Card>
+      </TabsContent>
+    </Tabs>
+  );
 }

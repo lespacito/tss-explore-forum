@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { alias } from "@/features/alias/schema";
+import { alias } from "@/db/schemas/alias";
 import { generateAlias } from "./generate-alias";
 import { eq } from "drizzle-orm";
 
@@ -38,7 +38,9 @@ export async function createPrimaryAlias(userId: string) {
   }
 
   if (attempts >= maxAttempts) {
-    throw new Error("Impossible de générer un alias unique après plusieurs tentatives");
+    throw new Error(
+      "Impossible de générer un alias unique après plusieurs tentatives",
+    );
   }
 
   const [newAlias] = await db
@@ -75,7 +77,7 @@ export async function createPrimaryAlias(userId: string) {
 export async function createSecondaryAlias(
   userId: string,
   customAlias?: string,
-  rotationEnabled = false
+  rotationEnabled = false,
 ) {
   let aliasName: string;
 
@@ -114,7 +116,9 @@ export async function createSecondaryAlias(
     }
 
     if (attempts >= maxAttempts) {
-      throw new Error("Impossible de générer un alias unique après plusieurs tentatives");
+      throw new Error(
+        "Impossible de générer un alias unique après plusieurs tentatives",
+      );
     }
   }
 

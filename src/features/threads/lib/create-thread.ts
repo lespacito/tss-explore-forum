@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { threads } from "@/features/threads/schema";
+import { threads } from "@/db/schemas/thread";
 import { getPrimaryAlias } from "@/features/alias/lib/get-primary-alias";
 
 /**
@@ -24,8 +24,9 @@ export async function createThread(
   data: {
     title: string;
     body: string;
+    slug: string;
     category: string;
-  }
+  },
 ) {
   // Validation des données
   if (!data.title || data.title.trim().length === 0) {
@@ -49,7 +50,7 @@ export async function createThread(
 
   if (!primaryAlias) {
     throw new Error(
-      "Aucun alias trouvé pour cet utilisateur. Veuillez contacter le support."
+      "Aucun alias trouvé pour cet utilisateur. Veuillez contacter le support.",
     );
   }
 
@@ -60,6 +61,7 @@ export async function createThread(
       aliasId: primaryAlias.id,
       title: data.title.trim(),
       body: data.body.trim(),
+      slug: data.slug.trim(),
       category: data.category.trim(),
     })
     .returning();
@@ -88,8 +90,9 @@ export async function createThreadWithAlias(
   data: {
     title: string;
     body: string;
+    slug: string;
     category: string;
-  }
+  },
 ) {
   // Validation des données
   if (!data.title || data.title.trim().length === 0) {
@@ -115,6 +118,7 @@ export async function createThreadWithAlias(
       aliasId,
       title: data.title.trim(),
       body: data.body.trim(),
+      slug: data.slug.trim(),
       category: data.category.trim(),
     })
     .returning();

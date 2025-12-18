@@ -6,7 +6,11 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
-    DATABASE_URL: z.string().min(1),
+    DB_HOST: z.string().min(1),
+    DB_PORT: z.coerce.number().default(5432),
+    DB_NAME: z.string().min(1),
+    DB_USER: z.string().min(1),
+    DB_PASSWORD: z.string().min(1),
     DB_SSL: z.enum(["true", "false"]).optional(),
 
     // Auth
@@ -15,7 +19,6 @@ export const env = createEnv({
     // OAuth GitHub
     GITHUB_CLIENT_ID: z.string().min(1),
     GITHUB_CLIENT_SECRET: z.string().min(1),
-
     // SMTP / Emails
     SMTP_HOST: z.string().default("localhost"),
     SMTP_PORT: z.coerce.number().default(1025),
@@ -27,6 +30,32 @@ export const env = createEnv({
     // Divers
     APP_URL: z.string().min(1).default("http://localhost:3000"),
     ARCJET_KEY: z.string().min(1),
+
+    // Logging
+    LOG_LEVEL: z
+      .enum(["error", "warn", "info", "http", "debug", "verbose", "silly"])
+      .optional(),
+    LOG_DIR: z.string().optional(),
+    SERVICE_NAME: z.string().default("parlons-violence"),
+  },
+  createFinalSchema: (env) => {
+    return z.object(env).transform((val) => {
+      const {
+        DB_HOST,
+        DB_NAME,
+        DB_PASSWORD,
+        DB_PORT,
+        DB_USER,
+        DB_SSL,
+        ...rest
+      } = val;
+      return {
+        ...rest,
+        DATABASE_URL: `postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}${
+          DB_SSL === "true" ? "?sslmode=require" : ""
+        }`,
+      };
+    });
   },
   emptyStringAsUndefined: true,
   runtimeEnv: process.env,
