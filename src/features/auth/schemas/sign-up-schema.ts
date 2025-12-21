@@ -1,6 +1,5 @@
 import z from "zod";
 import type { auth } from "@/features/auth/lib/auth";
-import type { Result } from "@/lib/api-error";
 
 export const signUpSchema = z.object({
   name: z.string().min(1, { message: "Le nom est requis" }).max(100),
@@ -23,5 +22,6 @@ export type SignUpInput = z.infer<typeof signUpSchema>;
 
 export type AuthSignUpResult = Awaited<ReturnType<typeof auth.api.signUpEmail>>;
 
-// Utilise un Result générique cohérent avec le reste de l'app
-export type SignUpResult = Result<AuthSignUpResult>;
+type SignUpSuccess = { success: true; data: AuthSignUpResult };
+type SignUpError = { success: false; error: string; field?: keyof SignUpInput };
+export type SignUpResult = SignUpSuccess | SignUpError;

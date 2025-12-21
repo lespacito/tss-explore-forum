@@ -52,8 +52,6 @@ export const authMiddleware = createMiddleware().server(async ({ next }) => {
         username: user.username,
         email: user.email,
       });
-    } else {
-      logger.debug("Anonymous request");
     }
 
     return await next({

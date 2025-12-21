@@ -6,12 +6,30 @@ import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { db } from "@/db";
 import { createPrimaryAlias } from "@/features/alias/lib/create-alias";
 import { getPrimaryAlias } from "@/features/alias/lib/get-primary-alias";
+import { sendPasswordResetEmail } from "@/features/auth/server/send-password-reset-email";
+import { sendEmailVerificationEmail } from "@/features/auth/server/send-verification-email";
 import { logger } from "@/lib/logger/server";
 import { env } from "@/data/env/server";
 
 export const auth = betterAuth({
+  user: {
+    changeEmail: {
+      enabled: true,
+    },
+  },
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: true,
+    sendResetPassword: async ({ user, url }) => {
+      await sendPasswordResetEmail({ user, url });
+    },
+  },
+  emailVerification: {
+    autoSignInAfterVerification: true,
+    sendOnSignUp: true,
+    sendVerificationEmail: async ({ user, url }) => {
+      await sendEmailVerificationEmail({ user, url });
+    },
   },
   socialProviders: {
     github: {

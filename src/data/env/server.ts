@@ -19,6 +19,10 @@ export const env = createEnv({
     // OAuth GitHub
     GITHUB_CLIENT_ID: z.string().min(1),
     GITHUB_CLIENT_SECRET: z.string().min(1),
+    // OAuth Google
+    GOOGLE_CLIENT_ID: z.string().min(1),
+    GOOGLE_CLIENT_SECRET: z.string().min(1),
+
     // SMTP / Emails
     SMTP_HOST: z.string().default("localhost"),
     SMTP_PORT: z.coerce.number().default(1025),
