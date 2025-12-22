@@ -1,7 +1,7 @@
 import { db } from "@/db";
-import { posts } from "../schema";
-import { alias } from "@/features/alias/schema";
-import { user } from "@/features/auth/schema";
+import { posts } from "../../../db/schemas/post";
+import { alias } from "@/db/schemas/alias";
+import { user } from "@/db/schemas/user";
 import { and, desc, eq, isNull } from "drizzle-orm";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";

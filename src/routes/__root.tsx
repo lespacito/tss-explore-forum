@@ -62,10 +62,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body
-        className="min-h-screen antialiased font-sans"
-        suppressHydrationWarning
-      >
+      <body className="min-h-screen antialiased font-sans">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

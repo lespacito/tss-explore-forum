@@ -21,7 +21,8 @@ const routeApi = getRouteApi("__root__");
  * - Desktop and mobile layouts
  */
 const Navbar = () => {
-  const { authSession } = routeApi.useLoaderData();
+  const loaderData = routeApi.useLoaderData();
+  const authSession = loaderData?.authSession;
   const user = authSession?.user;
   const routerState = useRouterState();
   const isPending = routerState.isLoading;

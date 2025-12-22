@@ -26,7 +26,6 @@ export function UserProfileMenu({ user }: UserProfileMenuProps) {
     await signOut({
       fetchOptions: {
         onSuccess: () => {
-          router.invalidate();
           router.navigate({ to: "/" });
         },
       },
