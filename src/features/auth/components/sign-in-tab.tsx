@@ -53,8 +53,10 @@ export const SignInTab = ({
             // Parser l'erreur avec le parseur centralisé
             const parsed = parseSignInError(error);
 
-            // Vérifier si l'email n'est pas vérifié
-            if (error.error?.code === "EMAIL_NOT_VERIFIED") {
+            // Vérifier si l'email n'est pas vérifiéa
+            const errorCode = (error as { error?: { code?: string } }).error
+              ?.code;
+            if (errorCode === "EMAIL_NOT_VERIFIED") {
               // Récupérer l'email par username
               try {
                 const emailResult = await getUserEmailByUsername({

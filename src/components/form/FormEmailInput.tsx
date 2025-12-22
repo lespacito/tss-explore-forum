@@ -17,7 +17,7 @@ export function FormEmailInput(props: FormControlProps) {
         onChange={(e) => field.handleChange(e.target.value)}
         onBlur={field.handleBlur}
         aria-invalid={isInvalid}
-        placeholder="exemple@email.com"
+        placeholder="example@email.com"
         autoComplete="email"
       />
     </FormBase>

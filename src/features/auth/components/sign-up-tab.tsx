@@ -3,7 +3,6 @@ import { useId, useState } from "react";
 import { toast } from "sonner";
 import { useAppForm } from "@/components/form/hooks";
 import ActionButton from "@/components/ui/action-button";
-import { Button } from "@/components/ui/button";
 import { Field, FieldGroup } from "@/components/ui/field";
 import { signUp } from "@/features/auth/lib/auth-client";
 import {
@@ -20,7 +19,6 @@ export const SignUpTab = ({
   openEmailVerificationTab: (email: string) => void;
 }) => {
   const id = useId();
-  const router = useRouter();
   const [serverErrors, setServerErrors] = useState<
     Partial<Record<keyof SignUpInput, string>>
   >({});
@@ -78,7 +76,7 @@ export const SignUpTab = ({
           },
         },
       );
-      if (res.error == null && !res.data.user.emailVerified) {
+      if (res.error == null && res.data.user && !res.data.user.emailVerified) {
         // L'utilisateur n'a pas encore vérifié son email
         openEmailVerificationTab(value.email);
       }

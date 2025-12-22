@@ -1,4 +1,4 @@
-import z from "zod";
+import { z } from "zod";
 
 const forgotPasswordSchema = z.object({
   email: z.email("Veuillez fournir une adresse email valide."),

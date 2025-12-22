@@ -41,7 +41,7 @@ export const sendEmail = async (
 
     logger.info("Email sent successfully", {
       messageId: info.messageId,
-      to: options.to,
+      recipientCount: Array.isArray(options.to) ? options.to.length : 1,
       subject: options.subject,
     });
 
@@ -51,7 +51,7 @@ export const sendEmail = async (
     };
   } catch (error) {
     logger.error("Failed to send email", {
-      to: options.to,
+      recipientCount: Array.isArray(options.to) ? options.to.length : 1,
       subject: options.subject,
       error: error instanceof Error ? error.message : String(error),
       stack: error instanceof Error ? error.stack : undefined,

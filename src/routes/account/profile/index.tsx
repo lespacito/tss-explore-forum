@@ -115,7 +115,7 @@ function ProfilePage() {
           </Card>
 
           <Tabs className="space-y-2" defaultValue="profile">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="profile">
                 <User />
                 <span className="max-sm:hidden">Profil</span>

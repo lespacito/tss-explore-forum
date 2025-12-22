@@ -46,6 +46,8 @@ function ResetPasswordRoute() {
     },
     onSubmit: async ({ value }) => {
       if (!token) return;
+    onSubmit: async ({ value }) => {
+      if (!token) return;
       // Réinitialiser les erreurs serveur au début de la soumission
       setServerErrors({});
       await authClient.resetPassword(
@@ -64,6 +66,11 @@ function ResetPasswordRoute() {
             toast.error(
               "Une erreur est survenue. Veuillez réessayer plus tard.",
             );
+
+            // Map error to field if applicable
+            if (error instanceof Error && error.message.toLowerCase().includes("password")) {
+              setServerErrors({ password: error.message });
+            }
           },
           onSuccess: () => {
             toast.success(
@@ -74,6 +81,10 @@ function ResetPasswordRoute() {
             // Optionnel: rediriger vers l'onglet de connexion après quelques secondes
             setTimeout(() => {
               router.navigate({ to: "/auth/login" });
+            }, 2000);
+          },
+        },
+      );
             }, 2000);
           },
         },
