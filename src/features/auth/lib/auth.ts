@@ -1,27 +1,50 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { createAuthMiddleware } from "better-auth/api";
 import { username } from "better-auth/plugins";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
-import { createAuthMiddleware } from "better-auth/api";
 import { db } from "@/db";
 import { createPrimaryAlias } from "@/features/alias/lib/create-alias";
 import { getPrimaryAlias } from "@/features/alias/lib/get-primary-alias";
+import { sendPasswordResetEmail } from "@/features/auth/server/send-password-reset-email";
+import { sendEmailVerificationEmail } from "@/features/auth/server/send-verification-email";
+import { logger } from "@/lib/logger/server";
 import { env } from "@/data/env/server";
 
 export const auth = betterAuth({
+  user: {
+    changeEmail: {
+      enabled: true,
+    },
+  },
+  emailAndPassword: {
+    enabled: true,
+    requireEmailVerification: true,
+    sendResetPassword: async ({ user, url }) => {
+      await sendPasswordResetEmail({ user, url });
+    },
+  },
+  emailVerification: {
+    autoSignInAfterVerification: true,
+    sendOnSignUp: true,
+    sendVerificationEmail: async ({ user, url }) => {
+      await sendEmailVerificationEmail({ user, url });
+    },
+  },
   socialProviders: {
     github: {
       clientId: env.GITHUB_CLIENT_ID!,
       clientSecret: env.GITHUB_CLIENT_SECRET!,
     },
-  },
-  emailAndPassword: {
-    enabled: true,
+    google: {
+      clientId: env.GOOGLE_CLIENT_ID!,
+      clientSecret: env.GOOGLE_CLIENT_SECRET!,
+    },
   },
   session: {
     cookieCache: {
       enabled: true,
-      maxAge: 60 * 5, // 5 minutes
+      maxAge: 60, // 1 minute
     },
   },
   database: drizzleAdapter(db, {
@@ -43,12 +66,19 @@ export const auth = betterAuth({
 
             if (!existingAlias) {
               const alias = await createPrimaryAlias(userId);
-              console.log(
-                `✅ Alias créé pour l'utilisateur ${userId}: ${alias.alias}`,
-              );
+              logger.info("Primary alias created", {
+                userId,
+                alias: alias.alias,
+                path: ctx.path,
+              });
             }
           } catch (error) {
-            console.error(`❌ Erreur création alias pour ${userId}:`, error);
+            logger.error("Failed to create primary alias", {
+              userId,
+              path: ctx.path,
+              error: error instanceof Error ? error.message : String(error),
+              stack: error instanceof Error ? error.stack : undefined,
+            });
             // Ne pas bloquer l'inscription si la création d'alias échoue
           }
         }

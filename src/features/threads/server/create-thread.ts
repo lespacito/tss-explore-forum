@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { threads } from "../schema";
+import { threads } from "../../../db/schemas/thread";
 import { z } from "zod";
 import { getAuthSession } from "@/features/auth/server/get-auth-session";
 import { createServerFn } from "@tanstack/react-start";

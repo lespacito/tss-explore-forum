@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { alias } from "@/features/alias/schema";
+import { alias } from "@/db/schemas/alias";
 import { eq, and } from "drizzle-orm";
 
 /**
