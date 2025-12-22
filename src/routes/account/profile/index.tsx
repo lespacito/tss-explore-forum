@@ -99,10 +99,15 @@ function ProfilePage() {
                     <User className="h-4 w-4" />
                     Nom d'affichage
                   </div>
-                  <p className="font-medium">{user.displayUsername}</p>
+                  <p className="font-medium">
+                    {user.displayUsername || "Non défini"}
+                  </p>
                 </div>
                 <div className="space-y-1">
-                  <div className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                  <div
+                    c
+                    lassName="text-sm font-medium text-muted-foreground flex items-center gap-2"
+                  >
                     <Fingerprint className="h-4 w-4" />
                     Identifiant Unique
                   </div>

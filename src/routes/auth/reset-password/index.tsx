@@ -46,8 +46,6 @@ function ResetPasswordRoute() {
     },
     onSubmit: async ({ value }) => {
       if (!token) return;
-    onSubmit: async ({ value }) => {
-      if (!token) return;
       // Réinitialiser les erreurs serveur au début de la soumission
       setServerErrors({});
       await authClient.resetPassword(
@@ -68,7 +66,10 @@ function ResetPasswordRoute() {
             );
 
             // Map error to field if applicable
-            if (error instanceof Error && error.message.toLowerCase().includes("password")) {
+            if (
+              error instanceof Error &&
+              error.message.toLowerCase().includes("password")
+            ) {
               setServerErrors({ password: error.message });
             }
           },
@@ -81,10 +82,6 @@ function ResetPasswordRoute() {
             // Optionnel: rediriger vers l'onglet de connexion après quelques secondes
             setTimeout(() => {
               router.navigate({ to: "/auth/login" });
-            }, 2000);
-          },
-        },
-      );
             }, 2000);
           },
         },
@@ -107,7 +104,7 @@ function ResetPasswordRoute() {
           </CardHeader>
           <CardContent>
             <Button className="w-full" asChild>
-              <Link to="/auth/forgot-password">Demander un nouveau lien</Link>
+              <Link to="/auth/login">Demander un nouveau lien</Link>
             </Button>
           </CardContent>
         </Card>
@@ -125,7 +122,7 @@ function ResetPasswordRoute() {
         </CardHeader>
         <CardContent>
           <form
-            id={`forgot-password-form-${id}`}
+            id={`reset-password-form-${id}`}
             onSubmit={(e) => {
               e.preventDefault();
               e.stopPropagation();

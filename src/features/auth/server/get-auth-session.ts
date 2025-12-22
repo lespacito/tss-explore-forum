@@ -1,11 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import type { Session } from "better-auth";
-import type { InferSelectModel } from "drizzle-orm";
-import type { user } from "@/db/schema";
 import { auth } from "@/features/auth/lib/auth";
-
-export type User = InferSelectModel<typeof user>;
+import { mapAuthDataToUser, type User } from "@/features/auth/lib/map-auth-uer";
+import { getContextLogger } from "@/lib/logger/middleware";
 
 export type AuthContext = {
   user: User | null;
@@ -16,6 +14,7 @@ export type AuthContext = {
 export const getAuthSession = createServerFn({ method: "GET" }).handler(
   async (): Promise<AuthContext> => {
     const request = getRequest();
+    const logger = getContextLogger();
 
     try {
       const authData = await auth.api.getSession({
@@ -23,19 +22,7 @@ export const getAuthSession = createServerFn({ method: "GET" }).handler(
       });
 
       const session = authData?.session || null;
-      const user = authData?.user
-        ? ({
-            id: authData.user.id,
-            email: authData.user.email,
-            name: authData.user.name,
-            image: authData.user.image,
-            emailVerified: authData.user.emailVerified,
-            createdAt: authData.user.createdAt,
-            updatedAt: authData.user.updatedAt,
-            username: authData.user.username,
-            displayUsername: authData.user.displayUsername,
-          } as User)
-        : null;
+      const user = mapAuthDataToUser(authData);
 
       return {
         user,
@@ -43,7 +30,10 @@ export const getAuthSession = createServerFn({ method: "GET" }).handler(
         session,
       };
     } catch (error) {
-      console.error("Error getting auth session:", error);
+      logger.error("Error getting auth session", {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
       return {
         user: null,
         isAuthenticated: false,

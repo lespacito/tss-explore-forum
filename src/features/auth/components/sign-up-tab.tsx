@@ -61,7 +61,10 @@ export const SignUpTab = ({
 
             // Mapper l'erreur vers le champ spécifique si identifié
             if (parsed.field) {
-              setServerErrors({ [parsed.field]: parsed.message });
+              setServerErrors((prev) => ({
+                ...prev,
+                [parsed.field as keyof SignUpInput]: parsed.message,
+              }));
             }
           },
           onSuccess: async () => {
@@ -76,7 +79,7 @@ export const SignUpTab = ({
           },
         },
       );
-      if (res.error == null && res.data.user && !res.data.user.emailVerified) {
+      if (res.error === null && res.data.user && !res.data.user.emailVerified) {
         // L'utilisateur n'a pas encore vérifié son email
         openEmailVerificationTab(value.email);
       }

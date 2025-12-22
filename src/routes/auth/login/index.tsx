@@ -24,7 +24,7 @@ export const Route = createFileRoute("/auth/login/")({
   },
 });
 
-type Tab = "sign-in" | "sign-up" | "email-verification" | "forget-password";
+type Tab = "sign-in" | "sign-up" | "email-verification" | "forgot-password";
 
 function RouteComponent() {
   const [email, setEmail] = useState("");
@@ -55,7 +55,7 @@ function RouteComponent() {
           <CardContent>
             <SignInTab
               openEmailVerificationTab={openEmailVerificationTab}
-              openForgotPassword={() => setSelectedTab("forget-password")}
+              openForgotPassword={() => setSelectedTab("forgot-password")}
             />
           </CardContent>
         </Card>
@@ -80,7 +80,7 @@ function RouteComponent() {
           </CardContent>
         </Card>
       </TabsContent>
-      <TabsContent value="forget-password">
+      <TabsContent value="forgot-password">
         <Card>
           <CardHeader className="text-2xl font-bold">
             <CardTitle>Mot de passe oublié</CardTitle>

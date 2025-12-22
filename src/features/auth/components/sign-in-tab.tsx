@@ -72,6 +72,9 @@ export const SignInTab = ({
                 }
               } catch (err) {
                 logger.error("Impossible de récupérer l'email", { err });
+                toast.error(
+                  "Impossible de récperer l'email. Merci de contacter le support.",
+                );
               }
             }
 

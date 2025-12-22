@@ -1,15 +1,12 @@
 import { createMiddleware } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import type { Session } from "better-auth";
-import type { InferSelectModel } from "drizzle-orm";
-import type { user } from "@/db/schema";
 import {
   enrichLogContextWithUser,
   getContextLogger,
 } from "@/lib/logger/server";
 import { auth } from "./auth";
-
-export type User = InferSelectModel<typeof user>;
+import { mapAuthDataToUser, type User } from "@/features/auth/lib/map-auth-uer";
 
 export type AuthContext = {
   user: User | null;
@@ -27,19 +24,7 @@ export const authMiddleware = createMiddleware().server(async ({ next }) => {
     });
 
     const session = authData?.session || null;
-    const user = authData?.user
-      ? ({
-          id: authData.user.id,
-          email: authData.user.email,
-          name: authData.user.name,
-          image: authData.user.image,
-          emailVerified: authData.user.emailVerified,
-          createdAt: authData.user.createdAt,
-          updatedAt: authData.user.updatedAt,
-          username: authData.user.username,
-          displayUsername: authData.user.displayUsername,
-        } as User)
-      : null;
+    const user = mapAuthDataToUser(authData);
 
     // Enrichir le contexte de log avec les infos utilisateur
     if (user) {

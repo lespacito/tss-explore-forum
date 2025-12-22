@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { toast } from "sonner";
 import { useAppForm } from "@/components/form/hooks";
 import ActionButton from "@/components/ui/action-button";
@@ -20,6 +20,18 @@ export const ForgotPassword = ({
   const [serverErrors, setServerErrors] = useState<
     Partial<Record<keyof ForgotPasswordInput, string>>
   >({});
+  const [pendingRedirect, setPendingRedirect] = useState(false);
+
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    if (pendingRedirect) {
+      timeoutId = setTimeout(() => {
+        openSignInTab();
+        setPendingRedirect(false);
+      }, 2000);
+    }
+    return () => clearTimeout(timeoutId);
+  }, [pendingRedirect, openSignInTab]);
 
   const form = useAppForm({
     defaultValues: {
@@ -55,10 +67,7 @@ export const ForgotPassword = ({
               "Si un compte avec cet email existe, un email de réinitialisation a été envoyé.",
             );
             form.reset();
-            // Optionnel: rediriger vers l'onglet de connexion après quelques secondes
-            setTimeout(() => {
-              openSignInTab();
-            }, 2000);
+            setPendingRedirect(true);
           },
         },
       );

@@ -10,6 +10,8 @@ import ActionButton from "@/components/ui/action-button";
 import { authClient } from "@/features/auth/lib/auth-client";
 import { toast } from "sonner";
 import { useRouter } from "@tanstack/react-router";
+import { parseProfileUpdateError } from "@/features/auth/lib/client/parse-auth-error";
+import { logger } from "@/lib/logger";
 
 export const ProfileUpdateForm = ({
   user,
@@ -20,11 +22,11 @@ export const ProfileUpdateForm = ({
     displayUsername: string | null;
   };
 }) => {
-  const id = useId();
-  const router = useRouter();
   const [serverErrors, setServerErrors] = useState<
     Partial<Record<keyof ProfileUpdateFormSchema, string>>
   >({});
+  const id = useId();
+  const router = useRouter();
   const form = useAppForm({
     defaultValues: {
       name: user.name,
@@ -57,15 +59,58 @@ export const ProfileUpdateForm = ({
       const emailResult = res[1] ?? { error: false };
 
       if (updateUserResult.error) {
+        // Parse l'erreur pour identifier le champ concerné
+        const parsed = parseProfileUpdateError(updateUserResult.error);
+
         toast.error(
-          updateUserResult.error.message ||
+          parsed.message ||
+            updateUserResult.error.message ||
             "Impossible de mettre à jour ton profil",
         );
+
+        // Logger l'erreur pour le debug
+        logger.error("Erreur durant la mise à jour du profil", {
+          message: updateUserResult.error.message,
+          parsedField: parsed.field,
+        });
+
+        // Mapper l'erreur vers le champ spécifique si identifié
+        if (
+          parsed.field &&
+          (parsed.field === "name" || parsed.field === "displayUsername")
+        ) {
+          setServerErrors((prev) => ({
+            ...prev,
+            [parsed.field as keyof ProfileUpdateFormSchema]: parsed.message,
+          }));
+        }
       } else if (emailResult.error) {
+        // Parse l'erreur email
+        const parsed = parseProfileUpdateError(emailResult.error);
+
         toast.error(
-          emailResult.error.message || "Impossible de changer ton email",
+          parsed.message ||
+            emailResult.error.message ||
+            "Impossible de changer ton email",
         );
+
+        // Logger l'erreur pour le debug
+        logger.error("Erreur durant le changement d'email", {
+          message: emailResult.error.message,
+          parsedField: parsed.field,
+        });
+
+        // Mapper l'erreur vers le champ email si identifié
+        if (parsed.field === "email") {
+          setServerErrors((prev) => ({
+            ...prev,
+            email: parsed.message,
+          }));
+        }
       } else {
+        // Clear server errors on success
+        setServerErrors({});
+
         if (value.email !== user.email) {
           toast.success(
             "Profil mis à jour ! Vérifie ta boîte email pour confirmer le changement d'email.",

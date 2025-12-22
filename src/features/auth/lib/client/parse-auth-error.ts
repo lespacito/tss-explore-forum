@@ -1,5 +1,6 @@
 import type { SignUpInput } from "@/features/auth/schemas/sign-up-schema";
 import type { SignInInput } from "@/features/auth/schemas/sign-in-schema";
+import type { ProfileUpdateFormSchema } from "@/features/profiles/schema/profile-update-form-schema";
 
 /**
  * Extrait le message d'erreur d'un objet d'erreur Better Auth complexe
@@ -119,6 +120,44 @@ const SIGNIN_ERROR_PATTERNS: Record<
 };
 
 /**
+ * Patterns d'erreurs pour le profile update
+ */
+const PROFILE_UPDATE_ERROR_PATTERNS: Record<
+  string,
+  { field?: keyof ProfileUpdateFormSchema; message: string }
+> = {
+  "invalid email": { field: "email", message: "Adresse email invalide" },
+  "email already": { field: "email", message: "Cet email est déjà utilisé" },
+  disposable: {
+    field: "email",
+    message: "Les emails jetables ne sont pas autorisés",
+  },
+  "no mx": { field: "email", message: "Domaine email invalide" },
+  email: { field: "email", message: "Erreur liée à l'email" },
+  "display username already": {
+    field: "displayUsername",
+    message: "Ce nom d'affichage est déjà pris",
+  },
+  "displayusername already": {
+    field: "displayUsername",
+    message: "Ce nom d'affichage est déjà pris",
+  },
+  "display username": {
+    field: "displayUsername",
+    message: "Nom d'affichage invalide",
+  },
+  displayusername: {
+    field: "displayUsername",
+    message: "Nom d'affichage invalide",
+  },
+  name: { field: "name", message: "Le nom est invalide" },
+  "rate limit": {
+    message: "Trop de tentatives. Veuillez réessayer plus tard.",
+  },
+  "too many": { message: "Trop de tentatives. Veuillez réessayer plus tard." },
+};
+
+/**
  * Résultat du parsing d'erreur
  */
 export type ParsedAuthError<TInput = SignUpInput | SignInInput> = {
@@ -140,6 +179,30 @@ export function parseSignUpError(error: unknown): ParsedAuthError<SignUpInput> {
       return {
         message: info.message,
         field: info.field as keyof SignUpInput | undefined,
+        isRateLimit: pattern.includes("rate") || pattern.includes("too many"),
+      };
+    }
+  }
+
+  // Fallback: retourner le message d'origine
+  return { message: errorMessage };
+}
+
+/**
+ * Parse une erreur d'authentication pour profile update
+ */
+export function parseProfileUpdateError(
+  error: unknown,
+): ParsedAuthError<ProfileUpdateFormSchema> {
+  const errorMessage = extractErrorMessage(error);
+  const lower = errorMessage.toLowerCase();
+
+  // Recherche du premier pattern qui match
+  for (const [pattern, info] of Object.entries(PROFILE_UPDATE_ERROR_PATTERNS)) {
+    if (lower.includes(pattern)) {
+      return {
+        message: info.message,
+        field: info.field as keyof ProfileUpdateFormSchema | undefined,
         isRateLimit: pattern.includes("rate") || pattern.includes("too many"),
       };
     }
