@@ -53,9 +53,11 @@ export const env = createEnv({
         DB_SSL,
         ...rest
       } = val;
+      const encodedUser = encodeURIComponent(DB_USER);
+      const encodedPassword = encodeURIComponent(DB_PASSWORD);
       return {
         ...rest,
-        DATABASE_URL: `postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}${
+        DATABASE_URL: `postgresql://${encodedUser}:${encodedPassword}@${DB_HOST}:${DB_PORT}/${DB_NAME}${
           DB_SSL === "true" ? "?sslmode=require" : ""
         }`,
       };

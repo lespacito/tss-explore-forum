@@ -50,12 +50,12 @@ export const getContext = (): LogContext => {
  * updateContext({ userId: '123' });
  * // Le contexte contient maintenant correlationId ET userId
  */
-export const updateContext = (updates: Partial<LogContext>): void => {
+export const updateContext = <T>(
+  updates: Partial<LogContext>,
+  fn: () => T,
+): T => {
   const current = getContext();
-  // Note: on ne peut pas vraiment mettre à jour le store existant,
-  // mais on peut exposer cette fonction pour la cohérence
-  // En pratique, utilisez runWithContext pour les sous-contextes
-  Object.assign(current, updates);
+  return runWithContext({ ...current, ...updates }, fn);
 };
 
 /**

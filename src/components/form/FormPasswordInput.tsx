@@ -4,9 +4,6 @@ import { FormBase, type FormControlProps } from "@/components/form/FormBase";
 
 export function FormPasswordInput(props: FormControlProps) {
   const field = useFieldContext<string>();
-  const isInvalid =
-    props["aria-invalid"] ??
-    (field.state.meta.isTouched && !field.state.meta.isValid);
   return (
     <FormBase {...props}>
       <PasswordInput
@@ -15,8 +12,7 @@ export function FormPasswordInput(props: FormControlProps) {
         value={field.state.value}
         onChange={(e) => field.handleChange(e.target.value)}
         onBlur={field.handleBlur}
-        aria-invalid={isInvalid}
-        placeholder="*******"
+        placeholder="********"
         autoComplete="new-password"
       />
     </FormBase>

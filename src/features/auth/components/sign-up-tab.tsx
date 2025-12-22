@@ -1,4 +1,3 @@
-import { useRouter } from "@tanstack/react-router";
 import { useId, useState } from "react";
 import { toast } from "sonner";
 import { useAppForm } from "@/components/form/hooks";
@@ -75,12 +74,13 @@ export const SignUpTab = ({
               },
             });
             toast.success("Inscription réussie ! Bienvenue à bord !");
-            form.reset();
           },
         },
       );
-      if (res.error === null && res.data.user && !res.data.user.emailVerified) {
-        // L'utilisateur n'a pas encore vérifié son email
+
+      if (!res.error) form.reset();
+
+      if (res.data?.user && !res.data.user.emailVerified) {
         openEmailVerificationTab(value.email);
       }
     },

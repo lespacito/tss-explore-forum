@@ -39,27 +39,26 @@ export const ProfileUpdateForm = ({
     },
     onSubmit: async ({ value }) => {
       setServerErrors({});
-      const promises = [
-        authClient.updateUser({
+
+      // Step 1: Update user profile first
+      let updateUserResult;
+      try {
+        updateUserResult = await authClient.updateUser({
           name: value.name,
           displayUsername: value.displayUsername,
-        }),
-      ];
-      if (value.email !== user.email) {
-        promises.push(
-          authClient.changeEmail({
-            newEmail: value.email,
-            callbackURL: "/account/profile",
-          }),
+        });
+      } catch (error) {
+        logger.error("Exception during user profile update", {
+          error: error instanceof Error ? error.message : String(error),
+        });
+        toast.error(
+          "Une erreur inattendue s'est produite lors de la mise à jour du profil",
         );
+        return;
       }
-      const res = await Promise.all(promises);
 
-      const updateUserResult = res[0];
-      const emailResult = res[1] ?? { error: false };
-
-      if (updateUserResult.error) {
-        // Parse l'erreur pour identifier le champ concerné
+      // Check if updateUser failed
+      if (updateUserResult?.error) {
         const parsed = parseProfileUpdateError(updateUserResult.error);
 
         toast.error(
@@ -68,13 +67,11 @@ export const ProfileUpdateForm = ({
             "Impossible de mettre à jour ton profil",
         );
 
-        // Logger l'erreur pour le debug
         logger.error("Erreur durant la mise à jour du profil", {
           message: updateUserResult.error.message,
           parsedField: parsed.field,
         });
 
-        // Mapper l'erreur vers le champ spécifique si identifié
         if (
           parsed.field &&
           (parsed.field === "name" || parsed.field === "displayUsername")
@@ -84,40 +81,62 @@ export const ProfileUpdateForm = ({
             [parsed.field as keyof ProfileUpdateFormSchema]: parsed.message,
           }));
         }
-      } else if (emailResult.error) {
-        // Parse l'erreur email
-        const parsed = parseProfileUpdateError(emailResult.error);
+        return; // Early return on updateUser failure
+      }
 
-        toast.error(
-          parsed.message ||
-            emailResult.error.message ||
-            "Impossible de changer ton email",
-        );
-
-        // Logger l'erreur pour le debug
-        logger.error("Erreur durant le changement d'email", {
-          message: emailResult.error.message,
-          parsedField: parsed.field,
-        });
-
-        // Mapper l'erreur vers le champ email si identifié
-        if (parsed.field === "email") {
-          setServerErrors((prev) => ({
-            ...prev,
-            email: parsed.message,
-          }));
-        }
-      } else {
-        // Clear server errors on success
-        setServerErrors({});
-
-        if (value.email !== user.email) {
-          toast.success(
-            "Profil mis à jour ! Vérifie ta boîte email pour confirmer le changement d'email.",
+      // Step 2: If email changed, update it sequentially
+      const emailChanged = value.email !== user.email;
+      if (emailChanged) {
+        let emailResult;
+        try {
+          emailResult = await authClient.changeEmail({
+            newEmail: value.email,
+            callbackURL: "/account/profile",
+          });
+        } catch (error) {
+          logger.error("Exception during email change", {
+            error: error instanceof Error ? error.message : String(error),
+          });
+          toast.warning(
+            "Profil mis à jour, mais une erreur s'est produite lors du changement d'email. Réessaye plus tard.",
           );
-        } else {
-          toast.success("Profil mis à jour !");
+          router.invalidate();
+          return;
         }
+
+        // Check if changeEmail failed
+        if (emailResult?.error) {
+          const parsed = parseProfileUpdateError(emailResult.error);
+
+          toast.warning(
+            `Profil mis à jour, mais impossible de changer l'email : ${parsed.message || emailResult.error.message || "erreur inconnue"}`,
+          );
+
+          logger.error("Erreur durant le changement d'email", {
+            message: emailResult.error.message,
+            parsedField: parsed.field,
+          });
+
+          if (parsed.field === "email") {
+            setServerErrors((prev) => ({
+              ...prev,
+              email: parsed.message,
+            }));
+          }
+          router.invalidate();
+          return;
+        }
+
+        // Both operations succeeded
+        setServerErrors({});
+        toast.success(
+          "Profil mis à jour ! Vérifie ta boîte email pour confirmer le changement d'email.",
+        );
+        router.invalidate();
+      } else {
+        // Only profile update, no email change
+        setServerErrors({});
+        toast.success("Profil mis à jour !");
         router.invalidate();
       }
     },

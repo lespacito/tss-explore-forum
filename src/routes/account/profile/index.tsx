@@ -104,10 +104,7 @@ function ProfilePage() {
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <div
-                    c
-                    lassName="text-sm font-medium text-muted-foreground flex items-center gap-2"
-                  >
+                  <div className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                     <Fingerprint className="h-4 w-4" />
                     Identifiant Unique
                   </div>

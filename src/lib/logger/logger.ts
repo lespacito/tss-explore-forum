@@ -53,27 +53,37 @@ const redact = format((info) => {
   };
 
   const visit = (obj: any): any => {
+    // Return primitives unchanged
     if (!obj || typeof obj !== "object") return obj;
 
+    // Handle arrays
+    if (Array.isArray(obj)) {
+      return obj.map((item) => visit(item));
+    }
+
+    // Handle objects - create a new object to avoid mutation
+    const result: Record<string, any> = {};
     for (const key of Object.keys(obj)) {
       const value = obj[key];
       if (redactValue(key)) {
-        obj[key] = "[REDACTED]";
+        result[key] = "[REDACTED]";
       } else if (value && typeof value === "object") {
-        visit(value);
+        result[key] = visit(value);
+      } else {
+        result[key] = value;
       }
     }
-    return obj;
+    return result;
   };
 
   // Redact message si objet
   if (typeof info.message === "object") {
-    info.message = visit({ ...info.message });
+    info.message = visit(info.message);
   }
 
   // Redact metadata
   if (info.metadata && typeof info.metadata === "object") {
-    info.metadata = visit({ ...info.metadata });
+    info.metadata = visit(info.metadata);
   }
 
   return info;

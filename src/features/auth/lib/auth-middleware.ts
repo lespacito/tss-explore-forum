@@ -6,7 +6,16 @@ import {
   getContextLogger,
 } from "@/lib/logger/server";
 import { auth } from "./auth";
-import { mapAuthDataToUser, type User } from "@/features/auth/lib/map-auth-uer";
+import {
+  mapAuthDataToUser,
+  type User,
+} from "@/features/auth/lib/map-auth-user";
+
+function maskEmail(email: string): string {
+  const atIndex = email.indexOf("@");
+  if (atIndex <= 0) return "***";
+  return `***${email.substring(atIndex)}`;
+}
 
 export type AuthContext = {
   user: User | null;
@@ -35,7 +44,7 @@ export const authMiddleware = createMiddleware().server(async ({ next }) => {
       logger.debug("User authenticated", {
         userId: user.id,
         username: user.username,
-        email: user.email,
+        emailDomain: user.email ? maskEmail(user.email) : undefined,
       });
     }
 

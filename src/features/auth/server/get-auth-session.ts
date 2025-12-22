@@ -2,7 +2,10 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import type { Session } from "better-auth";
 import { auth } from "@/features/auth/lib/auth";
-import { mapAuthDataToUser, type User } from "@/features/auth/lib/map-auth-uer";
+import {
+  mapAuthDataToUser,
+  type User,
+} from "@/features/auth/lib/map-auth-user";
 import { getContextLogger } from "@/lib/logger/middleware";
 
 export type AuthContext = {

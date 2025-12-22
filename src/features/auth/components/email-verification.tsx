@@ -1,24 +1,12 @@
 import { BetterAuthActionButton } from "@/features/auth/components/better-auth-action-button";
 import { authClient } from "@/features/auth/lib/auth-client";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export function EmailVerification({ email }: { email: string }) {
   const [timeToNextResend, setTimeToNextResend] = useState<number>(30);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    // Démarrer le countdown au montage du composant
-    startEmailVerificationCountdown();
-
-    // Cleanup function pour nettoyer l'interval au démontage
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, []); // Tableau vide OK car on veut exécuter une seule fois
-
-  function startEmailVerificationCountdown(time = 30) {
+  const startEmailVerificationCountdown = useCallback((time = 30) => {
     // Nettoyer l'interval précédent s'il existe
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -37,7 +25,19 @@ export function EmailVerification({ email }: { email: string }) {
         return newT;
       });
     }, 1000);
-  }
+  }, []);
+
+  useEffect(() => {
+    // Démarrer le countdown au montage du composant
+    startEmailVerificationCountdown();
+
+    // Cleanup function pour nettoyer l'interval au démontage
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [startEmailVerificationCountdown]);
 
   return (
     <div className="space-y-4">

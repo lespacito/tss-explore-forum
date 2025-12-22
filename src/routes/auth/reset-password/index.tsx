@@ -45,9 +45,14 @@ function ResetPasswordRoute() {
       onBlur: resetPasswordSchema,
     },
     onSubmit: async ({ value }) => {
-      if (!token) return;
       // Réinitialiser les erreurs serveur au début de la soumission
       setServerErrors({});
+
+      if (!token) {
+        toast.error("Le lien de réinitialisation est invalide ou a expiré");
+        setServerErrors({ password: "Token de réinitialisation manquant" });
+        return;
+      }
       await authClient.resetPassword(
         {
           newPassword: value.password,
