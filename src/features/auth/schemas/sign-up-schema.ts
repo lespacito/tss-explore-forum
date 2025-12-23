@@ -1,4 +1,4 @@
-import z from "zod";
+import { z } from "zod";
 import type { auth } from "@/features/auth/lib/auth";
 
 export const signUpSchema = z.object({
@@ -6,7 +6,7 @@ export const signUpSchema = z.object({
   email: z.email({ message: "Une adresse email valide est requise" }).trim(),
   password: z
     .string()
-    .min(6, { message: "Le mot de passe doit contenir au moins 6 caractères" })
+    .min(8, { message: "Le mot de passe doit contenir au moins 8 caractères" })
     .max(100),
   username: z
     .string()

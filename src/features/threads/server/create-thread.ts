@@ -5,6 +5,7 @@ import { getAuthSession } from "@/features/auth/server/get-auth-session";
 import { createServerFn } from "@tanstack/react-start";
 import { getPrimaryAlias } from "@/features/alias/lib/get-primary-alias";
 import { generateUniqueSlug } from "@/lib/utils/slug-utils";
+import { checkArcjet, handleArcjetDenied } from "@/features/auth/lib/security/protected-server-fn";
 
 const createThreadSchema = z.object({
   title: z
@@ -21,6 +22,14 @@ const createThreadSchema = z.object({
 export const createThreadFn = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => createThreadSchema.parse(data))
   .handler(async ({ data }) => {
+    const decision = await checkArcjet({
+      path: "/threads/create",
+    });
+
+    if (decision.isDenied()) {
+      return handleArcjetDenied(decision);
+    }
+
     const session = await getAuthSession();
     if (!session || !session.user) {
       throw new Error("Unauthorized");

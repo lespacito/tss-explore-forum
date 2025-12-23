@@ -7,6 +7,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { getPrimaryAlias } from "@/features/alias/lib/get-primary-alias";
 import { isThreadCategorySensitive } from "@/lib/utils/thread-utils";
 import { eq } from "drizzle-orm";
+import { checkArcjet, handleArcjetDenied } from "@/features/auth/lib/security/protected-server-fn";
 
 const createPostSchema = z.object({
   threadId: z.uuid("Thread ID must be a valid UUID"),
@@ -21,6 +22,14 @@ const createPostSchema = z.object({
 export const createPostFn = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => createPostSchema.parse(data))
   .handler(async ({ data }) => {
+    const decision = await checkArcjet({
+      path: "/posts/create",
+    });
+
+    if (decision.isDenied()) {
+      return handleArcjetDenied(decision);
+    }
+
     const session = await getAuthSession();
     if (!session || !session.user) {
       throw new Error("Unauthorized");

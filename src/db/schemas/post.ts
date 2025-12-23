@@ -14,7 +14,7 @@ import { relations } from "drizzle-orm";
 export const posts = pgTable(
   "posts",
   {
-    id,
+    id: id(),
     content: text("content").notNull(),
     threadId: uuid("thread_id")
       .notNull()
@@ -28,8 +28,8 @@ export const posts = pgTable(
       }),
     isSensitive: boolean("is_sensitive").default(false).notNull(),
     contentWarnings: text("content_warnings").array(),
-    createdAt,
-    updatedAt,
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
     deletedAt: timestamp("deleted_at"),
   },
   (table) => ({
@@ -43,7 +43,7 @@ export const posts = pgTable(
 export const comments = pgTable(
   "comments",
   {
-    id,
+    id: id(),
     content: text("content").notNull(),
     postId: uuid("post_id")
       .notNull()
@@ -54,8 +54,8 @@ export const comments = pgTable(
         onDelete: "cascade",
       }),
     parentId: uuid("parent_id"), // Self-reference needs to be handled carefully or just assumed
-    createdAt,
-    updatedAt,
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
     deletedAt: timestamp("deleted_at"),
   },
   (table) => ({

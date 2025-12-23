@@ -9,7 +9,7 @@ import {
   signUpSchema,
 } from "@/features/auth/schemas/sign-up-schema";
 import { sendWelcomeEmailFn } from "@/features/auth/server/send-welcome-email";
-import { logger } from "@/lib/logger";
+import { logger } from "@/lib/logger/client-logger";
 import { parseSignUpError } from "@/features/auth/lib/client/parse-auth-error";
 
 export const SignUpTab = ({

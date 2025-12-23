@@ -12,7 +12,7 @@ export type ReportType = (typeof reportType)[number];
 export const reportTypeEnum = pgEnum("report_target_type", reportType);
 
 export const reports = pgTable("reports", {
-  id,
+  id: id(),
   reporterId: text("reporter_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
@@ -21,18 +21,18 @@ export const reports = pgTable("reports", {
   reason: text("reason").notNull(),
   details: varchar("details"),
   status: reportStatusEnum().notNull(),
-  createdAt,
+  createdAt: createdAt(),
 });
 
 export const moderationLogs = pgTable("moderation_logs", {
-  id,
+  id: id(),
   moderatorId: text("moderator_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
   action: text("action").notNull(),
   targetId: uuid("target_id"),
   reason: text("reason"),
-  createdAt,
+  createdAt: createdAt(),
 });
 
 export const blockedUsers = pgTable(
@@ -44,7 +44,7 @@ export const blockedUsers = pgTable(
     blockedId: text("blocked_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    createdAt,
+    createdAt: createdAt(),
   },
   (t) => ({
     pk: [t.blockerId, t.blockedId],

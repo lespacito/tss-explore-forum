@@ -6,7 +6,7 @@ import { relations } from "drizzle-orm";
 export const threads = pgTable(
   "threads",
   {
-    id,
+    id: id(),
     aliasId: uuid("alias_id")
       .notNull()
       .references(() => alias.id, { onDelete: "cascade" }),
@@ -14,8 +14,8 @@ export const threads = pgTable(
     body: text("body").notNull(),
     slug: varchar("slug").notNull().unique(),
     category: varchar("category").notNull(),
-    createdAt,
-    updatedAt,
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
   },
   (table) => ({
     categoryCreatedIdx: index("threads_category_created_idx").on(
