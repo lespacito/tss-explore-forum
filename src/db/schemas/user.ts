@@ -22,8 +22,8 @@ export const user = pgTable(
     emailVerified: boolean("email_verified").default(false).notNull(),
     image: text("image"),
     role: userRolesEnum().default("USER").notNull(),
-    createdAt,
-    updatedAt,
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
     username: text("username").unique(),
     displayUsername: text("display_username"),
   },
@@ -36,8 +36,8 @@ export const session = pgTable("session", {
   id: text("id").primaryKey(),
   expiresAt: timestamp("expires_at").notNull(),
   token: text("token").notNull().unique(),
-  createdAt,
-  updatedAt,
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
   ipAddress: text("ip_address"),
   userAgent: text("user_agent"),
   userId: text("user_id")
@@ -59,8 +59,8 @@ export const account = pgTable("account", {
   refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
   scope: text("scope"),
   password: text("password"),
-  createdAt,
-  updatedAt,
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
 });
 
 export const verification = pgTable("verification", {
@@ -68,8 +68,8 @@ export const verification = pgTable("verification", {
   identifier: text("identifier").notNull(),
   value: text("value").notNull(),
   expiresAt: timestamp("expires_at").notNull(),
-  createdAt,
-  updatedAt,
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
 });
 
 export const userRelations = relations(user, ({ many }) => ({

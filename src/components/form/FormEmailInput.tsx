@@ -4,9 +4,6 @@ import { FormBase, type FormControlProps } from "@/components/form/FormBase";
 
 export function FormEmailInput(props: FormControlProps) {
   const field = useFieldContext<string>();
-  const isInvalid =
-    props["aria-invalid"] ??
-    (field.state.meta.isTouched && !field.state.meta.isValid);
   return (
     <FormBase {...props}>
       <Input
@@ -16,7 +13,6 @@ export function FormEmailInput(props: FormControlProps) {
         value={field.state.value}
         onChange={(e) => field.handleChange(e.target.value)}
         onBlur={field.handleBlur}
-        aria-invalid={isInvalid}
         placeholder="example@email.com"
         autoComplete="email"
       />

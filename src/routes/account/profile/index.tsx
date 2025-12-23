@@ -7,14 +7,12 @@ import {
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
 import {
   User,
   Mail,
   Shield,
   Key,
   LogOut,
-  Smartphone,
   Fingerprint,
   LinkIcon,
 } from "lucide-react";
@@ -137,6 +135,12 @@ function ProfilePage() {
             </TabsList>
             <TabsContent value="profile">
               <Card>
+                <CardHeader>
+                  <CardTitle>Modifier le profil</CardTitle>
+                  <CardDescription>
+                    Mettez à jour vos informations personnelles.
+                  </CardDescription>
+                </CardHeader>
                 <CardContent>
                   <ProfileUpdateForm user={user} />
                 </CardContent>
