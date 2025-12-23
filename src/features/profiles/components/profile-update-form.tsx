@@ -41,7 +41,7 @@ export const ProfileUpdateForm = ({
       setServerErrors({});
 
       // Step 1: Update user profile first
-      let updateUserResult;
+      let updateUserResult = "";
       try {
         updateUserResult = await authClient.updateUser({
           name: value.name,
@@ -87,7 +87,7 @@ export const ProfileUpdateForm = ({
       // Step 2: If email changed, update it sequentially
       const emailChanged = value.email !== user.email;
       if (emailChanged) {
-        let emailResult;
+        let emailResult = "";
         try {
           emailResult = await authClient.changeEmail({
             newEmail: value.email,

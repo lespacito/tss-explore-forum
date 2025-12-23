@@ -2,7 +2,7 @@ import { boolean, pgTable, text, varchar } from "drizzle-orm/pg-core";
 import { id } from "@/db/schemaHelpers";
 
 export const resources = pgTable("resources", {
-  id,
+  id: id(),
   title: varchar("title").notNull(),
   description: text("description"),
   url: varchar("url").notNull(),

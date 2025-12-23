@@ -4,9 +4,6 @@ import { FormBase, type FormControlProps } from "@/components/form/FormBase";
 
 export function FormUsernameInput(props: FormControlProps) {
   const field = useFieldContext<string>();
-  const isInvalid =
-    props["aria-invalid"] ??
-    (field.state.meta.isTouched && !field.state.meta.isValid);
   return (
     <FormBase {...props}>
       <Input
@@ -15,7 +12,6 @@ export function FormUsernameInput(props: FormControlProps) {
         value={field.state.value}
         onChange={(e) => field.handleChange(e.target.value)}
         onBlur={field.handleBlur}
-        aria-invalid={isInvalid}
         placeholder="votre_pseudo"
         autoComplete="username"
       />

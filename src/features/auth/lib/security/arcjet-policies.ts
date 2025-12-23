@@ -121,6 +121,20 @@ export async function protectAuthEndpoint(ctx: ArcjetContext) {
 }
 
 /**
+ * Policy pour la création de contenu (Threads, Posts)
+ * Protection contre le spam : Rate limit restrictif + Bot detection
+ */
+export async function protectContentCreationEndpoint(ctx: ArcjetContext) {
+  const { request } = ctx;
+  const { userIdOrIp } = await getBaseCharacteristics(ctx);
+
+  return arcjet
+    .withRule(detectBot(botSettings))
+    .withRule(slidingWindow(restrictiveRateLimit))
+    .protect(request as unknown as ArcjetNodeRequest, { userIdOrIp });
+}
+
+/**
  * Exécute la policy Arcjet appropriée selon le path
  */
 export async function runArcjetPolicy(ctx: ArcjetContext) {
@@ -131,6 +145,9 @@ export async function runArcjetPolicy(ctx: ArcjetContext) {
     case "/auth/reset-password":
     case "/auth/change-password":
       return protectAuthEndpoint(ctx);
+    case "/threads/create":
+    case "/posts/create":
+      return protectContentCreationEndpoint(ctx);
     default:
       return protectDefault(ctx);
   }

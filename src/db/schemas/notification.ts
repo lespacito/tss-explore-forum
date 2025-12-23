@@ -24,14 +24,14 @@ export const notificationTypeEnum = pgEnum(
 export const notifications = pgTable(
   "notifications",
   {
-    id,
+    id: id(),
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     targetType: notificationTypeEnum().notNull(),
     payload: json("payload").notNull(),
     isRead: boolean("is_read").default(false).notNull(),
-    createdAt,
+    createdAt: createdAt(),
   },
   (table) => ({
     // Composite index for unread notifications queries
