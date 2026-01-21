@@ -50,8 +50,8 @@ development_status:
   1-6-suppression-de-compte-et-donnees: in-progress
   epic-1-retrospective: optional
 
-  epic-2: backlog
-  2-1-choix-de-categorie-de-publication: backlog
+  epic-2: in-progress
+  2-1-choix-de-categorie-de-publication: ready-for-dev
   2-2-template-guide-par-categorie: backlog
   2-3-editeur-de-contenu-avec-formatage: backlog
   2-4-soumission-pour-moderation: backlog
@@ -231,6 +231,7 @@ sprint_metrics:
 
   stories_ready_for_dev:
     - 1-6-suppression-de-compte-et-donnees
+    - 2-1-choix-de-categorie-de-publication
 
   velocity:
     stories_completed: 4
@@ -261,3 +262,11 @@ sprint_metrics:
     - story: 1-6-suppression-de-compte-et-donnees
       rationale: Compléter Epic 1 - Dernière story d'authentification
       dependencies: Stories 1.1-1.5 (flow complet anonyme + enregistré)
+    - story: 2-1-choix-de-categorie-de-publication
+      rationale: Première story d'Epic 2 - Création de contenu. Catégories existantes, ~70% implémenté.
+      dependencies: Epic 1 (Authentication) complété
+      notes: |
+        Story enrichie 2026-01-21 par SM Agent.
+        - Incohérence critique identifiée: dialog et page utilisent catégories différentes
+        - 8 tasks définies: auth protection, unification catégories, accessibilité, tests, placeholder route
+        - ~0.5-1 jour d'effort estimé (beaucoup existe déjà)

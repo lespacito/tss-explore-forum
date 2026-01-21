@@ -140,6 +140,28 @@ export const threadCategories: CategoryConfig[] = [
 5. **Focus management (AC3)** - Focus ring visible sur tous les éléments
 6. **Fallback UX (AC2)** - Gestion gracieuse si route cible n'existe pas encore
 
+### ⚠️ INCOHÉRENCE CRITIQUE À RÉSOUDRE
+
+**Deux systèmes de catégories incompatibles existent dans le codebase:**
+
+1. **`/threads/new` (page)** utilise les catégories trauma-informed correctes:
+   - `VIOLENCE`, `ABUS`, `TEMOIN`, `DETRESSE`, `AUTRE`
+   - Source: `src/data/threads-categories.ts`
+
+2. **`/threads/index.tsx` (dialog)** utilise des catégories différentes hardcodées:
+   - `support`, `discussion`, `question`, `partage`, `temoignage`, `urgent`
+   - Lignes 40-47 dans le fichier
+
+**Impact:**
+- Un thread créé via le dialog aura une catégorie comme "support" qui n'existe pas dans l'enum `ThreadCategory`
+- Le server function `createThreadFn` accepte n'importe quelle string pour `category`
+- Pas de validation contre l'enum côté serveur
+
+**Solution requise (Task 2bis ajouté):**
+- Unifier le dialog pour utiliser `threadCategories` de `src/data/threads-categories.ts`
+- Ajouter validation Zod avec enum côté serveur
+- Migrer ou décider du sort des threads existants avec anciennes catégories
+
 ## Tasks / Subtasks
 
 ### Task 1: Ajouter protection de route authentifiée (AC: #4)
@@ -152,64 +174,72 @@ export const threadCategories: CategoryConfig[] = [
 - [ ] Subtask 1.6: Test: accès avec session anonyme → page affichée
 - [ ] Subtask 1.7: Test: accès avec session enregistrée → page affichée
 
-### Task 2: Améliorer l'accessibilité (AC: #3)
+### Task 2: Unifier les catégories dans le dialog `/threads/index.tsx` (AC: #1, NEW)
 
-- [ ] Subtask 2.1: Ajouter `focus-visible:ring-2 focus-visible:ring-primary` aux boutons catégorie
-- [ ] Subtask 2.2: Ajouter `role="group"` au conteneur de catégories avec `aria-label`
-- [ ] Subtask 2.3: Ajouter `aria-describedby` pour lier boutons aux descriptions
-- [ ] Subtask 2.4: Vérifier contrastes avec outil (ex: axe DevTools)
-- [ ] Subtask 2.5: Ajouter heading level approprié (`h1` existe déjà, vérifier hiérarchie)
-- [ ] Subtask 2.6: Test manuel avec lecteur d'écran (VoiceOver/NVDA)
+- [ ] Subtask 2.1: Remplacer les catégories hardcodées par `threadCategories` import
+- [ ] Subtask 2.2: Mettre à jour le Select pour afficher icônes et descriptions
+- [ ] Subtask 2.3: Ajouter validation Zod enum à `createThreadSchema` dans `create-thread.ts`
+- [ ] Subtask 2.4: Test: validation rejette catégorie invalide ("support" → erreur)
+- [ ] Subtask 2.5: Test: validation accepte catégories valides ("VIOLENCE" → success)
 
-### Task 3: Créer tests unitaires du composant (AC: #5)
+### Task 3: Améliorer l'accessibilité (AC: #3)
 
-- [ ] Subtask 3.1: Créer `src/routes/threads/new/__tests__/new-thread-page.test.tsx`
-- [ ] Subtask 3.2: Test: render initial - toutes les catégories affichées
-- [ ] Subtask 3.3: Test: avertissement de sécurité visible
-- [ ] Subtask 3.4: Test: clic sur catégorie → sélection visuelle
-- [ ] Subtask 3.5: Test: bouton "Continuer" désactivé sans sélection
-- [ ] Subtask 3.6: Test: bouton "Continuer" activé avec sélection
-- [ ] Subtask 3.7: Test: clic "Continuer" → navigation appelée avec bons params
-- [ ] Subtask 3.8: Test: clic "Annuler" → navigation vers /threads
-- [ ] Subtask 3.9: Test: helpText affiché après sélection
-- [ ] Subtask 3.10: Test: aria-pressed reflète l'état de sélection
-- [ ] Subtask 3.11: Total: ~10 tests unitaires
+- [ ] Subtask 3.1: Ajouter `focus-visible:ring-2 focus-visible:ring-primary` aux boutons catégorie
+- [ ] Subtask 3.2: Ajouter `role="group"` au conteneur de catégories avec `aria-label`
+- [ ] Subtask 3.3: Ajouter `aria-describedby` pour lier boutons aux descriptions
+- [ ] Subtask 3.4: Vérifier contrastes avec outil (ex: axe DevTools)
+- [ ] Subtask 3.5: Ajouter heading level approprié (`h1` existe déjà, vérifier hiérarchie)
+- [ ] Subtask 3.6: Test manuel avec lecteur d'écran (VoiceOver/NVDA)
 
-### Task 4: Créer tests d'accessibilité (AC: #3, #5)
+### Task 4: Créer tests unitaires du composant (AC: #5)
 
-- [ ] Subtask 4.1: Installer `@axe-core/react` ou utiliser `toHaveNoViolations` de jest-axe
-- [ ] Subtask 4.2: Créer `src/routes/threads/new/__tests__/new-thread-page.a11y.test.tsx`
-- [ ] Subtask 4.3: Test: pas de violations axe-core au render initial
-- [ ] Subtask 4.4: Test: pas de violations avec catégorie sélectionnée
-- [ ] Subtask 4.5: Test: tous les éléments interactifs focusables
-- [ ] Subtask 4.6: Test: ordre de focus logique (haut → bas, gauche → droite)
-- [ ] Subtask 4.7: Total: ~5 tests d'accessibilité
+- [ ] Subtask 4.1: Créer `src/routes/threads/new/__tests__/new-thread-page.test.tsx`
+- [ ] Subtask 4.2: Test: render initial - toutes les catégories affichées
+- [ ] Subtask 4.3: Test: avertissement de sécurité visible
+- [ ] Subtask 4.4: Test: clic sur catégorie → sélection visuelle
+- [ ] Subtask 4.5: Test: bouton "Continuer" désactivé sans sélection
+- [ ] Subtask 4.6: Test: bouton "Continuer" activé avec sélection
+- [ ] Subtask 4.7: Test: clic "Continuer" → navigation appelée avec bons params
+- [ ] Subtask 4.8: Test: clic "Annuler" → navigation vers /threads
+- [ ] Subtask 4.9: Test: helpText affiché après sélection
+- [ ] Subtask 4.10: Test: aria-pressed reflète l'état de sélection
+- [ ] Subtask 4.11: Total: ~10 tests unitaires
 
-### Task 5: Créer tests E2E avec Playwright (AC: #5)
+### Task 5: Créer tests d'accessibilité (AC: #3, #5)
 
-- [ ] Subtask 5.1: Créer `src/routes/threads/new/__tests__/category-selection.e2e.test.ts`
-- [ ] Subtask 5.2: Test E2E: utilisateur anonyme → accès page → sélection → continuer
-- [ ] Subtask 5.3: Test E2E: utilisateur enregistré → accès page → sélection → continuer
-- [ ] Subtask 5.4: Test E2E: navigation clavier seule (Tab + Enter)
-- [ ] Subtask 5.5: Test E2E: mobile viewport → layout responsive correct
-- [ ] Subtask 5.6: Test E2E: annulation → retour à /threads
-- [ ] Subtask 5.7: Test E2E: changement de catégorie avant continuer
-- [ ] Subtask 5.8: Total: ~8 tests E2E
+- [ ] Subtask 5.1: Installer `@axe-core/react` ou utiliser `toHaveNoViolations` de jest-axe
+- [ ] Subtask 5.2: Créer `src/routes/threads/new/__tests__/new-thread-page.a11y.test.tsx`
+- [ ] Subtask 5.3: Test: pas de violations axe-core au render initial
+- [ ] Subtask 5.4: Test: pas de violations avec catégorie sélectionnée
+- [ ] Subtask 5.5: Test: tous les éléments interactifs focusables
+- [ ] Subtask 5.6: Test: ordre de focus logique (haut → bas, gauche → droite)
+- [ ] Subtask 5.7: Total: ~5 tests d'accessibilité
 
-### Task 6: Gérer le fallback UX pour route manquante (AC: #2)
+### Task 6: Créer tests E2E avec Playwright (AC: #5)
 
-- [ ] Subtask 6.1: Créer route placeholder `/threads/new/$category.tsx`
-- [ ] Subtask 6.2: Afficher message "Template en construction" avec lien retour
-- [ ] Subtask 6.3: Stocker la catégorie dans state pour Story 2.2
-- [ ] Subtask 6.4: OU modifier navigation pour créer directement si template unique (optionnel)
+- [ ] Subtask 6.1: Créer `src/routes/threads/new/__tests__/category-selection.e2e.test.ts`
+- [ ] Subtask 6.2: Test E2E: utilisateur anonyme → accès page → sélection → continuer
+- [ ] Subtask 6.3: Test E2E: utilisateur enregistré → accès page → sélection → continuer
+- [ ] Subtask 6.4: Test E2E: navigation clavier seule (Tab + Enter)
+- [ ] Subtask 6.5: Test E2E: mobile viewport → layout responsive correct
+- [ ] Subtask 6.6: Test E2E: annulation → retour à /threads
+- [ ] Subtask 6.7: Test E2E: changement de catégorie avant continuer
+- [ ] Subtask 6.8: Total: ~8 tests E2E
 
-### Task 7: Documentation et validation finale (AC: #1-5)
+### Task 7: Gérer le fallback UX pour route manquante (AC: #2)
 
-- [ ] Subtask 7.1: Mettre à jour `project-context.md` avec le flux de création
-- [ ] Subtask 7.2: Vérifier TypeScript: 0 erreurs diagnostic
-- [ ] Subtask 7.3: Exécuter tous les tests: 100% pass rate
-- [ ] Subtask 7.4: Vérifier lint/format: `pnpm check`
-- [ ] Subtask 7.5: Marquer story comme done dans sprint-status.yaml
+- [ ] Subtask 7.1: Créer route placeholder `/threads/new/$category.tsx`
+- [ ] Subtask 7.2: Afficher message "Template en construction" avec lien retour
+- [ ] Subtask 7.3: Stocker la catégorie dans state pour Story 2.2
+- [ ] Subtask 7.4: OU modifier navigation pour créer directement si template unique (optionnel)
+
+### Task 8: Documentation et validation finale (AC: #1-5)
+
+- [ ] Subtask 8.1: Mettre à jour `project-context.md` avec le flux de création
+- [ ] Subtask 8.2: Vérifier TypeScript: 0 erreurs diagnostic
+- [ ] Subtask 8.3: Exécuter tous les tests: 100% pass rate
+- [ ] Subtask 8.4: Vérifier lint/format: `pnpm check`
+- [ ] Subtask 8.5: Marquer story comme done dans sprint-status.yaml
 
 ## Dev Notes
 
