@@ -1,29 +1,38 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
-import {
-  User,
-  Mail,
-  Shield,
-  Key,
-  LogOut,
-  Smartphone,
-  Fingerprint,
-} from "lucide-react";
-import { createFileRoute, redirect } from "@tanstack/react-router";
-import { getAuthSession } from "@/features/auth/server/get-auth-session";
 import { Button } from "@/components/ui/button";
-import { signOut } from "@/features/auth/lib/auth-client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { getAuthSession } from "@/features/auth/server/get-auth-session";
+import { getUserThreadsFn } from "@/features/threads/server/get-user-threads";
+import { getUserPostsFn } from "@/features/posts/server/get-user-posts";
+import { ThreadCard } from "@/features/threads/components/thread-card";
+import { PostCard } from "@/features/posts/components/post-card";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { format, formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
+import {
+  AtSign,
+  Calendar,
+  Settings,
+  FileText,
+  MessageSquare,
+} from "lucide-react";
+
+const getInitials = (name?: string) => {
+  const safe = (name ?? "").trim();
+  if (!safe) return "??";
+  return safe
+    .split(/\s+/)
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+};
 
 export const Route = createFileRoute("/account/profile/")({
-  component: ProfilePage,
+  component: PublicProfilePage,
   loader: async () => {
     const session = await getAuthSession();
     if (!session || !session.user) {
@@ -31,157 +40,158 @@ export const Route = createFileRoute("/account/profile/")({
         to: "/auth/login",
       });
     }
-    return { user: session.user };
+
+    // Load user's threads and posts with error handling
+    try {
+      const [userThreads, userPosts] = await Promise.all([
+        getUserThreadsFn().catch(() => []),
+        getUserPostsFn().catch(() => []),
+      ]);
+
+      return {
+        user: session.user,
+        threads: userThreads ?? [],
+        posts: userPosts ?? [],
+      };
+    } catch (error) {
+      console.error("Error loading user profile data:", error);
+      return {
+        user: session.user,
+        threads: [],
+        posts: [],
+      };
+    }
   },
 });
 
-function ProfilePage() {
-  const navigate = Route.useNavigate();
-  const { user } = Route.useLoaderData();
-
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  };
+function PublicProfilePage() {
+  const { user, threads, posts } = Route.useLoaderData();
+  const displayName = user?.name ?? user?.username ?? "Utilisateur";
+  const avatarSrc = user?.image ?? "";
+  const joinDate = user?.createdAt
+    ? format(new Date(user.createdAt), "d MMMM yyyy", { locale: fr })
+    : "Date inconnue";
 
   return (
     <div className="container max-w-4xl mx-auto py-10 px-4 space-y-8">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Mon Profil</h1>
-        <p className="text-muted-foreground">
-          Gérez vos informations personnelles et vos paramètres de sécurité.
-        </p>
-      </div>
+      <Card>
+        <CardHeader className="relative">
+          <div className="space-y-4">
+            <Avatar className="h-28 w-28 border-4 border-background">
+              <AvatarImage src={avatarSrc} alt={displayName} />
+              <AvatarFallback className="text-3xl">
+                {getInitials(displayName)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="space-y-1">
+              <h1 className="text-3xl font-bold tracking-tight">
+                {displayName}
+              </h1>
+              <p className="text-muted-foreground flex items-center gap-2">
+                <AtSign className="h-4 w-4" />
+                {user.username ?? "non-défini"}
+              </p>
+            </div>
+          </div>
+          <Button
+            asChild
+            variant="outline"
+            className="absolute top-6 right-6 gap-2"
+          >
+            <Link to="/account/settings">
+              <Settings className="h-4 w-4" />
+              Gérer le compte
+            </Link>
+          </Button>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <Separator />
+          <div className="space-y-4">
+            <h3 className="font-semibold text-lg">À propos de moi</h3>
+            <p className="text-muted-foreground italic">
+              {user?.bio || "L'utilisateur n'a pas encore écrit de biographie."}
+            </p>
+          </div>
 
-      <div className="grid gap-6 md:grid-cols-[1fr_300px]">
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Informations Personnelles</CardTitle>
-              <CardDescription>
-                Vos informations d'identification sur le forum.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center gap-6">
-                <Avatar className="h-20 w-20">
-                  <AvatarImage src={user.image || ""} alt={user.name} />
-                  <AvatarFallback className="text-lg">
-                    {getInitials(user.name)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="space-y-1">
-                  <h3 className="font-medium text-xl">{user.name}</h3>
-                  <p className="text-sm text-muted-foreground flex items-center gap-2">
-                    <Mail className="h-4 w-4" />
-                    {user.email}
-                  </p>
-                </div>
-              </div>
+          <div className="flex items-center gap-6 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              <span>Rejoint le {joinDate}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              <span>
+                {threads?.length ?? 0}{" "}
+                {(threads?.length ?? 0) === 1 ? "publication" : "publications"}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              <span>
+                {posts?.length ?? 0}{" "}
+                {(posts?.length ?? 0) === 1 ? "réponse" : "réponses"}
+              </span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-              <Separator />
+      {/* Mes publications et réponses */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Mon activité</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="publications" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="publications" className="gap-2">
+                <FileText className="h-4 w-4" />
+                Mes publications ({threads?.length ?? 0})
+              </TabsTrigger>
+              <TabsTrigger value="reponses" className="gap-2">
+                <MessageSquare className="h-4 w-4" />
+                Mes réponses ({posts?.length ?? 0})
+              </TabsTrigger>
+            </TabsList>
 
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-1">
-                  <div className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                    <User className="h-4 w-4" />
-                    Nom d'affichage
-                  </div>
-                  <p className="font-medium">{user.name}</p>
+            <TabsContent value="publications" className="space-y-4 mt-6">
+              {!threads || threads.length === 0 ? (
+                <div className="text-center py-10 text-muted-foreground">
+                  <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>Vous n'avez pas encore créé de publication.</p>
+                  <Button asChild className="mt-4" variant="outline">
+                    <Link to="/threads">Explorer les discussions</Link>
+                  </Button>
                 </div>
-                <div className="space-y-1">
-                  <div className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                    <Fingerprint className="h-4 w-4" />
-                    Identifiant Unique
-                  </div>
-                  <p className="font-mono text-xs bg-muted p-1 rounded w-fit">
-                    {user.id}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              ) : (
+                threads.map((thread) => (
+                  <ThreadCard key={thread.id} thread={thread} />
+                ))
+              )}
+            </TabsContent>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5" />
-                Sécurité
-              </CardTitle>
-              <CardDescription>
-                Gérez la sécurité de votre compte.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="space-y-0.5">
-                  <div className="font-medium flex items-center gap-2">
-                    <Key className="h-4 w-4" />
-                    Mot de passe
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Dernière modification il y a 3 mois
-                  </p>
+            <TabsContent value="reponses" className="space-y-4 mt-6">
+              {!posts || posts.length === 0 ? (
+                <div className="text-center py-10 text-muted-foreground">
+                  <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>Vous n'avez pas encore posté de réponse.</p>
+                  <Button asChild className="mt-4" variant="outline">
+                    <Link to="/threads">Participer aux discussions</Link>
+                  </Button>
                 </div>
-                <Button variant="outline" disabled>
-                  Modifier
-                  <Badge variant="secondary" className="ml-2 text-xs">
-                    Bientôt
-                  </Badge>
-                </Button>
-              </div>
-              <div className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="space-y-0.5">
-                  <div className="font-medium flex items-center gap-2">
-                    <Smartphone className="h-4 w-4" />
-                    Authentification à deux facteurs
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Ajoutez une couche de sécurité supplémentaire
-                  </p>
-                </div>
-                <Button variant="outline" disabled>
-                  Activer
-                  <Badge variant="secondary" className="ml-2 text-xs">
-                    Bientôt
-                  </Badge>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="space-y-6">
-          <Card className="border-destructive/20 bg-destructive/5">
-            <CardHeader>
-              <CardTitle className="text-destructive">Zone de danger</CardTitle>
-              <CardDescription>
-                Actions irréversibles ou sensibles.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button
-                variant="destructive"
-                className="w-full cursor-pointer"
-                onClick={() =>
-                  signOut({
-                    fetchOptions: {
-                      onSuccess: () => navigate({ to: "/" }),
-                    },
-                  })
-                }
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                Se déconnecter
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+              ) : (
+                posts.map((post) => (
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    threadCategory={post.threadCategory || ""}
+                  />
+                ))
+              )}
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
     </div>
   );
 }

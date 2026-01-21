@@ -14,8 +14,10 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ThreadsIndexRouteImport } from './routes/threads/index'
 import { Route as SearchIndexRouteImport } from './routes/search/index'
-import { Route as PostsIndexRouteImport } from './routes/posts/index'
+import { Route as ThreadsConfirmationRouteImport } from './routes/threads/confirmation'
 import { Route as ThreadsThreadSlugRouteImport } from './routes/threads/$threadSlug'
+import { Route as AuthAnonymousSigninRouteImport } from './routes/auth/anonymous-signin'
+import { Route as AuthResetPasswordIndexRouteImport } from './routes/auth/reset-password/index'
 import { Route as AuthLoginIndexRouteImport } from './routes/auth/login/index'
 import { Route as AccountSettingsIndexRouteImport } from './routes/account/settings/index'
 import { Route as AccountProfileIndexRouteImport } from './routes/account/profile/index'
@@ -46,14 +48,24 @@ const SearchIndexRoute = SearchIndexRouteImport.update({
   path: '/search/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PostsIndexRoute = PostsIndexRouteImport.update({
-  id: '/posts/',
-  path: '/posts/',
+const ThreadsConfirmationRoute = ThreadsConfirmationRouteImport.update({
+  id: '/threads/confirmation',
+  path: '/threads/confirmation',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ThreadsThreadSlugRoute = ThreadsThreadSlugRouteImport.update({
   id: '/threads/$threadSlug',
   path: '/threads/$threadSlug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthAnonymousSigninRoute = AuthAnonymousSigninRouteImport.update({
+  id: '/auth/anonymous-signin',
+  path: '/auth/anonymous-signin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthResetPasswordIndexRoute = AuthResetPasswordIndexRouteImport.update({
+  id: '/auth/reset-password/',
+  path: '/auth/reset-password/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthLoginIndexRoute = AuthLoginIndexRouteImport.update({
@@ -81,41 +93,47 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/test-email': typeof TestEmailRoute
+  '/auth/anonymous-signin': typeof AuthAnonymousSigninRoute
   '/threads/$threadSlug': typeof ThreadsThreadSlugRoute
-  '/posts': typeof PostsIndexRoute
+  '/threads/confirmation': typeof ThreadsConfirmationRoute
   '/search': typeof SearchIndexRoute
   '/threads': typeof ThreadsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/account/profile': typeof AccountProfileIndexRoute
   '/account/settings': typeof AccountSettingsIndexRoute
   '/auth/login': typeof AuthLoginIndexRoute
+  '/auth/reset-password': typeof AuthResetPasswordIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/test-email': typeof TestEmailRoute
+  '/auth/anonymous-signin': typeof AuthAnonymousSigninRoute
   '/threads/$threadSlug': typeof ThreadsThreadSlugRoute
-  '/posts': typeof PostsIndexRoute
+  '/threads/confirmation': typeof ThreadsConfirmationRoute
   '/search': typeof SearchIndexRoute
   '/threads': typeof ThreadsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/account/profile': typeof AccountProfileIndexRoute
   '/account/settings': typeof AccountSettingsIndexRoute
   '/auth/login': typeof AuthLoginIndexRoute
+  '/auth/reset-password': typeof AuthResetPasswordIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/test-email': typeof TestEmailRoute
+  '/auth/anonymous-signin': typeof AuthAnonymousSigninRoute
   '/threads/$threadSlug': typeof ThreadsThreadSlugRoute
-  '/posts/': typeof PostsIndexRoute
+  '/threads/confirmation': typeof ThreadsConfirmationRoute
   '/search/': typeof SearchIndexRoute
   '/threads/': typeof ThreadsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/account/profile/': typeof AccountProfileIndexRoute
   '/account/settings/': typeof AccountSettingsIndexRoute
   '/auth/login/': typeof AuthLoginIndexRoute
+  '/auth/reset-password/': typeof AuthResetPasswordIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -123,54 +141,62 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/test-email'
+    | '/auth/anonymous-signin'
     | '/threads/$threadSlug'
-    | '/posts'
+    | '/threads/confirmation'
     | '/search'
     | '/threads'
     | '/api/auth/$'
     | '/account/profile'
     | '/account/settings'
     | '/auth/login'
+    | '/auth/reset-password'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/dashboard'
     | '/test-email'
+    | '/auth/anonymous-signin'
     | '/threads/$threadSlug'
-    | '/posts'
+    | '/threads/confirmation'
     | '/search'
     | '/threads'
     | '/api/auth/$'
     | '/account/profile'
     | '/account/settings'
     | '/auth/login'
+    | '/auth/reset-password'
   id:
     | '__root__'
     | '/'
     | '/dashboard'
     | '/test-email'
+    | '/auth/anonymous-signin'
     | '/threads/$threadSlug'
-    | '/posts/'
+    | '/threads/confirmation'
     | '/search/'
     | '/threads/'
     | '/api/auth/$'
     | '/account/profile/'
     | '/account/settings/'
     | '/auth/login/'
+    | '/auth/reset-password/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
   TestEmailRoute: typeof TestEmailRoute
+  AuthAnonymousSigninRoute: typeof AuthAnonymousSigninRoute
   ThreadsThreadSlugRoute: typeof ThreadsThreadSlugRoute
-  PostsIndexRoute: typeof PostsIndexRoute
+  ThreadsConfirmationRoute: typeof ThreadsConfirmationRoute
   SearchIndexRoute: typeof SearchIndexRoute
   ThreadsIndexRoute: typeof ThreadsIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   AccountProfileIndexRoute: typeof AccountProfileIndexRoute
   AccountSettingsIndexRoute: typeof AccountSettingsIndexRoute
   AuthLoginIndexRoute: typeof AuthLoginIndexRoute
+  AuthResetPasswordIndexRoute: typeof AuthResetPasswordIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -210,11 +236,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SearchIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/posts/': {
-      id: '/posts/'
-      path: '/posts'
-      fullPath: '/posts'
-      preLoaderRoute: typeof PostsIndexRouteImport
+    '/threads/confirmation': {
+      id: '/threads/confirmation'
+      path: '/threads/confirmation'
+      fullPath: '/threads/confirmation'
+      preLoaderRoute: typeof ThreadsConfirmationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/threads/$threadSlug': {
@@ -222,6 +248,20 @@ declare module '@tanstack/react-router' {
       path: '/threads/$threadSlug'
       fullPath: '/threads/$threadSlug'
       preLoaderRoute: typeof ThreadsThreadSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/anonymous-signin': {
+      id: '/auth/anonymous-signin'
+      path: '/auth/anonymous-signin'
+      fullPath: '/auth/anonymous-signin'
+      preLoaderRoute: typeof AuthAnonymousSigninRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/reset-password/': {
+      id: '/auth/reset-password/'
+      path: '/auth/reset-password'
+      fullPath: '/auth/reset-password'
+      preLoaderRoute: typeof AuthResetPasswordIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/login/': {
@@ -259,14 +299,16 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   TestEmailRoute: TestEmailRoute,
+  AuthAnonymousSigninRoute: AuthAnonymousSigninRoute,
   ThreadsThreadSlugRoute: ThreadsThreadSlugRoute,
-  PostsIndexRoute: PostsIndexRoute,
+  ThreadsConfirmationRoute: ThreadsConfirmationRoute,
   SearchIndexRoute: SearchIndexRoute,
   ThreadsIndexRoute: ThreadsIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   AccountProfileIndexRoute: AccountProfileIndexRoute,
   AccountSettingsIndexRoute: AccountSettingsIndexRoute,
   AuthLoginIndexRoute: AuthLoginIndexRoute,
+  AuthResetPasswordIndexRoute: AuthResetPasswordIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

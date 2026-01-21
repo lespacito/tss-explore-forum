@@ -1,7 +1,52 @@
-import { Link } from "@tanstack/react-router";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { useId } from "react";
+import { AnonymousPostButton } from "@/features/auth/components/AnonymousPostButton";
+
+type HeroImage = {
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+};
+
+const HERO_IMAGES: HeroImage[] = [
+  {
+    src: "/images/hero/community-1.webp",
+    alt: "Groupe d'amis souriants",
+    width: 400,
+    height: 533,
+  },
+  {
+    src: "/images/hero/community-2.webp",
+    alt: "Soutien mutuel",
+    width: 400,
+    height: 533,
+  },
+  {
+    src: "/images/hero/community-3.webp",
+    alt: "Collaboration au travail",
+    width: 400,
+    height: 533,
+  },
+  {
+    src: "/images/hero/community-4.webp",
+    alt: "Discussion en groupe",
+    width: 400,
+    height: 533,
+  },
+  {
+    src: "/images/hero/community-5.webp",
+    alt: "Amitié et partage",
+    width: 400,
+    height: 533,
+  },
+  {
+    src: "/images/hero/community-6.webp",
+    alt: "Réunion conviviale",
+    width: 400,
+    height: 533,
+  },
+];
 
 const HeroSection = () => {
   const id = useId();
@@ -65,46 +110,24 @@ const HeroSection = () => {
           Santé mentale, violences, difficultés... vous n'êtes plus seul(e).
         </p>
 
-        <Button size="lg" asChild>
-          <Link to="/auth/login">Rejoindre la discussion</Link>
-        </Button>
+        <AnonymousPostButton />
       </div>
 
       {/* Images Grid */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
-        {[
-          {
-            src: "/images/hero/community-1.webp",
-            alt: "Groupe d'amis souriants",
-          },
-          {
-            src: "/images/hero/community-2.webp",
-            alt: "Soutien mutuel",
-          },
-          {
-            src: "/images/hero/community-3.webp",
-            alt: "Collaboration au travail",
-          },
-          {
-            src: "/images/hero/community-4.webp",
-            alt: "Discussion en groupe",
-          },
-          {
-            src: "/images/hero/community-5.webp",
-            alt: "Amitié et partage",
-          },
-          {
-            src: "/images/hero/community-6.webp",
-            alt: "Réunion conviviale",
-          },
-        ].map((image) => (
+        {HERO_IMAGES.map((image, index) => (
           <div
             key={image.alt}
-            className="relative aspect-3/4 overflow-hidden rounded-xl"
+            className="relative aspect-3/4 overflow-hidden rounded-xl bg-muted"
           >
             <img
               src={image.src}
               alt={image.alt}
+              width={image.width}
+              height={image.height}
+              loading={index < 2 ? "eager" : "lazy"}
+              fetchPriority={index === 0 ? "high" : "low"}
+              decoding={index < 2 ? "sync" : "async"}
               className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
             />
           </div>

@@ -15,11 +15,11 @@ import type { ThemeProviderProps } from "next-themes";
 export function ThemeProvider({
   attribute = "class",
   defaultTheme = "system",
-  enableSystem = true,
-  enableColorScheme = true,
+  enableSystem,
+  enableColorScheme,
   themes = ["light", "dark"],
   storageKey = "tss-explore-theme",
-  disableTransitionOnChange = false,
+  disableTransitionOnChange,
   nonce,
   children,
   ...props

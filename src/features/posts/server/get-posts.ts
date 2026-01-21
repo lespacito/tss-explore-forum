@@ -1,10 +1,10 @@
 import { db } from "@/db";
-import { posts } from "../schema";
+import { posts } from "../../../db/schemas/post";
 
 import { desc, eq, isNull } from "drizzle-orm";
 import { createServerFn } from "@tanstack/react-start";
 import { alias, threads } from "@/db/schema";
-import { user } from "@/features/auth/schema";
+import { user } from "@/db/schemas/user";
 
 export const getPostsFn = createServerFn({ method: "GET" }).handler(
   async () => {

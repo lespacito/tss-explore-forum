@@ -1,169 +1,196 @@
-import { useForm } from "@tanstack/react-form";
-import { useRouter } from "@tanstack/react-router";
-import { useId } from "react";
+import { useId, useState } from "react";
 import { toast } from "sonner";
-import { FormField } from "@/components/form/form-field";
+import { useAppForm } from "@/components/form/hooks";
 import ActionButton from "@/components/ui/action-button";
-import { Button } from "@/components/ui/button";
 import { Field, FieldGroup } from "@/components/ui/field";
-import { authClient } from "@/features/auth/lib/auth-client";
+import { signUp } from "@/features/auth/lib/auth-client";
 import {
-	type SignUpInput,
-	signUpSchema,
-} from "@/features/auth/schema/sign-up-schema";
+  type SignUpInput,
+  signUpSchema,
+} from "@/features/auth/schemas/sign-up-schema";
 import { sendWelcomeEmailFn } from "@/features/auth/server/send-welcome-email";
+import { logger } from "@/lib/logger/client-logger";
+import { parseSignUpError } from "@/features/auth/lib/client/parse-auth-error";
 
-export const SignUpTab = () => {
-	const id = useId();
-	const router = useRouter();
+export const SignUpTab = ({
+  openEmailVerificationTab,
+}: {
+  openEmailVerificationTab: (email: string) => void;
+}) => {
+  const id = useId();
+  const [serverErrors, setServerErrors] = useState<
+    Partial<Record<keyof SignUpInput, string>>
+  >({});
 
-	const form = useForm({
-		defaultValues: {
-			name: "",
-			email: "",
-			password: "",
-			username: "",
-			displayUsername: "",
-		} satisfies SignUpInput,
-		validators: {
-			onSubmit: signUpSchema,
-			onBlur: signUpSchema,
-		},
-		onSubmit: async ({ value }) => {
-			const { error } = await authClient.signUp.email({
-				email: value.email,
-				password: value.password,
-				name: value.name,
-				username: value.username,
-				displayUsername: value.displayUsername,
-				callbackURL: "/",
-			});
+  const form = useAppForm({
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      username: "",
+      displayUsername: "",
+    } satisfies SignUpInput as SignUpInput,
+    validators: {
+      onSubmit: signUpSchema,
+      onBlur: signUpSchema,
+    },
+    onSubmit: async ({ value }) => {
+      // Réinitialiser les erreurs serveur au début de la soumission
+      setServerErrors({});
 
-			if (error) {
-				const errorData = error;
-				if (errorData?.message) {
-					if ((errorData as any).field) {
-						form.setFieldMeta((errorData as any).field, (prev) => ({
-							...prev,
-							isTouched: true,
-							errorMap: {
-								onChange: (errorData as any).error || errorData.message,
-							},
-						}));
-						toast.error((errorData as any).error || "Erreur de validation");
-					} else {
-						toast.error(errorData.message || "Erreur inconnue");
-					}
-				}
-			} else {
-				await sendWelcomeEmailFn({
-					data: {
-						email: value.email,
-						name: value.name,
-					},
-				});
+      const res = await signUp.email(
+        {
+          ...value,
+          callbackURL: "/",
+        },
+        {
+          onError: (error) => {
+            // Parser l'erreur avec le parseur centralisé
+            const parsed = parseSignUpError(error);
 
-				toast.success("Inscription réussie ! Vous êtes maintenant connecté.");
-				form.reset();
-				await router.invalidate();
-				router.navigate({ to: "/" });
-			}
-		},
-		onSubmitInvalid: () => {
-			toast.error("Veuillez corriger les erreurs dans le formulaire");
-		},
-	});
+            // Afficher le message dans un toast
+            toast.error(parsed.message);
 
-	return (
-		<form
-			id={`register-form-${id}`}
-			onSubmit={(e) => {
-				e.preventDefault();
-				e.stopPropagation();
-				form.handleSubmit();
-			}}
-			className="space-y-4"
-		>
-			<FieldGroup>
-				<form.Field name="name">
-					{(field) => (
-						<FormField
-							field={field}
-							label="Nom"
-							placeholder="Votre nom"
-							autoComplete="name"
-						/>
-					)}
-				</form.Field>
-				<form.Field name="username">
-					{(field) => (
-						<FormField
-							field={field}
-							label="Nom d'utilisateur"
-							placeholder="votre_pseudo"
-							autoComplete="username"
-						/>
-					)}
-				</form.Field>
-				<form.Field name="displayUsername">
-					{(field) => (
-						<FormField
-							field={field}
-							label="Nom d'affichage"
-							placeholder="Pseudo Affiché"
-							autoComplete="displayUsername"
-						/>
-					)}
-				</form.Field>
-				<form.Field name="email">
-					{(field) => (
-						<FormField
-							field={field}
-							label="Email"
-							type="email"
-							placeholder="exemple@email.com"
-							autoComplete="email"
-						/>
-					)}
-				</form.Field>
-				<form.Field name="password">
-					{(field) => (
-						<FormField
-							field={field}
-							label="Mot de passe"
-							placeholder="*******"
-							autoComplete="new-password"
-							isPassword
-						/>
-					)}
-				</form.Field>
-			</FieldGroup>
-			<form.Subscribe
-				selector={(state) => ({
-					isSubmitting: state.isSubmitting,
-					canSubmit: state.canSubmit,
-					isDirty: state.isDirty,
-				})}
-			>
-				{({ isSubmitting, canSubmit, isDirty }) => (
-					<Field orientation="horizontal">
-						<Button
-							type="button"
-							variant="outline"
-							onClick={() => form.reset()}
-							disabled={isSubmitting || !isDirty}
-						>
-							Annuler
-						</Button>
-						<ActionButton
-							isPending={isSubmitting}
-							disabled={!canSubmit || isSubmitting}
-						>
-							S'inscrire
-						</ActionButton>
-					</Field>
-				)}
-			</form.Subscribe>
-		</form>
-	);
+            // Logger l'erreur pour le debug
+            logger.error("Erreur durant l'inscription", {
+              message: error instanceof Error ? error.message : String(error),
+              stack: error instanceof Error ? error.stack : undefined,
+              parsedField: parsed.field,
+            });
+
+            // Mapper l'erreur vers le champ spécifique si identifié
+            if (parsed.field) {
+              setServerErrors((prev) => ({
+                ...prev,
+                [parsed.field as keyof SignUpInput]: parsed.message,
+              }));
+            }
+          },
+          onSuccess: async () => {
+            await sendWelcomeEmailFn({
+              data: {
+                email: value.email,
+                name: value.name,
+              },
+            });
+            toast.success("Inscription réussie ! Bienvenue à bord !");
+          },
+        },
+      );
+
+      if (!res.error) form.reset();
+
+      if (res.data?.user && !res.data.user.emailVerified) {
+        openEmailVerificationTab(value.email);
+      }
+    },
+  });
+
+  return (
+    <form
+      id={`register-form-${id}`}
+      onSubmit={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        form.handleSubmit();
+      }}
+      className="space-y-4"
+    >
+      <FieldGroup>
+        <form.AppField name="name">
+          {(field) => (
+            <field.Input
+              label="Nom"
+              description="Utilisé pour personnaliser vos emails de bienvenue"
+              aria-invalid={!!serverErrors.name}
+            />
+          )}
+        </form.AppField>
+        {serverErrors.name && (
+          <p className="text-sm text-destructive">{serverErrors.name}</p>
+        )}
+
+        <form.AppField name="username">
+          {(field) => (
+            <field.UsernameInput
+              label="Nom d'utilisateur"
+              description="Utilisé lors de la connexion et dans votre profil"
+              aria-invalid={!!serverErrors.username}
+            />
+          )}
+        </form.AppField>
+        {serverErrors.username && (
+          <p className="text-sm text-destructive">{serverErrors.username}</p>
+        )}
+
+        <form.AppField name="displayUsername">
+          {(field) => (
+            <field.DisplayUsernameInput
+              label="Nom d'affichage"
+              description="C'est le nom qui sera visible publiquement"
+              aria-invalid={!!serverErrors.displayUsername}
+            />
+          )}
+        </form.AppField>
+        {serverErrors.displayUsername && (
+          <p className="text-sm text-destructive">
+            {serverErrors.displayUsername}
+          </p>
+        )}
+
+        <form.AppField name="email">
+          {(field) => (
+            <field.EmailInput
+              label="Email"
+              description="Pour recevoir des notifications et récupérer votre compte"
+              aria-invalid={!!serverErrors.email}
+            />
+          )}
+        </form.AppField>
+        {serverErrors.email && (
+          <p className="text-sm text-destructive">{serverErrors.email}</p>
+        )}
+
+        <form.AppField name="password">
+          {(field) => (
+            <field.PasswordInput
+              label="Mot de passe"
+              description="Au moins 6 caractères"
+              aria-invalid={!!serverErrors.password}
+            />
+          )}
+        </form.AppField>
+        {serverErrors.password && (
+          <p className="text-sm text-destructive">{serverErrors.password}</p>
+        )}
+      </FieldGroup>
+      <form.Subscribe
+        selector={(state) => ({
+          isSubmitting: state.isSubmitting,
+          canSubmit: state.canSubmit,
+          isDirty: state.isDirty,
+        })}
+      >
+        {({ isSubmitting, canSubmit, isDirty }) => (
+          <Field orientation="horizontal">
+            <ActionButton
+              type="button"
+              variant="outline"
+              isPending={isSubmitting}
+              onClick={() => form.reset()}
+              disabled={isSubmitting || !isDirty}
+            >
+              Annuler
+            </ActionButton>
+            <ActionButton
+              isPending={isSubmitting}
+              disabled={!canSubmit || isSubmitting}
+            >
+              S'inscrire
+            </ActionButton>
+          </Field>
+        )}
+      </form.Subscribe>
+    </form>
+  );
 };

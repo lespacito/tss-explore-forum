@@ -40,16 +40,16 @@ export function ThreadCard({ thread }: ThreadCardProps) {
 
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
-      support: "bg-blue-500/10 text-blue-700 border-blue-500/20",
-      discussion: "bg-purple-500/10 text-purple-700 border-purple-500/20",
-      question: "bg-green-500/10 text-green-700 border-green-500/20",
-      partage: "bg-orange-500/10 text-orange-700 border-orange-500/20",
-      temoignage: "bg-pink-500/10 text-pink-700 border-pink-500/20",
-      urgent: "bg-red-500/10 text-red-700 border-red-500/20",
+      support: "bg-primary/10 text-primary border-primary/20",
+      discussion: "bg-chart-2/10 text-chart-2 border-chart-2/20",
+      question: "bg-chart-3/10 text-chart-3 border-chart-3/20",
+      partage: "bg-accent/10 text-accent-foreground border-accent/20",
+      temoignage: "bg-chart-4/10 text-chart-4 border-chart-4/20",
+      urgent: "bg-destructive/10 text-destructive border-destructive/20",
     };
     return (
       colors[category.toLowerCase()] ||
-      "bg-gray-500/10 text-gray-700 border-gray-500/20"
+      "bg-muted/10 text-muted-foreground border-muted/20"
     );
   };
 
