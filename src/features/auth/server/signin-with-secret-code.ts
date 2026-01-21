@@ -1,4 +1,4 @@
-import { createServerFn, getRequest } from "@tanstack/react-start";
+import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { findUserBySecretCode } from "@/features/auth/lib/find-user-by-code";
 import { auth } from "@/features/auth/lib/auth"; // Better-Auth instance
@@ -14,8 +14,7 @@ const signInSchema = z.object({
 
 export const signinWithSecretCodeFn = createServerFn({ method: "POST" })
   .inputValidator(signInSchema)
-  .handler(async ({ data }) => {
-    const request = getRequest();
+  .handler(async ({ data, request }) => {
     // Sanitize input
     const normalizedCode = data.secretCode.trim().toUpperCase();
 
