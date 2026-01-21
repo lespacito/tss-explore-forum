@@ -5,7 +5,8 @@ import { FormDisplayUsernameInput } from "@/components/form/FormDisplayUsernameI
 import { FormEmailInput } from "@/components/form/FormEmailInput";
 import { FormPasswordInput } from "@/components/form/FormPasswordInput";
 import { FormCurrentPasswordInput } from "@/components/form/FormCurrentPasswordInput";
-import { FormTextarea } from "./FormTextArea";
+import { FormTextarea } from "@/components/form/FormTextArea";
+import { FormCheckboxInput } from "@/components/form/FormCheckboxInput";
 
 const { fieldContext, formContext, useFieldContext, useFormContext } =
   createFormHookContexts();
@@ -19,6 +20,7 @@ const { useAppForm } = createFormHook({
     PasswordInput: FormPasswordInput,
     CurrentPasswordInput: FormCurrentPasswordInput,
     Textarea: FormTextarea,
+    CheckboxInput: FormCheckboxInput,
   },
   formComponents: {},
   fieldContext,

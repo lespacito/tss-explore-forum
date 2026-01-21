@@ -13,24 +13,28 @@ export const userRoles = ["ADMIN", "MODERATOR", "USER", "BANNED"] as const;
 export type UserRole = (typeof userRoles)[number];
 export const userRolesEnum = pgEnum("user_role", userRoles);
 
-export const user = pgTable(
-  "user",
-  {
-    id: text("id").primaryKey(),
-    name: text("name").notNull(),
-    email: text("email").notNull().unique(),
-    emailVerified: boolean("email_verified").default(false).notNull(),
-    image: text("image"),
-    role: userRolesEnum().default("USER").notNull(),
-    createdAt: createdAt(),
-    updatedAt: updatedAt(),
-    username: text("username").unique(),
-    displayUsername: text("display_username"),
-  },
-  (table) => ({
-    roleIdx: index("user_role_idx").on(table.role),
-  }),
-);
+export const userColumns = {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  emailVerified: boolean("email_verified").default(false).notNull(),
+  image: text("image"),
+  role: userRolesEnum().default("USER").notNull(),
+  username: text("username").unique(),
+  displayUsername: text("display_username"),
+  isAnonymous: boolean("is_anonymous").default(false).notNull(),
+  bio: text("bio"),
+  banned: boolean("banned").default(false).notNull(),
+  secretCode: text("secret_code").unique(),
+  secretCodeGeneratedAt: timestamp("secret_code_generated_at"),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+};
+
+export const user = pgTable("user", userColumns, (table) => ({
+  roleIdx: index("user_role_idx").on(table.role),
+  secretCodeIdx: index("idx_users_secret_code").on(table.secretCode),
+}));
 
 export const session = pgTable("session", {
   id: text("id").primaryKey(),

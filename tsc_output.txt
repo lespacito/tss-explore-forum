@@ -1,0 +1,12 @@
+src/features/auth/components/forgot-password.tsx(114,38): error TS6133: 'isDirty' is declared but its value is never read.
+src/features/profiles/components/change-password-form.tsx(4,1): error TS6133: 'Button' is declared but its value is never read.
+src/features/profiles/components/change-password-form.tsx(20,27): error TS2558: Expected 12 type arguments, but got 1.
+src/features/profiles/components/change-password-form.tsx(31,16): error TS7031: Binding element 'value' implicitly has an 'any' type.
+src/features/profiles/components/change-password-form.tsx(49,16): error TS2367: This comparison appears to be unintentional because the types '"name" | "email" | "displayUsername"' and '"currentPassword"' have no overlap.
+src/features/profiles/components/change-password-form.tsx(50,17): error TS2367: This comparison appears to be unintentional because the types '"name" | "email" | "displayUsername"' and '"newPassword"' have no overlap.
+src/features/profiles/components/change-password-form.tsx(52,15): error TS2322: Type 'string' is not assignable to type 'never'.
+src/features/profiles/components/change-password-form.tsx(71,16): error TS2448: Block-scoped variable 'form' used before its declaration.
+src/features/profiles/components/change-password-form.tsx(71,16): error TS2454: Variable 'form' is used before being assigned.
+src/features/profiles/components/change-password-form.tsx(132,38): error TS6133: 'isDirty' is declared but its value is never read.
+src/features/profiles/components/profile-update-form.tsx(126,16): error TS7031: Binding element 'value' implicitly has an 'any' type.
+src/routes/auth/reset-password/index.tsx(162,44): error TS6133: 'isDirty' is declared but its value is never read.

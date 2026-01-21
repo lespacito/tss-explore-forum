@@ -35,17 +35,19 @@ export const moderationLogs = pgTable("moderation_logs", {
   createdAt: createdAt(),
 });
 
+export const blockedUsersColumns = {
+  blockerId: text("blocker_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  blockedId: text("blocked_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  createdAt: createdAt(),
+};
+
 export const blockedUsers = pgTable(
   "blocked_users",
-  {
-    blockerId: text("blocker_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    blockedId: text("blocked_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    createdAt: createdAt(),
-  },
+  blockedUsersColumns,
   (t) => ({
     pk: [t.blockerId, t.blockedId],
   }),

@@ -1,20 +1,42 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { createAuthMiddleware } from "better-auth/api";
-import { username } from "better-auth/plugins";
+import { admin, anonymous, username } from "better-auth/plugins";
+import { credentials } from "better-auth-credentials-plugin";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
+import { eq, and } from "drizzle-orm";
+import { z } from "zod";
+import crypto from "crypto";
 import { db } from "@/db";
+import { user as userTable, account as accountTable } from "@/db/schemas/user";
 import { createPrimaryAlias } from "@/features/alias/lib/create-alias";
 import { getPrimaryAlias } from "@/features/alias/lib/get-primary-alias";
+import { findUserBySecretCode } from "@/features/auth/lib/find-user-by-code";
 import { sendPasswordResetEmail } from "@/features/auth/server/send-password-reset-email";
 import { sendEmailVerificationEmail } from "@/features/auth/server/send-verification-email";
 import { logger } from "@/lib/logger/server";
 import { env } from "@/data/env/server";
+import { sendDeleteAccountVerificationEmail } from "@/features/auth/server/send-delete-account-verification-email";
+
+const secretCodeSchema = z.object({
+  secretCode: z
+    .string()
+    .min(9, { message: "Le code secret est trop court" })
+    .regex(/^[A-Z2-9]{4}-[A-Z2-9]{4}(-[A-Z2-9]{4})?$/, {
+      message: "Format invalide",
+    }),
+});
 
 export const auth = betterAuth({
   user: {
     changeEmail: {
       enabled: true,
+    },
+    deleteUser: {
+      enabled: true,
+      sendDeleteAccountVerification: async ({ user, url }) => {
+        await sendDeleteAccountVerificationEmail({ user, url });
+      },
     },
   },
   emailAndPassword: {
@@ -28,6 +50,13 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true,
     sendOnSignUp: true,
     sendVerificationEmail: async ({ user, url }) => {
+      // Ne pas envoyer d'emails de vérification aux utilisateurs anonymes
+      if (user.isAnonymous) {
+        logger.info("Skipping verification email for anonymous user", {
+          userId: user.id,
+        });
+        return;
+      }
       await sendEmailVerificationEmail({ user, url });
     },
   },
@@ -50,38 +79,126 @@ export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
   }),
-  plugins: [username(), tanstackStartCookies()],
-  hooks: {
-    after: createAuthMiddleware(async (ctx) => {
-      // Hook pour créer automatiquement l'alias principal après inscription email ou OAuth
-      if (ctx.path === "/sign-up/email" || ctx.path?.startsWith("/callback/")) {
-        const newSession = ctx.context.newSession;
+  plugins: [
+    credentials({
+      providerId: "secret-code",
+      name: "Secret Code",
+      inputSchema: secretCodeSchema,
+      linkAccountIfExisting: true, // Permet de lier un account à un user existant
+      callback: async (ctx) => {
+        const user = await findUserBySecretCode(ctx.body.secretCode);
 
-        if (newSession?.user) {
-          const userId = newSession.user.id;
+        if (!user || !user.email) {
+          logger.warn("Secret code not found or no email", {
+            secretCode: ctx.body.secretCode,
+          });
+          return null;
+        }
 
+        logger.info("Secret code login - user found", {
+          userId: user.id,
+          email: user.email,
+          isAnonymous: user.isAnonymous,
+          emailVerified: user.emailVerified,
+        });
+
+        // Fallback: Vérifier que l'account existe, le créer sinon
+        // Normalement créé lors de la génération du secret code, mais on assure la résilience
+        const existingAccount = await db.query.account.findFirst({
+          where: and(
+            eq(accountTable.userId, user.id),
+            eq(accountTable.providerId, "secret-code")
+          ),
+        });
+
+        if (!existingAccount) {
           try {
-            // Vérifier si l'utilisateur a déjà un alias principal
-            const existingAlias = await getPrimaryAlias(userId);
-
-            if (!existingAlias) {
-              const alias = await createPrimaryAlias(userId);
-              logger.info("Primary alias created", {
-                userId,
-                alias: alias.alias,
-                path: ctx.path,
-              });
-            }
-          } catch (error) {
-            logger.error("Failed to create primary alias", {
-              userId,
-              path: ctx.path,
-              error: error instanceof Error ? error.message : String(error),
-              stack: error instanceof Error ? error.stack : undefined,
+            await db.insert(accountTable).values({
+              id: crypto.randomUUID(),
+              accountId: user.id,
+              providerId: "secret-code",
+              userId: user.id,
             });
-            // Ne pas bloquer l'inscription si la création d'alias échoue
+
+            logger.info("Created secret-code account (fallback during login)", {
+              userId: user.id,
+            });
+          } catch (error) {
+            logger.error("Failed to create secret-code account", {
+              userId: user.id,
+              error: error instanceof Error ? error.message : String(error),
+            });
           }
         }
+
+        // Retourner l'email - le plugin credentials gère la session
+        return {
+          email: user.email,
+        };
+      },
+    }),
+    username(),
+    anonymous(),
+    admin({
+      defaultRole: "USER",
+      adminRole: "ADMIN",
+    }),
+    tanstackStartCookies(),
+  ],
+  hooks: {
+    after: createAuthMiddleware(async (ctx) => {
+      const newSession = ctx.context.newSession;
+
+      if (!newSession?.user) return;
+
+      const userId = newSession.user.id;
+      const isNewSession =
+        ctx.path === "/sign-up/email" ||
+        ctx.path?.startsWith("/callback/") ||
+        newSession.user.isAnonymous === true;
+
+      if (!isNewSession) return;
+
+      // Auto-vérifier l'email et créer l'alias pour les utilisateurs anonymes
+      if (newSession.user.isAnonymous) {
+        try {
+          await db
+            .update(userTable)
+            .set({ emailVerified: true })
+            .where(eq(userTable.id, userId));
+
+          logger.info("Auto-verified email for anonymous user", {
+            userId,
+          });
+        } catch (error) {
+          logger.error("Failed to auto-verify anonymous user email", {
+            userId,
+            error: error instanceof Error ? error.message : String(error),
+          });
+        }
+      }
+
+      // Créer l'alias principal pour tous les nouveaux utilisateurs
+      try {
+        const existingAlias = await getPrimaryAlias(userId);
+
+        if (!existingAlias) {
+          const alias = await createPrimaryAlias(userId);
+          logger.info("Primary alias created", {
+            userId,
+            alias: alias.alias,
+            path: ctx.path,
+            isAnonymous: newSession.user.isAnonymous,
+          });
+        }
+      } catch (error) {
+        logger.error("Failed to create primary alias", {
+          userId,
+          path: ctx.path,
+          isAnonymous: newSession.user.isAnonymous,
+          error: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined,
+        });
       }
     }),
   },

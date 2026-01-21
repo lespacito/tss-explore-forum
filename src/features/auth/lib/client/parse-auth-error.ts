@@ -1,6 +1,7 @@
 import type { SignUpInput } from "@/features/auth/schemas/sign-up-schema";
 import type { SignInInput } from "@/features/auth/schemas/sign-in-schema";
 import type { ProfileUpdateFormSchema } from "@/features/profiles/schema/profile-update-form-schema";
+import type { ChangePasswordFormSchema } from "@/features/profiles/schema/change-password-schema";
 
 /**
  * Extrait le message d'erreur d'un objet d'erreur Better Auth complexe
@@ -8,7 +9,8 @@ import type { ProfileUpdateFormSchema } from "@/features/profiles/schema/profile
 function extractErrorMessage(error: unknown): string {
   // Cas 1: Error standard avec message string
   if (error instanceof Error && typeof error.message === "string") {
-    return error.message;
+    const msg = error.message.trim();
+    if (msg) return msg;
   }
 
   // Cas 2: Objet avec propriété error.message
@@ -21,7 +23,8 @@ function extractErrorMessage(error: unknown): string {
     "message" in error.error &&
     typeof error.error.message === "string"
   ) {
-    return error.error.message;
+    const msg = (error.error.message as string).trim();
+    if (msg) return msg;
   }
 
   // Cas 3: Objet avec propriété message directe
@@ -31,7 +34,8 @@ function extractErrorMessage(error: unknown): string {
     "message" in error &&
     typeof error.message === "string"
   ) {
-    return error.message;
+    const msg = (error.message as string).trim();
+    if (msg) return msg;
   }
 
   // Cas 4: Objet Better Auth avec error string
@@ -41,20 +45,27 @@ function extractErrorMessage(error: unknown): string {
     "error" in error &&
     typeof error.error === "string"
   ) {
-    return error.error;
+    const msg = error.error.trim();
+    if (msg) return msg;
   }
 
   // Cas 5: String directe
   if (typeof error === "string") {
-    return error;
+    const msg = error.trim();
+    if (msg) return msg;
   }
 
   // Fallback: stringify l'objet pour debug
   try {
-    return JSON.stringify(error);
+    const stringified = JSON.stringify(error);
+    const msg = stringified.trim();
+    if (msg && msg !== "{}" && msg !== "{}") return msg;
   } catch {
-    return "Une erreur inattendue est survenue";
+    // Ignoré
   }
+
+  // Ultime fallback
+  return "Une erreur inattendue est survenue";
 }
 
 /**
@@ -158,6 +169,32 @@ const PROFILE_UPDATE_ERROR_PATTERNS: Record<
 };
 
 /**
+ * Patterns d'erreurs pour le changement de mot de passe
+ */
+const CHANGE_PASSWORD_ERROR_PATTERNS: Record<
+  string,
+  { field?: keyof ChangePasswordFormSchema; message: string }
+> = {
+  "incorrect password": {
+    field: "currentPassword",
+    message: "Mot de passe incorrect",
+  },
+  "current password": {
+      field: "currentPassword",
+      message: "Mot de passe actuel incorrect"
+  },
+  "invalid password": {
+    field: "newPassword",
+    message: "Le nouveau mot de passe est invalide",
+  },
+  password: { field: "newPassword", message: "Erreur liée au mot de passe" },
+  "rate limit": {
+    message: "Trop de tentatives. Veuillez réessayer plus tard.",
+  },
+  "too many": { message: "Trop de tentatives. Veuillez réessayer plus tard." },
+};
+
+/**
  * Résultat du parsing d'erreur
  */
 export type ParsedAuthError<TInput = SignUpInput | SignInInput> = {
@@ -225,6 +262,30 @@ export function parseSignInError(error: unknown): ParsedAuthError<SignInInput> {
       return {
         message: info.message,
         field: info.field as keyof SignInInput | undefined,
+        isRateLimit: pattern.includes("rate") || pattern.includes("too many"),
+      };
+    }
+  }
+
+  // Fallback: retourner le message d'origine
+  return { message: errorMessage };
+}
+
+/**
+ * Parse une erreur d'authentication pour le changement de mot de passe
+ */
+export function parseChangePasswordError(
+  error: unknown,
+): ParsedAuthError<ChangePasswordFormSchema> {
+  const errorMessage = extractErrorMessage(error);
+  const lower = errorMessage.toLowerCase();
+
+  // Recherche du premier pattern qui match
+  for (const [pattern, info] of Object.entries(CHANGE_PASSWORD_ERROR_PATTERNS)) {
+    if (lower.includes(pattern)) {
+      return {
+        message: info.message,
+        field: info.field as keyof ChangePasswordFormSchema | undefined,
         isRateLimit: pattern.includes("rate") || pattern.includes("too many"),
       };
     }

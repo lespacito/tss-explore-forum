@@ -1,6 +1,7 @@
 import ActionButton from "@/components/ui/action-button";
 import type { ComponentProps } from "react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export function BetterAuthActionButton({
   action,
@@ -17,20 +18,16 @@ export function BetterAuthActionButton({
     try {
       const res = await action();
       if (res.error) {
-        return { error: true, message: res.error.message };
+        toast.error(res.error.message || "Une erreur est survenue.");
       } else if (successMessage) {
-        return { error: false, message: successMessage };
-      } else {
-        return undefined;
+        toast.success(successMessage);
       }
     } catch (error) {
-      return {
-        error: true,
-        message:
-          error instanceof Error
-            ? error.message
-            : String(error) || "Une erreur est survenue",
-      };
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : String(error) || "Une erreur est survenue",
+      );
     } finally {
       setIsPending(false);
     }

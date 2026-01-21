@@ -24,12 +24,17 @@ import {
 import { useForm } from "@tanstack/react-form";
 import { createThreadFn } from "@/features/threads/server/create-thread";
 import { useRouter } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/threads/")({
   component: ThreadsPage,
   loader: () => getThreadsFn(),
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      openDialog: search.openDialog === true || search.openDialog === "true",
+    };
+  },
 });
 
 const categories = [
@@ -44,7 +49,21 @@ const categories = [
 function ThreadsPage() {
   const threads = Route.useLoaderData();
   const router = useRouter();
+  const search = Route.useSearch();
   const [isOpen, setIsOpen] = useState(false);
+
+  // Auto-open dialog if coming from anonymous session creation
+  useEffect(() => {
+    if (search.openDialog) {
+      setIsOpen(true);
+      // Clear the search param after opening
+      router.navigate({
+        to: "/threads",
+        search: {},
+        replace: true,
+      });
+    }
+  }, [search.openDialog, router]);
 
   const form = useForm({
     defaultValues: {
@@ -59,17 +78,32 @@ function ThreadsPage() {
           return;
         }
 
-        await createThreadFn({
+        const result = await createThreadFn({
           data: {
             title: value.title,
             body: value.body,
             category: value.category,
           },
         });
-        toast.success("Thread créé avec succès");
-        setIsOpen(false);
-        form.reset();
-        router.invalidate();
+
+        // Check if secret code was generated for first publication
+        if (result.isFirstPublication && result.secretCode && result.thread) {
+          // Redirect to confirmation page with secret code
+          router.navigate({
+            to: "/threads/confirmation",
+            search: {
+              secretCode: result.secretCode,
+              threadSlug: result.thread.slug,
+              isFirstPublication: true,
+            },
+          });
+        } else {
+          // Normal flow - show success and refresh
+          toast.success("Thread créé avec succès");
+          setIsOpen(false);
+          form.reset();
+          router.invalidate();
+        }
       } catch (error) {
         console.error(error);
         toast.error(

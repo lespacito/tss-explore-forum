@@ -44,7 +44,7 @@ export function FormBase({
   return (
     <Field
       data-invalid={isInvalid}
-      data-horizontal={horizontal ? "horizontal" : undefined}
+      orientation={horizontal ? "horizontal" : "vertical"}
     >
       {controlFirst ? (
         <>

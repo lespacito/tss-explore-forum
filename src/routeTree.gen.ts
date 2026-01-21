@@ -14,8 +14,9 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ThreadsIndexRouteImport } from './routes/threads/index'
 import { Route as SearchIndexRouteImport } from './routes/search/index'
-import { Route as PostsIndexRouteImport } from './routes/posts/index'
+import { Route as ThreadsConfirmationRouteImport } from './routes/threads/confirmation'
 import { Route as ThreadsThreadSlugRouteImport } from './routes/threads/$threadSlug'
+import { Route as AuthAnonymousSigninRouteImport } from './routes/auth/anonymous-signin'
 import { Route as AuthResetPasswordIndexRouteImport } from './routes/auth/reset-password/index'
 import { Route as AuthLoginIndexRouteImport } from './routes/auth/login/index'
 import { Route as AccountSettingsIndexRouteImport } from './routes/account/settings/index'
@@ -47,14 +48,19 @@ const SearchIndexRoute = SearchIndexRouteImport.update({
   path: '/search/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PostsIndexRoute = PostsIndexRouteImport.update({
-  id: '/posts/',
-  path: '/posts/',
+const ThreadsConfirmationRoute = ThreadsConfirmationRouteImport.update({
+  id: '/threads/confirmation',
+  path: '/threads/confirmation',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ThreadsThreadSlugRoute = ThreadsThreadSlugRouteImport.update({
   id: '/threads/$threadSlug',
   path: '/threads/$threadSlug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthAnonymousSigninRoute = AuthAnonymousSigninRouteImport.update({
+  id: '/auth/anonymous-signin',
+  path: '/auth/anonymous-signin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthResetPasswordIndexRoute = AuthResetPasswordIndexRouteImport.update({
@@ -87,8 +93,9 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/test-email': typeof TestEmailRoute
+  '/auth/anonymous-signin': typeof AuthAnonymousSigninRoute
   '/threads/$threadSlug': typeof ThreadsThreadSlugRoute
-  '/posts': typeof PostsIndexRoute
+  '/threads/confirmation': typeof ThreadsConfirmationRoute
   '/search': typeof SearchIndexRoute
   '/threads': typeof ThreadsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -101,8 +108,9 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/test-email': typeof TestEmailRoute
+  '/auth/anonymous-signin': typeof AuthAnonymousSigninRoute
   '/threads/$threadSlug': typeof ThreadsThreadSlugRoute
-  '/posts': typeof PostsIndexRoute
+  '/threads/confirmation': typeof ThreadsConfirmationRoute
   '/search': typeof SearchIndexRoute
   '/threads': typeof ThreadsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -116,8 +124,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/test-email': typeof TestEmailRoute
+  '/auth/anonymous-signin': typeof AuthAnonymousSigninRoute
   '/threads/$threadSlug': typeof ThreadsThreadSlugRoute
-  '/posts/': typeof PostsIndexRoute
+  '/threads/confirmation': typeof ThreadsConfirmationRoute
   '/search/': typeof SearchIndexRoute
   '/threads/': typeof ThreadsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -132,8 +141,9 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/test-email'
+    | '/auth/anonymous-signin'
     | '/threads/$threadSlug'
-    | '/posts'
+    | '/threads/confirmation'
     | '/search'
     | '/threads'
     | '/api/auth/$'
@@ -146,8 +156,9 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/test-email'
+    | '/auth/anonymous-signin'
     | '/threads/$threadSlug'
-    | '/posts'
+    | '/threads/confirmation'
     | '/search'
     | '/threads'
     | '/api/auth/$'
@@ -160,8 +171,9 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/test-email'
+    | '/auth/anonymous-signin'
     | '/threads/$threadSlug'
-    | '/posts/'
+    | '/threads/confirmation'
     | '/search/'
     | '/threads/'
     | '/api/auth/$'
@@ -175,8 +187,9 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
   TestEmailRoute: typeof TestEmailRoute
+  AuthAnonymousSigninRoute: typeof AuthAnonymousSigninRoute
   ThreadsThreadSlugRoute: typeof ThreadsThreadSlugRoute
-  PostsIndexRoute: typeof PostsIndexRoute
+  ThreadsConfirmationRoute: typeof ThreadsConfirmationRoute
   SearchIndexRoute: typeof SearchIndexRoute
   ThreadsIndexRoute: typeof ThreadsIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -223,11 +236,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SearchIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/posts/': {
-      id: '/posts/'
-      path: '/posts'
-      fullPath: '/posts'
-      preLoaderRoute: typeof PostsIndexRouteImport
+    '/threads/confirmation': {
+      id: '/threads/confirmation'
+      path: '/threads/confirmation'
+      fullPath: '/threads/confirmation'
+      preLoaderRoute: typeof ThreadsConfirmationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/threads/$threadSlug': {
@@ -235,6 +248,13 @@ declare module '@tanstack/react-router' {
       path: '/threads/$threadSlug'
       fullPath: '/threads/$threadSlug'
       preLoaderRoute: typeof ThreadsThreadSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/anonymous-signin': {
+      id: '/auth/anonymous-signin'
+      path: '/auth/anonymous-signin'
+      fullPath: '/auth/anonymous-signin'
+      preLoaderRoute: typeof AuthAnonymousSigninRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/reset-password/': {
@@ -279,8 +299,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   TestEmailRoute: TestEmailRoute,
+  AuthAnonymousSigninRoute: AuthAnonymousSigninRoute,
   ThreadsThreadSlugRoute: ThreadsThreadSlugRoute,
-  PostsIndexRoute: PostsIndexRoute,
+  ThreadsConfirmationRoute: ThreadsConfirmationRoute,
   SearchIndexRoute: SearchIndexRoute,
   ThreadsIndexRoute: ThreadsIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,

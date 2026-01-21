@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useId, useState, useCallback } from "react";
 import {
   profileUpdateSchema,
   type ProfileUpdateFormSchema,
@@ -12,134 +12,164 @@ import { toast } from "sonner";
 import { useRouter } from "@tanstack/react-router";
 import { parseProfileUpdateError } from "@/features/auth/lib/client/parse-auth-error";
 import { logger } from "@/lib/logger";
+import type { User } from "@/features/auth/lib/map-auth-user";
+
+type FormErrors = Partial<Record<keyof ProfileUpdateFormSchema, string>>;
+
+/**
+ * Met à jour le profil utilisateur (nom et displayUsername)
+ */
+async function updateUserProfile(
+  name: string,
+  displayUsername: string | undefined,
+): Promise<{ success: boolean; errors?: FormErrors }> {
+  try {
+    const result = await authClient.updateUser({
+      name,
+      // Convertir chaîne vide en undefined pour que better-auth supprime la valeur
+      displayUsername: displayUsername?.trim() ? displayUsername : undefined,
+    });
+
+    if (result && "error" in result && result.error) {
+      const parsed = parseProfileUpdateError(result.error);
+      const errors: FormErrors = {};
+
+      if (
+        parsed.field &&
+        (parsed.field === "name" || parsed.field === "displayUsername")
+      ) {
+        errors[parsed.field] = parsed.message;
+      }
+
+      logger.error("Erreur durant la mise à jour du profil", {
+        parsedMessage: parsed.message,
+        parsedField: parsed.field,
+      });
+
+      const errorMessage =
+        parsed.message || "Impossible de mettre à jour ton profil";
+      toast.error(errorMessage);
+
+      return { success: false, errors };
+    }
+
+    return { success: true };
+  } catch (error) {
+    logger.error("Exception during user profile update", {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    toast.error(
+      "Une erreur inattendue s'est produite lors de la mise à jour du profil",
+    );
+    return { success: false };
+  }
+}
+
+/**
+ * Change l'email de l'utilisateur
+ */
+async function changeUserEmail(newEmail: string): Promise<{
+  success: boolean;
+  errors?: FormErrors;
+}> {
+  try {
+    const result = await authClient.changeEmail({
+      newEmail,
+      callbackURL: "/account/settings",
+    });
+
+    if (result && "error" in result && result.error) {
+      const parsed = parseProfileUpdateError(result.error);
+      const errors: FormErrors = {};
+
+      if (parsed.field === "email") {
+        errors.email = parsed.message;
+      }
+
+      logger.error("Erreur durant le changement d'email", {
+        parsedMessage: parsed.message,
+        parsedField: parsed.field,
+      });
+
+      return { success: false, errors };
+    }
+
+    return { success: true };
+  } catch (error) {
+    logger.error("Exception during email change", {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return { success: false };
+  }
+}
 
 export const ProfileUpdateForm = ({
   user,
 }: {
-  user: {
-    name: string;
-    email: string;
-    displayUsername: string | null;
-  };
+  user: Pick<User, "name" | "email" | "displayUsername">;
 }) => {
-  const [serverErrors, setServerErrors] = useState<
-    Partial<Record<keyof ProfileUpdateFormSchema, string>>
-  >({});
+  const [serverErrors, setServerErrors] = useState<FormErrors>({});
   const id = useId();
   const router = useRouter();
+
   const form = useAppForm({
     defaultValues: {
       name: user.name,
-      displayUsername: user.displayUsername || "",
+      displayUsername: user.displayUsername || undefined,
       email: user.email,
-    } satisfies ProfileUpdateFormSchema as ProfileUpdateFormSchema,
+    } as ProfileUpdateFormSchema,
     validators: {
       onSubmit: profileUpdateSchema,
       onBlur: profileUpdateSchema,
     },
-    onSubmit: async ({ value }) => {
-      setServerErrors({});
+    onSubmit: useCallback(
+      async ({ value }: { value: ProfileUpdateFormSchema }) => {
+        setServerErrors({});
 
-      // Step 1: Update user profile first
-      let updateUserResult = "";
-      try {
-        updateUserResult = await authClient.updateUser({
-          name: value.name,
-          displayUsername: value.displayUsername,
-        });
-      } catch (error) {
-        logger.error("Exception during user profile update", {
-          error: error instanceof Error ? error.message : String(error),
-        });
-        toast.error(
-          "Une erreur inattendue s'est produite lors de la mise à jour du profil",
-        );
-        return;
-      }
-
-      // Check if updateUser failed
-      if (updateUserResult?.error) {
-        const parsed = parseProfileUpdateError(updateUserResult.error);
-
-        toast.error(
-          parsed.message ||
-            updateUserResult.error.message ||
-            "Impossible de mettre à jour ton profil",
+        // Step 1: Update user profile
+        const profileResult = await updateUserProfile(
+          value.name,
+          value.displayUsername,
         );
 
-        logger.error("Erreur durant la mise à jour du profil", {
-          message: updateUserResult.error.message,
-          parsedField: parsed.field,
-        });
-
-        if (
-          parsed.field &&
-          (parsed.field === "name" || parsed.field === "displayUsername")
-        ) {
-          setServerErrors((prev) => ({
-            ...prev,
-            [parsed.field as keyof ProfileUpdateFormSchema]: parsed.message,
-          }));
-        }
-        return; // Early return on updateUser failure
-      }
-
-      // Step 2: If email changed, update it sequentially
-      const emailChanged = value.email !== user.email;
-      if (emailChanged) {
-        let emailResult = "";
-        try {
-          emailResult = await authClient.changeEmail({
-            newEmail: value.email,
-            callbackURL: "/account/profile",
-          });
-        } catch (error) {
-          logger.error("Exception during email change", {
-            error: error instanceof Error ? error.message : String(error),
-          });
-          toast.warning(
-            "Profil mis à jour, mais une erreur s'est produite lors du changement d'email. Réessaye plus tard.",
-          );
-          router.invalidate();
-          return;
-        }
-
-        // Check if changeEmail failed
-        if (emailResult?.error) {
-          const parsed = parseProfileUpdateError(emailResult.error);
-
-          toast.warning(
-            `Profil mis à jour, mais impossible de changer l'email : ${parsed.message || emailResult.error.message || "erreur inconnue"}`,
-          );
-
-          logger.error("Erreur durant le changement d'email", {
-            message: emailResult.error.message,
-            parsedField: parsed.field,
-          });
-
-          if (parsed.field === "email") {
-            setServerErrors((prev) => ({
-              ...prev,
-              email: parsed.message,
-            }));
+        if (!profileResult.success) {
+          if (profileResult.errors) {
+            setServerErrors(profileResult.errors);
           }
-          router.invalidate();
           return;
         }
 
-        // Both operations succeeded
-        setServerErrors({});
-        toast.success(
-          "Profil mis à jour ! Vérifie ta boîte email pour confirmer le changement d'email.",
-        );
-        router.invalidate();
-      } else {
-        // Only profile update, no email change
-        setServerErrors({});
-        toast.success("Profil mis à jour !");
-        router.invalidate();
-      }
-    },
+        // Step 2: Change email if needed
+        const emailChanged = value.email !== user.email;
+        if (emailChanged) {
+          const emailResult = await changeUserEmail(value.email);
+
+          if (!emailResult.success) {
+            if (emailResult.errors) {
+              setServerErrors(emailResult.errors);
+            }
+            toast.warning(
+              "Profil mis à jour, mais impossible de changer l'email. Réessaye plus tard.",
+            );
+            router.invalidate();
+            return;
+          }
+
+          // Both operations succeeded
+          setServerErrors({});
+          toast.success(
+            "Profil mis à jour ! Vérifie ta boîte email pour confirmer le changement d'email.",
+          );
+          router.invalidate();
+        } else {
+          // Only profile update, no email change
+          setServerErrors({});
+          toast.success("Profil mis à jour !");
+          router.invalidate();
+        }
+      },
+      [user.email, router],
+    ),
   });
 
   return (

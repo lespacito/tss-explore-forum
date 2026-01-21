@@ -1,22 +1,22 @@
 import type { InferSelectModel } from "drizzle-orm";
 import type { user } from "@/db/schema";
+import type { User as BetterUser } from "better-auth";
 
 export type User = InferSelectModel<typeof user>;
 
-interface AuthUser {
-  id: string;
-  email: string;
-  name: string;
-  image?: string | null;
-  emailVerified: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+// Étendre le type BetterUser avec les propriétés personnalisées du plugin username
+interface BetterAuthUser extends BetterUser {
   username?: string | null;
   displayUsername?: string | null;
+  role?: "ADMIN" | "MODERATOR" | "USER" | "BANNED";
+}
+
+interface AuthDataWithUser {
+  user?: BetterAuthUser;
 }
 
 export function mapAuthDataToUser(
-  authData: { user?: AuthUser } | null | undefined,
+  authData: AuthDataWithUser | null | undefined,
 ): User | null {
   if (!authData?.user) {
     return null;
@@ -34,6 +34,6 @@ export function mapAuthDataToUser(
     updatedAt: authUser.updatedAt,
     username: authUser.username ?? null,
     displayUsername: authUser.displayUsername ?? null,
-    role: "USER", // Default role, as it's required in the User type but not in AuthUser
+    role: authUser.role ?? "USER",
   };
 }

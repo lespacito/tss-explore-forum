@@ -21,18 +21,20 @@ export const notificationTypeEnum = pgEnum(
   notificationType,
 );
 
+export const notificationsColumns = {
+  id: id(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  targetType: notificationTypeEnum().notNull(),
+  payload: json("payload").notNull(),
+  isRead: boolean("is_read").default(false).notNull(),
+  createdAt: createdAt(),
+};
+
 export const notifications = pgTable(
   "notifications",
-  {
-    id: id(),
-    userId: text("user_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    targetType: notificationTypeEnum().notNull(),
-    payload: json("payload").notNull(),
-    isRead: boolean("is_read").default(false).notNull(),
-    createdAt: createdAt(),
-  },
+  notificationsColumns,
   (table) => ({
     // Composite index for unread notifications queries
     userUnreadIdx: index("notifications_user_unread_idx").on(
