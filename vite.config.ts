@@ -18,6 +18,13 @@ const config = defineConfig({
   preview: {
     allowedHosts: ["parlonsviolence.ch", "www.parlonsviolence.ch"],
   },
+  build: {
+    rollupOptions: {
+      maxParallelFileOps: 2,
+    },
+    chunkSizeWarningLimit: 1000,
+    sourcemap: false,
+  },
 });
 
 export default config;
