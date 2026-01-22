@@ -1,6 +1,5 @@
-import type { SendMailOptions } from "nodemailer";
 import { logger } from "@/lib/logger/server";
-import { emailConfig, getEmailTransporter } from "./transport";
+import { emailConfig, getResendClient } from "./transport";
 
 export interface SendEmailOptions {
   to: string | string[];
@@ -9,7 +8,6 @@ export interface SendEmailOptions {
   text: string;
   from?: string;
   replyTo?: string;
-  attachments?: SendMailOptions["attachments"];
 }
 
 export interface SendEmailResult {
@@ -19,38 +17,48 @@ export interface SendEmailResult {
 }
 
 /**
- * Envoie un email via Mailpit (ou tout autre serveur SMTP configuré)
+ * Envoie un email via Resend
  */
 export const sendEmail = async (
   options: SendEmailOptions,
 ): Promise<SendEmailResult> => {
   try {
-    const transporter = getEmailTransporter();
+    const resend = getResendClient();
 
-    const mailOptions: SendMailOptions = {
+    const { data, error } = await resend.emails.send({
       from: options.from || emailConfig.from,
-      to: options.to,
+      to: Array.isArray(options.to) ? options.to : [options.to],
       subject: options.subject,
       html: options.html,
       text: options.text,
-      replyTo: options.replyTo || emailConfig.replyTo,
-      attachments: options.attachments,
-    };
+      reply_to: options.replyTo || emailConfig.replyTo,
+    });
 
-    const info = await transporter.sendMail(mailOptions);
+    if (error) {
+      logger.error("Failed to send email via Resend", {
+        recipientCount: Array.isArray(options.to) ? options.to.length : 1,
+        subject: options.subject,
+        error: error.message,
+      });
 
-    logger.info("Email sent successfully", {
-      messageId: info.messageId,
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+
+    logger.info("Email sent successfully via Resend", {
+      messageId: data?.id,
       recipientCount: Array.isArray(options.to) ? options.to.length : 1,
       subject: options.subject,
     });
 
     return {
       success: true,
-      messageId: info.messageId,
+      messageId: data?.id,
     };
   } catch (error) {
-    logger.error("Failed to send email", {
+    logger.error("Exception while sending email via Resend", {
       recipientCount: Array.isArray(options.to) ? options.to.length : 1,
       subject: options.subject,
       error: error instanceof Error ? error.message : String(error),
@@ -85,16 +93,19 @@ export const sendBulkEmail = async (
 };
 
 /**
- * Vérifie la connexion au serveur SMTP
+ * Vérifie que le client Resend est bien configuré
  */
 export const verifyEmailConnection = async (): Promise<boolean> => {
   try {
-    const transporter = getEmailTransporter();
-    await transporter.verify();
-    logger.info("SMTP connection established");
-    return true;
+    const resend = getResendClient();
+    // Resend n'a pas de méthode verify(), on vérifie juste que l'instance existe
+    if (resend) {
+      logger.info("Resend client initialized successfully");
+      return true;
+    }
+    return false;
   } catch (error) {
-    logger.error("Failed to connect to SMTP server", {
+    logger.error("Failed to initialize Resend client", {
       error: error instanceof Error ? error.message : String(error),
       stack: error instanceof Error ? error.stack : undefined,
     });
