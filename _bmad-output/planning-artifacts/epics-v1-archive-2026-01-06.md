@@ -11,6 +11,19 @@ inputDocuments:
   - "tss-explore-forum/_bmad-output/planning-artifacts/architecture.md"
 workflowCompleted: true
 completedAt: "2026-01-06"
+archived: true
+archivedAt: "2026-01-22"
+archiveReason: "Refactored into epics-mvp.md and epics-post-mvp.md to align with mvp-scope-final.md"
+replacedBy:
+  - "epics-mvp.md (Phase 1 + Phase 2: Stories 1.1-1.4, 2.1-2.5, 3.1-3.6, 5.1 Simplified)"
+  - "epics-post-mvp.md (v1.1+: Stories 1.5-1.6, 4.1-4.2, 5.2-5.6, 6.1-6.3)"
+issuesIdentified:
+  - "Code secret format inconsistency"
+  - "Auto-save feature missing (FR31)"
+  - "Story 1.1 status not updated (DONE)"
+  - "Project initialization ambiguity (brownfield)"
+  - "Epic 5.1 needed simplification"
+  - "MVP scope divergence (included all 6 epics)"
 ---
 
 # tss-explore-forum - Epic Breakdown
