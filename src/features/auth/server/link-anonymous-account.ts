@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/start";
 import { z } from "zod";
-import { db } from "@/lib/db";
+import { db } from "@/db";
 import { alias } from "@/db/schemas/alias";
 import { user } from "@/db/schemas/user";
 import { eq } from "drizzle-orm";
