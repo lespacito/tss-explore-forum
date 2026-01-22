@@ -1,8 +1,8 @@
 import { createServerFn } from "@tanstack/start";
 import { z } from "zod";
-import { auth } from "@/features/auth/lib/auth";
 import { db } from "@/lib/db";
-import { posts } from "@/db/schemas/post";
+import { alias } from "@/db/schemas/alias";
+import { user } from "@/db/schemas/user";
 import { eq } from "drizzle-orm";
 import { logger } from "@/lib/logger/server";
 
@@ -12,59 +12,64 @@ import { logger } from "@/lib/logger/server";
  * Story 1.4 - Task 4: Implémenter liaison de compte anonyme
  *
  * Fonctionnalités:
- * - Migration des posts anonymes vers compte enregistré
- * - Préservation du secretCode pour compatibilité rétroactive
+ * - Migration des alias anonymes vers compte enregistré
+ * - Suppression du compte anonyme après migration
  * - Logging pour audit trail
- * - Vérification d'authentification
  *
  * Flux:
- * 1. Vérifier que l'utilisateur est authentifié
- * 2. Migrer tous les posts de l'anonyme vers le nouveau compte
+ * 1. Migrer tous les alias de l'anonyme vers le nouveau compte
+ * 2. Supprimer le compte anonyme (cleanup)
  * 3. Logger la liaison pour audit
- * 4. Retourner le nombre de posts migrés
+ * 4. Retourner le nombre d'alias migrés
  *
  * Note importante:
- * Le secretCode de l'utilisateur anonyme est préservé dans la table users.
- * L'ancien compte anonyme reste accessible via son code si nécessaire.
+ * Les threads, posts et comments suivent automatiquement car ils sont liés aux alias
+ * via aliasId, pas directement au user.
  */
 export const linkAnonymousAccountFn = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ anonymousUserId: z.string() }))
+  .inputValidator(
+    z.object({
+      anonymousUserId: z.string(),
+      newUserId: z.string(),
+    })
+  )
   .handler(async ({ data }) => {
-    // Vérifier l'authentification
-    const session = await auth.api.getSession({
-      headers: (this as any).request.headers,
-    });
-
-    if (!session?.user) {
-      logger.warn("Attempted to link anonymous account without authentication");
-      return { success: false, error: "Non authentifié" };
-    }
-
-    const newUserId = session.user.id;
-    const anonymousUserId = data.anonymousUserId;
+    const { newUserId, anonymousUserId } = data;
 
     try {
-      // Migrer tous les posts de l'utilisateur anonyme vers le nouveau compte
-      // Utilise une transaction implicite via Drizzle ORM
-      const updatedPosts = await db
-        .update(posts)
-        .set({ authorId: newUserId })
-        .where(eq(posts.authorId, anonymousUserId))
+      // Migrer tous les alias de l'utilisateur anonyme vers le nouveau compte
+      // Tous les threads, posts et comments suivent automatiquement car ils sont liés aux alias
+      const updatedAliases = await db
+        .update(alias)
+        .set({ userId: newUserId })
+        .where(eq(alias.userId, anonymousUserId))
         .returning();
 
-      logger.info("Anonymous account linked", {
+      logger.info("Aliases migrated to new account", {
         anonymousUserId,
         newUserId,
-        postsCount: updatedPosts.length,
+        aliasCount: updatedAliases.length,
       });
 
-      // Note : Le secretCode est préservé dans la table users
-      // L'ancien compte anonyme reste accessible via le code si besoin
-      // Cela permet la récupération ultérieure si nécessaire
+      // Supprimer le compte anonyme après migration pour éviter confusion
+      try {
+        await db.delete(user).where(eq(user.id, anonymousUserId));
+
+        logger.info("Anonymous user account deleted after successful migration", {
+          anonymousUserId,
+          newUserId,
+        });
+      } catch (deleteError: any) {
+        // Non-critical - log warning but don't fail the migration
+        logger.warn("Failed to delete anonymous user account (non-critical)", {
+          anonymousUserId,
+          error: deleteError.message,
+        });
+      }
 
       return {
         success: true,
-        linkedPostsCount: updatedPosts.length,
+        linkedPostsCount: updatedAliases.length,
       };
     } catch (error: any) {
       logger.error("Failed to link anonymous account", {

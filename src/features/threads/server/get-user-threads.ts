@@ -53,7 +53,7 @@ export const getUserThreadsFn = createServerFn({
       createdAt: threads.createdAt,
       updatedAt: threads.updatedAt,
       aliasId: threads.aliasId,
-      aliasName: alias.name,
+      aliasName: alias.alias,
       displayUsername: user.displayUsername,
     })
     .from(threads)

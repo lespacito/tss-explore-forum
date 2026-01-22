@@ -54,7 +54,7 @@ export const getUserPostsFn = createServerFn({
       createdAt: posts.createdAt,
       updatedAt: posts.updatedAt,
       aliasId: posts.aliasId,
-      aliasName: alias.name,
+      aliasName: alias.alias,
       displayUsername: user.displayUsername,
       threadTitle: threads.title,
       threadSlug: threads.slug,

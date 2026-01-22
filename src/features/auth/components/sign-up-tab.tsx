@@ -11,16 +11,30 @@ import {
 import { sendWelcomeEmailFn } from "@/features/auth/server/send-welcome-email";
 import { logger } from "@/lib/logger/client-logger";
 import { parseSignUpError } from "@/features/auth/lib/client/parse-auth-error";
+import { LinkAnonymousModal } from "./link-anonymous-modal";
+import type { User } from "@/features/auth/lib/map-auth-user";
 
 export const SignUpTab = ({
   openEmailVerificationTab,
+  currentUser,
 }: {
   openEmailVerificationTab: (email: string) => void;
+  currentUser: User | null;
 }) => {
   const id = useId();
   const [serverErrors, setServerErrors] = useState<
     Partial<Record<keyof SignUpInput, string>>
   >({});
+
+  // États pour gérer la liaison de compte anonyme
+  const [showLinkModal, setShowLinkModal] = useState(false);
+  const [pendingEmailVerification, setPendingEmailVerification] = useState<{
+    email: string;
+    newUserId: string;
+  } | null>(null);
+
+  // Détecter si l'utilisateur actuel est anonyme
+  const anonymousUserId = currentUser?.isAnonymous ? currentUser.id : null;
 
   const form = useAppForm({
     defaultValues: {
@@ -66,7 +80,7 @@ export const SignUpTab = ({
               }));
             }
           },
-          onSuccess: async () => {
+          onSuccess: async (context) => {
             await sendWelcomeEmailFn({
               data: {
                 email: value.email,
@@ -74,13 +88,29 @@ export const SignUpTab = ({
               },
             });
             toast.success("Inscription réussie ! Bienvenue à bord !");
+
+            // Si l'utilisateur était anonyme, proposer de lier ses publications
+            if (anonymousUserId && context?.data?.user?.id) {
+              logger.info("Anonymous user signed up, preparing to show link modal", {
+                anonymousUserId,
+                newUserId: context.data.user.id,
+              });
+
+              setPendingEmailVerification({
+                email: value.email,
+                newUserId: context.data.user.id,
+              });
+              setShowLinkModal(true);
+            }
           },
         },
       );
 
       if (!res.error) form.reset();
 
-      if (res.data?.user && !res.data.user.emailVerified) {
+      // Ne rediriger vers email verification que si ce n'est PAS un utilisateur anonyme
+      // (pour les anonymes, on redirige après le choix dans la modal)
+      if (res.data?.user && !res.data.user.emailVerified && !anonymousUserId) {
         openEmailVerificationTab(value.email);
       }
     },
@@ -191,6 +221,36 @@ export const SignUpTab = ({
           </Field>
         )}
       </form.Subscribe>
+
+      {/* Modal de liaison de compte anonyme */}
+      {anonymousUserId && (
+        <LinkAnonymousModal
+          isOpen={showLinkModal}
+          onClose={() => setShowLinkModal(false)}
+          anonymousUserId={anonymousUserId}
+          newUserId={pendingEmailVerification?.newUserId || null}
+          onLinkSuccess={(count) => {
+            logger.info("Anonymous account linked successfully", {
+              linkedCount: count,
+            });
+
+            // Rediriger vers email verification après liaison réussie
+            if (pendingEmailVerification) {
+              openEmailVerificationTab(pendingEmailVerification.email);
+              setPendingEmailVerification(null);
+            }
+          }}
+          onLinkDecline={() => {
+            logger.info("User declined anonymous account linking");
+
+            // Rediriger vers email verification même si refus de liaison
+            if (pendingEmailVerification) {
+              openEmailVerificationTab(pendingEmailVerification.email);
+              setPendingEmailVerification(null);
+            }
+          }}
+        />
+      )}
     </form>
   );
 };

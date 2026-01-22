@@ -12,7 +12,8 @@ export const Route = createFileRoute("/auth/login/")({
   component: RouteComponent,
   loader: async () => {
     const session = await getAuthSession();
-    if (session?.user) {
+    // Permettre aux utilisateurs anonymes d'accéder à cette page pour créer un compte permanent
+    if (session?.user && !session.user.isAnonymous) {
       throw redirect({
         to: "/",
       });
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/auth/login/")({
 type Tab = "sign-in" | "sign-up" | "email-verification" | "forgot-password";
 
 function RouteComponent() {
+  const { authSession } = Route.useLoaderData();
   const [email, setEmail] = useState("");
   const [selectedTab, setSelectedTab] = useState<Tab>("sign-in");
 
@@ -66,7 +68,10 @@ function RouteComponent() {
             <CardTitle>S'inscrire</CardTitle>
           </CardHeader>
           <CardContent>
-            <SignUpTab openEmailVerificationTab={openEmailVerificationTab} />
+            <SignUpTab
+              openEmailVerificationTab={openEmailVerificationTab}
+              currentUser={authSession?.user ?? null}
+            />
           </CardContent>
         </Card>
       </TabsContent>
