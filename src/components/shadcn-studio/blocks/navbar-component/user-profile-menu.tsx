@@ -1,5 +1,5 @@
 import { Link, useRouter } from "@tanstack/react-router";
-import { LogOut, Settings, User } from "lucide-react";
+import { LogOut, Settings, User, UserPlus } from "lucide-react";
 import { useState, useCallback } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -87,6 +87,17 @@ export function UserProfileMenu({ user }: UserProfileMenuProps) {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        {user.isAnonymous && (
+          <>
+            <DropdownMenuItem asChild>
+              <Link to="/auth/login" className="cursor-pointer bg-primary/10">
+                <UserPlus className="mr-2 h-4 w-4" />
+                <span className="font-medium">Créer un compte permanent</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
         <DropdownMenuItem asChild>
           <Link to="/account/profile" className="cursor-pointer">
             <User className="mr-2 h-4 w-4" />

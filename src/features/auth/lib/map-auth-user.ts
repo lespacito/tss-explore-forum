@@ -9,6 +9,11 @@ interface BetterAuthUser extends BetterUser {
   username?: string | null;
   displayUsername?: string | null;
   role?: "ADMIN" | "MODERATOR" | "USER" | "BANNED";
+  isAnonymous?: boolean;
+  bio?: string | null;
+  banned?: boolean;
+  secretCode?: string | null;
+  secretCodeGeneratedAt?: Date | null;
 }
 
 interface AuthDataWithUser {
@@ -35,5 +40,10 @@ export function mapAuthDataToUser(
     username: authUser.username ?? null,
     displayUsername: authUser.displayUsername ?? null,
     role: authUser.role ?? "USER",
+    isAnonymous: authUser.isAnonymous ?? false,
+    bio: authUser.bio ?? null,
+    banned: authUser.banned ?? false,
+    secretCode: authUser.secretCode ?? null,
+    secretCodeGeneratedAt: authUser.secretCodeGeneratedAt ?? null,
   };
 }

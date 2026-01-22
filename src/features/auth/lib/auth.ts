@@ -131,8 +131,9 @@ export const auth = betterAuth({
           }
         }
 
-        // Retourner l'email - le plugin credentials gère la session
+        // Retourner l'ID et l'email - le plugin credentials gère la session
         return {
+          id: user.id,
           email: user.email,
         };
       },
