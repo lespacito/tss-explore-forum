@@ -2,7 +2,7 @@ import { useAppForm } from "@/components/form/hooks";
 import { useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
-import { signinWithSecretCodeFn } from "../server/signin-with-secret-code";
+import { signIn } from "../lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -37,17 +37,17 @@ export function SecretCodeLoginForm() {
       setServerError(null);
 
       try {
-        const result = await signinWithSecretCodeFn({ data: value });
+        // Utiliser le plugin credentials avec providerId "secret-code"
+        await signIn.credentials({
+          secretCode: value.secretCode,
+          providerId: "secret-code",
+        });
 
-        if (result.success) {
-          // Redirection vers dashboard
-          router.navigate({ to: "/posts" });
-        } else {
-          // Afficher erreur bienveillante (pas "code invalide")
-          setServerError(result.error || "Vérifiez votre code et réessayez");
-        }
+        // Succès - redirection vers la liste des threads
+        router.navigate({ to: "/threads" });
       } catch (error) {
-        setServerError("Une erreur est survenue. Veuillez réessayer.");
+        // Afficher erreur bienveillante (pas "code invalide")
+        setServerError("Impossible de se connecter. Vérifiez votre code.");
       } finally {
         setIsSubmitting(false);
       }
