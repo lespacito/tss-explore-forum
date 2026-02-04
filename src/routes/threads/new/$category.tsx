@@ -21,77 +21,12 @@ export const Route = createFileRoute("/threads/new/$category")({
 	component: NewThreadFormPage,
 });
 
-// Template configurations for each category
-const categoryTemplates: Record<
-	ThreadCategory,
-	{
-		titlePlaceholder: string;
-		bodyPlaceholder: string;
-		guidingQuestions: string[];
-		helpText: string;
-	}
-> = {
-	VIOLENCE: {
-		titlePlaceholder: "Ex: J'ai besoin de parler de ce qui m'est arrivé",
-		bodyPlaceholder:
-			"Prenez le temps dont vous avez besoin. Vous n'êtes pas obligé(e) de tout raconter...",
-		guidingQuestions: [
-			"Que s'est-il passé ? (optionnel, partagez uniquement ce qui vous semble confortable)",
-			"Comment vous sentez-vous maintenant ?",
-			"Y a-t-il quelque chose de spécifique avec lequel vous aimeriez de l'aide ?",
-		],
-		helpText:
-			"Vous êtes en sécurité ici. Votre témoignage restera anonyme et sera traité avec respect.",
-	},
-	ABUS: {
-		titlePlaceholder: "Ex: Je pense être dans une situation d'abus",
-		bodyPlaceholder: "Décrivez votre situation à votre rythme...",
-		guidingQuestions: [
-			"Quelle est la nature de la situation ?",
-			"Depuis combien de temps cela dure-t-il ?",
-			"Avez-vous déjà parlé de cette situation à quelqu'un ?",
-		],
-		helpText: "Votre expérience est valide. Nous vous écoutons sans jugement.",
-	},
-	TEMOIN: {
-		titlePlaceholder: "Ex: Je m'inquiète pour quelqu'un",
-		bodyPlaceholder: "Décrivez ce que vous avez observé...",
-		guidingQuestions: [
-			"Quelle est votre relation avec la personne concernée ?",
-			"Quels changements ou signes avez-vous observés ?",
-			"Qu'espérez-vous accomplir en partageant ceci ?",
-		],
-		helpText:
-			"Votre vigilance peut faire la différence. Merci de prendre soin des autres.",
-	},
-	DETRESSE: {
-		titlePlaceholder: "Ex: J'ai besoin de soutien émotionnel urgent",
-		bodyPlaceholder: "Exprimez ce que vous ressentez...",
-		guidingQuestions: [
-			"Comment vous sentez-vous en ce moment ?",
-			"Qu'est-ce qui vous a amené(e) à chercher du soutien aujourd'hui ?",
-			"Y a-t-il quelque chose de spécifique qui pourrait vous aider maintenant ?",
-		],
-		helpText: "Vous n'êtes pas seul(e). Nous sommes là pour vous écouter.",
-	},
-	AUTRE: {
-		titlePlaceholder: "Ex: Une situation que je souhaite partager",
-		bodyPlaceholder: "Partagez votre histoire...",
-		guidingQuestions: [
-			"De quoi souhaitez-vous parler ?",
-			"Qu'espérez-vous en partageant cette expérience ?",
-		],
-		helpText: "Chaque histoire compte. Prenez le temps de partager la vôtre.",
-	},
-};
-
 function NewThreadFormPage() {
 	const { category } = Route.useParams();
 	const navigate = useNavigate();
 	const router = useRouter();
 
 	const categoryConfig = getCategoryConfig(category as ThreadCategory);
-	const template = categoryTemplates[category as ThreadCategory];
 
 	const form = useForm({
 		defaultValues: {
@@ -154,7 +89,7 @@ function NewThreadFormPage() {
 	});
 
 	// Redirect if invalid category
-	if (!categoryConfig || !template) {
+	if (!categoryConfig) {
 		navigate({ to: "/threads/new" });
 		return null;
 	}
@@ -185,7 +120,7 @@ function NewThreadFormPage() {
 			{/* Help text card */}
 			<Card className={`${categoryConfig.color} border-2`}>
 				<CardContent className="p-4">
-					<p className="text-sm">{template.helpText}</p>
+					<p className="text-sm">{categoryConfig.helpText}</p>
 				</CardContent>
 			</Card>
 
@@ -196,7 +131,7 @@ function NewThreadFormPage() {
 				</CardHeader>
 				<CardContent>
 					<ul className="space-y-2 text-sm text-muted-foreground">
-						{template.guidingQuestions.map((question) => (
+						{categoryConfig.guidingQuestions.map((question) => (
 							<li key={question} className="flex items-start gap-2">
 								<span className="text-primary mt-0.5">•</span>
 								<span>{question}</span>
@@ -233,7 +168,7 @@ function NewThreadFormPage() {
 								value={field.state.value}
 								onChange={(e) => field.handleChange(e.target.value)}
 								onBlur={field.handleBlur}
-								placeholder={template.titlePlaceholder}
+								placeholder={categoryConfig.titlePlaceholder}
 								className={
 									field.state.meta.errors.length > 0 ? "border-destructive" : ""
 								}
@@ -260,7 +195,7 @@ function NewThreadFormPage() {
 								value={field.state.value}
 								onChange={(e) => field.handleChange(e.target.value)}
 								onBlur={field.handleBlur}
-								placeholder={template.bodyPlaceholder}
+								placeholder={categoryConfig.bodyPlaceholder}
 								className={`min-h-[300px] ${field.state.meta.errors.length > 0 ? "border-destructive" : ""}`}
 							/>
 							<div className="flex justify-between items-center">
