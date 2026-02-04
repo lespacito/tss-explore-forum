@@ -2,7 +2,7 @@
  * Liste des catégories de threads considérées comme sensibles.
  * Pour ces catégories, l'alias sera affiché au lieu du displayUsername.
  */
-const SENSITIVE_CATEGORIES = ["temoignage", "urgent", "support"];
+const SENSITIVE_CATEGORIES = ["VIOLENCE", "ABUS", "DETRESSE"];
 
 /**
  * Vérifie si une catégorie de thread est considérée comme sensible.
@@ -11,7 +11,7 @@ const SENSITIVE_CATEGORIES = ["temoignage", "urgent", "support"];
  */
 export function isThreadCategorySensitive(category: string): boolean {
   if (!category) return false;
-  const normalized = category.toLowerCase();
+  const normalized = category.toUpperCase();
   return SENSITIVE_CATEGORIES.includes(normalized);
 }
 

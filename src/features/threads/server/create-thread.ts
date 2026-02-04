@@ -13,6 +13,7 @@ import {
 import { generateSecretCodeLogic } from "@/features/auth/server/generate-secret-code-fn";
 import { eq } from "drizzle-orm";
 import { logger } from "@/lib/logger/server";
+import type { ThreadCategory } from "@/data/threads-categories";
 
 const createThreadSchema = z.object({
   title: z
@@ -23,7 +24,9 @@ const createThreadSchema = z.object({
     .string()
     .min(1, "Le contenu ne peut pas être vide")
     .max(10000, "Le contenu ne peut pas dépasser 10000 caractères"),
-  category: z.string().min(1, "La catégorie est requise"),
+  category: z.enum(["VIOLENCE", "ABUS", "TEMOIN", "DETRESSE", "AUTRE"], {
+    errorMap: () => ({ message: "Catégorie invalide" }),
+  }) as z.ZodType<ThreadCategory>,
 });
 
 // Type pour le retour de createThreadFn

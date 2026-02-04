@@ -41,15 +41,14 @@ const getInitials = (name: string) => {
 
 const getCategoryColor = (category: string) => {
   const colors: Record<string, string> = {
-    support: "bg-primary/10 text-primary border-primary/20",
-    discussion: "bg-chart-2/10 text-chart-2 border-chart-2/20",
-    question: "bg-chart-3/10 text-chart-3 border-chart-3/20",
-    partage: "bg-accent/10 text-accent-foreground border-accent/20",
-    temoignage: "bg-chart-4/10 text-chart-4 border-chart-4/20",
-    urgent: "bg-destructive/10 text-destructive border-destructive/20",
+    VIOLENCE: "bg-destructive/10 text-destructive border-destructive/20",
+    ABUS: "bg-primary/10 text-primary border-primary/20",
+    TEMOIN: "bg-accent/10 text-accent-foreground border-accent/20",
+    DETRESSE: "bg-secondary/10 text-secondary-foreground border-secondary/20",
+    AUTRE: "bg-muted/10 text-muted-foreground border-muted/20",
   };
   return (
-    colors[category.toLowerCase()] ||
+    colors[category.toUpperCase()] ||
     "bg-muted/10 text-muted-foreground border-muted/20"
   );
 };
