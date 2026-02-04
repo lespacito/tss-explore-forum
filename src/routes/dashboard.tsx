@@ -2,7 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { signOut } from "@/features/auth/lib/auth-client";
-import { getAuthSession } from "@/features/auth/server/get-auth-session";
+import { getAuthSessionCached } from "@/features/auth/server/get-auth-session";
 
 export const Route = createFileRoute("/dashboard")({
 	component: RouteComponent,
@@ -10,7 +10,7 @@ export const Route = createFileRoute("/dashboard")({
 		<Loader2 className="animate-spin h-5 w-5 text-muted-foreground " />
 	),
 	loader: async () => {
-		const session = await getAuthSession();
+		const session = await getAuthSessionCached();
 		if (!session?.user) {
 			throw redirect({
 				to: "/auth/login",

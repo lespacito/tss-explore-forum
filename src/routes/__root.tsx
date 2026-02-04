@@ -10,7 +10,7 @@ import { AppSidebar } from "@/components/header/sidebar";
 import Navbar from "@/components/shadcn-studio/blocks/navbar-component/navbar-component";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/sonner";
-import { getAuthSession } from "@/features/auth/server/get-auth-session";
+import { getAuthSessionCached } from "@/features/auth/server/get-auth-session";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import appCss from "../styles.css?url";
 import ThemeProvider from "@/components/theme";
@@ -42,7 +42,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   }),
 
   loader: async () => {
-    const data = await getAuthSession();
+    const data = await getAuthSessionCached();
     return {
       authSession: data,
     };
@@ -83,18 +83,25 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               </div>
             </div>
             <Toaster position="top-right" />
-            <TanStackDevtools
-              config={{
-                position: "bottom-right",
-              }}
-              plugins={[
-                {
-                  name: "Tanstack Router",
-                  render: <TanStackRouterDevtoolsPanel />,
-                },
-                TanStackQueryDevtools,
-              ]}
-            />
+            {/*
+              OPTIMIZATION: Devtools are only included in development builds.
+              Modern bundlers with dead code elimination will remove this entire block
+              in production when NODE_ENV !== 'development', saving ~200-300KB.
+            */}
+            {process.env.NODE_ENV === "development" && (
+              <TanStackDevtools
+                config={{
+                  position: "bottom-right",
+                }}
+                plugins={[
+                  {
+                    name: "Tanstack Router",
+                    render: <TanStackRouterDevtoolsPanel />,
+                  },
+                  TanStackQueryDevtools,
+                ]}
+              />
+            )}
           </SidebarProvider>
           <Scripts />
         </ThemeProvider>

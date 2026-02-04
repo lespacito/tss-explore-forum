@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { getThreadsFn } from "@/features/threads/server/get-threads";
+import { getThreadsCached } from "@/features/threads/server/get-threads";
 import { ThreadCard } from "@/features/threads/components/thread-card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -29,7 +29,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/threads/")({
   component: ThreadsPage,
-  loader: () => getThreadsFn(),
+  loader: () => getThreadsCached(),
   validateSearch: (search: Record<string, unknown>) => {
     return {
       openDialog: search.openDialog === true || search.openDialog === "true",

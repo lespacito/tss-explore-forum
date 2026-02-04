@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { getAuthSession } from "@/features/auth/server/get-auth-session";
+import { getAuthSessionCached } from "@/features/auth/server/get-auth-session";
 import { getUserThreadsFn } from "@/features/threads/server/get-user-threads";
 import { getUserPostsFn } from "@/features/posts/server/get-user-posts";
 import { ThreadCard } from "@/features/threads/components/thread-card";
@@ -34,7 +34,7 @@ const getInitials = (name?: string) => {
 export const Route = createFileRoute("/account/profile/")({
   component: PublicProfilePage,
   loader: async () => {
-    const session = await getAuthSession();
+    const session = await getAuthSessionCached();
     if (!session || !session.user) {
       throw redirect({
         to: "/auth/login",

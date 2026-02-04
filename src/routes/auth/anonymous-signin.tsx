@@ -1,7 +1,7 @@
 import { createFileRoute, redirect, Link } from "@tanstack/react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SecretCodeLoginForm } from "@/features/auth/components/SecretCodeLoginForm";
-import { getAuthSession } from "@/features/auth/server/get-auth-session";
+import { getAuthSessionCached } from "@/features/auth/server/get-auth-session";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Info } from "lucide-react";
@@ -9,7 +9,7 @@ import { Info } from "lucide-react";
 export const Route = createFileRoute("/auth/anonymous-signin")({
   component: RouteComponent,
   loader: async () => {
-    const session = await getAuthSession();
+    const session = await getAuthSessionCached();
     // Si l'utilisateur est déjà connecté, rediriger vers /posts
     if (session?.user) {
       throw redirect({

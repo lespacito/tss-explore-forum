@@ -17,7 +17,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { getAuthSession } from "@/features/auth/server/get-auth-session";
+import { getAuthSessionCached } from "@/features/auth/server/get-auth-session";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProfileUpdateForm } from "@/features/profiles/components/profile-update-form";
 import { LoadingSuspense } from "@/features/profiles/components/loading-suspense";
@@ -43,7 +43,7 @@ const getInitials = (name?: string) => {
 export const Route = createFileRoute("/account/settings/")({
   component: SettingsPage,
   loader: async () => {
-    const session = await getAuthSession();
+    const session = await getAuthSessionCached();
     if (!session || !session.user) {
       throw redirect({
         to: "/auth/login",

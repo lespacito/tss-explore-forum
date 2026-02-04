@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SignInTab } from "@/features/auth/components/sign-in-tab";
 import { SignUpTab } from "@/features/auth/components/sign-up-tab";
-import { getAuthSession } from "@/features/auth/server/get-auth-session";
+import { getAuthSessionCached } from "@/features/auth/server/get-auth-session";
 import { useState } from "react";
 import { EmailVerification } from "@/features/auth/components/email-verification";
 import { ForgotPassword } from "@/features/auth/components/forgot-password";
@@ -11,7 +11,7 @@ import { ForgotPassword } from "@/features/auth/components/forgot-password";
 export const Route = createFileRoute("/auth/login/")({
   component: RouteComponent,
   loader: async () => {
-    const session = await getAuthSession();
+    const session = await getAuthSessionCached();
     // Permettre aux utilisateurs anonymes d'accéder à cette page pour créer un compte permanent
     if (session?.user && !session.user.isAnonymous) {
       throw redirect({

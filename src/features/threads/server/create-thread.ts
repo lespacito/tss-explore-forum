@@ -71,12 +71,20 @@ export const createThreadFn = createServerFn({ method: "POST" })
     // Générer le slug unique à partir du titre
     const slug = generateUniqueSlug(title);
 
-    // Vérifier si c'est la première publication de l'utilisateur (Task 4.1)
-    const existingThreads = await db
-      .select()
-      .from(threads)
-      .where(eq(threads.aliasId, primaryAlias.id))
-      .limit(1);
+    // OPTIMIZATION: Parallelize independent DB queries to reduce waterfall
+    // Fetch existing threads and current user data in parallel
+    const [existingThreads, [currentUser]] = await Promise.all([
+      db
+        .select()
+        .from(threads)
+        .where(eq(threads.aliasId, primaryAlias.id))
+        .limit(1),
+      db
+        .select()
+        .from(user)
+        .where(eq(user.id, session.user.id))
+        .limit(1),
+    ]);
 
     const isFirstPublication = existingThreads.length === 0;
 
@@ -95,12 +103,6 @@ export const createThreadFn = createServerFn({ method: "POST" })
     // Task 4.2: Générer code secret après première publication pour utilisateurs anonymes
     if (isFirstPublication) {
       // Vérifier si l'utilisateur est anonyme (isAnonymous === true)
-      const [currentUser] = await db
-        .select()
-        .from(user)
-        .where(eq(user.id, session.user.id))
-        .limit(1);
-
       if (currentUser && currentUser.isAnonymous === true) {
         // Task 4.3: generateSecretCodeLogic gère l'idempotence (code existant)
         const codeResult = await generateSecretCodeLogic(session);
