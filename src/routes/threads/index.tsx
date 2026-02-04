@@ -136,6 +136,24 @@ function ThreadsPage() {
 								Lancez une discussion sur un sujet qui vous tient à cœur.
 							</DialogDescription>
 						</DialogHeader>
+
+						{/* Safety Warning */}
+						<div className="p-3 bg-warning/30 border-2 border-warning rounded-lg">
+							<div className="flex items-start gap-2">
+								<span className="text-xl">⚠️</span>
+								<div className="flex-1">
+									<p className="text-xs text-foreground font-bold mb-1">
+										Important : Cette plateforme n&apos;est pas un service
+										d&apos;urgence
+									</p>
+									<p className="text-xs text-foreground">
+										En cas de danger immédiat, contactez le 117 (Police), le 143
+										(La Main Tendue) ou le 147 (CPN - Conseils + aide 147).
+									</p>
+								</div>
+							</div>
+						</div>
+
 						<form
 							onSubmit={(e) => {
 								e.preventDefault();
