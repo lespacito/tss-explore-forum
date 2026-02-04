@@ -21,6 +21,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { threadCategories } from "@/data/threads-categories";
 import { ThreadCard } from "@/features/threads/components/thread-card";
 import { createThreadFn } from "@/features/threads/server/create-thread";
 import { getThreadsCached } from "@/features/threads/server/get-threads";
@@ -35,15 +36,6 @@ export const Route = createFileRoute("/threads/")({
 	},
 });
 
-const categories = [
-	{ value: "support", label: "Support" },
-	{ value: "discussion", label: "Discussion" },
-	{ value: "question", label: "Question" },
-	{ value: "partage", label: "Partage" },
-	{ value: "temoignage", label: "Témoignage" },
-	{ value: "urgent", label: "Urgent" },
-];
-
 function ThreadsPage() {
 	const threads = Route.useLoaderData();
 	const router = useRouter();
@@ -53,9 +45,11 @@ function ThreadsPage() {
 	// OPTIMIZATION: Memoize handler to prevent unnecessary effect re-runs
 	const handleOpenDialog = useCallback(() => {
 		if (search.openDialog) {
-			// Redirect to new guided workflow instead of opening dialog
+			setIsOpen(true);
+			// Clear the search param after opening
 			router.navigate({
-				to: "/threads/new",
+				to: "/threads",
+				search: {},
 				replace: true,
 			});
 		}
@@ -179,12 +173,9 @@ function ThreadsPage() {
 												<SelectValue placeholder="Sélectionnez une catégorie" />
 											</SelectTrigger>
 											<SelectContent>
-												{categories.map((category) => (
-													<SelectItem
-														key={category.value}
-														value={category.value}
-													>
-														{category.label}
+												{threadCategories.map((category) => (
+													<SelectItem key={category.id} value={category.id}>
+														{category.icon} {category.label}
 													</SelectItem>
 												))}
 											</SelectContent>
