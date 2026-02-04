@@ -1,4 +1,4 @@
-import { sendEmail } from "@/features/auth/lib/email";
+import { sendEmail } from "@/features/auth/lib/email/send";
 import { verifyEmailTemplate } from "@/features/auth/lib/email/templates";
 import { logger } from "@/lib/logger/server";
 

@@ -4,14 +4,13 @@ import { useId, useState } from "react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { sendEmail, verifyEmailConnection } from "@/features/auth/lib/email/send";
 import {
 	passwordChangedEmail,
 	resetPasswordEmail,
-	sendEmail,
-	verifyEmailConnection,
 	verifyEmailTemplate,
 	welcomeEmail,
-} from "@/features/auth/lib/email";
+} from "@/features/auth/lib/email/templates";
 
 const testEmailInputSchema = z.object({
 	type: z.string(),

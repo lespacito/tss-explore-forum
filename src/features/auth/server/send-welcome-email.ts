@@ -1,7 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { z } from "zod";
-import { sendEmail, welcomeEmail } from "@/features/auth/lib/email";
+import { sendEmail } from "@/features/auth/lib/email/send";
+import { welcomeEmail } from "@/features/auth/lib/email/templates";
 
 const sendWelcomeEmailSchema = z.object({
 	email: z.email(),
