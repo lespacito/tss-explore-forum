@@ -34,14 +34,14 @@ function NewThreadPage() {
       </div>
 
       {/* Safety Disclaimer */}
-      <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+      <div className="p-4 bg-warning/10 border border-warning/30 rounded-lg">
         <div className="flex items-start gap-3">
           <span className="text-2xl">⚠️</span>
           <div className="flex-1">
-            <p className="text-sm text-amber-900 font-medium mb-1">
+            <p className="text-sm text-warning-foreground font-medium mb-1">
               Important : Cette plateforme n&apos;est pas un service d&apos;urgence
             </p>
-            <p className="text-xs text-amber-800">
+            <p className="text-xs text-warning-foreground/80">
               Si vous êtes en danger immédiat, contactez le 17 (Police),
               le 3919 (Violences conjugales) ou le 15 (SAMU).
             </p>
