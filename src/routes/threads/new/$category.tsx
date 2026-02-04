@@ -307,9 +307,9 @@ function NewThreadFormPage() {
 			</form>
 
 			{/* Safety footer */}
-			<Card className="bg-warning/20 border-2 border-warning/50">
+			<Card className="bg-warning/30 border-2 border-warning">
 				<CardContent className="p-4">
-					<p className="text-sm text-warning-foreground">
+					<p className="text-sm text-foreground">
 						<strong>Rappel important :</strong> Cette plateforme n'est pas un
 						service d'urgence. En cas de danger immédiat, contactez le 117
 						(Police), le 143 (La Main Tendue) ou le 147 (CPN - Conseils + aide

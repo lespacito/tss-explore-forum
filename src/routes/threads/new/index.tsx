@@ -40,15 +40,15 @@ function NewThreadPage() {
 			</div>
 
 			{/* Safety Disclaimer */}
-			<div className="p-4 bg-warning/20 border-2 border-warning/50 rounded-lg">
+			<div className="p-4 bg-warning/30 border-2 border-warning rounded-lg">
 				<div className="flex items-start gap-3">
 					<span className="text-2xl">⚠️</span>
 					<div className="flex-1">
-						<p className="text-sm text-warning-foreground font-semibold mb-1">
+						<p className="text-sm text-foreground font-bold mb-1">
 							Important : Cette plateforme n&apos;est pas un service
 							d&apos;urgence
 						</p>
-						<p className="text-sm text-warning-foreground">
+						<p className="text-sm text-foreground">
 							Si vous êtes en danger immédiat, contactez le 117 (Police), le 143
 							(La Main Tendue) ou le 147 (CPN - Conseils + aide 147).
 						</p>
