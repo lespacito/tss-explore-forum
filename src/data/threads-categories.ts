@@ -21,7 +21,7 @@ export const threadCategories: CategoryConfig[] = [
 		description:
 			"Partager une expérience de violence physique ou psychologique",
 		icon: "🛡️",
-		color: "border-blue-500 bg-blue-500/10 hover:bg-blue-500/20",
+		color: "border-primary bg-primary/10 hover:bg-primary/20",
 		helpText:
 			"Vous êtes en sécurité ici. Prenez le temps dont vous avez besoin.",
 	},
@@ -30,7 +30,7 @@ export const threadCategories: CategoryConfig[] = [
 		label: "Abus",
 		description: "Témoigner d'une situation d'abus ou de manipulation",
 		icon: "💔",
-		color: "border-violet-500 bg-violet-500/10 hover:bg-violet-500/20",
+		color: "border-chart-2 bg-chart-2/10 hover:bg-chart-2/20",
 		helpText: "Votre expérience est valide. Nous vous écoutons sans jugement.",
 	},
 	{
@@ -38,7 +38,7 @@ export const threadCategories: CategoryConfig[] = [
 		label: "Témoin",
 		description: "Demander conseil pour aider quelqu'un en difficulté",
 		icon: "👁️",
-		color: "border-cyan-500 bg-cyan-500/10 hover:bg-cyan-500/20",
+		color: "border-accent bg-accent/10 hover:bg-accent/20",
 		helpText:
 			"Votre vigilance peut faire la différence. Partagez vos préoccupations.",
 	},
@@ -47,7 +47,7 @@ export const threadCategories: CategoryConfig[] = [
 		label: "Détresse",
 		description: "Exprimer un besoin urgent de soutien émotionnel",
 		icon: "🆘",
-		color: "border-amber-500 bg-amber-500/10 hover:bg-amber-500/20",
+		color: "border-warning bg-warning/10 hover:bg-warning/20",
 		helpText: "Vous n'êtes pas seul(e). Exprimez ce que vous ressentez.",
 	},
 	{
@@ -56,7 +56,7 @@ export const threadCategories: CategoryConfig[] = [
 		description:
 			"Partager une expérience qui ne correspond pas aux autres catégories",
 		icon: "💬",
-		color: "border-slate-400 bg-slate-400/10 hover:bg-slate-400/20",
+		color: "border-muted bg-muted/10 hover:bg-muted/20",
 		helpText: "Chaque histoire compte. Partagez la vôtre.",
 	},
 ];
