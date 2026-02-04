@@ -24,7 +24,7 @@ import {
 import { useForm } from "@tanstack/react-form";
 import { createThreadFn } from "@/features/threads/server/create-thread";
 import { useRouter } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/threads/")({
@@ -52,8 +52,8 @@ function ThreadsPage() {
   const search = Route.useSearch();
   const [isOpen, setIsOpen] = useState(false);
 
-  // Auto-open dialog if coming from anonymous session creation
-  useEffect(() => {
+  // OPTIMIZATION: Memoize handler to prevent unnecessary effect re-runs
+  const handleOpenDialog = useCallback(() => {
     if (search.openDialog) {
       setIsOpen(true);
       // Clear the search param after opening
@@ -64,6 +64,11 @@ function ThreadsPage() {
       });
     }
   }, [search.openDialog, router]);
+
+  // Auto-open dialog if coming from anonymous session creation
+  useEffect(() => {
+    handleOpenDialog();
+  }, [handleOpenDialog]);
 
   const form = useForm({
     defaultValues: {

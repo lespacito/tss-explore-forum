@@ -1,3 +1,4 @@
+import { memo } from "react";
 import {
   Card,
   CardContent,
@@ -20,38 +21,42 @@ interface ThreadCardProps {
     body: string;
     slug: string;
     category: string;
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt: Date | string;
+    updatedAt: Date | string;
     aliasName: string | null;
     aliasId: string | null;
     displayUsername: string | null;
   };
 }
 
-export function ThreadCard({ thread }: ThreadCardProps) {
-  const getInitials = (name: string) => {
-    return name
-      .split("-")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  };
+// OPTIMIZATION: Hoist utility functions outside component to prevent recreation on each render
+const getInitials = (name: string) => {
+  return name
+    .split("-")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+};
 
-  const getCategoryColor = (category: string) => {
-    const colors: Record<string, string> = {
-      support: "bg-primary/10 text-primary border-primary/20",
-      discussion: "bg-chart-2/10 text-chart-2 border-chart-2/20",
-      question: "bg-chart-3/10 text-chart-3 border-chart-3/20",
-      partage: "bg-accent/10 text-accent-foreground border-accent/20",
-      temoignage: "bg-chart-4/10 text-chart-4 border-chart-4/20",
-      urgent: "bg-destructive/10 text-destructive border-destructive/20",
-    };
-    return (
-      colors[category.toLowerCase()] ||
-      "bg-muted/10 text-muted-foreground border-muted/20"
-    );
+const getCategoryColor = (category: string) => {
+  const colors: Record<string, string> = {
+    support: "bg-primary/10 text-primary border-primary/20",
+    discussion: "bg-chart-2/10 text-chart-2 border-chart-2/20",
+    question: "bg-chart-3/10 text-chart-3 border-chart-3/20",
+    partage: "bg-accent/10 text-accent-foreground border-accent/20",
+    temoignage: "bg-chart-4/10 text-chart-4 border-chart-4/20",
+    urgent: "bg-destructive/10 text-destructive border-destructive/20",
   };
+  return (
+    colors[category.toLowerCase()] ||
+    "bg-muted/10 text-muted-foreground border-muted/20"
+  );
+};
+
+// OPTIMIZATION: Memoize ThreadCard to prevent re-renders when parent updates
+// This improves performance when scrolling through long lists of threads
+export const ThreadCard = memo(function ThreadCard({ thread }: ThreadCardProps) {
 
   const authorName = getAuthorDisplayName({
     isSensitive: false,
@@ -117,4 +122,4 @@ export function ThreadCard({ thread }: ThreadCardProps) {
       </Card>
     </Link>
   );
-}
+});
