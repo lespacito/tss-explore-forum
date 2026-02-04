@@ -14,6 +14,20 @@ const config = defineConfig({
     tanstackStart(),
     viteReact(),
     nitro({ preset: "node" }),
+    // Workaround for TanStack Start virtual module issue
+    {
+      name: 'tanstack-start-virtual-module-fix',
+      resolveId(id) {
+        if (id === 'tanstack-start-injected-head-scripts:v') {
+          return id;
+        }
+      },
+      load(id) {
+        if (id === 'tanstack-start-injected-head-scripts:v') {
+          return 'export const injectedHeadScripts = "";';
+        }
+      },
+    },
   ],
   preview: {
     allowedHosts: ["parlonsviolence.ch", "www.parlonsviolence.ch"],
