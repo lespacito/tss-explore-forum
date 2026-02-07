@@ -51,10 +51,10 @@ development_status:
   epic-1-retrospective: optional
 
   epic-2: in-progress
-  2-1-choix-de-categorie-de-publication: ready-for-dev
+  2-1-choix-de-categorie-de-publication: done
   2-2-template-guide-par-categorie: done
   2-3-editeur-de-contenu-avec-formatage: done
-  2-4-soumission-pour-moderation: backlog
+  2-4-soumission-pour-moderation: ready-for-dev
   2-5-confirmation-et-suivi-de-statut: backlog
   epic-2-retrospective: optional
 

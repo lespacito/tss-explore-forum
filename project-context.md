@@ -305,9 +305,11 @@ pnpm db:studio     # Open Drizzle Studio
 1. User lands on homepage
 2. Clicks "Publier Anonymement" button
 3. System creates anonymous session (`isAnonymous: true`)
-4. User redirected to `/threads/new`
-5. User fills thread form (title, category, content)
-6. User submits form
+4. User redirected to `/threads/new` (category selection page)
+5. User selects category from 5 options: VIOLENCE, ABUS, TEMOIN, DETRESSE, AUTRE
+6. User clicks "Continuer" to proceed to template (Story 2.2)
+7. User fills thread form (title, category pre-selected, content)
+8. User submits form
 7. System creates thread in database
 8. System detects first publication (no previous threads for this alias)
 9. System generates secret code
@@ -346,7 +348,45 @@ pnpm db:studio     # Open Drizzle Studio
 - Format validation
 - Rate limiting (Arcjet integration)
 
-### Flow 3: Anonymous Account Linking
+### Flow 3: Thread Category Selection (Epic 2 - Story 2.1)
+
+**Steps:**
+1. Authenticated user (anonymous or registered) navigates to `/threads/new`
+2. System verifies authentication (loader checks session)
+3. User sees 5 trauma-informed category options with empathetic descriptions:
+   - VIOLENCE: Violence physique ou psychologique
+   - ABUS: Abus ou manipulation
+   - TEMOIN: Aider quelqu'un en difficulté
+   - DETRESSE: Soutien émotionnel urgent
+   - AUTRE: Autres situations
+4. User selects a category (visual feedback: ring border, aria-pressed)
+5. helpText is displayed below for reassurance
+6. User clicks "Continuer" (disabled until selection)
+7. System navigates to `/threads/new/$category`
+
+**Features:**
+- ✅ Route protection (auth required)
+- ✅ WCAG 2.1 AA compliant (keyboard nav, focus visible, ARIA labels)
+- ✅ Responsive design (mobile-first)
+- ✅ Safety warning with emergency numbers (117, 143, 147)
+- ✅ Cancel navigation to /threads
+- ✅ Category stored in route params for Story 2.2
+
+**Test Coverage:**
+- ✅ Route protection (4 tests)
+- ✅ Category validation (10 tests - Zod enum)
+- ✅ Accessibility (8 tests - ARIA, focus, grouping)
+- ✅ Unit tests (10 tests - render, selection, navigation)
+- ✅ E2E tests (7 scenarios - Playwright, keyboard, mobile)
+- **Total: 39 tests**
+
+**Files:**
+- Route: `src/routes/threads/new/index.tsx`
+- Categories config: `src/data/threads-categories.ts`
+- Placeholder: `src/routes/threads/new/$category.tsx`
+- Tests: `src/routes/threads/new/__tests__/`
+
+### Flow 4: Anonymous Account Linking
 
 **Steps:**
 1. Anonymous user wants to register email

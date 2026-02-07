@@ -1,13 +1,28 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	type ThreadCategory,
 	threadCategories,
 } from "@/data/threads-categories";
+import { getAuthSession } from "@/features/auth/lib/auth";
 
 export const Route = createFileRoute("/threads/new/")({
 	component: NewThreadPage,
+	loader: async () => {
+		const session = await getAuthSession();
+
+		// Redirect to login if no session
+		if (!session) {
+			throw redirect({
+				to: "/auth/login",
+				search: { redirect: "/threads/new" },
+			});
+		}
+
+		// Allow access for both anonymous and registered users
+		return { session };
+	},
 });
 
 function NewThreadPage() {
@@ -57,24 +72,35 @@ function NewThreadPage() {
 			</div>
 
 			{/* Categories Grid */}
-			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+			<div
+				role="group"
+				aria-label="Sélection de la catégorie de publication"
+				className="grid grid-cols-1 md:grid-cols-2 gap-4"
+			>
 				{threadCategories.map((category) => (
 					<button
 						key={category.id}
 						type="button"
 						className={[
 							"flex flex-col items-start gap-2 p-4 rounded-xl border transition-colors cursor-pointer text-left",
+							"focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none",
 							category.color,
 							selectedCategory === category.id
 								? "ring-2 ring-primary border-primary"
 								: "hover:shadow-sm",
 						].join(" ")}
 						aria-pressed={selectedCategory === category.id}
+						aria-describedby={`category-${category.id}-desc`}
 						onClick={() => handleCategorySelect(category.id)}
 					>
-						<span className="text-2xl">{category.icon}</span>
+						<span className="text-2xl" aria-hidden="true">
+							{category.icon}
+						</span>
 						<span className="font-semibold">{category.label}</span>
-						<span className="text-sm text-muted-foreground">
+						<span
+							id={`category-${category.id}-desc`}
+							className="text-sm text-muted-foreground"
+						>
 							{category.description}
 						</span>
 					</button>
