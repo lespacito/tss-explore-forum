@@ -104,6 +104,7 @@ export const createThreadFn = createServerFn({ method: "POST" })
 		const isFirstPublication = existingThreads.length === 0;
 
 		// Créer le thread avec l'alias et le slug
+		// Story 2.4: All new threads start with status="pending" for moderation
 		const [newThread] = await db
 			.insert(threads)
 			.values({
@@ -112,6 +113,7 @@ export const createThreadFn = createServerFn({ method: "POST" })
 				body: sanitizedBody, // Use sanitized HTML
 				category,
 				slug,
+				status: "pending", // Story 2.4: Moderation workflow
 			})
 			.returning();
 

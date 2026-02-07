@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import { alias } from "@/db/schemas/alias";
 import { user } from "@/db/schemas/user";
@@ -7,6 +7,7 @@ import { threads } from "../../../db/schemas/thread";
 
 export const getThreadsFn = createServerFn({ method: "GET" }).handler(
 	async () => {
+		// Story 2.4: Only show published, non-deleted threads (moderation + soft delete)
 		const result = await db
 			.select({
 				id: threads.id,
@@ -23,6 +24,7 @@ export const getThreadsFn = createServerFn({ method: "GET" }).handler(
 				displayUsername: user.displayUsername,
 			})
 			.from(threads)
+			.where(and(eq(threads.status, "published"), isNull(threads.deletedAt)))
 			.leftJoin(alias, eq(threads.aliasId, alias.id))
 			.leftJoin(user, eq(alias.userId, user.id))
 			.orderBy(desc(threads.createdAt));

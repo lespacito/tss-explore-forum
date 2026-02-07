@@ -3,7 +3,7 @@ import {
 	useNavigate,
 	useSearch,
 } from "@tanstack/react-router";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SecretCodeDisplay } from "@/features/auth/components/SecretCodeDisplay";
 
@@ -75,6 +75,26 @@ function ThreadConfirmationPage() {
 				<SecretCodeDisplay secretCode={secretCode} isExisting={false} />
 			</div>
 
+			{/* Moderation Information Banner (Story 2.4) */}
+			<div className="mb-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+				<div className="flex gap-3">
+					<Clock className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+					<div>
+						<h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
+							Votre publication est en cours de modération
+						</h3>
+						<p className="text-sm text-blue-800 dark:text-blue-200 mb-2">
+							Notre équipe examinera votre message dans les prochaines 24-48
+							heures. Vous serez notifié une fois qu'il sera publié.
+						</p>
+						<p className="text-sm text-blue-700 dark:text-blue-300">
+							Cette étape garantit un espace sûr et bienveillant pour tous les
+							membres de la communauté.
+						</p>
+					</div>
+				</div>
+			</div>
+
 			{/* Confirmation Actions */}
 			<div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
 				<Button onClick={handleContinue} size="lg" className="w-full sm:w-auto">
@@ -87,7 +107,7 @@ function ThreadConfirmationPage() {
 					size="lg"
 					className="w-full sm:w-auto"
 				>
-					Voir toutes les publications
+					Retourner à l'accueil
 				</Button>
 			</div>
 

@@ -54,7 +54,7 @@ development_status:
   2-1-choix-de-categorie-de-publication: done
   2-2-template-guide-par-categorie: done
   2-3-editeur-de-contenu-avec-formatage: done
-  2-4-soumission-pour-moderation: ready-for-dev
+  2-4-soumission-pour-moderation: review
   2-5-confirmation-et-suivi-de-statut: backlog
   epic-2-retrospective: optional
 

@@ -56,13 +56,16 @@ describe("Thread Creation with Tiptap (E2E)", () => {
 		// 5. Verify no draft restored
 	});
 
-	it.todo("should display formatted content correctly on thread page", async () => {
-		// Playwright test would:
-		// 1. Create thread with bold, italic, lists
-		// 2. Navigate to thread detail page
-		// 3. Verify HTML rendered with SafeHtmlDisplay
-		// 4. Verify formatting preserved (bold, italic, lists visible)
-	});
+	it.todo(
+		"should display formatted content correctly on thread page",
+		async () => {
+			// Playwright test would:
+			// 1. Create thread with bold, italic, lists
+			// 2. Navigate to thread detail page
+			// 3. Verify HTML rendered with SafeHtmlDisplay
+			// 4. Verify formatting preserved (bold, italic, lists visible)
+		},
+	);
 
 	it.todo("should sanitize dangerous HTML before storage", async () => {
 		// Playwright test would:

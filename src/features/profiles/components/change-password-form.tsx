@@ -11,7 +11,7 @@ import { logger } from "@/lib/logger";
 import {
 	type ChangePasswordFormSchema,
 	changePasswordSchema,
-} from "../schema/change-password-schema";
+} from "../schemas/change-password-schema";
 
 type FormErrors = Partial<Record<keyof ChangePasswordFormSchema, string>>;
 
