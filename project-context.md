@@ -8,6 +8,42 @@
 
 ---
 
+## 📝 Rich Text Editing (Tiptap)
+
+**Editor:** Tiptap WYSIWYG (ProseMirror-based)
+**Bundle Size:** ~50 KB gzipped (acceptable for trauma-informed UX)
+
+**Design Decision:** WYSIWYG chosen over Markdown for **cognitive load reduction**:
+- ✅ 30-second learning curve (toolbar buttons)
+- ✅ Immediate visual feedback (no syntax to memorize)
+- ✅ Trauma-informed: reduces friction for users in distress
+
+**Allowed Formatting (Whitelist):**
+- **Text:** Bold (`<strong>`), Italic (`<em>`)
+- **Structure:** Paragraphs (`<p>`), Headings (`<h2>`, `<h3>`), Line breaks (`<br>`)
+- **Lists:** Bullet lists (`<ul>`, `<li>`), Numbered lists (`<ol>`, `<li>`)
+- **Quotes:** Blockquotes (`<blockquote>`)
+
+**Security (Defense in Depth):**
+1. **Client:** Tiptap configured without dangerous extensions (no Image, CodeBlock, Table)
+2. **Client Validation:** `validateHtmlContent()` checks whitelist before submit
+3. **Server Sanitization:** `sanitizeHtml()` using `sanitize-html` library (CRITICAL layer)
+4. **Display:** `SafeHtmlDisplay` re-sanitizes before rendering
+
+**Auto-Save:**
+- Debounce: 1.5 seconds after typing stops
+- Storage: localStorage (keys: `draft-thread-${category}-title`, `draft-thread-${category}-body`)
+- Cleared: After successful submission
+- Visual feedback: Toast "Brouillon sauvegardé automatiquement"
+
+**Files:**
+- Editor: `src/components/tiptap/TiptapEditor.tsx` + `Toolbar.tsx`
+- Security: `src/lib/security/sanitize-html.ts`, `validate-html-content.ts`
+- Display: `src/components/tiptap/SafeHtmlDisplay.tsx`
+- Auto-save: `src/hooks/useAutoSaveDraft.ts`
+
+---
+
 ## 🎯 Mission Statement
 
 An anonymous support forum addressing violence, abuse, and distress. Trust, anonymity, and safety are critical success factors. The primary GTM (Go-To-Market) goal is **reducing friction to first participation**.
