@@ -76,18 +76,18 @@ function ThreadConfirmationPage() {
 			</div>
 
 			{/* Moderation Information Banner (Story 2.4) */}
-			<div className="mb-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+			<div className="mb-8 p-4 bg-warning/30 rounded-lg border-2 border-warning">
 				<div className="flex gap-3">
-					<Clock className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+					<Clock className="h-5 w-5 text-warning-foreground mt-0.5 flex-shrink-0" />
 					<div>
-						<h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
+						<h3 className="font-semibold text-warning-foreground mb-1">
 							Votre publication est en cours de modération
 						</h3>
-						<p className="text-sm text-blue-800 dark:text-blue-200 mb-2">
+						<p className="text-sm text-warning-foreground/90 mb-2">
 							Notre équipe examinera votre message dans les prochaines 24-48
 							heures. Vous serez notifié une fois qu'il sera publié.
 						</p>
-						<p className="text-sm text-blue-700 dark:text-blue-300">
+						<p className="text-sm text-warning-foreground/80">
 							Cette étape garantit un espace sûr et bienveillant pour tous les
 							membres de la communauté.
 						</p>
