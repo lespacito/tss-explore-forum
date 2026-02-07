@@ -13,6 +13,7 @@ import { fr } from "date-fns/locale";
 import { formatDistanceToNow } from "date-fns";
 import { Link } from "@tanstack/react-router";
 import { getAuthorDisplayName } from "@/lib/utils/thread-utils";
+import { SafeHtmlDisplay } from "@/components/tiptap/SafeHtmlDisplay";
 
 interface ThreadCardProps {
   thread: {
@@ -99,9 +100,10 @@ export const ThreadCard = memo(function ThreadCard({ thread }: ThreadCardProps) 
           <h3 className="font-bold text-lg font-serif hover:text-primary transition-colors">
             {thread.title}
           </h3>
-          <p className="text-sm text-muted-foreground line-clamp-3">
-            {thread.body}
-          </p>
+          <SafeHtmlDisplay
+            html={thread.body}
+            className="text-sm text-muted-foreground line-clamp-3"
+          />
         </CardContent>
         <CardFooter className="p-4 border-t flex justify-between text-muted-foreground">
           <div className="flex gap-4 text-xs">

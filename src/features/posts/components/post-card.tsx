@@ -12,6 +12,7 @@ import { useState } from "react";
 import { fr } from "date-fns/locale";
 import { formatDistanceToNow } from "date-fns";
 import { getAuthorDisplayName } from "@/lib/utils/thread-utils";
+import { SafeHtmlDisplay } from "@/components/tiptap/SafeHtmlDisplay";
 
 interface PostCardProps {
   post: {
@@ -89,13 +90,12 @@ export function PostCard({ post, threadCategory = "" }: PostCardProps) {
           </div>
         )}
         <div className="relative mt-2">
-          <div
-            className={`text-sm text-muted-foreground whitespace-pre-wrap ${
+          <SafeHtmlDisplay
+            html={post.content}
+            className={`text-sm text-muted-foreground ${
               isBlurred ? "blur-md select-none" : ""
             }`}
-          >
-            {post.content}
-          </div>
+          />
           {isBlurred && (
             <div className="absolute inset-0 flex items-center justify-center">
               <Button

@@ -14,6 +14,7 @@ import { generateSecretCodeLogic } from "@/features/auth/server/generate-secret-
 import { eq } from "drizzle-orm";
 import { logger } from "@/lib/logger/server";
 import type { ThreadCategory } from "@/data/threads-categories";
+import { validateAndSanitize } from "@/lib/security/sanitize-html";
 
 const createThreadSchema = z.object({
   title: z
@@ -71,6 +72,21 @@ export const createThreadFn = createServerFn({ method: "POST" })
     const body = data.body.trim();
     const category = data.category.trim();
 
+    // Sanitize HTML content from Tiptap editor (critical security layer)
+    const sanitizationResult = validateAndSanitize(body);
+    if (!sanitizationResult.isValid) {
+      logger.warn("Thread creation blocked due to invalid content", {
+        userId: session.user.id,
+        error: sanitizationResult.error,
+      });
+      return {
+        success: false,
+        error: sanitizationResult.error || "Le contenu n'est pas valide",
+      };
+    }
+
+    const sanitizedBody = sanitizationResult.sanitized!;
+
     // Générer le slug unique à partir du titre
     const slug = generateUniqueSlug(title);
 
@@ -97,7 +113,7 @@ export const createThreadFn = createServerFn({ method: "POST" })
       .values({
         aliasId: primaryAlias.id,
         title,
-        body,
+        body: sanitizedBody, // Use sanitized HTML
         category,
         slug,
       })

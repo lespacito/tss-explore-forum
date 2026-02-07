@@ -21,6 +21,7 @@ import {
   getAuthorDisplayName,
   isThreadCategorySensitive,
 } from "@/lib/utils/thread-utils";
+import { SafeHtmlDisplay } from "@/components/tiptap/SafeHtmlDisplay";
 
 export const Route = createFileRoute("/threads/$threadSlug")({
   component: ThreadDetailPage,
@@ -148,9 +149,10 @@ function ThreadDetailPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground whitespace-pre-wrap">
-            {thread.body}
-          </p>
+          <SafeHtmlDisplay
+            html={thread.body}
+            className="text-muted-foreground"
+          />
         </CardContent>
       </Card>
 
