@@ -5,7 +5,7 @@ import {
 	type ThreadCategory,
 	threadCategories,
 } from "@/data/threads-categories";
-import { getAuthSession } from "@/features/auth/lib/auth";
+import { getAuthSession } from "@/features/auth/server/get-auth-session";
 
 export const Route = createFileRoute("/threads/new/")({
 	component: NewThreadPage,
