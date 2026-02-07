@@ -17,13 +17,18 @@ export const Toolbar = () => {
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-1 p-2 border-b border-border bg-muted/30">
+    <div
+      role="toolbar"
+      aria-label="Outils de formatage de texte"
+      className="flex flex-wrap items-center gap-1 p-2 border-b border-border bg-muted/30"
+    >
       <Button
         onClick={() => editor.chain().focus().toggleBold().run()}
         variant={editor.isActive("bold") ? "default" : "outline"}
         size="icon-sm"
         type="button"
         aria-label="Gras"
+        aria-pressed={editor.isActive("bold")}
         title="Gras (Ctrl+B)"
       >
         <BoldIcon className="h-4 w-4" />
@@ -35,6 +40,7 @@ export const Toolbar = () => {
         size="icon-sm"
         type="button"
         aria-label="Italique"
+        aria-pressed={editor.isActive("italic")}
         title="Italique (Ctrl+I)"
       >
         <ItalicIcon className="h-4 w-4" />
@@ -50,6 +56,7 @@ export const Toolbar = () => {
         size="icon-sm"
         type="button"
         aria-label="Titre"
+        aria-pressed={editor.isActive("heading", { level: 2 })}
         title="Titre (Ctrl+Alt+2)"
       >
         <Heading2Icon className="h-4 w-4" />
@@ -61,6 +68,7 @@ export const Toolbar = () => {
         size="icon-sm"
         type="button"
         aria-label="Citation"
+        aria-pressed={editor.isActive("blockquote")}
         title="Citation (Ctrl+Shift+B)"
       >
         <Quote className="h-4 w-4" />
@@ -74,6 +82,7 @@ export const Toolbar = () => {
         size="icon-sm"
         type="button"
         aria-label="Liste à puces"
+        aria-pressed={editor.isActive("bulletList")}
         title="Liste à puces"
       >
         <ListIcon className="h-4 w-4" />
@@ -85,6 +94,7 @@ export const Toolbar = () => {
         size="icon-sm"
         type="button"
         aria-label="Liste numérotée"
+        aria-pressed={editor.isActive("orderedList")}
         title="Liste numérotée"
       >
         <ListOrderedIcon className="h-4 w-4" />

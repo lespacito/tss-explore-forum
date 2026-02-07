@@ -79,6 +79,9 @@ export const TipTap = ({
         editorProps={{
           attributes: {
             class: editorClasses,
+            role: "textbox",
+            "aria-label": placeholder || "Zone de texte avec formatage",
+            "aria-multiline": "true",
           },
         }}
       >
