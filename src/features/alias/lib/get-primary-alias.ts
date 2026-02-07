@@ -1,6 +1,6 @@
+import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { alias } from "@/db/schemas/alias";
-import { eq, and } from "drizzle-orm";
 
 /**
  * Récupère l'alias principal d'un utilisateur
@@ -17,13 +17,13 @@ import { eq, and } from "drizzle-orm";
  * ```
  */
 export async function getPrimaryAlias(userId: string) {
-  const [primaryAlias] = await db
-    .select()
-    .from(alias)
-    .where(and(eq(alias.userId, userId), eq(alias.isPrimary, true)))
-    .limit(1);
+	const [primaryAlias] = await db
+		.select()
+		.from(alias)
+		.where(and(eq(alias.userId, userId), eq(alias.isPrimary, true)))
+		.limit(1);
 
-  return primaryAlias || null;
+	return primaryAlias || null;
 }
 
 /**
@@ -39,11 +39,11 @@ export async function getPrimaryAlias(userId: string) {
  * ```
  */
 export async function getUserAliases(userId: string) {
-  return await db
-    .select()
-    .from(alias)
-    .where(eq(alias.userId, userId))
-    .orderBy(alias.createdAt);
+	return await db
+		.select()
+		.from(alias)
+		.where(eq(alias.userId, userId))
+		.orderBy(alias.createdAt);
 }
 
 /**
@@ -61,11 +61,11 @@ export async function getUserAliases(userId: string) {
  * ```
  */
 export async function getAliasById(aliasId: string) {
-  const [foundAlias] = await db
-    .select()
-    .from(alias)
-    .where(eq(alias.id, aliasId))
-    .limit(1);
+	const [foundAlias] = await db
+		.select()
+		.from(alias)
+		.where(eq(alias.id, aliasId))
+		.limit(1);
 
-  return foundAlias || null;
+	return foundAlias || null;
 }

@@ -7,11 +7,11 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 
 export interface LogContext {
-  correlationId?: string;
-  userId?: string;
-  username?: string;
-  requestPath?: string;
-  [key: string]: any;
+	correlationId?: string;
+	userId?: string;
+	username?: string;
+	requestPath?: string;
+	[key: string]: any;
 }
 
 const asyncLocalStorage = new AsyncLocalStorage<LogContext>();
@@ -27,7 +27,7 @@ const asyncLocalStorage = new AsyncLocalStorage<LogContext>();
  * });
  */
 export const runWithContext = <T>(context: LogContext, fn: () => T): T => {
-  return asyncLocalStorage.run(context, fn);
+	return asyncLocalStorage.run(context, fn);
 };
 
 /**
@@ -39,7 +39,7 @@ export const runWithContext = <T>(context: LogContext, fn: () => T): T => {
  * logger.info('User action', { correlationId, userId });
  */
 export const getContext = (): LogContext => {
-  return asyncLocalStorage.getStore() || {};
+	return asyncLocalStorage.getStore() || {};
 };
 
 /**
@@ -51,25 +51,25 @@ export const getContext = (): LogContext => {
  * // Le contexte contient maintenant correlationId ET userId
  */
 export const updateContext = <T>(
-  updates: Partial<LogContext>,
-  fn: () => T,
+	updates: Partial<LogContext>,
+	fn: () => T,
 ): T => {
-  const current = getContext();
-  return runWithContext({ ...current, ...updates }, fn);
+	const current = getContext();
+	return runWithContext({ ...current, ...updates }, fn);
 };
 
 /**
  * Récupère uniquement le correlationId du contexte
  */
 export const getCorrelationId = (): string | undefined => {
-  return getContext().correlationId;
+	return getContext().correlationId;
 };
 
 /**
  * Récupère uniquement le userId du contexte
  */
 export const getUserId = (): string | undefined => {
-  return getContext().userId;
+	return getContext().userId;
 };
 
 /**

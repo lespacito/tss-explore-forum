@@ -1,8 +1,8 @@
-import {
-  ThemeProvider as NextThemesProvider,
-  useTheme as useNextTheme,
-} from "next-themes";
 import type { ThemeProviderProps } from "next-themes";
+import {
+	ThemeProvider as NextThemesProvider,
+	useTheme as useNextTheme,
+} from "next-themes";
 
 /**
  * ThemeProvider for TanStack Start RC 2025
@@ -13,41 +13,41 @@ import type { ThemeProviderProps } from "next-themes";
  * You can override any prop via the component usage if needed.
  */
 export function ThemeProvider({
-  attribute = "class",
-  defaultTheme = "system",
-  enableSystem,
-  enableColorScheme,
-  themes = ["light", "dark"],
-  storageKey = "tss-explore-theme",
-  disableTransitionOnChange,
-  nonce,
-  children,
-  ...props
+	attribute = "class",
+	defaultTheme = "system",
+	enableSystem,
+	enableColorScheme,
+	themes = ["light", "dark"],
+	storageKey = "tss-explore-theme",
+	disableTransitionOnChange,
+	nonce,
+	children,
+	...props
 }: ThemeProviderProps) {
-  return (
-    <NextThemesProvider
-      attribute={attribute}
-      defaultTheme={defaultTheme}
-      enableSystem={enableSystem}
-      enableColorScheme={enableColorScheme}
-      themes={themes}
-      storageKey={storageKey}
-      disableTransitionOnChange={disableTransitionOnChange}
-      nonce={nonce}
-      {...props}
-    >
-      {children}
-    </NextThemesProvider>
-  );
+	return (
+		<NextThemesProvider
+			attribute={attribute}
+			defaultTheme={defaultTheme}
+			enableSystem={enableSystem}
+			enableColorScheme={enableColorScheme}
+			themes={themes}
+			storageKey={storageKey}
+			disableTransitionOnChange={disableTransitionOnChange}
+			nonce={nonce}
+			{...props}
+		>
+			{children}
+		</NextThemesProvider>
+	);
 }
 
 export function useTheme() {
-  const context = useNextTheme();
+	const context = useNextTheme();
 
-  if (!context) {
-    throw new Error("useTheme must be used within a ThemeProvider");
-  }
+	if (!context) {
+		throw new Error("useTheme must be used within a ThemeProvider");
+	}
 
-  return context;
+	return context;
 }
 export default ThemeProvider;

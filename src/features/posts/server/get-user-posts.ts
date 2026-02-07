@@ -1,10 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
+import { desc, eq, isNull } from "drizzle-orm";
 import { db } from "@/db";
-import { posts } from "@/db/schemas/post";
 import { alias } from "@/db/schemas/alias";
-import { user } from "@/db/schemas/user";
+import { posts } from "@/db/schemas/post";
 import { threads } from "@/db/schemas/thread";
-import { eq, desc, isNull } from "drizzle-orm";
+import { user } from "@/db/schemas/user";
 import { getAuthSession } from "@/features/auth/server/get-auth-session";
 
 /**
@@ -21,58 +21,58 @@ import { getAuthSession } from "@/features/auth/server/get-auth-session";
  * @returns Array of posts with thread and alias data
  */
 export const getUserPostsFn = createServerFn({
-  method: "GET",
+	method: "GET",
 }).handler(async () => {
-  const session = await getAuthSession();
+	const session = await getAuthSession();
 
-  if (!session?.user?.id) {
-    throw new Error("Non authentifié");
-  }
+	if (!session?.user?.id) {
+		throw new Error("Non authentifié");
+	}
 
-  const userId = session.user.id;
+	const userId = session.user.id;
 
-  // Get all aliases for this user
-  const userAliases = await db
-    .select({ id: alias.id })
-    .from(alias)
-    .where(eq(alias.userId, userId));
+	// Get all aliases for this user
+	const userAliases = await db
+		.select({ id: alias.id })
+		.from(alias)
+		.where(eq(alias.userId, userId));
 
-  if (userAliases.length === 0) {
-    return [];
-  }
+	if (userAliases.length === 0) {
+		return [];
+	}
 
-  const aliasIds = userAliases.map((a) => a.id);
+	const aliasIds = userAliases.map((a) => a.id);
 
-  // Get all posts created by user's aliases
-  const userPosts = await db
-    .select({
-      id: posts.id,
-      content: posts.content,
-      threadId: posts.threadId,
-      isSensitive: posts.isSensitive,
-      contentWarnings: posts.contentWarnings,
-      createdAt: posts.createdAt,
-      updatedAt: posts.updatedAt,
-      aliasId: posts.aliasId,
-      aliasName: alias.alias,
-      displayUsername: user.displayUsername,
-      threadTitle: threads.title,
-      threadSlug: threads.slug,
-      threadCategory: threads.category,
-    })
-    .from(posts)
-    .innerJoin(alias, eq(posts.aliasId, alias.id))
-    .leftJoin(user, eq(alias.userId, user.id))
-    .leftJoin(threads, eq(posts.threadId, threads.id))
-    .where(eq(alias.userId, userId))
-    .orderBy(desc(posts.createdAt));
+	// Get all posts created by user's aliases
+	const userPosts = await db
+		.select({
+			id: posts.id,
+			content: posts.content,
+			threadId: posts.threadId,
+			isSensitive: posts.isSensitive,
+			contentWarnings: posts.contentWarnings,
+			createdAt: posts.createdAt,
+			updatedAt: posts.updatedAt,
+			aliasId: posts.aliasId,
+			aliasName: alias.alias,
+			displayUsername: user.displayUsername,
+			threadTitle: threads.title,
+			threadSlug: threads.slug,
+			threadCategory: threads.category,
+		})
+		.from(posts)
+		.innerJoin(alias, eq(posts.aliasId, alias.id))
+		.leftJoin(user, eq(alias.userId, user.id))
+		.leftJoin(threads, eq(posts.threadId, threads.id))
+		.where(eq(alias.userId, userId))
+		.orderBy(desc(posts.createdAt));
 
-  return userPosts.map((post) => ({
-    ...post,
-    aliasName: post.aliasName ?? "Anonyme",
-    displayUsername: post.displayUsername ?? null,
-    threadTitle: post.threadTitle ?? "Thread supprimé",
-    threadSlug: post.threadSlug ?? null,
-    threadCategory: post.threadCategory ?? "discussion",
-  }));
+	return userPosts.map((post) => ({
+		...post,
+		aliasName: post.aliasName ?? "Anonyme",
+		displayUsername: post.displayUsername ?? null,
+		threadTitle: post.threadTitle ?? "Thread supprimé",
+		threadSlug: post.threadSlug ?? null,
+		threadCategory: post.threadCategory ?? "discussion",
+	}));
 });

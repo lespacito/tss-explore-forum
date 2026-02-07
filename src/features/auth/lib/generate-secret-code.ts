@@ -1,7 +1,7 @@
 import { randomBytes } from "crypto";
+import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { user } from "@/db/schemas/user";
-import { eq } from "drizzle-orm";
 
 /**
  * Configuration for secret code generation
@@ -30,20 +30,20 @@ const CHUNK_SIZE = 4;
  * - Human-readable with dash separators every 4 characters
  */
 export function generateSecretCode(): string {
-  let code = "";
-  const bytes = randomBytes(CODE_LENGTH);
+	let code = "";
+	const bytes = randomBytes(CODE_LENGTH);
 
-  for (let i = 0; i < CODE_LENGTH; i++) {
-    const index = bytes[i] % ALLOWED_CHARS.length;
-    code += ALLOWED_CHARS[index];
+	for (let i = 0; i < CODE_LENGTH; i++) {
+		const index = bytes[i] % ALLOWED_CHARS.length;
+		code += ALLOWED_CHARS[index];
 
-    // Add separator every 4 characters (except at the end)
-    if ((i + 1) % CHUNK_SIZE === 0 && i < CODE_LENGTH - 1) {
-      code += SEPARATOR;
-    }
-  }
+		// Add separator every 4 characters (except at the end)
+		if ((i + 1) % CHUNK_SIZE === 0 && i < CODE_LENGTH - 1) {
+			code += SEPARATOR;
+		}
+	}
 
-  return code; // Format: "XXXX-XXXX-XXXX"
+	return code; // Format: "XXXX-XXXX-XXXX"
 }
 
 /**
@@ -65,25 +65,25 @@ export function generateSecretCode(): string {
  * Default 5 attempts should be more than sufficient.
  */
 export async function ensureUniqueCode(
-  dbInstance: typeof db = db,
-  maxAttempts: number = 5,
+	dbInstance: typeof db = db,
+	maxAttempts: number = 5,
 ): Promise<string> {
-  for (let i = 0; i < maxAttempts; i++) {
-    const code = generateSecretCode();
+	for (let i = 0; i < maxAttempts; i++) {
+		const code = generateSecretCode();
 
-    // Check if code already exists in database
-    const existing = await dbInstance
-      .select()
-      .from(user)
-      .where(eq(user.secretCode, code))
-      .limit(1);
+		// Check if code already exists in database
+		const existing = await dbInstance
+			.select()
+			.from(user)
+			.where(eq(user.secretCode, code))
+			.limit(1);
 
-    if (existing.length === 0) {
-      return code;
-    }
+		if (existing.length === 0) {
+			return code;
+		}
 
-    // Collision detected, retry
-  }
+		// Collision detected, retry
+	}
 
-  throw new Error("Failed to generate unique secret code");
+	throw new Error("Failed to generate unique secret code");
 }

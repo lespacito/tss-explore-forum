@@ -10,16 +10,16 @@
  */
 
 import { createMiddleware } from "@tanstack/react-start";
-import { v4 as uuidv4 } from "uuid";
-import { getContext, runWithContext, type LogContext } from "./context";
-import { logger, withMeta } from "./logger";
-import type { Logger } from "winston";
 import { getRequest } from "@tanstack/react-start/server";
+import { v4 as uuidv4 } from "uuid";
+import type { Logger } from "winston";
+import { getContext, type LogContext, runWithContext } from "./context";
+import { logger, withMeta } from "./logger";
 
 export interface LoggingContext {
-  logger: Logger;
-  correlationId: string;
-  logContext: LogContext;
+	logger: Logger;
+	correlationId: string;
+	logContext: LogContext;
 }
 
 /**
@@ -41,76 +41,76 @@ export interface LoggingContext {
  *   });
  */
 export const loggingMiddleware = createMiddleware().server(async ({ next }) => {
-  const request = getRequest();
+	const request = getRequest();
 
-  // Extraire ou générer le correlationId
-  const incomingId = request.headers.get("x-correlation-id");
-  const correlationId =
-    typeof incomingId === "string" && incomingId.trim()
-      ? incomingId.trim()
-      : uuidv4();
+	// Extraire ou générer le correlationId
+	const incomingId = request.headers.get("x-correlation-id");
+	const correlationId =
+		typeof incomingId === "string" && incomingId.trim()
+			? incomingId.trim()
+			: uuidv4();
 
-  // Préparer le contexte de log
-  const logContext: LogContext = {
-    correlationId,
-    requestPath: new URL(request.url).pathname,
-    method: request.method,
-    userAgent: request.headers.get("user-agent") || undefined,
-  };
+	// Préparer le contexte de log
+	const logContext: LogContext = {
+		correlationId,
+		requestPath: new URL(request.url).pathname,
+		method: request.method,
+		userAgent: request.headers.get("user-agent") || undefined,
+	};
 
-  // Logger contextualisé pour cette requête
-  const requestLogger = withMeta({ correlationId });
+	// Logger contextualisé pour cette requête
+	const requestLogger = withMeta({ correlationId });
 
-  // Timestamp de début
-  const startTime = Date.now();
+	// Timestamp de début
+	const startTime = Date.now();
 
-  // Log de début de requête (niveau debug pour ne pas polluer)
-  requestLogger.debug("Request started", {
-    method: request.method,
-    path: logContext.requestPath,
-  });
+	// Log de début de requête (niveau debug pour ne pas polluer)
+	requestLogger.debug("Request started", {
+		method: request.method,
+		path: logContext.requestPath,
+	});
 
-  // Exécuter dans le contexte AsyncLocalStorage
-  return runWithContext(logContext, async () => {
-    try {
-      // Passer au prochain middleware/handler avec le context enrichi
-      const response = await next({
-        context: {
-          logger: requestLogger,
-          correlationId,
-          logContext,
-        } as LoggingContext,
-      });
+	// Exécuter dans le contexte AsyncLocalStorage
+	return runWithContext(logContext, async () => {
+		try {
+			// Passer au prochain middleware/handler avec le context enrichi
+			const response = await next({
+				context: {
+					logger: requestLogger,
+					correlationId,
+					logContext,
+				} as LoggingContext,
+			});
 
-      // Log de fin de requête
-      const duration = Date.now() - startTime;
+			// Log de fin de requête
+			const duration = Date.now() - startTime;
 
-      // Déterminer le niveau de log selon le status code
-      // Note: avec TanStack Start, on n'a pas toujours accès au status ici
-      // On log au niveau 'http' par défaut
-      requestLogger.http("Request completed", {
-        method: request.method,
-        path: logContext.requestPath,
-        durationMs: duration,
-      });
+			// Déterminer le niveau de log selon le status code
+			// Note: avec TanStack Start, on n'a pas toujours accès au status ici
+			// On log au niveau 'http' par défaut
+			requestLogger.http("Request completed", {
+				method: request.method,
+				path: logContext.requestPath,
+				durationMs: duration,
+			});
 
-      return response;
-    } catch (error) {
-      // Log des erreurs non gérées
-      const duration = Date.now() - startTime;
+			return response;
+		} catch (error) {
+			// Log des erreurs non gérées
+			const duration = Date.now() - startTime;
 
-      requestLogger.error("Request failed", {
-        method: request.method,
-        path: logContext.requestPath,
-        durationMs: duration,
-        error: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined,
-      });
+			requestLogger.error("Request failed", {
+				method: request.method,
+				path: logContext.requestPath,
+				durationMs: duration,
+				error: error instanceof Error ? error.message : String(error),
+				stack: error instanceof Error ? error.stack : undefined,
+			});
 
-      // Re-throw pour que les error handlers en aval puissent traiter
-      throw error;
-    }
-  });
+			// Re-throw pour que les error handlers en aval puissent traiter
+			throw error;
+		}
+	});
 });
 
 /**
@@ -126,10 +126,10 @@ export const loggingMiddleware = createMiddleware().server(async ({ next }) => {
  * }
  */
 export const getContextLogger = (): Logger => {
-  const ctx = getContext();
-  return ctx.correlationId
-    ? withMeta({ correlationId: ctx.correlationId })
-    : logger;
+	const ctx = getContext();
+	return ctx.correlationId
+		? withMeta({ correlationId: ctx.correlationId })
+		: logger;
 };
 
 /**
@@ -145,14 +145,14 @@ export const getContextLogger = (): Logger => {
  *   });
  */
 export const enrichLogContextWithUser = (
-  userId?: string,
-  username?: string,
+	userId?: string,
+	username?: string,
 ) => {
-  const ctx = getContext();
-  if (userId) {
-    ctx.userId = userId;
-  }
-  if (username) {
-    ctx.username = username;
-  }
+	const ctx = getContext();
+	if (userId) {
+		ctx.userId = userId;
+	}
+	if (username) {
+		ctx.username = username;
+	}
 };

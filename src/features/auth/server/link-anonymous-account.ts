@@ -1,9 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import { alias } from "@/db/schemas/alias";
 import { user } from "@/db/schemas/user";
-import { eq } from "drizzle-orm";
 import { logger } from "@/lib/logger/server";
 
 /**
@@ -27,61 +27,64 @@ import { logger } from "@/lib/logger/server";
  * via aliasId, pas directement au user.
  */
 export const linkAnonymousAccountFn = createServerFn({ method: "POST" })
-  .inputValidator(
-    z.object({
-      anonymousUserId: z.string(),
-      newUserId: z.string(),
-    })
-  )
-  .handler(async ({ data }) => {
-    const { newUserId, anonymousUserId } = data;
+	.inputValidator(
+		z.object({
+			anonymousUserId: z.string(),
+			newUserId: z.string(),
+		}),
+	)
+	.handler(async ({ data }) => {
+		const { newUserId, anonymousUserId } = data;
 
-    try {
-      // Migrer tous les alias de l'utilisateur anonyme vers le nouveau compte
-      // Tous les threads, posts et comments suivent automatiquement car ils sont liés aux alias
-      const updatedAliases = await db
-        .update(alias)
-        .set({ userId: newUserId })
-        .where(eq(alias.userId, anonymousUserId))
-        .returning();
+		try {
+			// Migrer tous les alias de l'utilisateur anonyme vers le nouveau compte
+			// Tous les threads, posts et comments suivent automatiquement car ils sont liés aux alias
+			const updatedAliases = await db
+				.update(alias)
+				.set({ userId: newUserId })
+				.where(eq(alias.userId, anonymousUserId))
+				.returning();
 
-      logger.info("Aliases migrated to new account", {
-        anonymousUserId,
-        newUserId,
-        aliasCount: updatedAliases.length,
-      });
+			logger.info("Aliases migrated to new account", {
+				anonymousUserId,
+				newUserId,
+				aliasCount: updatedAliases.length,
+			});
 
-      // Supprimer le compte anonyme après migration pour éviter confusion
-      try {
-        await db.delete(user).where(eq(user.id, anonymousUserId));
+			// Supprimer le compte anonyme après migration pour éviter confusion
+			try {
+				await db.delete(user).where(eq(user.id, anonymousUserId));
 
-        logger.info("Anonymous user account deleted after successful migration", {
-          anonymousUserId,
-          newUserId,
-        });
-      } catch (deleteError: any) {
-        // Non-critical - log warning but don't fail the migration
-        logger.warn("Failed to delete anonymous user account (non-critical)", {
-          anonymousUserId,
-          error: deleteError.message,
-        });
-      }
+				logger.info(
+					"Anonymous user account deleted after successful migration",
+					{
+						anonymousUserId,
+						newUserId,
+					},
+				);
+			} catch (deleteError: any) {
+				// Non-critical - log warning but don't fail the migration
+				logger.warn("Failed to delete anonymous user account (non-critical)", {
+					anonymousUserId,
+					error: deleteError.message,
+				});
+			}
 
-      return {
-        success: true,
-        linkedPostsCount: updatedAliases.length,
-      };
-    } catch (error: any) {
-      logger.error("Failed to link anonymous account", {
-        anonymousUserId,
-        newUserId,
-        error: error.message,
-        stack: error.stack,
-      });
+			return {
+				success: true,
+				linkedPostsCount: updatedAliases.length,
+			};
+		} catch (error: any) {
+			logger.error("Failed to link anonymous account", {
+				anonymousUserId,
+				newUserId,
+				error: error.message,
+				stack: error.stack,
+			});
 
-      return {
-        success: false,
-        error: "Erreur lors de la liaison du compte",
-      };
-    }
-  });
+			return {
+				success: false,
+				error: "Erreur lors de la liaison du compte",
+			};
+		}
+	});

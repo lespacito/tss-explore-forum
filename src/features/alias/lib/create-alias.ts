@@ -1,7 +1,7 @@
+import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { alias } from "@/db/schemas/alias";
 import { generateAlias } from "./generate-alias";
-import { eq } from "drizzle-orm";
 
 /**
  * Crée un alias principal pour un utilisateur lors de l'inscription
@@ -17,43 +17,43 @@ import { eq } from "drizzle-orm";
  * ```
  */
 export async function createPrimaryAlias(userId: string) {
-  let aliasName = generateAlias();
-  let attempts = 0;
-  const maxAttempts = 10;
+	let aliasName = generateAlias();
+	let attempts = 0;
+	const maxAttempts = 10;
 
-  // Boucle pour éviter les doublons
-  while (attempts < maxAttempts) {
-    const [existing] = await db
-      .select()
-      .from(alias)
-      .where(eq(alias.alias, aliasName))
-      .limit(1);
+	// Boucle pour éviter les doublons
+	while (attempts < maxAttempts) {
+		const [existing] = await db
+			.select()
+			.from(alias)
+			.where(eq(alias.alias, aliasName))
+			.limit(1);
 
-    if (!existing) {
-      break;
-    }
+		if (!existing) {
+			break;
+		}
 
-    aliasName = generateAlias();
-    attempts++;
-  }
+		aliasName = generateAlias();
+		attempts++;
+	}
 
-  if (attempts >= maxAttempts) {
-    throw new Error(
-      "Impossible de générer un alias unique après plusieurs tentatives",
-    );
-  }
+	if (attempts >= maxAttempts) {
+		throw new Error(
+			"Impossible de générer un alias unique après plusieurs tentatives",
+		);
+	}
 
-  const [newAlias] = await db
-    .insert(alias)
-    .values({
-      userId,
-      alias: aliasName,
-      isPrimary: true,
-      rotationEnabled: false,
-    })
-    .returning();
+	const [newAlias] = await db
+		.insert(alias)
+		.values({
+			userId,
+			alias: aliasName,
+			isPrimary: true,
+			rotationEnabled: false,
+		})
+		.returning();
 
-  return newAlias;
+	return newAlias;
 }
 
 /**
@@ -75,64 +75,64 @@ export async function createPrimaryAlias(userId: string) {
  * ```
  */
 export async function createSecondaryAlias(
-  userId: string,
-  customAlias?: string,
-  rotationEnabled = false,
+	userId: string,
+	customAlias?: string,
+	rotationEnabled = false,
 ) {
-  let aliasName: string;
+	let aliasName: string;
 
-  if (customAlias) {
-    // Vérifier si l'alias personnalisé existe déjà
-    const [existing] = await db
-      .select()
-      .from(alias)
-      .where(eq(alias.alias, customAlias))
-      .limit(1);
+	if (customAlias) {
+		// Vérifier si l'alias personnalisé existe déjà
+		const [existing] = await db
+			.select()
+			.from(alias)
+			.where(eq(alias.alias, customAlias))
+			.limit(1);
 
-    if (existing) {
-      throw new Error(`L'alias "${customAlias}" est déjà utilisé`);
-    }
+		if (existing) {
+			throw new Error(`L'alias "${customAlias}" est déjà utilisé`);
+		}
 
-    aliasName = customAlias;
-  } else {
-    // Générer un alias aléatoire unique
-    aliasName = generateAlias();
-    let attempts = 0;
-    const maxAttempts = 10;
+		aliasName = customAlias;
+	} else {
+		// Générer un alias aléatoire unique
+		aliasName = generateAlias();
+		let attempts = 0;
+		const maxAttempts = 10;
 
-    while (attempts < maxAttempts) {
-      const [existing] = await db
-        .select()
-        .from(alias)
-        .where(eq(alias.alias, aliasName))
-        .limit(1);
+		while (attempts < maxAttempts) {
+			const [existing] = await db
+				.select()
+				.from(alias)
+				.where(eq(alias.alias, aliasName))
+				.limit(1);
 
-      if (!existing) {
-        break;
-      }
+			if (!existing) {
+				break;
+			}
 
-      aliasName = generateAlias();
-      attempts++;
-    }
+			aliasName = generateAlias();
+			attempts++;
+		}
 
-    if (attempts >= maxAttempts) {
-      throw new Error(
-        "Impossible de générer un alias unique après plusieurs tentatives",
-      );
-    }
-  }
+		if (attempts >= maxAttempts) {
+			throw new Error(
+				"Impossible de générer un alias unique après plusieurs tentatives",
+			);
+		}
+	}
 
-  const [newAlias] = await db
-    .insert(alias)
-    .values({
-      userId,
-      alias: aliasName,
-      isPrimary: false,
-      rotationEnabled,
-    })
-    .returning();
+	const [newAlias] = await db
+		.insert(alias)
+		.values({
+			userId,
+			alias: aliasName,
+			isPrimary: false,
+			rotationEnabled,
+		})
+		.returning();
 
-  return newAlias;
+	return newAlias;
 }
 
 /**
@@ -150,11 +150,11 @@ export async function createSecondaryAlias(
  * ```
  */
 export async function isAliasAvailable(aliasName: string): Promise<boolean> {
-  const [existing] = await db
-    .select()
-    .from(alias)
-    .where(eq(alias.alias, aliasName))
-    .limit(1);
+	const [existing] = await db
+		.select()
+		.from(alias)
+		.where(eq(alias.alias, aliasName))
+		.limit(1);
 
-  return !existing;
+	return !existing;
 }
