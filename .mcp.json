@@ -1,12 +1,17 @@
 {
   "mcpServers": {
-    "agentvibes": {
+    "context7": {
+      "type": "stdio",
       "command": "npx",
-      "args": [
-        "-y",
-        "--package=agentvibes",
-        "agentvibes-mcp-server"
-      ]
+      "args": ["-y", "@upstash/context7-mcp@latest"]
+    },
+    "exa": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "exa-mcp-server"],
+      "env": {
+        "EXA_API_KEY": "YOUR_EXA_API_KEY_HERE"
+      }
     }
   }
 }
