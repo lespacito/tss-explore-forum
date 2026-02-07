@@ -1,7 +1,7 @@
 import type { SignUpInput } from "@/features/auth/schemas/sign-up-schema";
 import type { SignInInput } from "@/features/auth/schemas/sign-in-schema";
-import type { ProfileUpdateFormSchema } from "@/features/profiles/schema/profile-update-form-schema";
-import type { ChangePasswordFormSchema } from "@/features/profiles/schema/change-password-schema";
+import type { ProfileUpdateFormSchema } from "@/features/profiles/schemas/profile-update-form-schema";
+import type { ChangePasswordFormSchema } from "@/features/profiles/schemas/change-password-schema";
 
 /**
  * Extrait le message d'erreur d'un objet d'erreur Better Auth complexe

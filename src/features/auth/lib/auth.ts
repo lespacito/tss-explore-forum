@@ -28,6 +28,7 @@ const secretCodeSchema = z.object({
 });
 
 export const auth = betterAuth({
+  baseURL: env.BETTER_AUTH_URL,
   user: {
     changeEmail: {
       enabled: true,

@@ -14,6 +14,7 @@ export const env = createEnv({
     DB_SSL: z.enum(["true", "false"]).optional(),
 
     // Auth
+    BETTER_AUTH_URL: z.string().url().optional(),
     BETTER_AUTH_SECRET: z.string().min(1),
 
     // OAuth GitHub

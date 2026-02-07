@@ -2,7 +2,7 @@ import { useId, useState, useCallback } from "react";
 import {
   profileUpdateSchema,
   type ProfileUpdateFormSchema,
-} from "@/features/profiles/schema/profile-update-form-schema";
+} from "@/features/profiles/schemas/profile-update-form-schema";
 import { useAppForm } from "@/components/form/hooks";
 import { Field, FieldGroup } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
