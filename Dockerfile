@@ -23,5 +23,9 @@ ENV NODE_ENV=production
 
 COPY --from=builder /app/.output ./.output
 COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
+
+# Installer UNIQUEMENT les production dependencies
+RUN pnpm install --prod --frozen-lockfile --prefer-offline
 
 CMD ["node", ".output/server/index.mjs"]

@@ -39,6 +39,12 @@ const config = defineConfig({
     chunkSizeWarningLimit: 1000,
     sourcemap: false,
   },
+  ssr: {
+    // Externaliser react et react-dom pour éviter les erreurs de bundling SSR
+    external: ['react', 'react-dom'],
+    // Ne pas bundler react-dom dans le server build
+    noExternal: [],
+  },
 });
 
 export default config;
