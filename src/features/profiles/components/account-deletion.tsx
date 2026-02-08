@@ -1,6 +1,7 @@
 import { AlertTriangle, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { logger } from "@/lib/logger/client-logger";
 import { z } from "zod";
 import { useAppForm } from "@/components/form/hooks";
 import {
@@ -53,7 +54,7 @@ export const AccountDeletion = () => {
 				);
 				handleCloseModal();
 			} catch (error) {
-				console.error("Deletion error:", error);
+				logger.error("Deletion error:", error);
 				toast.error("Une erreur est survenue lors de la suppression du compte");
 				setIsSubmitting(false);
 			}

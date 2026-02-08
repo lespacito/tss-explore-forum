@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { logger } from "@/lib/logger/client-logger";
 
 interface UseAutoSaveDraftOptions {
 	/**
@@ -108,7 +109,7 @@ export function useAutoSaveDraft({
 				onRestore?.(saved);
 			}
 		} catch (error) {
-			console.error("Failed to restore draft from localStorage:", error);
+			logger.error("Failed to restore draft from localStorage:", error);
 		}
 	}, [key, onRestore]);
 
@@ -134,7 +135,7 @@ export function useAutoSaveDraft({
 					position: "bottom-right",
 				});
 			} catch (error) {
-				console.error("Failed to save draft to localStorage:", error);
+				logger.error("Failed to save draft to localStorage:", error);
 				toast.error("Impossible de sauvegarder le brouillon", {
 					duration: 3000,
 				});
@@ -154,7 +155,7 @@ export function useAutoSaveDraft({
 			setRestoredDraft(null);
 			setHasDraft(false);
 		} catch (error) {
-			console.error("Failed to clear draft from localStorage:", error);
+			logger.error("Failed to clear draft from localStorage:", error);
 		}
 	}, [key]);
 

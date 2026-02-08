@@ -4,6 +4,7 @@ import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ArrowLeft, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
+import { logger } from "@/lib/logger/client-logger";
 import { SafeHtmlDisplay } from "@/components/tiptap/SafeHtmlDisplay";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -63,7 +64,7 @@ function ThreadDetailPage() {
 				form.reset();
 				router.invalidate();
 			} catch (error) {
-				console.error(error);
+				logger.error("Failed to create post:", error);
 				toast.error(
 					error instanceof Error
 						? error.message

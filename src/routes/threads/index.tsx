@@ -3,6 +3,7 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { logger } from "@/lib/logger/client-logger";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -100,7 +101,7 @@ function ThreadsPage() {
 					router.invalidate();
 				}
 			} catch (error) {
-				console.error(error);
+				logger.error("Failed to create thread:", error);
 				toast.error(
 					error instanceof Error
 						? error.message

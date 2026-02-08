@@ -7,6 +7,7 @@ import {
 import { ArrowLeft, FileText, Send } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { logger } from "@/lib/logger/client-logger";
 import { TipTap } from "@/components/tiptap/TiptapEditor";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -110,7 +111,7 @@ function NewThreadFormPage() {
 					router.invalidate();
 				}
 			} catch (error) {
-				console.error(error);
+				logger.error("Failed to create thread:", error);
 				toast.error(
 					error instanceof Error
 						? error.message

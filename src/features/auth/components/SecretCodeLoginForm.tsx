@@ -1,6 +1,7 @@
 import { useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
+import { logger } from "@/lib/logger/client-logger";
 import { useAppForm } from "@/components/form/hooks";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup } from "@/components/ui/field";
@@ -62,7 +63,7 @@ export function SecretCodeLoginForm() {
 			form.setFieldValue("secretCode", formatted);
 		} catch (err) {
 			// Permission refusée ou clipboard non disponible
-			console.warn("Impossible d'accéder au presse-papiers", err);
+			logger.warn("Impossible d'accéder au presse-papiers", err);
 		}
 	};
 

@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
+import { logger } from "@/lib/logger/server";
 import { db } from "@/db";
 import { user } from "@/db/schema";
 
@@ -43,7 +44,7 @@ export const getUserEmailByUsername = createServerFn({
 					email: foundUser.email,
 				};
 			} catch (error) {
-				console.error("Error fetching user email by username:", error);
+				logger.error("Error fetching user email by username", { error });
 				return {
 					email: null,
 					error: "Failed to fetch user email",

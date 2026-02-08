@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { logger } from "@/lib/logger/client-logger";
 import { getAuthSessionCached } from "@/features/auth/server/get-auth-session";
 import { PostCard } from "@/features/posts/components/post-card";
 import { getUserPostsFn } from "@/features/posts/server/actions/get-user-posts";
@@ -54,7 +55,7 @@ export const Route = createFileRoute("/account/profile/")({
 				posts: userPosts ?? [],
 			};
 		} catch (error) {
-			console.error("Error loading user profile data:", error);
+			logger.error("Error loading user profile data:", error);
 			return {
 				user: session.user,
 				threads: [],
