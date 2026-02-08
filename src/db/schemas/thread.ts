@@ -15,11 +15,9 @@ import { user } from "@/db/schemas/user";
 
 // Thread status enum for moderation workflow (Story 2.4)
 // DISTINCT from report_status enum in moderation schema
-export const threadStatus = pgEnum("thread_status", [
-	"pending",
-	"published",
-	"rejected",
-]);
+export const threadStatus = ["pending", "published", "rejected"] as const;
+export type ThreadStatus = (typeof threadStatus)[number];
+export const threadStatusEnum = pgEnum("thread_status", threadStatus);
 
 export const threadsColumns = {
 	id: id(),
@@ -31,7 +29,7 @@ export const threadsColumns = {
 	slug: varchar("slug").notNull().unique(),
 	category: varchar("category").notNull(),
 	// Moderation fields (Story 2.4)
-	status: threadStatus("status").notNull().default("pending"),
+	status: threadStatusEnum("status").notNull().default("pending"),
 	isSensitive: boolean("is_sensitive").notNull().default(false),
 	moderatedAt: timestamp("moderated_at", { withTimezone: true }),
 	moderatorId: text("moderator_id").references(() => user.id, {
@@ -63,6 +61,3 @@ export const threadsRelations = relations(threads, ({ one }) => ({
 		references: [alias.id],
 	}),
 }));
-
-// Export ThreadStatus type for use in server functions and components
-export type ThreadStatus = (typeof threadStatus.enumValues)[number];
