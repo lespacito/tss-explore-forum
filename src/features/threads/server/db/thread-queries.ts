@@ -111,7 +111,16 @@ export async function getThreadsByAliasId(aliasId: string) {
  * console.log(`User has ${userThreads.length} threads`);
  * ```
  */
-export async function getUserThreads(userId: string) {
+export async function getUserThreads(
+	userId: string,
+	statusFilter?: "pending" | "published" | "rejected",
+) {
+	const conditions = [eq(alias.userId, userId), isNull(threads.deletedAt)];
+
+	if (statusFilter) {
+		conditions.push(eq(threads.status, statusFilter));
+	}
+
 	const userThreads = await db
 		.select({
 			id: threads.id,
@@ -119,6 +128,9 @@ export async function getUserThreads(userId: string) {
 			body: threads.body,
 			category: threads.category,
 			slug: threads.slug,
+			status: threads.status,
+			rejectionReason: threads.rejectionReason,
+			moderatedAt: threads.moderatedAt,
 			createdAt: threads.createdAt,
 			updatedAt: threads.updatedAt,
 			aliasId: threads.aliasId,
@@ -128,7 +140,7 @@ export async function getUserThreads(userId: string) {
 		.from(threads)
 		.innerJoin(alias, eq(threads.aliasId, alias.id))
 		.leftJoin(user, eq(alias.userId, user.id))
-		.where(eq(alias.userId, userId))
+		.where(and(...conditions))
 		.orderBy(desc(threads.createdAt));
 
 	return userThreads.map((thread) => ({

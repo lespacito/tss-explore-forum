@@ -1,33 +1,20 @@
+import type { PluginOption } from "vite";
 import { defineConfig } from "vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import { nitro } from "nitro/vite";
 import viteReact from "@vitejs/plugin-react";
 import viteTsConfigPaths from "vite-tsconfig-paths";
 import tailwindcss from "@tailwindcss/vite";
-import { nitro } from "nitro/vite";
-const config = defineConfig({
+
+export default defineConfig(({ command }) => ({
   plugins: [
-    // this is the plugin that enables path aliases
     viteTsConfigPaths({
       projects: ["./tsconfig.json"],
-    }),
+    }) as PluginOption,
     tailwindcss(),
     tanstackStart(),
+    command === "build" && nitro({ preset: "bun" }),
     viteReact(),
-    nitro({ preset: "bun" }),
-    // Workaround for TanStack Start virtual module issue
-    {
-      name: 'tanstack-start-virtual-module-fix',
-      resolveId(id) {
-        if (id === 'tanstack-start-injected-head-scripts:v') {
-          return id;
-        }
-      },
-      load(id) {
-        if (id === 'tanstack-start-injected-head-scripts:v') {
-          return 'export const injectedHeadScripts = "";';
-        }
-      },
-    },
   ],
   preview: {
     allowedHosts: ["parlonsviolence.ch", "www.parlonsviolence.ch"],
@@ -39,6 +26,4 @@ const config = defineConfig({
     chunkSizeWarningLimit: 1000,
     sourcemap: false,
   },
-});
-
-export default config;
+}));
