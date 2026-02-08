@@ -1,21 +1,18 @@
-FROM node:24-alpine AS base
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
+FROM oven/bun:1-alpine AS base
 
 FROM base AS deps
 WORKDIR /app
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile --prefer-offline
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile
 
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-ENV NODE_OPTIONS="--max-old-space-size=2048"
 ENV NODE_ENV=production
 
-RUN pnpm build
+RUN bun --bun run build
 
 FROM base AS runner
 WORKDIR /app
@@ -23,9 +20,11 @@ ENV NODE_ENV=production
 
 COPY --from=builder /app/.output ./.output
 COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
 
-# Installer UNIQUEMENT les production dependencies
-RUN pnpm install --prod --frozen-lockfile --prefer-offline
+# Installer uniquement les production dependencies
+RUN bun install --production --frozen-lockfile
 
-CMD ["node", ".output/server/index.mjs"]
+USER bun
+EXPOSE 3000
+
+CMD ["bun", ".output/server/index.mjs"]
