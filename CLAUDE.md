@@ -83,6 +83,51 @@ Secret code flow:
 - `post` - Replies within threads
 - `moderation`, `notification`, `ressource` - Supporting entities
 
+### Rich Text Editing & HTML Sanitization
+
+**Editor:** Tiptap (ProseMirror-based) with strict security configuration
+
+**Allowed HTML Tags (Whitelist):**
+- **Text formatting:** `<strong>` (bold), `<em>` (italic)
+- **Structure:** `<p>` (paragraph), `<h2>`, `<h3>` (headings), `<br>` (line break)
+- **Lists:** `<ul>`, `<ol>`, `<li>`
+- **Quotes:** `<blockquote>`
+
+**Forbidden Elements (Blacklist):**
+- ❌ `<script>`, `<iframe>`, `<style>`, `<link>` (XSS vectors)
+- ❌ `<img>`, `<video>`, `<audio>` (media not supported in MVP)
+- ❌ `<code>`, `<pre>` (code injection risk)
+- ❌ `<a>` (links disabled by default, can enable with URL validation)
+- ❌ `<h1>` (reserved for page titles)
+- ❌ All event handlers (`onclick`, `onerror`, etc.)
+- ❌ All inline styles and classes
+
+**Security Layers (Defense in Depth):**
+1. **Client-side:** Tiptap configured without dangerous extensions
+2. **Client validation:** `validateHtmlContent()` before form submit
+3. **Server sanitization:** `sanitizeHtml()` before database insert (CRITICAL)
+4. **Display sanitization:** `SafeHtmlDisplay` component re-sanitizes before render
+
+**Files:**
+- Editor: `src/components/tiptap/TiptapEditor.tsx`
+- Toolbar: `src/components/tiptap/Toolbar.tsx`
+- Sanitization: `src/lib/security/sanitize-html.ts`
+- Display: `src/components/tiptap/SafeHtmlDisplay.tsx`
+- Client validation: `src/lib/security/validate-html-content.ts`
+
+**Auto-Save:**
+- Draft auto-save to localStorage every 1.5s
+- Hook: `useAutoSaveDraft(key, value, delay)`
+- Keys: `draft-thread-${category}-title`, `draft-thread-${category}-body`
+- Cleared after successful submission
+
+**Accessibility:**
+- WCAG 2.1 AA compliant
+- Full keyboard navigation
+- Screen reader support (ARIA labels, roles)
+- Keyboard shortcuts documented: `docs/tiptap-keyboard-shortcuts.md`
+- Compliance report: `docs/tiptap-accessibility-compliance.md`
+
 ## Testing
 
 Tests live alongside code in `__tests__/` directories. Framework: Vitest with jsdom.

@@ -1,31 +1,31 @@
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
 } from "@/components/ui/card";
 import { SessionManagement } from "./session-management";
 
 export const SessionsTab = ({
-  sessions,
-  currentSessionToken,
+	sessions,
+	currentSessionToken,
 }: {
-  sessions: any;
-  currentSessionToken: string;
+	sessions: any;
+	currentSessionToken: string;
 }) => {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Mes Sessions</CardTitle>
-        <CardDescription>Gérez vos sessions actives.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <SessionManagement
-          sessions={sessions}
-          currentSessionToken={currentSessionToken}
-        />
-      </CardContent>
-    </Card>
-  );
+	return (
+		<Card>
+			<CardHeader>
+				<CardTitle>Mes Sessions</CardTitle>
+				<CardDescription>Gérez vos sessions actives.</CardDescription>
+			</CardHeader>
+			<CardContent>
+				<SessionManagement
+					sessions={sessions}
+					currentSessionToken={currentSessionToken}
+				/>
+			</CardContent>
+		</Card>
+	);
 };

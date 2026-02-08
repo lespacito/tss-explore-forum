@@ -16,25 +16,24 @@
  * ```
  */
 
-// Re-export tout depuis le logger Winston
-export { logger, withMeta, logError } from "./logger";
-export type { Logger } from "./logger";
-
 // Contexte AsyncLocalStorage
 export {
-  getContext,
-  getCorrelationId,
-  getUserId,
-  runWithContext,
-  updateContext,
-  asyncLocalStorage,
-  type LogContext,
+	asyncLocalStorage,
+	getContext,
+	getCorrelationId,
+	getUserId,
+	type LogContext,
+	runWithContext,
+	updateContext,
 } from "./context";
+export type { Logger } from "./logger";
+// Re-export tout depuis le logger Winston
+export { logError, logger, withMeta } from "./logger";
 
 // Middleware TanStack Start
 export {
-  loggingMiddleware,
-  getContextLogger,
-  enrichLogContextWithUser,
-  type LoggingContext,
+	enrichLogContextWithUser,
+	getContextLogger,
+	type LoggingContext,
+	loggingMiddleware,
 } from "./middleware";

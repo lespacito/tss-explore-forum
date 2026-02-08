@@ -1,21 +1,21 @@
-import { env } from "@/data/env/client";
 import {
-  usernameClient,
-  adminClient,
-  anonymousClient,
+	adminClient,
+	anonymousClient,
+	usernameClient,
 } from "better-auth/client/plugins";
-import { credentialsClient } from "better-auth-credentials-plugin/client";
 import { createAuthClient } from "better-auth/react";
+import { credentialsClient } from "better-auth-credentials-plugin/client";
+import { env } from "@/data/env/client";
 
 export const authClient = createAuthClient({
-  baseURL: env.VITE_BETTER_AUTH_URL,
-  redirectTo: "/",
-  plugins: [
-    usernameClient(),
-    anonymousClient(),
-    adminClient(),
-    credentialsClient(),
-  ],
+	baseURL: env.VITE_BETTER_AUTH_URL,
+	redirectTo: "/",
+	plugins: [
+		usernameClient(),
+		anonymousClient(),
+		adminClient(),
+		credentialsClient(),
+	],
 });
 
 export const { useSession, signIn, signOut, signUp, getSession } = authClient;
