@@ -46,23 +46,31 @@ pnpx shadcn@latest add <component>
 - **Security:** Arcjet (rate limiting, bot protection)
 - **UI:** Shadcn/Radix + Tailwind CSS 4
 
-### Project Structure
+### Project Structure (Updated Feb 2026)
 ```
 src/
 ├── routes/           # TanStack file-based routing
 ├── features/         # Feature modules (auth, threads, posts, profiles, etc.)
 │   └── <feature>/
-│       ├── components/
-│       ├── lib/
-│       ├── server/   # Server functions
-│       ├── schemas/  # Zod schemas
-│       └── __tests__/
+│       ├── components/      # React components
+│       ├── lib/             # Pure business logic (no DB, no server fns)
+│       ├── server/
+│       │   ├── actions/     # Server functions (orchestration, validation, auth)
+│       │   └── db/          # DB queries (pure, reusable, testable)
+│       ├── schemas/         # Zod validation schemas
+│       └── __tests__/       # Tests
 ├── db/
 │   ├── schemas/      # Drizzle table definitions
 │   └── migrations/
 ├── components/       # Shared UI components
 └── lib/              # Utilities (logger, etc.)
 ```
+
+**Architecture Principles (Established Feb 2026):**
+- **Separation of Concerns:** Server functions (actions/) handle orchestration, DB queries (db/) handle data access
+- **Reusability:** DB queries are pure functions, reusable across features
+- **Testability:** Each layer can be tested independently
+- **Zero Duplication:** Common query patterns extracted into shared functions
 
 ### Key Feature: Anonymous Authentication
 
@@ -152,94 +160,284 @@ TanStack Router with file-based routes in `src/routes/`. Key routes:
 
 ## Server Functions
 
-Located in `src/features/*/server/`. All sensitive operations must be server functions with:
+**IMPORTANT:** Server functions are now organized in two layers:
+- **`server/actions/`** - Server functions (orchestration, validation, auth, security)
+- **`server/db/`** - Pure database queries (SELECT, INSERT, UPDATE, DELETE)
+
+All sensitive operations must be server functions with:
 - Session validation via `getAuthSession()`
 - Rate limiting via Arcjet for auth endpoints
 - Input validation (Zod schemas)
+- Delegation to DB layer for all database operations
 
-### Server Function Pattern
+### Server Function Pattern (Updated Feb 2026)
 
+**File: `src/features/threads/server/actions/create-thread.ts`** (Server function - orchestration)
 ```typescript
 import { createServerFn } from '@tanstack/react-start';
-import { loggingMiddleware } from '@/lib/logger';
-import { authMiddleware } from '@/features/auth/lib/auth-middleware';
 import { z } from 'zod';
+import { getAuthSession } from '@/features/auth/server/get-auth-session';
+import { getPrimaryAlias } from '@/features/alias/lib/get-primary-alias';
+import { createThreadRecord } from '../db/thread-queries'; // ← DB layer
 
-// Schema definition
 const createThreadSchema = z.object({
   title: z.string().min(3).max(200),
   body: z.string().min(10),
-  category: z.enum(['support', 'témoignage', 'questions', 'ressources']),
+  category: z.enum(['VIOLENCE', 'ABUS', 'TEMOIN', 'DETRESSE', 'AUTRE']),
 });
 
-// Server function with middleware stack
 export const createThreadFn = createServerFn({ method: 'POST' })
-  .middleware([loggingMiddleware, authMiddleware])
-  .validator(createThreadSchema.parse)
-  .handler(async ({ context, data }) => {
-    // context.logger includes correlationId automatically
-    context.logger.info('Creating thread', {
-      title: data.title,
+  .inputValidator((data: unknown) => createThreadSchema.parse(data))
+  .handler(async ({ data }) => {
+    // 1. Security & Authentication
+    const session = await getAuthSession();
+    if (!session?.user) throw new Error('Unauthorized');
+
+    // 2. Get user's primary alias
+    const primaryAlias = await getPrimaryAlias(session.user.id);
+    if (!primaryAlias) throw new Error('No alias found');
+
+    // 3. Delegate to DB layer for data access
+    const thread = await createThreadRecord({
+      aliasId: primaryAlias.id,
+      title: data.title.trim(),
+      body: data.body.trim(),
       category: data.category,
+      slug: generateSlug(data.title),
+      status: 'pending',
     });
 
-    // Verify authentication
-    if (!context.isAuthenticated) {
-      context.logger.warn('Unauthorized thread creation attempt');
-      throw new Error('Unauthorized');
-    }
-
-    try {
-      // Get user's primary alias
-      const alias = await getPrimaryAlias(context.user.id);
-
-      // Create thread via alias (NOT directly via user.id)
-      const thread = await createThread(alias.id, data);
-
-      context.logger.info('Thread created', {
-        threadId: thread.id,
-        userId: context.user.id,
-      });
-
-      return { success: true, thread };
-    } catch (error) {
-      context.logger.error('Failed to create thread', {
-        error: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined,
-      });
-      throw error;
-    }
+    return { success: true, thread };
   });
+```
+
+**File: `src/features/threads/server/db/thread-queries.ts`** (DB layer - pure queries)
+```typescript
+import { db } from '@/db';
+import { threads } from '@/db/schemas/thread';
+
+/**
+ * Create a new thread record
+ * Pure database insert - caller must validate and sanitize data
+ */
+export async function createThreadRecord(data: {
+  aliasId: string;
+  title: string;
+  body: string;
+  category: string;
+  slug: string;
+  status: 'pending' | 'published' | 'rejected';
+}) {
+  const [newThread] = await db.insert(threads).values(data).returning();
+  return newThread;
+}
+
+/**
+ * Get all published threads with alias and user data
+ * Includes common JOIN pattern for thread queries
+ */
+export async function getAllPublishedThreads() {
+  return await db
+    .select({
+      id: threads.id,
+      title: threads.title,
+      body: threads.body,
+      slug: threads.slug,
+      category: threads.category,
+      createdAt: threads.createdAt,
+      aliasName: alias.alias,
+      displayUsername: user.displayUsername,
+    })
+    .from(threads)
+    .leftJoin(alias, eq(threads.aliasId, alias.id))
+    .leftJoin(user, eq(alias.userId, user.id))
+    .where(eq(threads.status, 'published'))
+    .orderBy(desc(threads.createdAt));
+}
 ```
 
 ## Common Tasks
 
-### Adding a New Feature
+### Adding a New Feature (Updated Feb 2026)
 
 1. **Create feature module** in `src/features/<feature-name>/`
    ```
    src/features/my-feature/
    ├── components/       # React components
-   ├── lib/             # Business logic
-   ├── server/          # Server functions
-   ├── schemas/         # Zod schemas
+   ├── lib/             # Pure business logic (no DB, no server fns)
+   ├── server/
+   │   ├── actions/     # Server functions (orchestration)
+   │   └── db/          # DB queries (pure functions)
+   ├── schemas/         # Zod validation schemas
    └── __tests__/       # Tests
    ```
 
-2. **Add server functions** in `server/`
-   - Use middleware stack: `[loggingMiddleware, authMiddleware]`
-   - Validate input with Zod schemas
-   - Always log important events with `context.logger`
+2. **Create DB queries** in `server/db/my-feature-queries.ts`
+   - **Pure functions only** - no business logic, no auth checks
+   - Use descriptive names: `getUserById()`, `createPostRecord()`, `getAllPublishedThreads()`
+   - Add JSDoc comments with @param, @returns, and @example
+   - Return null for not found (not undefined)
+   - Example:
+   ```typescript
+   /**
+    * Get user by ID
+    * Pure database query - no business logic
+    */
+   export async function getUserById(id: string) {
+     const [user] = await db.select().from(user).where(eq(user.id, id)).limit(1);
+     return user ?? null;
+   }
+   ```
 
-3. **Create components** in `components/`
+3. **Create server functions** in `server/actions/`
+   - **Orchestration only** - validate, authorize, delegate to DB layer
+   - Use middleware for logging and auth if needed
+   - Validate input with Zod schemas
+   - Always delegate to DB layer for database operations
+   - Example:
+   ```typescript
+   export const getThreadBySlugFn = createServerFn({ method: 'GET' })
+     .inputValidator((data) => z.object({ slug: z.string() }).parse(data))
+     .handler(async ({ data }) => {
+       return await getThreadBySlug(data.slug); // ← Delegate to DB layer
+     });
+   ```
+
+4. **Create components** in `components/`
    - Use TanStack Form for forms
    - Use TanStack Query for data fetching
    - Follow Shadcn/UI patterns
 
-4. **Write tests** in `__tests__/`
-   - Unit tests for pure functions
-   - Integration tests for server functions
+5. **Write tests** in `__tests__/`
+   - Unit tests for pure functions (lib/ and server/db/)
+   - Integration tests for server functions (server/actions/)
    - Component tests for UI
+
+### Architecture Maintenance & Best Practices (Feb 2026)
+
+**CRITICAL:** Always maintain separation between server/actions/ and server/db/
+
+#### ✅ DO's
+
+**In `server/db/` (Database Layer):**
+- ✅ Write pure database queries (SELECT, INSERT, UPDATE, DELETE)
+- ✅ Use descriptive function names (`getUserById`, not `getUser`)
+- ✅ Return `null` for not found (not `undefined`)
+- ✅ Add comprehensive JSDoc with @param, @returns, @example
+- ✅ Extract common SELECT patterns into reusable objects
+- ✅ Keep functions focused (one query = one function)
+- ✅ Example:
+  ```typescript
+  // Good - Pure DB query
+  export async function getThreadsByAliasId(aliasId: string) {
+    return await db.select().from(threads).where(eq(threads.aliasId, aliasId));
+  }
+  ```
+
+**In `server/actions/` (Server Functions):**
+- ✅ Handle orchestration: validate → authorize → delegate
+- ✅ Use Zod schemas for input validation
+- ✅ Check authentication/authorization
+- ✅ Delegate ALL database operations to server/db/ layer
+- ✅ Handle business logic coordination
+- ✅ Example:
+  ```typescript
+  // Good - Orchestration only
+  export const createPostFn = createServerFn({ method: 'POST' })
+    .inputValidator(createPostSchema.parse)
+    .handler(async ({ data }) => {
+      const session = await getAuthSession(); // Auth
+      if (!session) throw new Error('Unauthorized');
+
+      const alias = await getPrimaryAlias(session.user.id); // Business logic
+      return await createPostRecord({ ...data, aliasId: alias.id }); // Delegate to DB
+    });
+  ```
+
+#### ❌ DON'Ts
+
+**In `server/db/` (Database Layer):**
+- ❌ NO authentication checks (`getAuthSession()`)
+- ❌ NO business logic (validation, authorization)
+- ❌ NO session handling
+- ❌ NO Arcjet rate limiting
+- ❌ Example of what NOT to do:
+  ```typescript
+  // Bad - Business logic in DB layer
+  export async function getUserThreads(userId: string) {
+    const session = await getAuthSession(); // ❌ NO AUTH IN DB LAYER
+    if (!session) throw new Error('Unauthorized'); // ❌ NO AUTH
+    return await db.select()... // Only this line should be here
+  }
+  ```
+
+**In `server/actions/` (Server Functions):**
+- ❌ NO direct database queries (use server/db/ instead)
+- ❌ NO raw SQL (use Drizzle ORM via DB layer)
+- ❌ Example of what NOT to do:
+  ```typescript
+  // Bad - Direct DB query in action
+  export const getThreadFn = createServerFn({ method: 'GET' })
+    .handler(async () => {
+      return await db.select().from(threads)... // ❌ Use DB layer instead
+    });
+  ```
+
+#### Common Patterns
+
+**Pattern 1: Common SELECT with JOINs**
+```typescript
+// server/db/thread-queries.ts
+const threadWithAliasSelect = {
+  id: threads.id,
+  title: threads.title,
+  aliasName: alias.alias,
+  displayUsername: user.displayUsername,
+} as const;
+
+export async function getAllPublishedThreads() {
+  return await db
+    .select(threadWithAliasSelect) // Reuse pattern
+    .from(threads)
+    .leftJoin(alias, eq(threads.aliasId, alias.id))
+    .leftJoin(user, eq(alias.userId, user.id))
+    .where(eq(threads.status, 'published'));
+}
+```
+
+**Pattern 2: Check then Create**
+```typescript
+// server/db/alias-queries.ts
+export async function findAliasByName(name: string) {
+  const [alias] = await db.select().from(alias).where(eq(alias.alias, name)).limit(1);
+  return alias ?? null;
+}
+
+// server/actions/create-alias.ts
+const existing = await findAliasByName(name);
+if (existing) throw new Error('Alias taken');
+const newAlias = await createAliasRecord({ ... });
+```
+
+**Pattern 3: Parallel Queries**
+```typescript
+// server/actions/create-thread.ts
+const [existingThreads, currentUser] = await Promise.all([
+  getThreadsByAliasId(alias.id),     // DB layer
+  getUserById(session.user.id),       // DB layer
+]);
+```
+
+#### Refactoring Checklist
+
+When moving code to new architecture:
+- [ ] Extract all DB queries to `server/db/`
+- [ ] Update server functions to use DB layer
+- [ ] Remove direct `db.` calls from server functions
+- [ ] Add JSDoc to all DB functions
+- [ ] Update imports in routes
+- [ ] Run tests to verify no breakage
+- [ ] Check for code duplication opportunities
 
 ### Debugging Secret Code Flow
 
@@ -414,11 +612,34 @@ Never log sensitive data. The logger auto-redacts these fields:
 
 1. **Always read `project-context.md` first** when starting a new task
 2. **Check existing patterns** before creating new ones
-3. **Use the alias system** for all public content (never direct user references)
-4. **Add logging** to all server functions with `context.logger`
-5. **Write tests** for critical paths (authentication, secret code, anonymity)
-6. **Follow the feature structure** (`components/`, `lib/`, `server/`, `schemas/`, `__tests__/`)
-7. **Validate input** with Zod schemas on both client and server
-8. **Document complex logic** with inline comments
-9. **Reference line numbers** when discussing code (e.g., `file.ts:123`)
-10. **Check the validation report** at [docs/DOCUMENTATION-VALIDATION-REPORT.md](docs/DOCUMENTATION-VALIDATION-REPORT.md)
+3. **Follow the architecture** - NEVER put DB queries in server/actions/, NEVER put auth in server/db/
+4. **Use the alias system** for all public content (never direct user references)
+5. **Delegate to DB layer** - All server functions must use server/db/ for database operations
+6. **Write tests** for critical paths (authentication, secret code, anonymity)
+7. **Follow the feature structure** (`components/`, `lib/`, `server/actions/`, `server/db/`, `schemas/`, `__tests__/`)
+8. **Validate input** with Zod schemas on both client and server
+9. **Document complex logic** with inline comments and JSDoc
+10. **Reference line numbers** when discussing code (e.g., `file.ts:123`)
+11. **Check existing DB queries** before creating duplicates (see server/db/ files)
+12. **Check the validation report** at [docs/DOCUMENTATION-VALIDATION-REPORT.md](docs/DOCUMENTATION-VALIDATION-REPORT.md)
+
+## Current Architecture Status (Feb 2026)
+
+**Fully Refactored Features** (server/actions/ + server/db/):
+- ✅ **Alias** - 6 DB queries in `alias-queries.ts` (153 lines)
+- ✅ **Users** - 6 DB queries in `user-queries.ts` (170 lines)
+- ✅ **Threads** - 6 DB queries in `thread-queries.ts` (183 lines)
+- ✅ **Posts** - 6 DB queries in `post-queries.ts` (186 lines)
+
+**Total:** 24 reusable DB functions, 692 lines, zero duplication
+
+**Features Not Yet Refactored:**
+- ⏳ **Auth** - Complex security requirements, deferred
+- ⏳ **Profiles** - Deferred (low priority)
+- ⏳ **Moderation** - To be refactored when updated
+
+**When adding/modifying features:**
+1. Check if feature is refactored (see list above)
+2. If refactored: Use `server/actions/` and `server/db/` pattern
+3. If not refactored: Consider refactoring before making changes
+4. Never mix old and new patterns in the same feature
