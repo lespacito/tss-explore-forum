@@ -1,177 +1,141 @@
 /**
- * Logger Winston centralisé pour Parlons Violence
+ * Logger Pino centralisé pour Parlons Violence
+ * Compatible Bun - Remplacement de Winston
  *
  * Features:
- * - Format dev: coloré, lisible
+ * - Format dev: coloré, lisible (pino-pretty)
  * - Format prod: JSON structuré
  * - Redaction automatique des données sensibles
- * - Rotation quotidienne des fichiers en prod
- * - Gestion des exceptions et rejections
  * - Support TypeScript complet
+ * - Compatible Bun runtime
  */
 
 import os from "node:os";
-import path from "node:path";
-import type { Logger } from "winston";
-import { createLogger, format, transports } from "winston";
-import DailyRotateFile from "winston-daily-rotate-file";
+import pino from "pino";
+import type { Logger as PinoLogger } from "pino";
 import { env } from "@/data/env/server";
-
-const { combine, timestamp, printf, json, colorize, errors, splat, metadata } =
-	format;
 
 const isProd = env.NODE_ENV === "production";
 const isTest = env.NODE_ENV === "test";
 const serviceName = env.SERVICE_NAME;
-const logDir = env.LOG_DIR || path.join(process.cwd(), "logs");
 const logLevel = env.LOG_LEVEL || (isProd ? "info" : "debug");
 
 /**
- * Format de redaction pour masquer les données sensibles
+ * Clés sensibles à redacter
  */
-const redact = format((info) => {
-	const SENSITIVE_KEYS = [
-		"password",
-		"pass",
-		"token",
-		"authorization",
-		"auth",
-		"secret",
-		"apikey",
-		"apiKey",
-		"api_key",
-		"bearer",
-		"creditcard",
-		"ssn",
-	];
-
-	const redactValue = (key: string): boolean => {
-		const lowerKey = key.toLowerCase();
-		return SENSITIVE_KEYS.some((sensitiveKey) =>
-			lowerKey.includes(sensitiveKey),
-		);
-	};
-
-	const visit = (obj: any): any => {
-		// Return primitives unchanged
-		if (!obj || typeof obj !== "object") return obj;
-
-		// Handle arrays
-		if (Array.isArray(obj)) {
-			return obj.map((item) => visit(item));
-		}
-
-		// Handle objects - create a new object to avoid mutation
-		const result: Record<string, any> = {};
-		for (const key of Object.keys(obj)) {
-			const value = obj[key];
-			if (redactValue(key)) {
-				result[key] = "[REDACTED]";
-			} else if (value && typeof value === "object") {
-				result[key] = visit(value);
-			} else {
-				result[key] = value;
-			}
-		}
-		return result;
-	};
-
-	// Redact message si objet
-	if (typeof info.message === "object") {
-		info.message = visit(info.message);
-	}
-
-	// Redact metadata
-	if (info.metadata && typeof info.metadata === "object") {
-		info.metadata = visit(info.metadata);
-	}
-
-	return info;
-});
-
-/**
- * Format pour développement: coloré et lisible
- */
-const devFormat = combine(
-	colorize({ all: true }),
-	timestamp({ format: "YYYY-MM-DD HH:mm:ss.SSS" }),
-	splat(), // Support %s, %d, %j
-	errors({ stack: true }), // Inclut stack sur Error
-	metadata({ fillExcept: ["message", "level", "timestamp", "label"] }),
-	redact(),
-	format.prettyPrint({ depth: 6 }),
-	printf((info) => {
-		const { timestamp: ts, level, message, metadata: meta } = info;
-		const metaStr =
-			meta && Object.keys(meta).length
-				? ` ${JSON.stringify(meta, null, 2)}`
-				: "";
-		return `${ts} [${level}] ${message}${metaStr}`;
-	}),
-);
-
-/**
- * Format pour production: JSON structuré
- */
-const prodFormat = combine(
-	timestamp(),
-	splat(),
-	errors({ stack: true }),
-	metadata({ fillExcept: ["message", "level", "timestamp", "label"] }),
-	redact(),
-	json(),
-);
-
-/**
- * Transports de base (console + fichiers en prod)
- */
-const baseTransports: any[] = [
-	new transports.Console({
-		level: logLevel,
-		handleExceptions: true,
-		handleRejections: true,
-	}),
+const SENSITIVE_KEYS = [
+	"password",
+	"pass",
+	"token",
+	"authorization",
+	"auth",
+	"secret",
+	"secretCode",
+	"apikey",
+	"apiKey",
+	"api_key",
+	"bearer",
+	"creditcard",
+	"ssn",
 ];
 
-// Rotation de fichiers en production
-if (isProd) {
-	baseTransports.push(
-		new DailyRotateFile({
-			dirname: logDir,
-			filename: "app-%DATE%.log",
-			datePattern: "YYYY-MM-DD",
-			zippedArchive: true,
-			maxSize: "20m",
-			maxFiles: "14d",
-			level: "info",
-		}),
-		new DailyRotateFile({
-			dirname: logDir,
-			filename: "error-%DATE%.log",
-			datePattern: "YYYY-MM-DD",
-			zippedArchive: true,
-			maxSize: "20m",
-			maxFiles: "30d",
-			level: "error",
-		}),
-	);
-}
-
 /**
- * Logger Winston principal
+ * Configuration Pino
  */
-export const logger: Logger = createLogger({
+const pinoConfig: pino.LoggerOptions = {
 	level: logLevel,
-	format: isProd ? prodFormat : devFormat,
-	defaultMeta: {
+	base: {
 		service: serviceName,
 		env: env.NODE_ENV,
 		hostname: os.hostname(),
 	},
-	transports: baseTransports,
-	exitOnError: false, // Ne pas quitter sur erreur, laisser le process manager gérer
-	silent: isTest, // Désactive les logs en test
-});
+	// Redaction automatique
+	redact: {
+		paths: SENSITIVE_KEYS,
+		censor: "[REDACTED]",
+	},
+	// Format dev avec pino-pretty
+	transport: !isProd && !isTest
+		? {
+				target: "pino-pretty",
+				options: {
+					colorize: true,
+					translateTime: "yyyy-mm-dd HH:MM:ss.l",
+					ignore: "pid,hostname",
+					singleLine: false,
+					messageFormat: "{msg}",
+				},
+		  }
+		: undefined,
+	// Silent en test
+	enabled: !isTest,
+};
+
+/**
+ * Logger Pino principal
+ */
+const pinoLogger: PinoLogger = pino(pinoConfig);
+
+/**
+ * Adapter Pino vers API Winston-compatible
+ */
+export interface Logger {
+	error(message: string, meta?: Record<string, any>): void;
+	warn(message: string, meta?: Record<string, any>): void;
+	info(message: string, meta?: Record<string, any>): void;
+	http(message: string, meta?: Record<string, any>): void;
+	verbose(message: string, meta?: Record<string, any>): void;
+	debug(message: string, meta?: Record<string, any>): void;
+	silly(message: string, meta?: Record<string, any>): void;
+	child(meta: Record<string, any>): Logger;
+}
+
+/**
+ * Wrapper pour compatibilité Winston
+ */
+class PinoWinstonAdapter implements Logger {
+	constructor(private pino: PinoLogger) {}
+
+	error(message: string, meta: Record<string, any> = {}): void {
+		this.pino.error(meta, message);
+	}
+
+	warn(message: string, meta: Record<string, any> = {}): void {
+		this.pino.warn(meta, message);
+	}
+
+	info(message: string, meta: Record<string, any> = {}): void {
+		this.pino.info(meta, message);
+	}
+
+	http(message: string, meta: Record<string, any> = {}): void {
+		// Pino n'a pas de niveau 'http', on utilise 'info'
+		this.pino.info(meta, message);
+	}
+
+	verbose(message: string, meta: Record<string, any> = {}): void {
+		// Pino n'a pas de niveau 'verbose', on utilise 'debug'
+		this.pino.debug(meta, message);
+	}
+
+	debug(message: string, meta: Record<string, any> = {}): void {
+		this.pino.debug(meta, message);
+	}
+
+	silly(message: string, meta: Record<string, any> = {}): void {
+		// Pino n'a pas de niveau 'silly', on utilise 'trace'
+		this.pino.trace(meta, message);
+	}
+
+	child(meta: Record<string, any> = {}): Logger {
+		return new PinoWinstonAdapter(this.pino.child(meta));
+	}
+}
+
+/**
+ * Logger principal (compatible API Winston)
+ */
+export const logger: Logger = new PinoWinstonAdapter(pinoLogger);
 
 /**
  * Crée un child logger avec metadata additionnelle
@@ -202,8 +166,3 @@ export const logError = (
 		logger.error(message, { ...meta, error: String(error) });
 	}
 };
-
-/**
- * Types d'export pour utilisation externe
- */
-export type { Logger } from "winston";

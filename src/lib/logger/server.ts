@@ -26,9 +26,9 @@ export {
 	runWithContext,
 	updateContext,
 } from "./context";
-export type { Logger } from "./logger-pino";
+export type { Logger } from "./logger";
 // Re-export tout depuis le logger Pino (Bun-compatible)
-export { logError, logger, withMeta } from "./logger-pino";
+export { logError, logger, withMeta } from "./logger";
 
 // Middleware TanStack Start
 export {
