@@ -23,8 +23,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { threadCategories } from "@/data/threads-categories";
 import { ThreadCard } from "@/features/threads/components/thread-card";
-import { createThreadFn } from "@/features/threads/server/create-thread";
-import { getThreadsCached } from "@/features/threads/server/get-threads";
+import { createThreadFn } from "@/features/threads/server/actions/create-thread";
+import { getThreadsCached } from "@/features/threads/server/actions/get-threads";
 
 export const Route = createFileRoute("/threads/")({
 	component: ThreadsPage,

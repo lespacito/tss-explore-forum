@@ -1,9 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
-import { eq } from "drizzle-orm";
 import { z } from "zod";
 import type { ThreadCategory } from "@/data/threads-categories";
-import { db } from "@/db";
-import { user } from "@/db/schemas/user";
 import { getPrimaryAlias } from "@/features/alias/lib/get-primary-alias";
 import {
 	checkArcjet,
@@ -11,10 +8,12 @@ import {
 } from "@/features/auth/lib/security/protected-server-fn";
 import { generateSecretCodeLogic } from "@/features/auth/server/generate-secret-code-fn";
 import { getAuthSession } from "@/features/auth/server/get-auth-session";
+import { getUserById } from "@/features/users/server/db/user-queries";
 import { logger } from "@/lib/logger/server";
 import { validateAndSanitize } from "@/lib/security/sanitize-html";
 import { generateUniqueSlug } from "@/lib/utils/slug-utils";
 import { threads } from "../../../db/schemas/thread";
+import { createThreadRecord, getThreadsByAliasId } from "../db/thread-queries";
 
 const createThreadSchema = z.object({
 	title: z
@@ -92,30 +91,23 @@ export const createThreadFn = createServerFn({ method: "POST" })
 
 		// OPTIMIZATION: Parallelize independent DB queries to reduce waterfall
 		// Fetch existing threads and current user data in parallel
-		const [existingThreads, [currentUser]] = await Promise.all([
-			db
-				.select()
-				.from(threads)
-				.where(eq(threads.aliasId, primaryAlias.id))
-				.limit(1),
-			db.select().from(user).where(eq(user.id, session.user.id)).limit(1),
+		const [existingThreads, currentUser] = await Promise.all([
+			getThreadsByAliasId(primaryAlias.id),
+			getUserById(session.user.id),
 		]);
 
 		const isFirstPublication = existingThreads.length === 0;
 
 		// Créer le thread avec l'alias et le slug
 		// Story 2.4: All new threads start with status="pending" for moderation
-		const [newThread] = await db
-			.insert(threads)
-			.values({
-				aliasId: primaryAlias.id,
-				title,
-				body: sanitizedBody, // Use sanitized HTML
-				category,
-				slug,
-				status: "pending", // Story 2.4: Moderation workflow
-			})
-			.returning();
+		const newThread = await createThreadRecord({
+			aliasId: primaryAlias.id,
+			title,
+			body: sanitizedBody, // Use sanitized HTML
+			category,
+			slug,
+			status: "pending", // Story 2.4: Moderation workflow
+		});
 
 		// Task 4.2: Générer code secret après première publication pour utilisateurs anonymes
 		if (isFirstPublication) {

@@ -16,7 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { PostCard } from "@/features/posts/components/post-card";
 import { createPostFn } from "@/features/posts/server/create-post";
 import { getPostsByThreadFn } from "@/features/posts/server/get-posts-by-thread";
-import { getThreadBySlugFn } from "@/features/threads/server/get-thread-by-slug";
+import { getThreadBySlugFn } from "@/features/threads/server/actions/get-thread-by-slug";
 import {
 	getAuthorDisplayName,
 	isThreadCategorySensitive,

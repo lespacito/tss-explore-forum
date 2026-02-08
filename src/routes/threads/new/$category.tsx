@@ -16,7 +16,7 @@ import {
 	getCategoryConfig,
 	type ThreadCategory,
 } from "@/data/threads-categories";
-import { createThreadFn } from "@/features/threads/server/create-thread";
+import { createThreadFn } from "@/features/threads/server/actions/create-thread";
 import { useAutoSaveDraft } from "@/hooks/useAutoSaveDraft";
 import { validateHtmlContent } from "@/lib/security/validate-html-content";
 
