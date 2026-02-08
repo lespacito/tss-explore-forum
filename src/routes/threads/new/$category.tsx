@@ -295,6 +295,17 @@ function NewThreadFormPage() {
 					)}
 				</form.Field>
 
+				{/* Moderation Info (Story 2.4) */}
+				<Card className="bg-warning/30 border-2 border-warning">
+					<CardContent className="p-4">
+						<p className="text-sm text-foreground">
+							<strong>Modération :</strong> Votre publication sera examinée par
+							notre équipe dans les 24-48 heures avant d'être publiée. Cette
+							étape garantit un espace sûr et bienveillant pour tous.
+						</p>
+					</CardContent>
+				</Card>
+
 				{/* Actions */}
 				<div className="flex justify-between items-center pt-4">
 					<div className="flex gap-2">
