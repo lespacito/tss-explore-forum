@@ -16,7 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getAuthSessionCached } from "@/features/auth/server/get-auth-session";
 import { PostCard } from "@/features/posts/components/post-card";
-import { getUserPostsFn } from "@/features/posts/server/get-user-posts";
+import { getUserPostsFn } from "@/features/posts/server/actions/get-user-posts";
 import { ThreadCard } from "@/features/threads/components/thread-card";
 import { getUserThreadsFn } from "@/features/threads/server/actions/get-user-threads";
 

@@ -1,8 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { db } from "@/db";
-import { threads } from "@/db/schemas/thread";
 import { getPrimaryAlias } from "@/features/alias/lib/get-primary-alias";
 import {
 	checkArcjet,
@@ -10,7 +7,7 @@ import {
 } from "@/features/auth/lib/security/protected-server-fn";
 import { getAuthSession } from "@/features/auth/server/get-auth-session";
 import { isThreadCategorySensitive } from "@/lib/utils/thread-utils";
-import { posts } from "../../../db/schemas/post";
+import { createPostRecord, getThreadCategory } from "../db/post-queries";
 
 const createPostSchema = z.object({
 	threadId: z.uuid("Thread ID must be a valid UUID"),
@@ -47,11 +44,7 @@ export const createPostFn = createServerFn({ method: "POST" })
 		}
 
 		// Récupérer le thread pour vérifier sa catégorie
-		const [thread] = await db
-			.select({ category: threads.category })
-			.from(threads)
-			.where(eq(threads.id, data.threadId))
-			.limit(1);
+		const thread = await getThreadCategory(data.threadId);
 
 		if (!thread) {
 			throw new Error("Thread not found");
@@ -61,16 +54,13 @@ export const createPostFn = createServerFn({ method: "POST" })
 		const isCategorySensitive = isThreadCategorySensitive(thread.category);
 		const isSensitive = isCategorySensitive || data.isSensitive;
 
-		const [newPost] = await db
-			.insert(posts)
-			.values({
-				aliasId: primaryAlias.id,
-				threadId: data.threadId,
-				content: data.content.trim(),
-				isSensitive,
-				contentWarnings: data.contentWarnings ?? [],
-			})
-			.returning();
+		const newPost = await createPostRecord({
+			aliasId: primaryAlias.id,
+			threadId: data.threadId,
+			content: data.content.trim(),
+			isSensitive,
+			contentWarnings: data.contentWarnings ?? [],
+		});
 
 		return { success: true, post: newPost };
 	});
