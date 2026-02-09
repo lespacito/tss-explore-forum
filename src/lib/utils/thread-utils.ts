@@ -37,3 +37,22 @@ export function getAuthorDisplayName(options: {
 	// Sinon, utiliser le displayUsername si disponible, sinon fallback à l'alias
 	return displayUsername || aliasName || "Utilisateur";
 }
+
+/**
+ * Retourne les classes CSS de couleur pour une catégorie de thread.
+ * @param category - La catégorie du thread (VIOLENCE, ABUS, TEMOIN, DETRESSE, AUTRE)
+ * @returns Les classes CSS pour bg, text et border
+ */
+export function getCategoryColor(category: string): string {
+	const colors: Record<string, string> = {
+		VIOLENCE: "bg-destructive/10 text-destructive border-destructive/20",
+		ABUS: "bg-primary/10 text-primary border-primary/20",
+		TEMOIN: "bg-accent/10 text-accent-foreground border-accent/20",
+		DETRESSE: "bg-secondary/10 text-secondary-foreground border-secondary/20",
+		AUTRE: "bg-muted/10 text-muted-foreground border-muted/20",
+	};
+	return (
+		colors[category.toUpperCase()] ||
+		"bg-muted/10 text-muted-foreground border-muted/20"
+	);
+}

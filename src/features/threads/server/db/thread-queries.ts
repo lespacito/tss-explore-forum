@@ -1,9 +1,9 @@
 import { and, desc, eq, isNull } from "drizzle-orm";
+import type { ThreadCategory } from "@/data/threads-categories";
 import { db } from "@/db";
 import { alias } from "@/db/schemas/alias";
-import { user } from "@/db/schemas/user";
 import { threads } from "@/db/schemas/thread";
-import type { ThreadCategory } from "@/data/threads-categories";
+import { user } from "@/db/schemas/user";
 
 /**
  * Common thread selection pattern with alias and user data
@@ -98,10 +98,7 @@ export async function getThreadBySlug(slug: string) {
  * ```
  */
 export async function getThreadsByAliasId(aliasId: string) {
-	return await db
-		.select()
-		.from(threads)
-		.where(eq(threads.aliasId, aliasId));
+	return await db.select().from(threads).where(eq(threads.aliasId, aliasId));
 }
 
 /**
@@ -135,6 +132,7 @@ export async function getUserThreads(
 			category: threads.category,
 			slug: threads.slug,
 			status: threads.status,
+			isSensitive: threads.isSensitive,
 			rejectionReason: threads.rejectionReason,
 			moderatedAt: threads.moderatedAt,
 			createdAt: threads.createdAt,

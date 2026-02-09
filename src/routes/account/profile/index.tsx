@@ -1,7 +1,6 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { format, formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
-import { useState } from "react";
 import {
 	AtSign,
 	Calendar,
@@ -10,23 +9,26 @@ import {
 	MessageSquare,
 	Settings,
 } from "lucide-react";
+import { useState } from "react";
+import { SafeHtmlDisplay } from "@/components/tiptap/SafeHtmlDisplay";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { logger } from "@/lib/logger/client-logger";
 import { getAuthSessionCached } from "@/features/auth/server/get-auth-session";
 import { PostCard } from "@/features/posts/components/post-card";
 import { getUserPostsFn } from "@/features/posts/server/actions/get-user-posts";
-import { ThreadCard } from "@/features/threads/components/thread-card";
-import { getUserThreadsFn } from "@/features/threads/server/actions/get-user-threads";
-import { ThreadStatusBadge } from "@/features/profiles/components/ThreadStatusBadge";
 import { RejectionMessage } from "@/features/profiles/components/RejectionMessage";
-import { SafeHtmlDisplay } from "@/components/tiptap/SafeHtmlDisplay";
-import { getAuthorDisplayName } from "@/lib/utils/thread-utils";
+import { ThreadStatusBadge } from "@/features/profiles/components/ThreadStatusBadge";
+import { getUserThreadsFn } from "@/features/threads/server/actions/get-user-threads";
+import { logger } from "@/lib/logger/client-logger";
 import { cn } from "@/lib/utils";
+import {
+	getAuthorDisplayName,
+	getCategoryColor,
+} from "@/lib/utils/thread-utils";
 
 const getInitials = (name?: string) => {
 	const safe = (name ?? "").trim();
@@ -48,6 +50,7 @@ export const Route = createFileRoute("/account/profile/")({
 		if (!session || !session.user) {
 			throw redirect({
 				to: "/auth/login",
+				search: { redirect: "/account/profile" },
 			});
 		}
 
@@ -88,9 +91,7 @@ function PublicProfilePage() {
 			: threads.filter((t) => t.status === statusFilter);
 
 	const pendingCount = threads.filter((t) => t.status === "pending").length;
-	const publishedCount = threads.filter(
-		(t) => t.status === "published",
-	).length;
+	const publishedCount = threads.filter((t) => t.status === "published").length;
 	const rejectedCount = threads.filter((t) => t.status === "rejected").length;
 
 	return (
@@ -183,7 +184,10 @@ function PublicProfilePage() {
 
 						<TabsContent value="publications" className="space-y-4 mt-6">
 							{/* Status filter using buttons instead of nested Tabs */}
-							<div className="flex flex-wrap gap-2">
+							<fieldset
+								className="flex flex-wrap gap-2 border-none p-0 m-0"
+								aria-label="Filtrer par statut"
+							>
 								<StatusFilterButton
 									active={statusFilter === "all"}
 									onClick={() => setStatusFilter("all")}
@@ -212,7 +216,7 @@ function PublicProfilePage() {
 								>
 									À modifier
 								</StatusFilterButton>
-							</div>
+							</fieldset>
 
 							{filteredThreads.length === 0 ? (
 								<div className="text-center py-10 text-muted-foreground">
@@ -281,6 +285,7 @@ function StatusFilterButton({
 		<button
 			type="button"
 			onClick={onClick}
+			aria-pressed={active}
 			className={cn(
 				"px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
 				active
@@ -307,6 +312,7 @@ function UserThreadCard({
 		slug: string;
 		category: string;
 		status: "pending" | "published" | "rejected";
+		isSensitive: boolean;
 		rejectionReason: string | null;
 		moderatedAt: string | null;
 		createdAt: Date | string;
@@ -317,7 +323,7 @@ function UserThreadCard({
 	};
 }) {
 	const authorName = getAuthorDisplayName({
-		isSensitive: false,
+		isSensitive: thread.isSensitive,
 		threadCategory: thread.category,
 		aliasName: thread.aliasName,
 		displayUsername: thread.displayUsername,
@@ -375,25 +381,12 @@ function ThreadCardInner({
 		body: string;
 		category: string;
 		status: "pending" | "published" | "rejected";
+		isSensitive: boolean;
 		createdAt: Date | string;
 	};
 	authorName: string;
 	authorInitials: string;
 }) {
-	const getCategoryColor = (category: string) => {
-		const colors: Record<string, string> = {
-			VIOLENCE: "bg-destructive/10 text-destructive border-destructive/20",
-			ABUS: "bg-primary/10 text-primary border-primary/20",
-			TEMOIN: "bg-accent/10 text-accent-foreground border-accent/20",
-			DETRESSE: "bg-secondary/10 text-secondary-foreground border-secondary/20",
-			AUTRE: "bg-muted/10 text-muted-foreground border-muted/20",
-		};
-		return (
-			colors[category.toUpperCase()] ||
-			"bg-muted/10 text-muted-foreground border-muted/20"
-		);
-	};
-
 	return (
 		<Card className="w-full hover:shadow-md transition-shadow">
 			<CardHeader className="flex flex-row items-start gap-4 p-4">

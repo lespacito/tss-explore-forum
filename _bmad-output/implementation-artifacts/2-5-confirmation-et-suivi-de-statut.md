@@ -1,6 +1,6 @@
 # Story 2.5: Confirmation et Suivi de Statut
 
-Status: ready-for-dev
+Status: in-progress
 
 <!-- Ultimate context engine analysis completed - comprehensive developer guide created -->
 
@@ -1168,37 +1168,62 @@ src/db/
 
 ### Agent Model Used
 
-Claude Sonnet 4.5 (claude-sonnet-4-5-20250929)
+Claude Sonnet 4.5 (claude-sonnet-4-5-20250929) — Implementation
+Claude Opus 4.6 (claude-opus-4-6) — Code Review (2026-02-09)
 
 ### Debug Log References
 
-(Will be populated during implementation)
+- Code review executed on 2026-02-09: 11 issues found (2C, 3H, 4M, 2L)
+- 5 issues fixed automatically (H1, H2, H3, M2, M3)
 
 ### Completion Notes List
 
-(Will be populated during implementation)
+- Implementation exists but story was never updated (all tasks still [ ])
+- Server function placed in `threads/server/actions/` (not `profiles/server/actions/` as story planned)
+- Uses button groups instead of nested Tabs (avoids Radix SSR bug)
+- Bonus feature: also shows user's posts (réponses) tab
+- Zero tests exist for Story 2.5 features (C2 - CRITICAL)
+
+### Code Review (2026-02-09) — Fixes Applied
+
+| ID | Severity | Issue | Fix |
+|----|----------|-------|-----|
+| H1 | HIGH | `getUserPosts` missing `isNull(posts.deletedAt)` filter (AR7 violation) | Added soft-delete filter to WHERE clause |
+| H2 | HIGH | `getUserThreads` missing `isSensitive` field; `UserThreadCard` hardcoded `false` | Added field to SELECT + fixed `getAuthorDisplayName` call |
+| H3 | HIGH | Login redirect missing `redirect` search param | Added `search: { redirect: "/account/profile" }` |
+| M2 | MEDIUM | `StatusFilterButton` missing ARIA attributes | Added `role="group"`, `aria-label`, `aria-pressed` |
+| M3 | MEDIUM | `getCategoryColor` duplicated in 2 files | Extracted to `thread-utils.ts`, updated imports |
+
+### Code Review (2026-02-09) — Outstanding Issues
+
+| ID | Severity | Issue | Status |
+|----|----------|-------|--------|
+| C1 | CRITICAL | Story file never updated after implementation | Fixed in this review |
+| C2 | CRITICAL | Zero tests for Story 2.5 features (71+ planned) | OPEN - needs implementation |
+| M1 | MEDIUM | Story File List incorrect vs actual implementation | Fixed in this review |
+| M4 | MEDIUM | Date serialization inconsistency between queries | OPEN - low risk |
+| L1 | LOW | `UserThreadCard` type manually defined vs inferred | OPEN |
+| L2 | LOW | Label inconsistency badge vs filter | OPEN |
 
 ### File List
 
-**Files to Create:**
+**Files Created (Implementation):**
 
-1. `src/features/profiles/server/actions/get-user-threads.ts`
-2. `src/features/profiles/components/UserThreadsList.tsx`
-3. `src/features/profiles/components/ThreadStatusBadge.tsx`
-4. `src/features/profiles/components/RejectionMessage.tsx`
-5. `src/features/profiles/components/ThreadStatusFilter.tsx`
-6. `src/routes/account/profile.tsx`
-7. `src/features/profiles/server/__tests__/get-user-threads.test.ts`
-8. `src/features/profiles/components/__tests__/user-threads-list.test.tsx`
-9. `src/features/profiles/components/__tests__/thread-status-badge.test.tsx`
-10. `src/features/profiles/components/__tests__/rejection-message.test.tsx`
-11. `src/features/profiles/components/__tests__/thread-status-filter.test.tsx`
-12. `src/routes/account/__tests__/profile.e2e.test.ts`
+1. `src/routes/account/profile/index.tsx` — Dashboard route (directory-based)
+2. `src/features/profiles/components/ThreadStatusBadge.tsx` — Status badge component
+3. `src/features/profiles/components/RejectionMessage.tsx` — Rejection message component
+4. `src/features/threads/server/actions/get-user-threads.ts` — Server function
+5. `src/features/threads/server/db/thread-queries.ts` — `getUserThreads()` DB query (added)
+6. `src/features/posts/server/actions/get-user-posts.ts` — Posts server function (bonus)
+7. `src/features/posts/server/db/post-queries.ts` — `getUserPosts()` DB query (added)
 
-**Files to Optionally Modify:**
+**Files Modified (Code Review 2026-02-09):**
 
-1. `project-context.md` - Add dashboard route documentation
-2. `CLAUDE.md` - Add route reference (if needed)
+1. `src/features/posts/server/db/post-queries.ts` — H1: Added soft-delete filter
+2. `src/features/threads/server/db/thread-queries.ts` — H2: Added `isSensitive` to SELECT
+3. `src/routes/account/profile/index.tsx` — H2: Fixed isSensitive, H3: redirect param, M2: ARIA
+4. `src/lib/utils/thread-utils.ts` — M3: Added shared `getCategoryColor()`
+5. `src/features/threads/components/thread-card.tsx` — M3: Use shared `getCategoryColor()`
 
 ---
 

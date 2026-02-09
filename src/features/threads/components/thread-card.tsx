@@ -13,7 +13,10 @@ import {
 	CardFooter,
 	CardHeader,
 } from "@/components/ui/card";
-import { getAuthorDisplayName } from "@/lib/utils/thread-utils";
+import {
+	getAuthorDisplayName,
+	getCategoryColor,
+} from "@/lib/utils/thread-utils";
 
 interface ThreadCardProps {
 	thread: {
@@ -38,20 +41,6 @@ const getInitials = (name: string) => {
 		.join("")
 		.toUpperCase()
 		.slice(0, 2);
-};
-
-const getCategoryColor = (category: string) => {
-	const colors: Record<string, string> = {
-		VIOLENCE: "bg-destructive/10 text-destructive border-destructive/20",
-		ABUS: "bg-primary/10 text-primary border-primary/20",
-		TEMOIN: "bg-accent/10 text-accent-foreground border-accent/20",
-		DETRESSE: "bg-secondary/10 text-secondary-foreground border-secondary/20",
-		AUTRE: "bg-muted/10 text-muted-foreground border-muted/20",
-	};
-	return (
-		colors[category.toUpperCase()] ||
-		"bg-muted/10 text-muted-foreground border-muted/20"
-	);
 };
 
 // OPTIMIZATION: Memoize ThreadCard to prevent re-renders when parent updates

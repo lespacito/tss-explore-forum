@@ -110,7 +110,7 @@ export async function getUserPosts(userId: string) {
 		.innerJoin(alias, eq(posts.aliasId, alias.id))
 		.leftJoin(user, eq(alias.userId, user.id))
 		.leftJoin(threads, eq(posts.threadId, threads.id))
-		.where(eq(alias.userId, userId))
+		.where(and(eq(alias.userId, userId), isNull(posts.deletedAt)))
 		.orderBy(desc(posts.createdAt));
 
 	return userPosts.map((post) => ({
