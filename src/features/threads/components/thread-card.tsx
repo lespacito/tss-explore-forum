@@ -13,6 +13,7 @@ import {
 	CardFooter,
 	CardHeader,
 } from "@/components/ui/card";
+import { getInitials } from "@/lib/utils/string-utils";
 import {
 	getAuthorDisplayName,
 	getCategoryColor,
@@ -32,16 +33,6 @@ interface ThreadCardProps {
 		displayUsername: string | null;
 	};
 }
-
-// OPTIMIZATION: Hoist utility functions outside component to prevent recreation on each render
-const getInitials = (name: string) => {
-	return name
-		.split("-")
-		.map((n) => n[0])
-		.join("")
-		.toUpperCase()
-		.slice(0, 2);
-};
 
 // OPTIMIZATION: Memoize ThreadCard to prevent re-renders when parent updates
 // This improves performance when scrolling through long lists of threads
@@ -65,7 +56,7 @@ export const ThreadCard = memo(function ThreadCard({
 				<CardHeader className="flex flex-row items-center gap-4 p-4">
 					<Avatar>
 						<AvatarFallback className="bg-primary/10 text-primary">
-							{authorName ? getInitials(authorName) : "??"}
+							{getInitials(authorName)}
 						</AvatarFallback>
 					</Avatar>
 					<div className="flex flex-col flex-1">

@@ -1,5 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
+import { z } from "zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmailVerification } from "@/features/auth/components/email-verification";
@@ -8,8 +9,13 @@ import { SignInTab } from "@/features/auth/components/sign-in-tab";
 import { SignUpTab } from "@/features/auth/components/sign-up-tab";
 import { getAuthSessionCached } from "@/features/auth/server/get-auth-session";
 
+const loginSearchSchema = z.object({
+	redirect: z.string().optional(),
+});
+
 export const Route = createFileRoute("/auth/login/")({
 	component: RouteComponent,
+	validateSearch: (search) => loginSearchSchema.parse(search),
 	loader: async () => {
 		const session = await getAuthSessionCached();
 		// Permettre aux utilisateurs anonymes d'accéder à cette page pour créer un compte permanent
@@ -29,8 +35,15 @@ type Tab = "sign-in" | "sign-up" | "email-verification" | "forgot-password";
 
 function RouteComponent() {
 	const { authSession } = Route.useLoaderData();
+	const { redirect: redirectParam } = Route.useSearch();
 	const [email, setEmail] = useState("");
 	const [selectedTab, setSelectedTab] = useState<Tab>("sign-in");
+
+	// Sanitize redirect to prevent open redirects — only allow relative paths
+	const redirectTo =
+		redirectParam && redirectParam.startsWith("/")
+			? redirectParam
+			: undefined;
 
 	function openEmailVerificationTab(email: string) {
 		setEmail(email);
@@ -58,6 +71,7 @@ function RouteComponent() {
 						<SignInTab
 							openEmailVerificationTab={openEmailVerificationTab}
 							openForgotPassword={() => setSelectedTab("forgot-password")}
+							redirectTo={redirectTo}
 						/>
 					</CardContent>
 				</Card>

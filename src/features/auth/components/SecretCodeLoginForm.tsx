@@ -20,7 +20,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export function SecretCodeLoginForm() {
+export function SecretCodeLoginForm({ redirectTo }: { redirectTo?: string } = {}) {
 	const router = useRouter();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [serverError, setServerError] = useState<string | null>(null);
@@ -44,8 +44,8 @@ export function SecretCodeLoginForm() {
 					providerId: "secret-code",
 				});
 
-				// Succès - redirection vers la liste des threads
-				router.navigate({ to: "/threads" });
+				// Succès - redirection
+				router.navigate({ to: redirectTo || "/threads" });
 			} catch (error) {
 				// Afficher erreur bienveillante (pas "code invalide")
 				setServerError("Impossible de se connecter. Vérifiez votre code.");

@@ -19,9 +19,11 @@ import { logger } from "@/lib/logger";
 export const SignInTab = ({
 	openEmailVerificationTab,
 	openForgotPassword,
+	redirectTo,
 }: {
 	openEmailVerificationTab: (email: string) => void;
 	openForgotPassword: () => void;
+	redirectTo?: string;
 }) => {
 	const id = useId();
 	const router = useRouter();
@@ -46,7 +48,7 @@ export const SignInTab = ({
 				{
 					username: value.username,
 					password: value.password,
-					callbackURL: "/",
+					callbackURL: redirectTo || "/",
 				},
 				{
 					onError: async (error) => {
@@ -96,7 +98,7 @@ export const SignInTab = ({
 					onSuccess: () => {
 						toast.success("Connexion réussie ! Bienvenue à bord !");
 						form.reset();
-						router.navigate({ to: "/" });
+						router.navigate({ to: redirectTo || "/" });
 					},
 				},
 			);
@@ -120,7 +122,7 @@ export const SignInTab = ({
 			className="space-y-4"
 		>
 			{/* Boutons OAuth */}
-			<SocialAuthButtons />
+			<SocialAuthButtons redirectTo={redirectTo} />
 
 			{/* Séparateur */}
 			<div className="relative">

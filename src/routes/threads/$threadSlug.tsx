@@ -18,6 +18,7 @@ import { PostCard } from "@/features/posts/components/post-card";
 import { createPostFn } from "@/features/posts/server/actions/create-post";
 import { getPostsByThreadFn } from "@/features/posts/server/actions/get-posts-by-thread";
 import { getThreadBySlugFn } from "@/features/threads/server/actions/get-thread-by-slug";
+import { getInitials } from "@/lib/utils/string-utils";
 import {
 	getAuthorDisplayName,
 	isThreadCategorySensitive,
@@ -74,15 +75,6 @@ function ThreadDetailPage() {
 		},
 	});
 
-	const getInitials = (name: string) => {
-		return name
-			.split("-")
-			.map((n) => n[0])
-			.join("")
-			.toUpperCase()
-			.slice(0, 2);
-	};
-
 	const getCategoryColor = (category: string) => {
 		const colors: Record<string, string> = {
 			support: "bg-primary/10 text-primary border-primary/20",
@@ -123,7 +115,7 @@ function ThreadDetailPage() {
 					<div className="flex items-start gap-4">
 						<Avatar className="h-12 w-12">
 							<AvatarFallback className="bg-primary/10 text-primary">
-								{threadAuthorName ? getInitials(threadAuthorName) : "??"}
+								{getInitials(threadAuthorName)}
 							</AvatarFallback>
 						</Avatar>
 						<div className="flex-1 space-y-2">

@@ -12,6 +12,7 @@ import {
 	CardFooter,
 	CardHeader,
 } from "@/components/ui/card";
+import { getInitials } from "@/lib/utils/string-utils";
 import { getAuthorDisplayName } from "@/lib/utils/thread-utils";
 
 interface PostCardProps {
@@ -34,15 +35,6 @@ interface PostCardProps {
 export function PostCard({ post, threadCategory = "" }: PostCardProps) {
 	const [isBlurred, setIsBlurred] = useState(post.isSensitive);
 
-	const getInitials = (name: string) => {
-		return name
-			.split("-")
-			.map((n) => n[0])
-			.join("")
-			.toUpperCase()
-			.slice(0, 2);
-	};
-
 	const authorName = getAuthorDisplayName({
 		isSensitive: post.isSensitive,
 		threadCategory,
@@ -55,7 +47,7 @@ export function PostCard({ post, threadCategory = "" }: PostCardProps) {
 			<CardHeader className="flex flex-row items-center gap-4 p-4">
 				<Avatar>
 					<AvatarFallback className="bg-primary/10 text-primary">
-						{authorName ? getInitials(authorName) : "??"}
+						{getInitials(authorName)}
 					</AvatarFallback>
 				</Avatar>
 				<div className="flex flex-col">

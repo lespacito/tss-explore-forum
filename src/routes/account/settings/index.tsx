@@ -28,17 +28,7 @@ import { SecurityTab } from "@/features/profiles/components/security-tab";
 import { SessionsTab } from "@/features/profiles/components/sessions-tab";
 import { getUserAccounts } from "@/features/profiles/server/get-user-accounts";
 import { getUserSessions } from "@/features/profiles/server/get-user-sessions";
-
-const getInitials = (name?: string) => {
-	const safe = (name ?? "").trim();
-	if (!safe) return "??";
-	return safe
-		.split(/\s+/)
-		.map((n) => n[0])
-		.join("")
-		.toUpperCase()
-		.slice(0, 2);
-};
+import { getInitials } from "@/lib/utils/string-utils";
 
 export const Route = createFileRoute("/account/settings/")({
 	component: SettingsPage,
@@ -47,6 +37,7 @@ export const Route = createFileRoute("/account/settings/")({
 		if (!session || !session.user) {
 			throw redirect({
 				to: "/auth/login",
+				search: { redirect: "/account/settings" },
 			});
 		}
 		const accounts = await getUserAccounts();

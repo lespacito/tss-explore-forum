@@ -14,6 +14,7 @@ export const Route = createFileRoute("/dashboard")({
 		if (!session?.user) {
 			throw redirect({
 				to: "/auth/login",
+				search: { redirect: "/dashboard" },
 			});
 		}
 		return { user: session.user };

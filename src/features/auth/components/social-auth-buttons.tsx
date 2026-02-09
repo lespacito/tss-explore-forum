@@ -6,14 +6,14 @@ import {
 } from "@/features/auth/lib/o-auth-providers";
 import { logger } from "@/lib/logger";
 
-export function SocialAuthButtons() {
+export function SocialAuthButtons({ redirectTo }: { redirectTo?: string } = {}) {
 	const handleOAuthSignIn = async (
 		provider: (typeof SUPPORTED_OAUTH_PROVIDERS)[number],
 	) => {
 		logger.info(`Starting ${provider} OAuth`, { provider });
 		const result = await signIn.social({
 			provider,
-			callbackURL: "/",
+			callbackURL: redirectTo || "/",
 		});
 
 		if (result.error) {

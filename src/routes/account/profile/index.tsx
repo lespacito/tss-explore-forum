@@ -25,21 +25,11 @@ import { ThreadStatusBadge } from "@/features/profiles/components/ThreadStatusBa
 import { getUserThreadsFn } from "@/features/threads/server/actions/get-user-threads";
 import { logger } from "@/lib/logger/client-logger";
 import { cn } from "@/lib/utils";
+import { getInitials } from "@/lib/utils/string-utils";
 import {
 	getAuthorDisplayName,
 	getCategoryColor,
 } from "@/lib/utils/thread-utils";
-
-const getInitials = (name?: string) => {
-	const safe = (name ?? "").trim();
-	if (!safe) return "??";
-	return safe
-		.split(/\s+/)
-		.map((n) => n[0])
-		.join("")
-		.toUpperCase()
-		.slice(0, 2);
-};
 
 type StatusFilter = "all" | "pending" | "published" | "rejected";
 
@@ -90,9 +80,16 @@ function PublicProfilePage() {
 			? threads
 			: threads.filter((t) => t.status === statusFilter);
 
-	const pendingCount = threads.filter((t) => t.status === "pending").length;
-	const publishedCount = threads.filter((t) => t.status === "published").length;
-	const rejectedCount = threads.filter((t) => t.status === "rejected").length;
+	const statusCounts = threads.reduce<Record<string, number>>(
+		(acc, t) => {
+			acc[t.status] = (acc[t.status] ?? 0) + 1;
+			return acc;
+		},
+		{},
+	);
+	const pendingCount = statusCounts.pending ?? 0;
+	const publishedCount = statusCounts.published ?? 0;
+	const rejectedCount = statusCounts.rejected ?? 0;
 
 	return (
 		<div className="container max-w-4xl mx-auto py-10 px-4 space-y-8">
@@ -329,14 +326,7 @@ function UserThreadCard({
 		displayUsername: thread.displayUsername,
 	});
 
-	const authorInitials = authorName
-		? authorName
-				.split("-")
-				.map((n) => n[0])
-				.join("")
-				.toUpperCase()
-				.slice(0, 2)
-		: "??";
+	const authorInitials = getInitials(authorName);
 
 	const isPublished = thread.status === "published";
 
