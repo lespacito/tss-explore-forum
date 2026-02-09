@@ -12,7 +12,11 @@ export default defineConfig(({ command }) => ({
       projects: ["./tsconfig.json"],
     }) as PluginOption,
     tailwindcss(),
-    tanstackStart(),
+    tanstackStart({
+      router: {
+        routeFileIgnorePattern: "(__tests__|__mocks__)",
+      },
+    }),
     command === "build" && nitro({ preset: "bun" }),
     viteReact(),
   ],
