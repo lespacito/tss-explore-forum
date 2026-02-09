@@ -45,7 +45,7 @@ development_status:
   1-1-session-anonyme-immediate: done
   1-2-code-secret-pour-utilisateur-anonyme: done
   1-3-recuperation-via-code-secret: done
-  1-4-inscription-avec-email-pseudonyme: review
+  1-4-inscription-avec-email-pseudonyme: in-progress
   1-5-connexion-deconnexion-utilisateur: review
   1-6-suppression-de-compte-et-donnees: in-progress
   epic-1-retrospective: optional
@@ -54,7 +54,7 @@ development_status:
   2-1-choix-de-categorie-de-publication: done
   2-2-template-guide-par-categorie: done
   2-3-editeur-de-contenu-avec-formatage: done
-  2-4-soumission-pour-moderation: review
+  2-4-soumission-pour-moderation: in-progress
   2-5-confirmation-et-suivi-de-statut: ready-for-dev
   epic-2-retrospective: optional
 

@@ -1,6 +1,6 @@
 # Story 1.4: Inscription avec Email/Pseudonyme
 
-Status: review
+Status: in-progress
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -1468,49 +1468,67 @@ Claude Sonnet 4.5 (ou modèle utilisé)
 - All server-side logic 100% tested (30/30)
 - Total Story 1.4: 40/47 executable tests passing (85.1%)
 
+**Code Review Round 3 - Adversarial Review (2026-02-09)**
+
+12 issues trouvées (6 CRITICAL, 4 MEDIUM, 2 LOW). Tous CRITICAL et MEDIUM fixés.
+
+**CRITICAL fixes appliquées:**
+
+- 🔧 **CRITICAL-1 & CRITICAL-2:** Supprimé `signup-schema.ts`, `signup-with-email.ts` et leurs tests (dead code jamais importé - le composant utilise `sign-up-schema.ts` et `authClient.signUp.email()` directement)
+- 🔧 **CRITICAL-3:** Ajouté vérification d'authentification à `linkAnonymousAccountFn` (FAILLE DE SÉCURITÉ - n'importe qui pouvait voler des alias)
+- 🔧 **CRITICAL-4:** Retiré `db.delete(user)` de `linkAnonymousAccountFn` (violait AC2 - le secretCode était détruit)
+- 🔧 **CRITICAL-5:** Corrigé crash des tests composant `sign-up-tab.test.tsx` (0/17 → 9/17 passing) en ajoutant mocks serveur manquants
+- 🔧 **CRITICAL-6:** Réécrit `link-anonymous-account.test.ts` — les 11 tests précédents étaient fake (testaient des objets mock manuels, jamais la vraie function). Maintenant 9/9 vrais tests passent.
+
+**MEDIUM & LOW fixes:**
+
+- 🔧 **MEDIUM-2:** File List corrigée (link-anonymous-modal.tsx ajouté, sign-up-tab.tsx reclassé comme modifié)
+- 🔧 **LOW-1:** Corrigé "au moins 6 caractères" → "au moins 8" dans E2E tests
+- 🔧 **LOW-2:** Commentaire RED PHASE stale retiré
+
+**Tests après Round 3:**
+
+```bash
+pnpm test link-anonymous-account.test.ts sign-up-tab.test.tsx --run
+✓ link-anonymous-account.test.ts: 9/9 passed (100%)
+⚠ sign-up-tab.test.tsx: 9/17 passed (52.9% — 8 failures pré-existantes: toast vs inline, form state)
+Total: 18/26 passing (69.2%)
+```
+
+**Fichiers supprimés (dead code):**
+- `src/features/auth/schemas/signup-schema.ts` (jamais importé par le composant)
+- `src/features/auth/schemas/__tests__/signup-schema.test.ts` (tests pour dead code)
+- `src/features/auth/server/signup-with-email.ts` (server fn jamais utilisée)
+- `src/features/auth/server/__tests__/signup-with-email.test.ts` (tests pour dead code)
+
 ### File List
 
 **Fichiers Créés (Story 1.4):**
 
-1. `src/features/auth/schemas/signup-schema.ts` - Schema Zod validation (Task 1)
-2. `src/features/auth/schemas/__tests__/signup-schema.test.ts` - Tests schema (7 tests) ✅ 7/7 passing
-3. `src/features/auth/server/signup-with-email.ts` - Server function inscription (Task 3)
-4. `src/features/auth/server/__tests__/signup-with-email.test.ts` - Tests server fn (12 tests) ✅ 12/12 passing
-5. `src/features/auth/server/link-anonymous-account.ts` - Server function liaison compte anonyme (Task 4)
-6. `src/features/auth/server/__tests__/link-anonymous-account.test.ts` - Tests linking (11 tests) ✅ 11/11 passing
-7. `src/features/auth/components/__tests__/sign-up-tab.test.tsx` - Tests component (17 tests) ⚠️ 10/17 passing
-8. `src/features/auth/components/__tests__/README-SIGNUP-TAB-TESTS.md` - Documentation des limitations de tests (171 lignes)
-9. `src/features/auth/__tests__/email-signup.e2e.test.ts` - Tests E2E (14 tests, require Playwright)
+1. `src/features/auth/server/link-anonymous-account.ts` - Server function liaison compte anonyme (Task 4) — Corrigé Round 3: +auth check, -delete user
+2. `src/features/auth/server/__tests__/link-anonymous-account.test.ts` - Tests linking (9 tests) ✅ 9/9 passing — Réécrit Round 3
+3. `src/features/auth/components/__tests__/sign-up-tab.test.tsx` - Tests component (17 tests) ⚠️ 9/17 passing — Corrigé Round 3: crash résolu
+4. `src/features/auth/components/__tests__/README-SIGNUP-TAB-TESTS.md` - Documentation des limitations de tests
+5. `src/features/auth/__tests__/email-signup.e2e.test.ts` - Tests E2E (14 tests, require Playwright)
 
 **Fichiers Modifiés (Story 1.4):**
 
-1. `docs/auth-flows.md` - Added Story 1.4 section with signup flow documentation
-2. `_bmad-output/implementation-artifacts/sprint-status.yaml` - Updated story status to review
-3. `project-context.md` - Updated with testing strategy documentation
+1. `src/features/auth/components/sign-up-tab.tsx` - Ajout intégration LinkAnonymousModal, détection anonyme, linking flow
+2. `src/features/auth/components/link-anonymous-modal.tsx` - Modal de liaison compte anonyme (AC2)
+3. `docs/auth-flows.md` - Added Story 1.4 section with signup flow documentation
+4. `_bmad-output/implementation-artifacts/sprint-status.yaml` - Updated story status to review
+5. `project-context.md` - Updated with testing strategy documentation
 
-**Fichiers Non Modifiés (Déjà Existants - Système en Place):**
+**Fichiers Supprimés (Dead Code - Round 3):**
 
-- `src/features/auth/components/sign-up-tab.tsx` - Composant signup existant (utilisé sans modification)
+1. ❌ `src/features/auth/schemas/signup-schema.ts` - Dead code: jamais importé par le composant (utilise `sign-up-schema.ts`)
+2. ❌ `src/features/auth/schemas/__tests__/signup-schema.test.ts` - Tests pour dead code
+3. ❌ `src/features/auth/server/signup-with-email.ts` - Dead code: jamais utilisé (composant utilise `authClient.signUp.email()`)
+4. ❌ `src/features/auth/server/__tests__/signup-with-email.test.ts` - Tests pour dead code
+
+**Fichiers Non Modifiés (Déjà Existants):**
+
+- `src/features/auth/schemas/sign-up-schema.ts` - Le VRAI schéma utilisé par SignUpTab (name, email, password, username, displayUsername)
 - `src/features/auth/components/email-verification.tsx` - Composant vérification email existant
-- `src/routes/auth/login/index.tsx` - Route login avec tabs signup/signin (système déjà en place)
-- `src/features/auth/lib/auth.ts` - Configuration Better-Auth avec email verification (déjà configuré)
-- `src/features/auth/lib/auth.ts` - Hook after() pour création alias automatique (déjà existant)
-
-**Fichiers NON Créés (Mentionnés dans plans initiaux mais non implémentés):**
-
-- ❌ `src/features/auth/components/SignUpForm.tsx` - Non créé, SignUpTab existant utilisé à la place
-- ❌ `src/features/auth/components/LinkAccountModal.tsx` - Non créé, fonctionnalité intégrée différemment
-- ❌ `src/routes/auth/signup.tsx` - Non créé, route login existante avec tabs utilisée
-- ❌ `src/routes/auth/verify-email.tsx` - Non créé, système Better-Auth existant utilisé
-- ❌ `src/routes/auth/resend-verification.tsx` - Non créé, système Better-Auth existant utilisé
-
-**Note sur l'Architecture:**
-
-Cette story utilise principalement des systèmes existants :
-
-- Composant SignUpTab déjà présent (pas de nouveau SignUpForm)
-- Route /auth/login avec système de tabs (signup/signin)
-- Better-Auth email verification déjà configuré
-- Hook after() pour création d'alias déjà en place
-
-**Focus de Story 1.4 :** Création des server functions (signup, linking) et validation Zod, pas de nouveaux composants UI.
+- `src/routes/auth/login/index.tsx` - Route login avec tabs signup/signin
+- `src/features/auth/lib/auth.ts` - Configuration Better-Auth avec email verification et hook after()

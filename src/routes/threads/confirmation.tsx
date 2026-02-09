@@ -40,13 +40,9 @@ function ThreadConfirmationPage() {
 	});
 
 	const handleContinue = () => {
-		if (threadSlug) {
-			// Navigate to the created thread
-			navigate({ to: `/threads/${threadSlug}` });
-		} else {
-			// Fallback to threads list
-			navigate({ to: "/threads" });
-		}
+		// Story 2.4: Thread is pending moderation, not publicly visible yet
+		// Navigate to threads list instead of thread detail
+		navigate({ to: "/threads" });
 	};
 
 	// If no secret code provided, redirect to threads

@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import { alias } from "@/db/schemas/alias";
-import { user } from "@/db/schemas/user";
+import { getAuthSession } from "@/features/auth/server/get-auth-session";
 import { logger } from "@/lib/logger/server";
 
 /**
@@ -12,19 +12,22 @@ import { logger } from "@/lib/logger/server";
  * Story 1.4 - Task 4: Implémenter liaison de compte anonyme
  *
  * Fonctionnalités:
+ * - Vérification d'authentification (session active requise)
+ * - Validation que le newUserId correspond à la session
  * - Migration des alias anonymes vers compte enregistré
- * - Suppression du compte anonyme après migration
+ * - Préservation du compte anonyme et du secretCode (AC2)
  * - Logging pour audit trail
  *
  * Flux:
- * 1. Migrer tous les alias de l'anonyme vers le nouveau compte
- * 2. Supprimer le compte anonyme (cleanup)
+ * 1. Vérifier l'authentification
+ * 2. Migrer tous les alias de l'anonyme vers le nouveau compte
  * 3. Logger la liaison pour audit
  * 4. Retourner le nombre d'alias migrés
  *
  * Note importante:
  * Les threads, posts et comments suivent automatiquement car ils sont liés aux alias
  * via aliasId, pas directement au user.
+ * Le compte anonyme N'EST PAS supprimé pour préserver le secretCode (AC2).
  */
 export const linkAnonymousAccountFn = createServerFn({ method: "POST" })
 	.inputValidator(
@@ -35,6 +38,33 @@ export const linkAnonymousAccountFn = createServerFn({ method: "POST" })
 	)
 	.handler(async ({ data }) => {
 		const { newUserId, anonymousUserId } = data;
+
+		// Vérification d'authentification
+		const authContext = await getAuthSession();
+
+		if (!authContext.isAuthenticated || !authContext.user) {
+			logger.warn("Unauthenticated attempt to link anonymous account", {
+				anonymousUserId,
+				newUserId,
+			});
+			return {
+				success: false,
+				error: "Vous devez être connecté pour lier un compte",
+			};
+		}
+
+		// Vérifier que le newUserId correspond à l'utilisateur authentifié
+		if (authContext.user.id !== newUserId) {
+			logger.warn("User ID mismatch in link anonymous account", {
+				sessionUserId: authContext.user.id,
+				claimedNewUserId: newUserId,
+				anonymousUserId,
+			});
+			return {
+				success: false,
+				error: "Identifiant utilisateur invalide",
+			};
+		}
 
 		try {
 			// Migrer tous les alias de l'utilisateur anonyme vers le nouveau compte
@@ -51,24 +81,8 @@ export const linkAnonymousAccountFn = createServerFn({ method: "POST" })
 				aliasCount: updatedAliases.length,
 			});
 
-			// Supprimer le compte anonyme après migration pour éviter confusion
-			try {
-				await db.delete(user).where(eq(user.id, anonymousUserId));
-
-				logger.info(
-					"Anonymous user account deleted after successful migration",
-					{
-						anonymousUserId,
-						newUserId,
-					},
-				);
-			} catch (deleteError: any) {
-				// Non-critical - log warning but don't fail the migration
-				logger.warn("Failed to delete anonymous user account (non-critical)", {
-					anonymousUserId,
-					error: deleteError.message,
-				});
-			}
+			// Le compte anonyme est préservé avec son secretCode (AC2)
+			// L'utilisateur peut toujours récupérer ses données via le code secret
 
 			return {
 				success: true,

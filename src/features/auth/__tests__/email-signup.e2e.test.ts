@@ -83,7 +83,7 @@ test.describe("Email Signup Flow - Story 1.4 AC1, AC3, AC4", () => {
 		// Test short password validation
 		await page.fill('input[name="password"]', "12345");
 		await page.blur('input[name="password"]');
-		await expect(page.locator("text=/au moins 6 caractères/i")).toBeVisible({
+		await expect(page.locator("text=/au moins 8 caractères/i")).toBeVisible({
 			timeout: 3000,
 		});
 

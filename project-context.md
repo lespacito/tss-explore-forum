@@ -179,7 +179,12 @@ src/
 
 **threads**
 - Top-level discussions
-- Categories: support, témoignage, questions, ressources
+- Categories: VIOLENCE, ABUS, TEMOIN, DETRESSE, AUTRE
+- **Moderation (Story 2.4):** `status` field (`pending` | `published` | `rejected`)
+  - New threads default to `pending` — not visible publicly until moderator approves
+  - `getAllPublishedThreads()` and `getThreadBySlug()` filter by `status = 'published'` and `deletedAt IS NULL`
+- **Soft Delete (AR7):** `deletedAt` timestamp — logically removed without physical DELETE
+- Additional moderation columns: `isSensitive`, `moderatedAt`, `moderatorId`, `rejectionReason`
 - Relations: posts, alias
 
 **post**

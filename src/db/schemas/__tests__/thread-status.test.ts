@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { threadStatus, type ThreadStatus } from "../thread";
+import {
+	threadStatus,
+	threadStatusEnum,
+	type ThreadStatus,
+} from "../thread";
 
 /**
  * Unit tests for Thread Status Schema (Story 2.4)
@@ -9,29 +13,35 @@ import { threadStatus, type ThreadStatus } from "../thread";
  */
 
 describe("Thread Status Schema (Story 2.4)", () => {
-	describe("threadStatus enum", () => {
+	describe("threadStatus array", () => {
 		it("should define exactly 3 status values", () => {
-			expect(threadStatus.enumValues).toHaveLength(3);
+			expect(threadStatus).toHaveLength(3);
 		});
 
 		it("should include 'pending' status", () => {
-			expect(threadStatus.enumValues).toContain("pending");
+			expect(threadStatus).toContain("pending");
 		});
 
 		it("should include 'published' status", () => {
-			expect(threadStatus.enumValues).toContain("published");
+			expect(threadStatus).toContain("published");
 		});
 
 		it("should include 'rejected' status", () => {
-			expect(threadStatus.enumValues).toContain("rejected");
+			expect(threadStatus).toContain("rejected");
 		});
 
-		it("should have exact enum values in correct order", () => {
-			expect(threadStatus.enumValues).toEqual([
-				"pending",
-				"published",
-				"rejected",
-			]);
+		it("should have exact values in correct order", () => {
+			expect(threadStatus).toEqual(["pending", "published", "rejected"]);
+		});
+	});
+
+	describe("threadStatusEnum (pgEnum)", () => {
+		it("should expose enumValues matching threadStatus array", () => {
+			expect(threadStatusEnum.enumValues).toEqual(threadStatus);
+		});
+
+		it("should have enumName 'thread_status'", () => {
+			expect(threadStatusEnum.enumName).toBe("thread_status");
 		});
 	});
 
@@ -51,20 +61,19 @@ describe("Thread Status Schema (Story 2.4)", () => {
 			expect(status).toBe("rejected");
 		});
 
-		// Note: TypeScript compilation will fail for invalid values
-		// This test ensures runtime behavior matches compile-time types
-		it("should match enum values at runtime", () => {
-			const validStatuses: ThreadStatus[] = ["pending", "published", "rejected"];
-			expect(validStatuses).toEqual(threadStatus.enumValues);
+		it("should match threadStatus array at runtime", () => {
+			const validStatuses: ThreadStatus[] = [
+				"pending",
+				"published",
+				"rejected",
+			];
+			expect(validStatuses).toEqual([...threadStatus]);
 		});
 	});
 
 	describe("Default status behavior", () => {
-		it("should use 'pending' as default for new threads", () => {
-			// This is enforced at the database level via migration
-			// Default: 'pending' is set in threadsColumns.status.default("pending")
-			const expectedDefault = "pending";
-			expect(threadStatus.enumValues[0]).toBe(expectedDefault);
+		it("should use 'pending' as first/default value", () => {
+			expect(threadStatus[0]).toBe("pending");
 		});
 	});
 
@@ -72,50 +81,37 @@ describe("Thread Status Schema (Story 2.4)", () => {
 		it("should allow transition from pending to published", () => {
 			const from: ThreadStatus = "pending";
 			const to: ThreadStatus = "published";
-
-			// Valid transition for moderator approval
-			expect([from, to]).toEqual(["pending", "published"]);
+			expect(threadStatus).toContain(from);
+			expect(threadStatus).toContain(to);
 		});
 
 		it("should allow transition from pending to rejected", () => {
 			const from: ThreadStatus = "pending";
 			const to: ThreadStatus = "rejected";
-
-			// Valid transition for moderator rejection
-			expect([from, to]).toEqual(["pending", "rejected"]);
+			expect(threadStatus).toContain(from);
+			expect(threadStatus).toContain(to);
 		});
 
-		it("should prevent published threads from returning to pending", () => {
+		it("should document invalid transition: published → pending", () => {
 			// Business rule: Once published, cannot go back to pending
-			// This test documents the expected state machine behavior
 			const invalidTransition = (from: ThreadStatus, to: ThreadStatus) => {
 				return from === "published" && to === "pending";
 			};
-
 			expect(invalidTransition("published", "pending")).toBe(true);
 		});
 	});
 
-	describe("NFR6: Performance validation", () => {
-		it("should use indexed status field for fast queries", () => {
-			// Index created in migration: CREATE INDEX threads_status_idx
-			// This test documents the performance requirement
-			const hasStatusIndex = true; // Verified in migration file
-			expect(hasStatusIndex).toBe(true);
-		});
-	});
-
 	describe("Story 2.4 Acceptance Criteria", () => {
-		it("AC1: Should create threads with pending status by default", () => {
-			// Verified via default value in schema
-			const defaultStatus = "pending";
-			expect(threadStatus.enumValues).toContain(defaultStatus);
+		it("AC1: threadStatus includes 'pending' as default for new threads", () => {
+			expect(threadStatus).toContain("pending");
+			expect(threadStatus[0]).toBe("pending");
 		});
 
-		it("AC2: Should support moderation workflow statuses", () => {
-			// All required statuses for moderation workflow
-			const moderationStatuses = ["pending", "published", "rejected"];
-			expect(threadStatus.enumValues).toEqual(moderationStatuses);
+		it("AC2: all moderation workflow statuses are defined", () => {
+			const required = ["pending", "published", "rejected"];
+			for (const s of required) {
+				expect(threadStatus).toContain(s);
+			}
 		});
 	});
 });

@@ -2,15 +2,35 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import "@testing-library/jest-dom/vitest";
-import * as authClient from "@/features/auth/lib/auth-client";
-import * as sendWelcomeEmailFn from "@/features/auth/server/send-welcome-email";
-import { SignUpTab } from "../sign-up-tab";
 
-// Mock dependencies
+// Mock server-side modules BEFORE any imports that trigger the chain
+// sign-up-tab → link-anonymous-modal → link-anonymous-account → @/db → env
+vi.mock("@/data/env/server", () => ({
+	env: {
+		NODE_ENV: "test",
+		DATABASE_URL: "postgresql://test",
+		BETTER_AUTH_SECRET: "test-secret",
+		BETTER_AUTH_URL: "http://localhost:3000",
+	},
+}));
+
+vi.mock("@/features/auth/server/link-anonymous-account", () => ({
+	linkAnonymousAccountFn: vi.fn(),
+}));
+
+vi.mock("@/features/auth/server/get-auth-session", () => ({
+	getAuthSession: vi.fn().mockResolvedValue({
+		user: null,
+		isAuthenticated: false,
+		session: null,
+	}),
+}));
+
 vi.mock("@/features/auth/lib/auth-client", () => ({
 	signUp: {
 		email: vi.fn(),
 	},
+	signOut: vi.fn(),
 }));
 
 vi.mock("@/features/auth/server/send-welcome-email", () => ({
@@ -21,6 +41,7 @@ vi.mock("sonner", () => ({
 	toast: {
 		success: vi.fn(),
 		error: vi.fn(),
+		info: vi.fn(),
 	},
 }));
 
@@ -32,6 +53,20 @@ vi.mock("@/lib/logger/client-logger", () => ({
 	},
 }));
 
+vi.mock("@/lib/logger/server", () => ({
+	logger: {
+		info: vi.fn(),
+		warn: vi.fn(),
+		error: vi.fn(),
+		debug: vi.fn(),
+	},
+}));
+
+// Import AFTER mocks
+import * as authClient from "@/features/auth/lib/auth-client";
+import * as sendWelcomeEmailFn from "@/features/auth/server/send-welcome-email";
+import { SignUpTab } from "../sign-up-tab";
+
 describe("SignUpTab Component - Task 8 Subtask 8.4", () => {
 	const mockOpenEmailVerificationTab = vi.fn();
 
@@ -42,10 +77,12 @@ describe("SignUpTab Component - Task 8 Subtask 8.4", () => {
 	describe("Component Rendering", () => {
 		it("should render all form fields", () => {
 			render(
-				<SignUpTab openEmailVerificationTab={mockOpenEmailVerificationTab} />,
+				<SignUpTab
+					openEmailVerificationTab={mockOpenEmailVerificationTab}
+					currentUser={null}
+				/>,
 			);
 
-			// Use more specific queries to avoid conflicts
 			expect(
 				screen.getByRole("textbox", { name: /^nom$/i }),
 			).toBeInTheDocument();
@@ -63,7 +100,10 @@ describe("SignUpTab Component - Task 8 Subtask 8.4", () => {
 
 		it("should render submit and cancel buttons", () => {
 			render(
-				<SignUpTab openEmailVerificationTab={mockOpenEmailVerificationTab} />,
+				<SignUpTab
+					openEmailVerificationTab={mockOpenEmailVerificationTab}
+					currentUser={null}
+				/>,
 			);
 
 			expect(
@@ -76,7 +116,10 @@ describe("SignUpTab Component - Task 8 Subtask 8.4", () => {
 
 		it("should have submit button disabled initially", () => {
 			render(
-				<SignUpTab openEmailVerificationTab={mockOpenEmailVerificationTab} />,
+				<SignUpTab
+					openEmailVerificationTab={mockOpenEmailVerificationTab}
+					currentUser={null}
+				/>,
 			);
 
 			const submitButton = screen.getByRole("button", { name: /s'inscrire/i });
@@ -88,7 +131,10 @@ describe("SignUpTab Component - Task 8 Subtask 8.4", () => {
 		it("should enable submit button when all fields are filled", async () => {
 			const user = userEvent.setup();
 			render(
-				<SignUpTab openEmailVerificationTab={mockOpenEmailVerificationTab} />,
+				<SignUpTab
+					openEmailVerificationTab={mockOpenEmailVerificationTab}
+					currentUser={null}
+				/>,
 			);
 
 			const nameInput = screen.getByRole("textbox", { name: /^nom$/i });
@@ -118,22 +164,28 @@ describe("SignUpTab Component - Task 8 Subtask 8.4", () => {
 		it("should show validation error for invalid email", async () => {
 			const user = userEvent.setup();
 			render(
-				<SignUpTab openEmailVerificationTab={mockOpenEmailVerificationTab} />,
+				<SignUpTab
+					openEmailVerificationTab={mockOpenEmailVerificationTab}
+					currentUser={null}
+				/>,
 			);
 
 			const emailInput = screen.getByRole("textbox", { name: /email/i });
 			await user.type(emailInput, "invalid-email");
-			await user.tab(); // Trigger blur for validation
+			await user.tab();
 
 			await waitFor(() => {
-				expect(screen.getByText(/email invalide/i)).toBeInTheDocument();
+				expect(screen.getByText(/email.*invalide|invalide.*email/i)).toBeInTheDocument();
 			});
 		});
 
 		it("should show validation error for short password", async () => {
 			const user = userEvent.setup();
 			render(
-				<SignUpTab openEmailVerificationTab={mockOpenEmailVerificationTab} />,
+				<SignUpTab
+					openEmailVerificationTab={mockOpenEmailVerificationTab}
+					currentUser={null}
+				/>,
 			);
 
 			const passwordInput = screen.getByLabelText(/mot de passe/i);
@@ -141,7 +193,7 @@ describe("SignUpTab Component - Task 8 Subtask 8.4", () => {
 			await user.tab();
 
 			await waitFor(() => {
-				expect(screen.getByText(/au moins 6 caractères/i)).toBeInTheDocument();
+				expect(screen.getByText(/au moins 8 caractères/i)).toBeInTheDocument();
 			});
 		});
 	});
@@ -159,7 +211,10 @@ describe("SignUpTab Component - Task 8 Subtask 8.4", () => {
 			});
 
 			render(
-				<SignUpTab openEmailVerificationTab={mockOpenEmailVerificationTab} />,
+				<SignUpTab
+					openEmailVerificationTab={mockOpenEmailVerificationTab}
+					currentUser={null}
+				/>,
 			);
 
 			await user.type(
@@ -212,7 +267,10 @@ describe("SignUpTab Component - Task 8 Subtask 8.4", () => {
 			});
 
 			render(
-				<SignUpTab openEmailVerificationTab={mockOpenEmailVerificationTab} />,
+				<SignUpTab
+					openEmailVerificationTab={mockOpenEmailVerificationTab}
+					currentUser={null}
+				/>,
 			);
 
 			await user.type(
@@ -258,7 +316,10 @@ describe("SignUpTab Component - Task 8 Subtask 8.4", () => {
 			});
 
 			render(
-				<SignUpTab openEmailVerificationTab={mockOpenEmailVerificationTab} />,
+				<SignUpTab
+					openEmailVerificationTab={mockOpenEmailVerificationTab}
+					currentUser={null}
+				/>,
 			);
 
 			await user.type(
@@ -301,7 +362,10 @@ describe("SignUpTab Component - Task 8 Subtask 8.4", () => {
 			});
 
 			render(
-				<SignUpTab openEmailVerificationTab={mockOpenEmailVerificationTab} />,
+				<SignUpTab
+					openEmailVerificationTab={mockOpenEmailVerificationTab}
+					currentUser={null}
+				/>,
 			);
 
 			const nameInput = screen.getByRole("textbox", {
@@ -344,7 +408,10 @@ describe("SignUpTab Component - Task 8 Subtask 8.4", () => {
 			});
 
 			render(
-				<SignUpTab openEmailVerificationTab={mockOpenEmailVerificationTab} />,
+				<SignUpTab
+					openEmailVerificationTab={mockOpenEmailVerificationTab}
+					currentUser={null}
+				/>,
 			);
 
 			await user.type(
@@ -383,7 +450,10 @@ describe("SignUpTab Component - Task 8 Subtask 8.4", () => {
 			});
 
 			render(
-				<SignUpTab openEmailVerificationTab={mockOpenEmailVerificationTab} />,
+				<SignUpTab
+					openEmailVerificationTab={mockOpenEmailVerificationTab}
+					currentUser={null}
+				/>,
 			);
 
 			await user.type(
@@ -424,7 +494,10 @@ describe("SignUpTab Component - Task 8 Subtask 8.4", () => {
 			});
 
 			render(
-				<SignUpTab openEmailVerificationTab={mockOpenEmailVerificationTab} />,
+				<SignUpTab
+					openEmailVerificationTab={mockOpenEmailVerificationTab}
+					currentUser={null}
+				/>,
 			);
 
 			await user.type(
@@ -450,7 +523,6 @@ describe("SignUpTab Component - Task 8 Subtask 8.4", () => {
 			await user.click(submitButton);
 
 			await waitFor(() => {
-				// Component should not crash and error should be logged
 				expect(
 					screen.getByRole("button", { name: /s'inscrire/i }),
 				).toBeInTheDocument();
@@ -462,7 +534,10 @@ describe("SignUpTab Component - Task 8 Subtask 8.4", () => {
 		it("should reset form when cancel button is clicked", async () => {
 			const user = userEvent.setup();
 			render(
-				<SignUpTab openEmailVerificationTab={mockOpenEmailVerificationTab} />,
+				<SignUpTab
+					openEmailVerificationTab={mockOpenEmailVerificationTab}
+					currentUser={null}
+				/>,
 			);
 
 			const nameInput = screen.getByRole("textbox", {
@@ -484,7 +559,10 @@ describe("SignUpTab Component - Task 8 Subtask 8.4", () => {
 
 		it("should have cancel button disabled when form is pristine", () => {
 			render(
-				<SignUpTab openEmailVerificationTab={mockOpenEmailVerificationTab} />,
+				<SignUpTab
+					openEmailVerificationTab={mockOpenEmailVerificationTab}
+					currentUser={null}
+				/>,
 			);
 
 			const cancelButton = screen.getByRole("button", { name: /annuler/i });
@@ -495,7 +573,10 @@ describe("SignUpTab Component - Task 8 Subtask 8.4", () => {
 	describe("Accessibility", () => {
 		it("should have proper labels for all inputs", () => {
 			render(
-				<SignUpTab openEmailVerificationTab={mockOpenEmailVerificationTab} />,
+				<SignUpTab
+					openEmailVerificationTab={mockOpenEmailVerificationTab}
+					currentUser={null}
+				/>,
 			);
 
 			expect(
@@ -516,7 +597,10 @@ describe("SignUpTab Component - Task 8 Subtask 8.4", () => {
 		it("should mark invalid fields with aria-invalid", async () => {
 			const user = userEvent.setup();
 			render(
-				<SignUpTab openEmailVerificationTab={mockOpenEmailVerificationTab} />,
+				<SignUpTab
+					openEmailVerificationTab={mockOpenEmailVerificationTab}
+					currentUser={null}
+				/>,
 			);
 
 			const emailInput = screen.getByRole("textbox", { name: /email/i });

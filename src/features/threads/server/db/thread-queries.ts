@@ -72,7 +72,13 @@ export async function getThreadBySlug(slug: string) {
 		.from(threads)
 		.leftJoin(alias, eq(threads.aliasId, alias.id))
 		.leftJoin(user, eq(alias.userId, user.id))
-		.where(eq(threads.slug, slug))
+		.where(
+			and(
+				eq(threads.slug, slug),
+				eq(threads.status, "published"),
+				isNull(threads.deletedAt),
+			),
+		)
 		.limit(1);
 
 	return thread ?? null;
