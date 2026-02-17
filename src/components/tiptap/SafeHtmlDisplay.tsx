@@ -40,15 +40,21 @@ const contentClasses = cn(
 interface SafeHtmlDisplayProps {
 	html: string;
 	className?: string;
+	"data-testid"?: string;
 }
 
-export const SafeHtmlDisplay = ({ html, className }: SafeHtmlDisplayProps) => {
+export const SafeHtmlDisplay = ({
+	html,
+	className,
+	"data-testid": dataTestId,
+}: SafeHtmlDisplayProps) => {
 	// Sanitize HTML before rendering (critical security step)
 	const sanitizedHtml = sanitizeHtml(html);
 
 	return (
 		<div
 			className={cn(contentClasses, className)}
+			data-testid={dataTestId}
 			// biome-ignore lint/security/noDangerouslySetInnerHtml: HTML is sanitized using sanitizeHtml() before rendering - see lib/security/sanitize-html.ts for whitelist and XSS protection
 			dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
 		/>
