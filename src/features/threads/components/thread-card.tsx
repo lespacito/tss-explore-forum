@@ -1,12 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
-import { MessageSquare, ThumbsUp } from "lucide-react";
 import { memo } from "react";
 import { SafeHtmlDisplay } from "@/components/tiptap/SafeHtmlDisplay";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
@@ -52,7 +50,10 @@ export const ThreadCard = memo(function ThreadCard({
 			params={{ threadSlug: thread.slug }}
 			className="block"
 		>
-			<Card className="w-full hover:shadow-md transition-shadow cursor-pointer">
+			<Card
+				className="w-full hover:shadow-md transition-shadow cursor-pointer"
+				data-testid="thread-card"
+			>
 				<CardHeader className="flex flex-row items-center gap-4 p-4">
 					<Avatar>
 						<AvatarFallback className="bg-primary/10 text-primary">
@@ -61,15 +62,21 @@ export const ThreadCard = memo(function ThreadCard({
 					</Avatar>
 					<div className="flex flex-col flex-1">
 						<div className="flex items-center gap-2">
-							<span className="font-semibold text-sm">{authorName}</span>
+							<span className="font-semibold text-sm" data-testid="thread-author">
+								{authorName}
+							</span>
 							<Badge
 								variant="outline"
 								className={`text-xs ${getCategoryColor(thread.category)}`}
+								data-testid="thread-category"
 							>
 								{thread.category}
 							</Badge>
 						</div>
-						<span className="text-xs text-muted-foreground">
+						<span
+							className="text-xs text-muted-foreground"
+							data-testid="thread-timestamp"
+						>
 							{formatDistanceToNow(new Date(thread.createdAt), {
 								addSuffix: true,
 								locale: fr,
@@ -78,28 +85,22 @@ export const ThreadCard = memo(function ThreadCard({
 					</div>
 				</CardHeader>
 				<CardContent className="p-4 pt-0 space-y-2">
-					<h3 className="font-bold text-lg font-serif hover:text-primary transition-colors">
+					<h3
+						className="font-bold text-lg font-serif hover:text-primary transition-colors"
+						data-testid="thread-title"
+					>
 						{thread.title}
 					</h3>
 					<SafeHtmlDisplay
 						html={thread.body}
 						className="text-sm text-muted-foreground line-clamp-3"
+						data-testid="thread-excerpt"
 					/>
 				</CardContent>
-				<CardFooter className="p-4 border-t flex justify-between text-muted-foreground">
-					<div className="flex gap-4 text-xs">
-						<div className="flex items-center gap-1">
-							<MessageSquare className="h-3 w-3" />
-							<span>0 réponses</span>
-						</div>
-						<div className="flex items-center gap-1">
-							<ThumbsUp className="h-3 w-3" />
-							<span>0 j'aime</span>
-						</div>
-					</div>
-					<Button variant="ghost" size="sm" className="h-7 text-xs">
+				<CardFooter className="p-4 border-t flex justify-end text-muted-foreground">
+					<span className="text-xs font-medium text-primary">
 						Voir la discussion →
-					</Button>
+					</span>
 				</CardFooter>
 			</Card>
 		</Link>

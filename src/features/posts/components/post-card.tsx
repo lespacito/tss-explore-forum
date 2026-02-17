@@ -1,6 +1,6 @@
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Eye, EyeOff, MessageSquare, ThumbsUp } from "lucide-react";
+import { Eye, EyeOff, MessageSquare } from "lucide-react";
 import { useState } from "react";
 import { SafeHtmlDisplay } from "@/components/tiptap/SafeHtmlDisplay";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
-	CardFooter,
 	CardHeader,
 } from "@/components/ui/card";
 import { getInitials } from "@/lib/utils/string-utils";
@@ -114,16 +113,6 @@ export function PostCard({ post, threadCategory = "" }: PostCardProps) {
 					)}
 				</div>
 			</CardContent>
-			<CardFooter className="p-4 border-t flex justify-between">
-				<Button variant="ghost" size="sm" className="gap-2">
-					<ThumbsUp className="h-4 w-4" />
-					J'aime
-				</Button>
-				<Button variant="ghost" size="sm" className="gap-2">
-					<MessageSquare className="h-4 w-4" />
-					Commenter
-				</Button>
-			</CardFooter>
 		</Card>
 	);
 }
