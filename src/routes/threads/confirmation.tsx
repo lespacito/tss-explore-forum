@@ -23,6 +23,12 @@ import { SecretCodeDisplay } from "@/features/auth/components/SecretCodeDisplay"
  */
 
 export const Route = createFileRoute("/threads/confirmation")({
+	head: () => ({
+		meta: [
+			{ title: "Votre code secret — Parlons Violence" },
+			{ name: "robots", content: "noindex, nofollow" },
+		],
+	}),
 	component: ThreadConfirmationPage,
 	validateSearch: (search: Record<string, unknown>) => {
 		return {

@@ -25,7 +25,6 @@ import {
 } from "@/lib/utils/thread-utils";
 
 export const Route = createFileRoute("/threads/$threadSlug")({
-	component: ThreadDetailPage,
 	loader: async ({ params }) => {
 		const thread = await getThreadBySlugFn({
 			data: { slug: params.threadSlug },
@@ -33,6 +32,50 @@ export const Route = createFileRoute("/threads/$threadSlug")({
 		const posts = await getPostsByThreadFn({ data: { threadId: thread.id } });
 		return { thread, posts };
 	},
+	head: ({ loaderData }) => {
+		const thread = loaderData?.thread;
+		if (!thread) return {};
+		const description = thread.body
+			.replace(/<[^>]+>/g, "")
+			.slice(0, 155)
+			.trim();
+		const url = `https://parlonsviolence.ch/threads/${thread.slug}`;
+		const title = `${thread.title} — Parlons Violence`;
+		return {
+			meta: [
+				{ title },
+				{ name: "description", content: description },
+				{ property: "og:title", content: thread.title },
+				{ property: "og:description", content: description },
+				{ property: "og:url", content: url },
+				{ property: "og:type", content: "article" },
+				{ name: "twitter:card", content: "summary" },
+				{ name: "twitter:title", content: thread.title },
+				{ name: "twitter:description", content: description },
+			],
+			links: [{ rel: "canonical", href: url }],
+			scripts: [
+				{
+					type: "application/ld+json",
+					children: JSON.stringify({
+						"@context": "https://schema.org",
+						"@type": "DiscussionForumPosting",
+						headline: thread.title,
+						description,
+						url,
+						datePublished: thread.createdAt,
+						inLanguage: "fr-CH",
+						isPartOf: {
+							"@type": "WebSite",
+							name: "Parlons Violence",
+							url: "https://parlonsviolence.ch",
+						},
+					}),
+				},
+			],
+		};
+	},
+	component: ThreadDetailPage,
 });
 
 function ThreadDetailPage() {

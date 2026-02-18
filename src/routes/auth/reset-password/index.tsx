@@ -25,6 +25,12 @@ const resetPasswordSearchSchema = z.object({
 });
 
 export const Route = createFileRoute("/auth/reset-password/")({
+	head: () => ({
+		meta: [
+			{ title: "Réinitialiser le mot de passe — Parlons Violence" },
+			{ name: "robots", content: "noindex, nofollow" },
+		],
+	}),
 	validateSearch: (search) => resetPasswordSearchSchema.parse(search),
 	component: ResetPasswordRoute,
 });

@@ -6,6 +6,37 @@ import Footer from "@/components/shadcn-studio/blocks/footer";
 import HeroSection from "@/components/shadcn-studio/blocks/hero-section/hero-section";
 
 export const Route = createFileRoute("/")({
+	head: () => ({
+		meta: [
+			{
+				title: "Parlons Violence — Forum de soutien anonyme",
+			},
+			{
+				name: "description",
+				content:
+					"Forum de soutien anonyme pour partager des expériences de violence, d'abus et de détresse. Anonymat garanti, sans inscription obligatoire.",
+			},
+			{
+				property: "og:title",
+				content: "Parlons Violence — Forum de soutien anonyme",
+			},
+			{
+				property: "og:description",
+				content:
+					"Partagez vos expériences en toute sécurité. Espace bienveillant, anonyme, et confidentiel.",
+			},
+			{
+				property: "og:url",
+				content: "https://parlonsviolence.ch",
+			},
+			{ name: "twitter:card", content: "summary" },
+			{
+				name: "twitter:title",
+				content: "Parlons Violence — Forum de soutien anonyme",
+			},
+		],
+		links: [{ rel: "canonical", href: "https://parlonsviolence.ch" }],
+	}),
 	component: App,
 });
 

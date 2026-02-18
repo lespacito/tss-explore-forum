@@ -34,6 +34,12 @@ import {
 type StatusFilter = "all" | "pending" | "published" | "rejected";
 
 export const Route = createFileRoute("/account/profile/")({
+	head: () => ({
+		meta: [
+			{ title: "Mon profil — Parlons Violence" },
+			{ name: "robots", content: "noindex, nofollow" },
+		],
+	}),
 	component: PublicProfilePage,
 	loader: async () => {
 		const session = await getAuthSessionCached();

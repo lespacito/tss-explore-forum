@@ -8,6 +8,12 @@ import {
 import { getAuthSession } from "@/features/auth/server/get-auth-session";
 
 export const Route = createFileRoute("/threads/new/")({
+	head: () => ({
+		meta: [
+			{ title: "Nouvelle discussion — Parlons Violence" },
+			{ name: "robots", content: "noindex, nofollow" },
+		],
+	}),
 	component: NewThreadPage,
 	loader: async () => {
 		const session = await getAuthSession();

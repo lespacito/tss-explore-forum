@@ -3,7 +3,6 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { logger } from "@/lib/logger/client-logger";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -22,20 +21,196 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import type { ThreadCategory } from "@/data/threads-categories";
 import { threadCategories } from "@/data/threads-categories";
 import { ThreadCard } from "@/features/threads/components/thread-card";
 import { createThreadFn } from "@/features/threads/server/actions/create-thread";
-import { getThreadsCached } from "@/features/threads/server/actions/get-threads";
+import {
+	getThreadsByCategoryFn,
+	getThreadsCached,
+} from "@/features/threads/server/actions/get-threads";
+import { logger } from "@/lib/logger/client-logger";
+import { cn } from "@/lib/utils";
+import { getCategoryColor } from "@/lib/utils/thread-utils";
+
+const VALID_CATEGORIES: readonly ThreadCategory[] = [
+	"VIOLENCE",
+	"ABUS",
+	"TEMOIN",
+	"DETRESSE",
+	"AUTRE",
+];
+
+type ThreadsSearch = { category?: ThreadCategory; openDialog?: boolean };
 
 export const Route = createFileRoute("/threads/")({
+	head: () => ({
+		meta: [
+			{ title: "Fil de discussions — Parlons Violence" },
+			{
+				name: "description",
+				content:
+					"Explorez les discussions de la communauté sur la violence, l'abus, le témoignage et la détresse. Rejoignez les échanges anonymes et bienveillants.",
+			},
+			{
+				property: "og:title",
+				content: "Fil de discussions — Parlons Violence",
+			},
+			{
+				property: "og:description",
+				content:
+					"Discussions anonymes sur la violence, l'abus et la détresse. Partagez, écoutez, soutenez.",
+			},
+			{
+				property: "og:url",
+				content: "https://parlonsviolence.ch/threads",
+			},
+		],
+		links: [
+			{ rel: "canonical", href: "https://parlonsviolence.ch/threads" },
+		],
+	}),
 	component: ThreadsPage,
-	loader: () => getThreadsCached(),
-	validateSearch: (search: Record<string, unknown>) => {
+	loader: ({ location }) => {
+		const search = location.search as Record<string, string | undefined>;
+		const rawCategory =
+			typeof search.category === "string"
+				? search.category.toUpperCase()
+				: undefined;
+		const category =
+			rawCategory && VALID_CATEGORIES.includes(rawCategory as ThreadCategory)
+				? (rawCategory as ThreadCategory)
+				: undefined;
+		return category
+			? getThreadsByCategoryFn({ data: { category } })
+			: getThreadsCached();
+	},
+	validateSearch: (search: Record<string, unknown>): ThreadsSearch => {
+		const rawCategory =
+			typeof search.category === "string"
+				? search.category.toUpperCase()
+				: undefined;
 		return {
 			openDialog: search.openDialog === true || search.openDialog === "true",
+			category:
+				rawCategory && VALID_CATEGORIES.includes(rawCategory as ThreadCategory)
+					? (rawCategory as ThreadCategory)
+					: undefined,
 		};
 	},
 });
+
+/** Filtres de catégorie — boutons accessibles (AC4) */
+function CategoryFilter({
+	activeCategory,
+}: {
+	activeCategory?: ThreadCategory;
+}) {
+	const router = useRouter();
+
+	return (
+		<fieldset className="flex flex-wrap gap-2 border-0 p-0 m-0">
+			<legend className="sr-only">Filtrer par catégorie</legend>
+			<button
+				type="button"
+				aria-pressed={!activeCategory}
+				onClick={() =>
+					router.navigate({ to: "/threads", search: {} as ThreadsSearch })
+				}
+				className={cn(
+					"px-3 py-1.5 rounded-full text-sm font-medium transition-colors",
+					!activeCategory
+						? "bg-primary text-primary-foreground"
+						: "bg-muted hover:bg-muted/80 text-muted-foreground",
+				)}
+			>
+				Toutes
+			</button>
+			{threadCategories.map((cat) => (
+				<button
+					key={cat.id}
+					type="button"
+					aria-pressed={activeCategory === cat.id}
+					onClick={() =>
+						router.navigate({
+							to: "/threads",
+							search: { category: cat.id } as ThreadsSearch,
+						})
+					}
+					className={cn(
+						"px-3 py-1.5 rounded-full text-sm font-medium transition-colors border",
+						activeCategory === cat.id
+							? getCategoryColor(cat.id)
+							: "bg-muted hover:bg-muted/80 text-muted-foreground border-transparent",
+					)}
+				>
+					{cat.icon} {cat.label}
+				</button>
+			))}
+		</fieldset>
+	);
+}
+
+/** État vide bienveillant selon contexte (AC3) */
+function EmptyThreadsState({
+	activeCategory,
+}: {
+	activeCategory?: ThreadCategory;
+}) {
+	const router = useRouter();
+
+	if (activeCategory) {
+		const catConfig = threadCategories.find((c) => c.id === activeCategory);
+		const otherCategories = threadCategories.filter(
+			(c) => c.id !== activeCategory,
+		);
+
+		return (
+			<div className="text-center py-12 space-y-4">
+				<p className="text-muted-foreground text-lg">
+					Pas encore de discussions dans cette catégorie.
+				</p>
+				<p className="text-muted-foreground text-sm">
+					{catConfig
+						? `Soyez le premier à partager une expérience dans "${catConfig.label}".`
+						: "Soyez le premier à partager votre expérience dans cette catégorie."}
+				</p>
+				<div className="flex flex-wrap justify-center gap-2 pt-2">
+					{otherCategories.map((cat) => (
+						<button
+							key={cat.id}
+							type="button"
+							onClick={() =>
+								router.navigate({
+									to: "/threads",
+									search: { category: cat.id } as ThreadsSearch,
+								})
+							}
+							className="px-3 py-1.5 rounded-full text-sm bg-muted hover:bg-muted/80 text-muted-foreground transition-colors"
+						>
+							{cat.icon} {cat.label}
+						</button>
+					))}
+				</div>
+				<button
+					type="button"
+					onClick={() =>
+						router.navigate({ to: "/threads", search: {} as ThreadsSearch })
+					}
+					className="text-sm text-primary hover:underline block mx-auto"
+				>
+					Voir toutes les discussions
+				</button>
+			</div>
+		);
+	}
+
+	return (
+		<div className="text-center py-10 text-muted-foreground">
+			Aucune discussion pour le moment. Soyez le premier à en créer une !
+		</div>
+	);
+}
 
 function ThreadsPage() {
 	const threads = Route.useLoaderData();
@@ -236,14 +411,15 @@ function ThreadsPage() {
 				</Dialog>
 			</div>
 
+			{/* Category filter — AC1, AC4 */}
+			<CategoryFilter activeCategory={search.category} />
+
 			<div className="space-y-4">
 				{threads.map((thread) => (
 					<ThreadCard key={thread.id} thread={thread} />
 				))}
 				{threads.length === 0 && (
-					<div className="text-center py-10 text-muted-foreground">
-						Aucune discussion pour le moment. Soyez le premier à en créer une !
-					</div>
+					<EmptyThreadsState activeCategory={search.category} />
 				)}
 			</div>
 		</div>

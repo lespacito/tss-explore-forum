@@ -5,6 +5,12 @@ import { signOut } from "@/features/auth/lib/auth-client";
 import { getAuthSessionCached } from "@/features/auth/server/get-auth-session";
 
 export const Route = createFileRoute("/dashboard")({
+	head: () => ({
+		meta: [
+			{ title: "Dashboard — Parlons Violence" },
+			{ name: "robots", content: "noindex, nofollow" },
+		],
+	}),
 	component: RouteComponent,
 	pendingComponent: () => (
 		<Loader2 className="animate-spin h-5 w-5 text-muted-foreground " />

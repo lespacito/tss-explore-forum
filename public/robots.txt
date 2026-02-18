@@ -1,3 +1,10 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Disallow: /auth/
+Disallow: /account/
+Disallow: /dashboard
+Disallow: /test-email
+Disallow: /threads/new/
+Disallow: /threads/confirmation
+
+Sitemap: https://parlonsviolence.ch/sitemap.xml

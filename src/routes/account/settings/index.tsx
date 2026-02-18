@@ -31,6 +31,12 @@ import { getUserSessions } from "@/features/profiles/server/get-user-sessions";
 import { getInitials } from "@/lib/utils/string-utils";
 
 export const Route = createFileRoute("/account/settings/")({
+	head: () => ({
+		meta: [
+			{ title: "Paramètres — Parlons Violence" },
+			{ name: "robots", content: "noindex, nofollow" },
+		],
+	}),
 	component: SettingsPage,
 	loader: async () => {
 		const session = await getAuthSessionCached();

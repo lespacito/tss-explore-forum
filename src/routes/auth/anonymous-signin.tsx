@@ -7,6 +7,12 @@ import { SecretCodeLoginForm } from "@/features/auth/components/SecretCodeLoginF
 import { getAuthSessionCached } from "@/features/auth/server/get-auth-session";
 
 export const Route = createFileRoute("/auth/anonymous-signin")({
+	head: () => ({
+		meta: [
+			{ title: "Connexion anonyme — Parlons Violence" },
+			{ name: "robots", content: "noindex, nofollow" },
+		],
+	}),
 	component: RouteComponent,
 	loader: async () => {
 		const session = await getAuthSessionCached();

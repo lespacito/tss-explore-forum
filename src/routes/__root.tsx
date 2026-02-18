@@ -30,13 +30,39 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 				content: "width=device-width, initial-scale=1",
 			},
 			{
-				title: "Parlons Violence - Explorez, Discutez, Agissez",
+				title: "Parlons Violence — Forum de soutien anonyme",
 			},
+			{
+				name: "description",
+				content:
+					"Parlons Violence est un forum de soutien anonyme pour partager des expériences de violence, d'abus et de détresse. Espace bienveillant, confidentiel, sans inscription obligatoire.",
+			},
+			{ property: "og:site_name", content: "Parlons Violence" },
+			{ property: "og:locale", content: "fr_CH" },
+			{ property: "og:type", content: "website" },
 		],
 		links: [
 			{
 				rel: "stylesheet",
 				href: appCss,
+			},
+			{
+				rel: "manifest",
+				href: "/manifest.json",
+			},
+		],
+		scripts: [
+			{
+				type: "application/ld+json",
+				children: JSON.stringify({
+					"@context": "https://schema.org",
+					"@type": "WebSite",
+					name: "Parlons Violence",
+					url: "https://parlonsviolence.ch",
+					description:
+						"Forum de soutien anonyme pour les victimes de violence, d'abus et de détresse.",
+					inLanguage: "fr-CH",
+				}),
 			},
 		],
 	}),

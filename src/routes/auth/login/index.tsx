@@ -14,6 +14,12 @@ const loginSearchSchema = z.object({
 });
 
 export const Route = createFileRoute("/auth/login/")({
+	head: () => ({
+		meta: [
+			{ title: "Connexion — Parlons Violence" },
+			{ name: "robots", content: "noindex, nofollow" },
+		],
+	}),
 	component: RouteComponent,
 	validateSearch: (search) => loginSearchSchema.parse(search),
 	loader: async () => {

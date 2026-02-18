@@ -7,6 +7,12 @@ const searchSchema = z.object({
 });
 
 export const Route = createFileRoute("/search/")({
+	head: () => ({
+		meta: [
+			{ title: "Recherche — Parlons Violence" },
+			{ name: "robots", content: "noindex, follow" },
+		],
+	}),
 	validateSearch: (search: Record<string, unknown>) => {
 		return searchSchema.parse(search);
 	},

@@ -628,10 +628,10 @@ Never log sensitive data. The logger auto-redacts these fields:
 **Fully Refactored Features** (server/actions/ + server/db/):
 - ✅ **Alias** - 6 DB queries in `alias-queries.ts` (153 lines)
 - ✅ **Users** - 6 DB queries in `user-queries.ts` (170 lines)
-- ✅ **Threads** - 6 DB queries in `thread-queries.ts` (183 lines)
-- ✅ **Posts** - 6 DB queries in `post-queries.ts` (186 lines)
+- ✅ **Threads** - 6 DB queries in `thread-queries.ts` (228 lines)
+- ✅ **Posts** - 5 DB queries in `post-queries.ts` (184 lines)
 
-**Total:** 24 reusable DB functions, 692 lines, zero duplication
+**Total:** 23 reusable DB functions, 735 lines, zero duplication
 
 **Features Not Yet Refactored:**
 - ⏳ **Auth** - Complex security requirements, deferred

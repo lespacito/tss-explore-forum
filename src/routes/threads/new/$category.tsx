@@ -22,6 +22,9 @@ import { useAutoSaveDraft } from "@/hooks/useAutoSaveDraft";
 import { validateHtmlContent } from "@/lib/security/validate-html-content";
 
 export const Route = createFileRoute("/threads/new/$category")({
+	head: () => ({
+		meta: [{ name: "robots", content: "noindex, nofollow" }],
+	}),
 	component: NewThreadFormPage,
 });
 

@@ -67,6 +67,9 @@ const sendTestEmailFn = createServerFn({ method: "POST" })
 	});
 
 export const Route = createFileRoute("/test-email")({
+	head: () => ({
+		meta: [{ name: "robots", content: "noindex, nofollow" }],
+	}),
 	component: TestEmailPage,
 });
 

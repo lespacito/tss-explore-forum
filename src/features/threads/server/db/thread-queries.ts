@@ -52,6 +52,41 @@ export async function getAllPublishedThreads() {
 }
 
 /**
+ * Get published threads filtered by category (non-deleted only)
+ * Pure database query - filters by status, soft delete and category
+ *
+ * @param category - The thread category to filter by
+ * @returns Array of threads with alias and user data for the given category, ordered by creation date (newest first)
+ *
+ * @example
+ * ```typescript
+ * const threads = await getPublishedThreadsByCategory("VIOLENCE");
+ * console.log(`Found ${threads.length} violence threads`);
+ * ```
+ */
+export async function getPublishedThreadsByCategory(category: ThreadCategory) {
+	const result = await db
+		.select(threadWithAliasSelect)
+		.from(threads)
+		.where(
+			and(
+				eq(threads.status, "published"),
+				isNull(threads.deletedAt),
+				eq(threads.category, category),
+			),
+		)
+		.leftJoin(alias, eq(threads.aliasId, alias.id))
+		.leftJoin(user, eq(alias.userId, user.id))
+		.orderBy(desc(threads.createdAt));
+
+	return result.map((thread) => ({
+		...thread,
+		createdAt: thread.createdAt.toISOString(),
+		updatedAt: thread.updatedAt.toISOString(),
+	}));
+}
+
+/**
  * Get a single thread by its slug
  * Pure database query - returns thread with alias and user data
  *
