@@ -2,6 +2,11 @@ import { FormBase, type FormControlProps } from "@/components/form/FormBase";
 import { useFieldContext } from "@/components/form/hooks";
 import { Input } from "@/components/ui/input";
 
+/**
+ * Renders a text input bound to the current form field.
+ *
+ * @returns The rendered form input.
+ */
 export function FormInput(props: FormControlProps) {
 	const field = useFieldContext<string>();
 	return (

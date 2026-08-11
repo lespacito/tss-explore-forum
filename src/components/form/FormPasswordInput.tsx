@@ -2,6 +2,12 @@ import { FormBase, type FormControlProps } from "@/components/form/FormBase";
 import { useFieldContext } from "@/components/form/hooks";
 import PasswordInput from "@/components/ui/password-input";
 
+/**
+ * Renders a password input connected to the current form field.
+ *
+ * @param props - Form control properties forwarded to the form container
+ * @returns The rendered password form field
+ */
 export function FormPasswordInput(props: FormControlProps) {
 	const field = useFieldContext<string>();
 	return (
