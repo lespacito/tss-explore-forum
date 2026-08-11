@@ -9,6 +9,11 @@ export function FormDisplayUsernameInput(props: FormControlProps) {
 			<Input
 				id={field.name}
 				name={field.name}
+				aria-invalid={
+					props["aria-invalid"] ||
+					(field.state.meta.isTouched && !field.state.meta.isValid) ||
+					undefined
+				}
 				value={field.state.value}
 				onChange={(e) => field.handleChange(e.target.value)}
 				onBlur={field.handleBlur}
