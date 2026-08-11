@@ -30,7 +30,7 @@ export function FormBase({
 }: FormBaseProps) {
 	const field = useFieldContext<string>();
 	const isInvalid =
-		externalAriaInvalid ??
+		externalAriaInvalid ||
 		(field.state.meta.isTouched && !field.state.meta.isValid);
 	const labelElement = (
 		<>
