@@ -31,6 +31,9 @@ export default function ActionButton({
 	className,
 	onClick,
 	requireAreYouSure,
+	disabled,
+	type = "submit",
+	...buttonProps
 }: props) {
 	const button = (
 		<Button
@@ -44,14 +47,15 @@ export default function ActionButton({
 							}
 						: undefined
 			}
-			type="submit"
-			disabled={isPending}
+			type={type}
+			disabled={disabled || isPending}
 			variant={variant}
 			size={size}
 			className={cn(
 				className,
 				"inline-grid place-items-center [grid-template-areas:'stack']",
 			)}
+			{...buttonProps}
 		>
 			<span
 				className={cn(
