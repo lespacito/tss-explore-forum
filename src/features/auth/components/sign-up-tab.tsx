@@ -57,59 +57,52 @@ export const SignUpTab = ({
 					...value,
 					callbackURL: "/",
 				},
-				{
-					onError: (error) => {
-						// Parser l'erreur avec le parseur centralisé
-						const parsed = parseSignUpError(error);
-
-						// Afficher le message dans un toast
-						toast.error(parsed.message);
-
-						// Logger l'erreur pour le debug
-						logger.error("Erreur durant l'inscription", {
-							message: error instanceof Error ? error.message : String(error),
-							stack: error instanceof Error ? error.stack : undefined,
-							parsedField: parsed.field,
-						});
-
-						// Mapper l'erreur vers le champ spécifique si identifié
-						if (parsed.field) {
-							setServerErrors((prev) => ({
-								...prev,
-								[parsed.field as keyof SignUpInput]: parsed.message,
-							}));
-						}
-					},
-					onSuccess: async (context) => {
-						await sendWelcomeEmailFn({
-							data: {
-								email: value.email,
-								name: value.name,
-							},
-						});
-						toast.success("Inscription réussie ! Bienvenue à bord !");
-
-						// Si l'utilisateur était anonyme, proposer de lier ses publications
-						if (anonymousUserId && context?.data?.user?.id) {
-							logger.info(
-								"Anonymous user signed up, preparing to show link modal",
-								{
-									anonymousUserId,
-									newUserId: context.data.user.id,
-								},
-							);
-
-							setPendingEmailVerification({
-								email: value.email,
-								newUserId: context.data.user.id,
-							});
-							setShowLinkModal(true);
-						}
-					},
-				},
+				{},
 			);
 
-			if (!res.error) form.reset();
+			if (res.error) {
+				const parsed = parseSignUpError(res.error);
+				toast.error(parsed.message);
+				logger.error("Erreur durant l'inscription", {
+					message: res.error.message,
+					stack: res.error.stack,
+					parsedField: parsed.field,
+				});
+				if (parsed.field) {
+					setServerErrors((prev) => ({
+						...prev,
+						[parsed.field as keyof SignUpInput]: parsed.message,
+					}));
+				}
+				return;
+			}
+
+			if (res.data?.user) {
+				await sendWelcomeEmailFn({
+					data: {
+						email: value.email,
+						name: value.name,
+					},
+				});
+				toast.success("Inscription réussie ! Bienvenue à bord !");
+
+				if (anonymousUserId) {
+					logger.info(
+						"Anonymous user signed up, preparing to show link modal",
+						{
+							anonymousUserId,
+							newUserId: res.data.user.id,
+						},
+					);
+					setPendingEmailVerification({
+						email: value.email,
+						newUserId: res.data.user.id,
+					});
+					setShowLinkModal(true);
+				}
+			}
+
+			form.reset();
 
 			// Ne rediriger vers email verification que si ce n'est PAS un utilisateur anonyme
 			// (pour les anonymes, on redirige après le choix dans la modal)
@@ -200,11 +193,11 @@ export const SignUpTab = ({
 			<form.Subscribe
 				selector={(state) => ({
 					isSubmitting: state.isSubmitting,
-					canSubmit: state.canSubmit,
 					isDirty: state.isDirty,
+					values: state.values,
 				})}
 			>
-				{({ isSubmitting, canSubmit, isDirty }) => (
+				{({ isSubmitting, isDirty, values }) => (
 					<Field orientation="horizontal">
 						<ActionButton
 							type="button"
@@ -217,7 +210,11 @@ export const SignUpTab = ({
 						</ActionButton>
 						<ActionButton
 							isPending={isSubmitting}
-							disabled={!canSubmit || isSubmitting}
+							disabled={
+								!isDirty ||
+								!signUpSchema.safeParse(values).success ||
+								isSubmitting
+							}
 						>
 							S'inscrire
 						</ActionButton>
