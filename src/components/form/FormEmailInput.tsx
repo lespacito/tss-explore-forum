@@ -2,6 +2,11 @@ import { FormBase, type FormControlProps } from "@/components/form/FormBase";
 import { useFieldContext } from "@/components/form/hooks";
 import { Input } from "@/components/ui/input";
 
+/**
+ * Renders a form-controlled email input.
+ *
+ * @param props - Properties applied to the form control.
+ */
 export function FormEmailInput(props: FormControlProps) {
 	const field = useFieldContext<string>();
 	return (

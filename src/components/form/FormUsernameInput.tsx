@@ -2,6 +2,12 @@ import { FormBase, type FormControlProps } from "@/components/form/FormBase";
 import { useFieldContext } from "@/components/form/hooks";
 import { Input } from "@/components/ui/input";
 
+/**
+ * Renders a form-controlled username input.
+ *
+ * @param props - Form control properties applied to the field container
+ * @returns The username input component
+ */
 export function FormUsernameInput(props: FormControlProps) {
 	const field = useFieldContext<string>();
 	return (

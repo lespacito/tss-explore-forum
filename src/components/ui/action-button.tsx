@@ -23,6 +23,13 @@ interface props
 	requireAreYouSure?: boolean;
 }
 
+/**
+ * Renders a button with optional loading and confirmation states.
+ *
+ * @param isPending - Displays a loading indicator and disables the button while true.
+ * @param requireAreYouSure - Requires confirmation before invoking `onClick`.
+ * @returns The rendered button, optionally wrapped in a confirmation dialog.
+ */
 export default function ActionButton({
 	children,
 	isPending,

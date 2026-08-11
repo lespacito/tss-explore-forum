@@ -20,6 +20,15 @@ type FormBaseProps = FormControlProps & {
 	controlFirst?: boolean;
 };
 
+/**
+ * Renders a form field with its label, description, control, and validation errors.
+ *
+ * @param description - Optional descriptive text displayed with the label
+ * @param controlFirst - Places the control before the label content when `true`
+ * @param horizontal - Uses a horizontal field layout when `true`
+ * @param externalAriaInvalid - Explicitly marks the field as invalid when `true`
+ * @returns The rendered form field
+ */
 export function FormBase({
 	children,
 	label,
