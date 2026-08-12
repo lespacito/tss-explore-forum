@@ -159,7 +159,7 @@ function ResetPasswordRoute() {
 								isDirty: state.isDirty,
 							})}
 						>
-							{({ isSubmitting, canSubmit, isDirty }) => (
+							{({ isSubmitting, canSubmit, isDirty: _isDirty }) => (
 								<Field orientation="horizontal">
 									<ActionButton
 										isPending={isSubmitting}

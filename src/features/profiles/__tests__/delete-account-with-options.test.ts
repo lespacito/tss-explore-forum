@@ -96,7 +96,7 @@ describe("deleteAccountWithOptions Handler Logic", () => {
 			);
 
 			await expect(
-				auth.api.deleteUser({ headers: new Headers() }),
+				(auth.api.deleteUser as any)({ headers: new Headers() }),
 			).rejects.toThrow("Invalid password");
 		});
 
@@ -130,7 +130,7 @@ describe("deleteAccountWithOptions Handler Logic", () => {
 				success: true,
 			} as any);
 
-			await auth.api.deleteUser({ headers: new Headers() });
+			await (auth.api.deleteUser as any)({ headers: new Headers() });
 
 			expect(auth.api.deleteUser).toHaveBeenCalledWith({
 				headers: expect.any(Headers),
@@ -148,7 +148,7 @@ describe("deleteAccountWithOptions Handler Logic", () => {
 			// - aliases (onDelete: cascade)
 			// - threads/posts via alias CASCADE
 
-			await auth.api.deleteUser({ headers: new Headers() });
+			await (auth.api.deleteUser as any)({ headers: new Headers() });
 			expect(auth.api.deleteUser).toHaveBeenCalled();
 		});
 	});
@@ -197,7 +197,6 @@ describe("deleteAccountWithOptions Handler Logic", () => {
 
 		it("should transfer threads to system alias", async () => {
 			const systemAliasId = "system-deleted-alias";
-			const userAliasId = "user-alias-123";
 
 			const mockUpdate = vi.fn(() => ({
 				set: vi.fn(() => ({
@@ -227,7 +226,7 @@ describe("deleteAccountWithOptions Handler Logic", () => {
 		});
 
 		it("should handle system alias not found error", async () => {
-			vi.mocked(db.query.alias.findFirst).mockResolvedValue(null);
+			vi.mocked(db.query.alias.findFirst).mockResolvedValue(null as any);
 
 			const systemAlias = await db.query.alias.findFirst({
 				where: {} as any,
@@ -269,7 +268,7 @@ describe("deleteAccountWithOptions Handler Logic", () => {
 			);
 
 			await expect(
-				auth.api.deleteUser({ headers: new Headers() }),
+				(auth.api.deleteUser as any)({ headers: new Headers() }),
 			).rejects.toThrow("Database connection failed");
 		});
 
@@ -291,7 +290,7 @@ describe("deleteAccountWithOptions Handler Logic", () => {
 
 			// Anonymization happens, then deletion fails
 			await expect(
-				auth.api.deleteUser({ headers: new Headers() }),
+				(auth.api.deleteUser as any)({ headers: new Headers() }),
 			).rejects.toThrow("Deletion failed");
 
 			// In real handler, content should NOT be anonymized if deletion fails
@@ -311,6 +310,7 @@ describe("deleteAccountWithOptions Handler Logic", () => {
 			const userFriendlyError =
 				"Une erreur est survenue lors de la suppression";
 
+			expect(technicalError).toContain("constraint");
 			expect(userFriendlyError).not.toContain("constraint");
 			expect(userFriendlyError).not.toContain("violation");
 			expect(userFriendlyError).toMatch(/erreur/i);
@@ -328,7 +328,7 @@ describe("deleteAccountWithOptions Handler Logic", () => {
 			// - Deletes session records (CASCADE)
 			// - Clears cookies
 
-			await auth.api.deleteUser({ headers: new Headers() });
+			await (auth.api.deleteUser as any)({ headers: new Headers() });
 			expect(auth.api.deleteUser).toHaveBeenCalled();
 		});
 	});
@@ -345,7 +345,7 @@ describe("deleteAccountWithOptions Handler Logic", () => {
 			const data = {
 				password: "TestPass123!",
 				retentionOption: "delete_all" as const,
-				confirmDeletion: true,
+				confirmationChecked: true,
 			};
 
 			expect(data.password).toBeDefined();
@@ -356,10 +356,10 @@ describe("deleteAccountWithOptions Handler Logic", () => {
 			const data = {
 				password: "TestPass123!",
 				retentionOption: "anonymize" as const,
-				confirmDeletion: true,
+				confirmationChecked: true,
 			};
 
-			expect(typeof data.confirmDeletion).toBe("boolean");
+			expect(typeof data.confirmationChecked).toBe("boolean");
 		});
 	});
 });

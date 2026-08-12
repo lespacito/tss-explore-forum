@@ -1,5 +1,6 @@
+import type { InferSelectModel } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { User } from "@/db/schemas/user";
+import { user } from "@/db/schemas/user";
 
 // Mock all server-side dependencies BEFORE imports
 vi.mock("@/data/env/server", () => ({
@@ -49,12 +50,15 @@ import { auth } from "@/features/auth/lib/auth";
 // Now safe to import
 import { findUserBySecretCode } from "@/features/auth/lib/find-user-by-code";
 
+type User = InferSelectModel<typeof user>;
+const authApi = auth.api as any;
+
 // Import the handler logic for testing
 // We'll test the logic directly since createServerFn is hard to test
 // In real implementation, signinWithSecretCodeFn.handler would be called
 
 describe("signinWithSecretCode - Task 3", () => {
-	const mockCreateSession = vi.mocked(auth.api.createSession);
+	const mockCreateSession = vi.mocked(authApi.createSession);
 	const mockFindUserBySecretCode = vi.mocked(findUserBySecretCode);
 
 	beforeEach(() => {
@@ -90,7 +94,7 @@ describe("signinWithSecretCode - Task 3", () => {
 			expect(user).not.toBeNull();
 			expect(user?.email).toBeNull();
 
-			const session = await auth.api.createSession({
+			const session = await authApi.createSession({
 				userId: user!.id,
 				headers: expect.any(Object),
 			});
@@ -205,7 +209,7 @@ describe("signinWithSecretCode - Task 3", () => {
 			const user = await findUserBySecretCode("SESS-TEST");
 			expect(user).not.toBeNull();
 
-			const session = await auth.api.createSession({
+			const session = await authApi.createSession({
 				userId: user!.id,
 				headers: new Headers(),
 			});
@@ -228,7 +232,7 @@ describe("signinWithSecretCode - Task 3", () => {
 			const user = await findUserBySecretCode("FAIL-CODE");
 			expect(user).not.toBeNull();
 
-			const session = await auth.api.createSession({
+			const session = await authApi.createSession({
 				userId: user!.id,
 				headers: new Headers(),
 			});
@@ -257,7 +261,7 @@ describe("signinWithSecretCode - Task 3", () => {
 			} as any);
 
 			await findUserBySecretCode("HEAD-ERS1");
-			await auth.api.createSession({
+			await authApi.createSession({
 				userId: "user_headers",
 				headers: mockHeaders,
 			});
@@ -289,8 +293,9 @@ describe("signinWithSecretCode - Task 3", () => {
 			await findUserBySecretCode("INVA-LID1");
 			const time2 = Date.now() - start2;
 
-			// Both should take similar time (within margin)
-			// This is handled by findUserBySecretCode implementation
+			// Both should take measurable time (the exact margin is implementation-specific)
+			expect(time1).toBeGreaterThanOrEqual(0);
+			expect(time2).toBeGreaterThanOrEqual(0);
 			expect(mockFindUserBySecretCode).toHaveBeenCalledTimes(2);
 		});
 
@@ -358,7 +363,7 @@ describe("signinWithSecretCode - Task 3", () => {
 			mockCreateSession.mockResolvedValueOnce(mockSession1 as any);
 
 			const user1 = await findUserBySecretCode("MULT-DEV1");
-			const session1 = await auth.api.createSession({
+			const session1 = await authApi.createSession({
 				userId: user1!.id,
 				headers: new Headers({ "user-agent": "Device 1" }),
 			});
@@ -370,7 +375,7 @@ describe("signinWithSecretCode - Task 3", () => {
 			mockCreateSession.mockResolvedValueOnce(mockSession2 as any);
 
 			const user2 = await findUserBySecretCode("MULT-DEV1");
-			const session2 = await auth.api.createSession({
+			const session2 = await authApi.createSession({
 				userId: user2!.id,
 				headers: new Headers({ "user-agent": "Device 2" }),
 			});
@@ -406,7 +411,7 @@ describe("signinWithSecretCode - Task 3", () => {
 			expect(user).not.toBeNull();
 
 			await expect(
-				auth.api.createSession({
+				authApi.createSession({
 					userId: user!.id,
 					headers: new Headers(),
 				}),

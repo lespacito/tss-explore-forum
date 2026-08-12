@@ -1,8 +1,8 @@
 import { AlertTriangle, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { logger } from "@/lib/logger/client-logger";
 import { z } from "zod";
+import { logger } from "@/lib/logger/client-logger";
 import { useAppForm } from "@/components/form/hooks";
 import {
 	AlertDialog,
@@ -19,13 +19,6 @@ import { authClient } from "@/features/auth/lib/auth-client";
 
 type RetentionOption = "delete_all" | "anonymize";
 
-const deletionSchema = z.object({
-	retentionOption: z.enum(["delete_all", "anonymize"]),
-	confirmationChecked: z.boolean().refine((val) => val === true, {
-		message: "Vous devez confirmer que vous comprenez cette action",
-	}),
-	password: z.string().min(1, "Le mot de passe est requis"),
-});
 
 export const AccountDeletion = () => {
 	const [isOpen, setIsOpen] = useState(false);
@@ -39,7 +32,7 @@ export const AccountDeletion = () => {
 			confirmationChecked: false,
 			password: "",
 		},
-		onSubmit: async ({ value }) => {
+		onSubmit: async ({ value: _value }) => {
 			setIsSubmitting(true);
 
 			try {
@@ -198,11 +191,7 @@ export const AccountDeletion = () => {
 									}}
 								>
 									{(field) => (
-										<field.CheckboxInput
-											label="Je comprends que cette action est irréversible et que je ne pourrai plus me reconnecter avec mes identifiants"
-											controlFirst
-											horizontal
-										/>
+										<field.CheckboxInput label="Je comprends que cette action est irréversible et que je ne pourrai plus me reconnecter avec mes identifiants" />
 									)}
 								</form.AppField>
 							</div>

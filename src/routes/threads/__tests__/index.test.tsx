@@ -166,7 +166,7 @@ describe("ThreadCard with different categories", () => {
 describe("Empty state logic", () => {
 	it("should render nothing when threads array is empty (map produces no elements)", () => {
 		const threads: typeof baseThread[] = [];
-		const { container } = render(
+		render(
 			<div data-testid="thread-list">
 				{threads.map((thread) => (
 					<ThreadCard key={thread.id} thread={thread} />

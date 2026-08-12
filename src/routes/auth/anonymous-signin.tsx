@@ -13,7 +13,8 @@ export const Route = createFileRoute("/auth/anonymous-signin")({
 		// Si l'utilisateur est déjà connecté, rediriger vers /posts
 		if (session?.user) {
 			throw redirect({
-				to: "/posts",
+				to: "/threads",
+				search: { openDialog: false },
 			});
 		}
 		return {
@@ -64,7 +65,7 @@ function RouteComponent() {
 								Vous n'avez pas encore publié anonymement ?
 							</p>
 							<Button variant="outline" asChild>
-								<Link to="/threads">Créer ma première publication anonyme</Link>
+								<Link to="/threads" search={{ openDialog: false }}>Créer ma première publication anonyme</Link>
 							</Button>
 						</div>
 

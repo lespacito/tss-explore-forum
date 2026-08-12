@@ -64,7 +64,7 @@ test.describe("Task 6: E2E Category Selection Tests", () => {
 
 	test.describe("Subtask 6.3: Registered user flow (placeholder)", () => {
 		test.skip("should allow registered user to access and select category", async ({
-			page,
+			_page,
 		}) => {
 			// TODO: Implement after authentication is fully set up
 			// This test would:

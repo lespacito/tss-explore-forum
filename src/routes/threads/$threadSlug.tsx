@@ -102,7 +102,7 @@ function ThreadDetailPage() {
 			{/* Header avec retour */}
 			<div className="flex items-center gap-4">
 				<Button variant="ghost" size="sm" asChild>
-					<Link to="/threads">
+					<Link to="/threads" search={{ openDialog: false }}>
 						<ArrowLeft className="h-4 w-4 mr-2" />
 						Retour aux threads
 					</Link>

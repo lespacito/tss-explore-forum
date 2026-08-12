@@ -28,9 +28,7 @@ const createThreadSchema = z.object({
 		.string()
 		.min(1, "Le contenu ne peut pas être vide")
 		.max(10000, "Le contenu ne peut pas dépasser 10000 caractères"),
-	category: z.enum(["VIOLENCE", "ABUS", "TEMOIN", "DETRESSE", "AUTRE"], {
-		errorMap: () => ({ message: "Catégorie invalide" }),
-	}),
+	category: z.enum(["VIOLENCE", "ABUS", "TEMOIN", "DETRESSE", "AUTRE"]),
 });
 
 describe("createThreadFn - Status Field (Story 2.4)", () => {

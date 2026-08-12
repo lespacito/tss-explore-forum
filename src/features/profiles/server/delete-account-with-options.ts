@@ -7,7 +7,6 @@ import { auth } from "@/features/auth/lib/auth";
 import { deleteAccountSchema } from "@/features/profiles/schemas/delete-account-schema";
 import { logger } from "@/lib/logger/server";
 
-const SYSTEM_DELETED_USER_ID = "system-deleted-user";
 const SYSTEM_DELETED_ALIAS_ID = "system-deleted-alias";
 
 /**
@@ -146,7 +145,7 @@ export const deleteAccountWithOptionsFn = createServerFn({
 			const userId = session.user.id;
 
 			// 2. Validate confirmation
-			if (!data.confirmDeletion) {
+			if (!data.confirmationChecked) {
 				throw new Error("La confirmation est requise");
 			}
 
@@ -213,7 +212,7 @@ export const deleteAccountWithOptionsFn = createServerFn({
 			// - Account deletion
 			// - CASCADE deletion of aliases (if delete_all)
 			try {
-				await auth.api.deleteUser({
+				await (auth.api.deleteUser as any)({
 					headers: request.headers,
 				});
 			} catch (error) {

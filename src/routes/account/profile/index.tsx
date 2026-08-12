@@ -222,7 +222,7 @@ function PublicProfilePage() {
 										<>
 											<p>Vous n'avez pas encore créé de publication.</p>
 											<Button asChild className="mt-4" variant="outline">
-												<Link to="/threads">Explorer les discussions</Link>
+												<Link to="/threads" search={{ openDialog: false }}>Explorer les discussions</Link>
 											</Button>
 										</>
 									) : (
@@ -244,7 +244,7 @@ function PublicProfilePage() {
 									<MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
 									<p>Vous n'avez pas encore posté de réponse.</p>
 									<Button asChild className="mt-4" variant="outline">
-										<Link to="/threads">Participer aux discussions</Link>
+										<Link to="/threads" search={{ openDialog: false }}>Participer aux discussions</Link>
 									</Button>
 								</div>
 							) : (
@@ -311,7 +311,7 @@ function UserThreadCard({
 		status: "pending" | "published" | "rejected";
 		isSensitive: boolean;
 		rejectionReason: string | null;
-		moderatedAt: string | null;
+		moderatedAt: Date | string | null;
 		createdAt: Date | string;
 		updatedAt: Date | string;
 		aliasName: string | null;

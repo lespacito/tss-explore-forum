@@ -35,19 +35,19 @@ export const Route = createFileRoute("/threads/confirmation")({
 
 function ThreadConfirmationPage() {
 	const navigate = useNavigate();
-	const { secretCode, threadSlug, isFirstPublication } = useSearch({
+	const { secretCode, isFirstPublication } = useSearch({
 		from: "/threads/confirmation",
 	});
 
 	const handleContinue = () => {
 		// Story 2.4: Thread is pending moderation, not publicly visible yet
 		// Navigate to threads list instead of thread detail
-		navigate({ to: "/threads" });
+		navigate({ to: "/threads", search: { openDialog: false } });
 	};
 
 	// If no secret code provided, redirect to threads
 	if (!secretCode || !isFirstPublication) {
-		navigate({ to: "/threads" });
+		navigate({ to: "/threads", search: { openDialog: false } });
 		return null;
 	}
 
@@ -99,7 +99,7 @@ function ThreadConfirmationPage() {
 
 				<Button
 					variant="outline"
-					onClick={() => navigate({ to: "/threads" })}
+					onClick={() => navigate({ to: "/threads", search: { openDialog: false } })}
 					size="lg"
 					className="w-full sm:w-auto"
 				>

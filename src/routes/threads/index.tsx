@@ -22,7 +22,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { threadCategories } from "@/data/threads-categories";
+import { type ThreadCategory, threadCategories } from "@/data/threads-categories";
 import { ThreadCard } from "@/features/threads/components/thread-card";
 import { createThreadFn } from "@/features/threads/server/actions/create-thread";
 import { getThreadsCached } from "@/features/threads/server/actions/get-threads";
@@ -50,7 +50,7 @@ function ThreadsPage() {
 			// Clear the search param after opening
 			router.navigate({
 				to: "/threads",
-				search: {},
+				search: { openDialog: false },
 				replace: true,
 			});
 		}
@@ -78,18 +78,18 @@ function ThreadsPage() {
 					data: {
 						title: value.title,
 						body: value.body,
-						category: value.category,
+						category: value.category as ThreadCategory,
 					},
 				});
 
 				// Check if secret code was generated for first publication
-				if (result.isFirstPublication && result.secretCode && result.thread) {
+				if ((result as any).isFirstPublication && (result as any).secretCode && (result as any).thread) {
 					// Redirect to confirmation page with secret code
 					router.navigate({
 						to: "/threads/confirmation",
 						search: {
-							secretCode: result.secretCode,
-							threadSlug: result.thread.slug,
+							secretCode: (result as any).secretCode,
+							threadSlug: (result as any).thread.slug,
 							isFirstPublication: true,
 						},
 					});

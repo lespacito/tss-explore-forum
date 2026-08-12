@@ -13,7 +13,7 @@ export const Route = createFileRoute("/threads/new/")({
 		const session = await getAuthSession();
 
 		// Redirect to login if no session
-		if (!session) {
+		if (!session?.user) {
 			throw redirect({
 				to: "/auth/login",
 				search: { redirect: "/threads/new" },

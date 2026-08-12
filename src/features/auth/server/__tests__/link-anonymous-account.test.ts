@@ -110,9 +110,9 @@ describe("linkAnonymousAccountFn handler logic", () => {
 
 		it("should reject when newUserId does not match session user", async () => {
 			mockGetAuthSession.mockResolvedValueOnce({
-				user: { id: "different-user-789" },
+				user: { id: "different-user-789" } as any,
 				isAuthenticated: true,
-				session: { id: "session-1" },
+				session: { id: "session-1" } as any,
 			});
 
 			const authContext = await getAuthSession();
@@ -138,9 +138,9 @@ describe("linkAnonymousAccountFn handler logic", () => {
 
 		it("should allow when newUserId matches session user", async () => {
 			mockGetAuthSession.mockResolvedValueOnce({
-				user: { id: "reg-456" },
+				user: { id: "reg-456" } as any,
 				isAuthenticated: true,
-				session: { id: "session-1" },
+				session: { id: "session-1" } as any,
 			});
 
 			const authContext = await getAuthSession();
@@ -158,9 +158,9 @@ describe("linkAnonymousAccountFn handler logic", () => {
 			];
 
 			mockGetAuthSession.mockResolvedValueOnce({
-				user: { id: "reg-456" },
+				user: { id: "reg-456" } as any,
 				isAuthenticated: true,
-				session: { id: "session-1" },
+				session: { id: "session-1" } as any,
 			});
 			mockReturning.mockResolvedValueOnce(mockAliases);
 
@@ -201,9 +201,9 @@ describe("linkAnonymousAccountFn handler logic", () => {
 
 		it("should handle case with zero aliases to migrate", async () => {
 			mockGetAuthSession.mockResolvedValueOnce({
-				user: { id: "reg-456" },
+				user: { id: "reg-456" } as any,
 				isAuthenticated: true,
-				session: { id: "session-1" },
+				session: { id: "session-1" } as any,
 			});
 			mockReturning.mockResolvedValueOnce([]);
 
@@ -248,9 +248,9 @@ describe("linkAnonymousAccountFn handler logic", () => {
 	describe("Error handling", () => {
 		it("should handle database errors gracefully", async () => {
 			mockGetAuthSession.mockResolvedValueOnce({
-				user: { id: "reg-456" },
+				user: { id: "reg-456" } as any,
 				isAuthenticated: true,
-				session: { id: "session-1" },
+				session: { id: "session-1" } as any,
 			});
 			mockReturning.mockRejectedValueOnce(new Error("Connection timeout"));
 
@@ -288,9 +288,9 @@ describe("linkAnonymousAccountFn handler logic", () => {
 
 		it("should return structured error response on failure", async () => {
 			mockGetAuthSession.mockResolvedValueOnce({
-				user: { id: "reg-456" },
+				user: { id: "reg-456" } as any,
 				isAuthenticated: true,
-				session: { id: "session-1" },
+				session: { id: "session-1" } as any,
 			});
 			mockReturning.mockRejectedValueOnce(new Error("DB error"));
 
@@ -325,9 +325,9 @@ describe("linkAnonymousAccountFn handler logic", () => {
 	describe("Return value structure", () => {
 		it("should return success with linkedPostsCount on success", async () => {
 			mockGetAuthSession.mockResolvedValueOnce({
-				user: { id: "reg-456" },
+				user: { id: "reg-456" } as any,
 				isAuthenticated: true,
-				session: { id: "session-1" },
+				session: { id: "session-1" } as any,
 			});
 			mockReturning.mockResolvedValueOnce([
 				{ id: "alias-1" },

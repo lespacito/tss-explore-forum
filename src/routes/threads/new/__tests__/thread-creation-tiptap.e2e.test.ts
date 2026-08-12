@@ -9,7 +9,7 @@
  * - Formatted content display validation
  */
 
-import { describe, expect, it } from "vitest";
+import { describe, it } from "vitest";
 
 describe("Thread Creation with Tiptap (E2E)", () => {
 	// NOTE: These are placeholder E2E tests

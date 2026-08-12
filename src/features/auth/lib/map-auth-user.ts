@@ -1,6 +1,6 @@
 import type { User as BetterUser } from "better-auth";
 import type { InferSelectModel } from "drizzle-orm";
-import type { user } from "@/db/schema";
+import { user, userRoles, type UserRole } from "@/db/schema";
 
 export type User = InferSelectModel<typeof user>;
 
@@ -8,7 +8,7 @@ export type User = InferSelectModel<typeof user>;
 interface BetterAuthUser extends BetterUser {
 	username?: string | null;
 	displayUsername?: string | null;
-	role?: "ADMIN" | "MODERATOR" | "USER" | "BANNED";
+	role?: string | null;
 	isAnonymous?: boolean;
 	bio?: string | null;
 	banned?: boolean;
@@ -18,6 +18,10 @@ interface BetterAuthUser extends BetterUser {
 
 interface AuthDataWithUser {
 	user?: BetterAuthUser;
+}
+
+function normalizeRole(role?: string | null): UserRole {
+	return userRoles.includes(role as UserRole) ? (role as UserRole) : "USER";
 }
 
 export function mapAuthDataToUser(
@@ -39,7 +43,7 @@ export function mapAuthDataToUser(
 		updatedAt: authUser.updatedAt,
 		username: authUser.username ?? null,
 		displayUsername: authUser.displayUsername ?? null,
-		role: authUser.role ?? "USER",
+		role: normalizeRole(authUser.role),
 		isAnonymous: authUser.isAnonymous ?? false,
 		bio: authUser.bio ?? null,
 		banned: authUser.banned ?? false,

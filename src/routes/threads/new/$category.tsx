@@ -130,7 +130,7 @@ function NewThreadFormPage() {
 		key: `draft-thread-${category}-title`,
 		value: form.state.values.title,
 		delay: 1500,
-		onRestore: (value) => {
+		onRestore: (_value) => {
 			setDraftRestored(true);
 		},
 	});
@@ -144,7 +144,7 @@ function NewThreadFormPage() {
 		key: `draft-thread-${category}-body`,
 		value: form.state.values.body,
 		delay: 1500,
-		onRestore: (value) => {
+		onRestore: (_value) => {
 			setDraftRestored(true);
 		},
 	});
@@ -278,7 +278,7 @@ function NewThreadFormPage() {
 								content={field.state.value}
 								placeholder={categoryConfig.bodyPlaceholder}
 								onChange={(html) => field.handleChange(html)}
-								onTextChange={(text, length) => setTextLength(length)}
+								onTextChange={(_text, length) => setTextLength(length)}
 							/>
 							<div className="flex justify-between items-center">
 								<div>

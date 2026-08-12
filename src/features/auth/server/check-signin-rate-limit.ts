@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { protectAuthEndpoint } from "@/features/auth/lib/security/arcjet-policies";
 import { logger } from "@/lib/logger/server";
@@ -29,7 +30,8 @@ export const checkSignInRateLimit = createServerFn({ method: "POST" })
 			username: z.string().min(1, "Username requis"),
 		}),
 	)
-	.handler(async ({ data, request }) => {
+	.handler(async ({ data }) => {
+		const request = getRequest();
 		try {
 			// Vérifier avec Arcjet: Rate limiting + Bot detection
 			const arcjetDecision = await protectAuthEndpoint({

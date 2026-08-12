@@ -62,7 +62,7 @@ import { logger } from "@/lib/logger/server";
 import { generateSecretCodeLogic } from "../generate-secret-code-fn";
 
 // Get reference to mocked db for test assertions
-const mockDb = vi.mocked(db);
+const mockDb = db as any;
 
 describe("generateSecretCodeLogic - Task 3", () => {
 	beforeEach(() => {
@@ -81,19 +81,20 @@ describe("generateSecretCodeLogic - Task 3", () => {
 			const result = await generateSecretCodeLogic(null, mockDb);
 
 			expect(result.success).toBe(false);
-			expect(result.error).toContain("authentifié");
+			expect((result as any).error).toContain("authentifié");
 		});
 
 		it("should return error if session exists but no user", async () => {
 			const session = {
 				session: { id: "session_123" } as Session,
+				isAuthenticated: false,
 				user: null,
 			};
 
 			const result = await generateSecretCodeLogic(session, mockDb);
 
 			expect(result.success).toBe(false);
-			expect(result.error).toBeDefined();
+			expect((result as any).error).toBeDefined();
 		});
 	});
 
@@ -106,6 +107,7 @@ describe("generateSecretCodeLogic - Task 3", () => {
 					isAnonymous: true,
 					secretCode: null,
 				} as any,
+				isAuthenticated: true,
 				session: {} as Session,
 			};
 
@@ -124,8 +126,8 @@ describe("generateSecretCodeLogic - Task 3", () => {
 			const result = await generateSecretCodeLogic(session, mockDb);
 
 			expect(result.success).toBe(true);
-			expect(result.secretCode).toBe("TEST-CODE-1234");
-			expect(result.isExisting).toBe(false);
+			expect((result as any).secretCode).toBe("TEST-CODE-1234");
+			expect((result as any).isExisting).toBe(false);
 		});
 
 		it("should reject registered user (isAnonymous is false)", async () => {
@@ -136,6 +138,7 @@ describe("generateSecretCodeLogic - Task 3", () => {
 					isAnonymous: false,
 					secretCode: null,
 				} as any,
+				isAuthenticated: true,
 				session: {} as Session,
 			};
 
@@ -152,7 +155,7 @@ describe("generateSecretCodeLogic - Task 3", () => {
 			const result = await generateSecretCodeLogic(session, mockDb);
 
 			expect(result.success).toBe(false);
-			expect(result.error).toContain("anonyme");
+			expect((result as any).error).toContain("anonyme");
 		});
 	});
 
@@ -165,14 +168,15 @@ describe("generateSecretCodeLogic - Task 3", () => {
 					isAnonymous: true,
 					secretCode: "EXISTING-CODE",
 				} as any,
+				isAuthenticated: true,
 				session: {} as Session,
 			};
 
 			const result = await generateSecretCodeLogic(session, mockDb);
 
 			expect(result.success).toBe(true);
-			expect(result.secretCode).toBe("EXISTING-CODE");
-			expect(result.isExisting).toBe(true);
+			expect((result as any).secretCode).toBe("EXISTING-CODE");
+			expect((result as any).isExisting).toBe(true);
 			expect(ensureUniqueCode).not.toHaveBeenCalled();
 			expect(logger.info).toHaveBeenCalledWith(
 				"Secret code already exists",
@@ -188,6 +192,7 @@ describe("generateSecretCodeLogic - Task 3", () => {
 					isAnonymous: true,
 					secretCode: null, // Not in session
 				} as any,
+				isAuthenticated: true,
 				session: {} as Session,
 			};
 
@@ -204,8 +209,8 @@ describe("generateSecretCodeLogic - Task 3", () => {
 			const result = await generateSecretCodeLogic(session, mockDb);
 
 			expect(result.success).toBe(true);
-			expect(result.secretCode).toBe("DB-EXISTING-CODE");
-			expect(result.isExisting).toBe(true);
+			expect((result as any).secretCode).toBe("DB-EXISTING-CODE");
+			expect((result as any).isExisting).toBe(true);
 			expect(ensureUniqueCode).not.toHaveBeenCalled();
 		});
 	});
@@ -219,6 +224,7 @@ describe("generateSecretCodeLogic - Task 3", () => {
 					isAnonymous: true,
 					secretCode: null,
 				} as any,
+				isAuthenticated: true,
 				session: {} as Session,
 			};
 
@@ -236,8 +242,8 @@ describe("generateSecretCodeLogic - Task 3", () => {
 			const result = await generateSecretCodeLogic(session, mockDb);
 
 			expect(result.success).toBe(true);
-			expect(result.secretCode).toBe("NEW-CODE-ABCD");
-			expect(result.isExisting).toBe(false);
+			expect((result as any).secretCode).toBe("NEW-CODE-ABCD");
+			expect((result as any).isExisting).toBe(false);
 			expect(ensureUniqueCode).toHaveBeenCalled();
 		});
 
@@ -249,6 +255,7 @@ describe("generateSecretCodeLogic - Task 3", () => {
 					isAnonymous: true,
 					secretCode: null,
 				} as any,
+				isAuthenticated: true,
 				session: {} as Session,
 			};
 
@@ -283,6 +290,7 @@ describe("generateSecretCodeLogic - Task 3", () => {
 					isAnonymous: true,
 					secretCode: null,
 				} as any,
+				isAuthenticated: true,
 				session: {} as Session,
 			};
 
@@ -323,6 +331,7 @@ describe("generateSecretCodeLogic - Task 3", () => {
 					isAnonymous: true,
 					secretCode: null,
 				} as any,
+				isAuthenticated: true,
 				session: {} as Session,
 			};
 
@@ -342,7 +351,7 @@ describe("generateSecretCodeLogic - Task 3", () => {
 			const result = await generateSecretCodeLogic(session, mockDb);
 
 			expect(result.success).toBe(false);
-			expect(result.error).toBeDefined();
+			expect((result as any).error).toBeDefined();
 			expect(logger.error).toHaveBeenCalledWith(
 				"Secret code generation failed",
 				expect.any(Object),
@@ -357,6 +366,7 @@ describe("generateSecretCodeLogic - Task 3", () => {
 					isAnonymous: true,
 					secretCode: null,
 				} as any,
+				isAuthenticated: true,
 				session: {} as Session,
 			};
 
@@ -376,7 +386,7 @@ describe("generateSecretCodeLogic - Task 3", () => {
 			const result = await generateSecretCodeLogic(session, mockDb);
 
 			expect(result.success).toBe(false);
-			expect(result.error).toBe("Impossible de générer le code secret");
+			expect((result as any).error).toBe("Impossible de générer le code secret");
 		});
 
 		it("should not expose internal error details to client", async () => {
@@ -387,6 +397,7 @@ describe("generateSecretCodeLogic - Task 3", () => {
 					isAnonymous: true,
 					secretCode: null,
 				} as any,
+				isAuthenticated: true,
 				session: {} as Session,
 			};
 
@@ -406,8 +417,8 @@ describe("generateSecretCodeLogic - Task 3", () => {
 
 			const result = await generateSecretCodeLogic(session, mockDb);
 
-			expect(result.error).not.toContain("password");
-			expect(result.error).not.toContain("5432");
+			expect((result as any).error).not.toContain("password");
+			expect((result as any).error).not.toContain("5432");
 		});
 	});
 
@@ -420,6 +431,7 @@ describe("generateSecretCodeLogic - Task 3", () => {
 					isAnonymous: true,
 					secretCode: null,
 				} as any,
+				isAuthenticated: true,
 				session: {} as Session,
 			};
 
@@ -456,6 +468,7 @@ describe("generateSecretCodeLogic - Task 3", () => {
 					isAnonymous: true,
 					secretCode: null,
 				} as any,
+				isAuthenticated: true,
 				session: {} as Session,
 			};
 
@@ -473,7 +486,7 @@ describe("generateSecretCodeLogic - Task 3", () => {
 			const result = await generateSecretCodeLogic(session, mockDb);
 
 			expect(result.success).toBe(true);
-			expect(result.secretCode).toBeDefined();
+			expect((result as any).secretCode).toBeDefined();
 		});
 	});
 
@@ -486,6 +499,7 @@ describe("generateSecretCodeLogic - Task 3", () => {
 					isAnonymous: true,
 					secretCode: null,
 				} as any,
+				isAuthenticated: true,
 				session: {} as Session,
 			};
 
@@ -517,6 +531,7 @@ describe("generateSecretCodeLogic - Task 3", () => {
 					isAnonymous: true,
 					secretCode: "EXIST-CODE-456",
 				} as any,
+				isAuthenticated: true,
 				session: {} as Session,
 			};
 
@@ -536,7 +551,7 @@ describe("generateSecretCodeLogic - Task 3", () => {
 				success: false,
 				error: expect.any(String),
 			});
-			expect(result.secretCode).toBeUndefined();
+			expect((result as any).secretCode).toBeUndefined();
 		});
 	});
 
@@ -549,6 +564,7 @@ describe("generateSecretCodeLogic - Task 3", () => {
 					isAnonymous: true,
 					secretCode: null,
 				} as any,
+				isAuthenticated: true,
 				session: {} as Session,
 			};
 
@@ -558,7 +574,7 @@ describe("generateSecretCodeLogic - Task 3", () => {
 			const result = await generateSecretCodeLogic(session, mockDb);
 
 			expect(result.success).toBe(false);
-			expect(result.error).toContain("introuvable");
+			expect((result as any).error).toContain("introuvable");
 		});
 	});
 });

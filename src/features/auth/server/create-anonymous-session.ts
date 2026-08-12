@@ -1,10 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 import { auth } from "@/features/auth/lib/auth";
 import { logger } from "@/lib/logger/server";
 
 export const createAnonymousSessionFn = createServerFn({
 	method: "POST",
-}).handler(async ({ request }) => {
+}).handler(async () => {
+	const request = getRequest();
 	try {
 		const session = await auth.api.signInAnonymous({
 			headers: request.headers,

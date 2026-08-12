@@ -1,5 +1,5 @@
 import type { Session } from "better-auth/types";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock all server-side dependencies BEFORE imports
 vi.mock("@/data/env/server", () => ({
@@ -78,7 +78,7 @@ import { db } from "@/db";
 import { ensureUniqueCode } from "@/features/auth/lib/generate-secret-code";
 import { generateSecretCodeLogic } from "@/features/auth/server/generate-secret-code-fn";
 
-const mockDb = vi.mocked(db);
+const mockDb = db as any;
 
 /**
  * Integration tests for secret code generation after first thread publication
@@ -110,9 +110,7 @@ describe("Thread Creation - Secret Code Integration (Task 4)", () => {
 	describe("Task 4.1: Detect if first publication for anonymous user", () => {
 		it("should detect when anonymous user has no previous threads", async () => {
 			// GIVEN: An anonymous user with no threads
-			const userId = "test-anon-user-1";
-			const aliasId = "test-alias-1";
-
+			
 			// Mock: Query for existing threads returns empty array
 			mockDb.limit.mockResolvedValue([]);
 
@@ -157,6 +155,7 @@ describe("Thread Creation - Secret Code Integration (Task 4)", () => {
 		it("should generate secret code for anonymous user creating first thread", async () => {
 			// GIVEN: An anonymous user creating their first thread
 			const mockSession = {
+				isAuthenticated: true,
 				user: {
 					id: "test-anon-user-3",
 					email: null,
@@ -217,6 +216,7 @@ describe("Thread Creation - Secret Code Integration (Task 4)", () => {
 			// GIVEN: An anonymous user with existing secret code
 			const existingCode = "EXISTING-CODE-123";
 			const mockSession = {
+				isAuthenticated: true,
 				user: {
 					id: "test-anon-user-4",
 					email: null,
@@ -247,6 +247,7 @@ describe("Thread Creation - Secret Code Integration (Task 4)", () => {
 		it("should not generate secret code for registered users", async () => {
 			// GIVEN: A registered user (with email)
 			const mockSession = {
+				isAuthenticated: true,
 				user: {
 					id: "test-registered-user-1",
 					email: "test-registered@example.com",
@@ -286,6 +287,7 @@ describe("Thread Creation - Secret Code Integration (Task 4)", () => {
 			// GIVEN: Anonymous user with existing code in session
 			const existingCode = "SKIP-TEST-CODE-1";
 			const mockSession = {
+				isAuthenticated: true,
 				user: {
 					id: "test-anon-user-5",
 					email: null,
@@ -318,6 +320,7 @@ describe("Thread Creation - Secret Code Integration (Task 4)", () => {
 			// GIVEN: Anonymous user without code in session but has one in DB
 			const dbCode = "DB-EXISTING-CODE";
 			const mockSession = {
+				isAuthenticated: true,
 				user: {
 					id: "test-anon-user-6",
 					email: null,
@@ -363,6 +366,7 @@ describe("Thread Creation - Secret Code Integration (Task 4)", () => {
 			const aliasId = "test-alias-7";
 
 			const mockSession = {
+				isAuthenticated: true,
 				user: {
 					id: userId,
 					email: null,
@@ -448,6 +452,7 @@ describe("Thread Creation - Secret Code Integration (Task 4)", () => {
 			const existingCode = "SECOND-POST-CODE";
 
 			const mockSession = {
+				isAuthenticated: true,
 				user: {
 					id: userId,
 					email: null,
@@ -536,6 +541,7 @@ describe("Thread Creation - Secret Code Integration (Task 4)", () => {
 		it("should handle secret code generation failure after thread creation", async () => {
 			// GIVEN: Thread created but code generation fails
 			const mockSession = {
+				isAuthenticated: true,
 				user: {
 					id: "test-user-err",
 					email: null,

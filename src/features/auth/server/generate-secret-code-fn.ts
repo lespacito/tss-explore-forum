@@ -19,7 +19,7 @@ type GenerateSecretCodeResult =
  * @returns Promise resolving to result object
  */
 export async function generateSecretCodeLogic(
-	session: Awaited<ReturnType<typeof getAuthSession>>,
+	session: Awaited<ReturnType<typeof getAuthSession>> | null,
 	dbInstance: typeof db = db,
 ): Promise<GenerateSecretCodeResult> {
 	try {

@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 import { auth } from "@/features/auth/lib/auth";
 import { protectAuthEndpoint } from "@/features/auth/lib/security/arcjet-policies";
 import { signInSchema } from "@/features/auth/schemas/sign-in-schema";
@@ -27,7 +28,8 @@ import { logger } from "@/lib/logger/server";
  */
 export const signinWithUsernameFn = createServerFn({ method: "POST" })
 	.inputValidator(signInSchema)
-	.handler(async ({ data, request }) => {
+	.handler(async ({ data }) => {
+		const request = getRequest();
 		try {
 			// 1. Protection Arcjet: Rate limiting + Bot detection
 			const arcjetDecision = await protectAuthEndpoint({
@@ -77,7 +79,7 @@ export const signinWithUsernameFn = createServerFn({ method: "POST" })
 			}
 
 			// 2. Appeler Better-Auth pour authentifier
-			const result = await auth.api.signIn.username({
+			const result = await (auth.api as any).signIn.username({
 				username: data.username,
 				password: data.password,
 				callbackURL: "/",
