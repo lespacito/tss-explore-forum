@@ -1,6 +1,8 @@
-import { db } from "@/db";
-import { alias } from "@/features/alias/schema";
-import { eq, and } from "drizzle-orm";
+import {
+	getAliasById,
+	getUserAliases,
+	getUserPrimaryAlias,
+} from "../server/db/alias-queries";
 
 /**
  * Récupère l'alias principal d'un utilisateur
@@ -17,13 +19,7 @@ import { eq, and } from "drizzle-orm";
  * ```
  */
 export async function getPrimaryAlias(userId: string) {
-  const [primaryAlias] = await db
-    .select()
-    .from(alias)
-    .where(and(eq(alias.userId, userId), eq(alias.isPrimary, true)))
-    .limit(1);
-
-  return primaryAlias || null;
+	return await getUserPrimaryAlias(userId);
 }
 
 /**
@@ -38,13 +34,7 @@ export async function getPrimaryAlias(userId: string) {
  * console.log(`L'utilisateur a ${allAliases.length} alias`);
  * ```
  */
-export async function getUserAliases(userId: string) {
-  return await db
-    .select()
-    .from(alias)
-    .where(eq(alias.userId, userId))
-    .orderBy(alias.createdAt);
-}
+export { getUserAliases } from "../server/db/alias-queries";
 
 /**
  * Récupère un alias spécifique par son ID
@@ -60,12 +50,4 @@ export async function getUserAliases(userId: string) {
  * }
  * ```
  */
-export async function getAliasById(aliasId: string) {
-  const [foundAlias] = await db
-    .select()
-    .from(alias)
-    .where(eq(alias.id, aliasId))
-    .limit(1);
-
-  return foundAlias || null;
-}
+export { getAliasById } from "../server/db/alias-queries";

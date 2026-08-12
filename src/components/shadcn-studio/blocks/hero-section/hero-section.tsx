@@ -1,117 +1,140 @@
-import { Link } from "@tanstack/react-router";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { useId } from "react";
+import { Badge } from "@/components/ui/badge";
+import { AnonymousPostButton } from "@/features/auth/components/AnonymousPostButton";
+
+type HeroImage = {
+	src: string;
+	alt: string;
+	width: number;
+	height: number;
+};
+
+const HERO_IMAGES: HeroImage[] = [
+	{
+		src: "/images/hero/community-1.webp",
+		alt: "Groupe d'amis souriants",
+		width: 400,
+		height: 533,
+	},
+	{
+		src: "/images/hero/community-2.webp",
+		alt: "Soutien mutuel",
+		width: 400,
+		height: 533,
+	},
+	{
+		src: "/images/hero/community-3.webp",
+		alt: "Collaboration au travail",
+		width: 400,
+		height: 533,
+	},
+	{
+		src: "/images/hero/community-4.webp",
+		alt: "Discussion en groupe",
+		width: 400,
+		height: 533,
+	},
+	{
+		src: "/images/hero/community-5.webp",
+		alt: "Amitié et partage",
+		width: 400,
+		height: 533,
+	},
+	{
+		src: "/images/hero/community-6.webp",
+		alt: "Réunion conviviale",
+		width: 400,
+		height: 533,
+	},
+];
 
 const HeroSection = () => {
-  const id = useId();
-  return (
-    <section
-      id={`hero-section-${id}`}
-      className="flex min-h-[calc(100dvh-4rem)] flex-1 flex-col justify-between gap-12 overflow-x-hidden pt-8 sm:gap-16 sm:pt-16 lg:gap-24 lg:pt-24"
-    >
-      {/* Hero Content */}
-      <div className="mx-auto flex max-w-7xl flex-col items-center gap-8 px-4 text-center sm:px-6 lg:px-8">
-        <div className="bg-muted flex items-center gap-2.5 rounded-full border px-3 py-2">
-          <Badge>Communauté Solidaire</Badge>
-          <span className="text-muted-foreground">
-            Anonymat et respect garantis
-          </span>
-        </div>
+	const id = useId();
+	return (
+		<section
+			id={`hero-section-${id}`}
+			className="flex min-h-[calc(100dvh-4rem)] flex-1 flex-col justify-between gap-12 overflow-x-hidden pt-8 sm:gap-16 sm:pt-16 lg:gap-24 lg:pt-24"
+		>
+			{/* Hero Content */}
+			<div className="mx-auto flex max-w-7xl flex-col items-center gap-8 px-4 text-center sm:px-6 lg:px-8">
+				<div className="bg-muted flex items-center gap-2.5 rounded-full border px-3 py-2">
+					<Badge>Communauté Solidaire</Badge>
+					<span className="text-muted-foreground">
+						Anonymat et respect garantis
+					</span>
+				</div>
 
-        <h1 className="text-3xl leading-[1.29167] font-bold font-serif text-balance sm:text-4xl lg:text-5xl">
-          Un Espace de
-          <br />
-          <span className="relative">
-            Confiance
-            <svg
-              width="223"
-              height="12"
-              viewBox="0 0 223 12"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="absolute inset-x-0 bottom-0 w-full translate-y-1/2 max-sm:hidden"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <path
-                d="M1.11716 10.428C39.7835 4.97282 75.9074 2.70494 114.894 1.98894C143.706 1.45983 175.684 0.313587 204.212 3.31596C209.925 3.60546 215.144 4.59884 221.535 5.74551"
-                stroke={`url(#paint0_linear_10365_68643-${id})`}
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-              <defs>
-                <linearGradient
-                  id={`paint0_linear_10365_68643-${id}`}
-                  x1="18.8541"
-                  y1="3.72033"
-                  x2="42.6487"
-                  y2="66.6308"
-                  gradientUnits="userSpaceOnUse"
-                >
-                  <stop stopColor="var(--primary)" />
-                  <stop offset="1" stopColor="var(--primary-foreground)" />
-                </linearGradient>
-              </defs>
-            </svg>
-          </span>{" "}
-          pour échanger
-        </h1>
+				<h1 className="text-3xl leading-[1.29167] font-bold font-serif text-balance sm:text-4xl lg:text-5xl">
+					Un Espace de
+					<br />
+					<span className="relative">
+						Confiance
+						<svg
+							width="223"
+							height="12"
+							viewBox="0 0 223 12"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg"
+							className="absolute inset-x-0 bottom-0 w-full translate-y-1/2 max-sm:hidden"
+							aria-hidden="true"
+							focusable="false"
+						>
+							<path
+								d="M1.11716 10.428C39.7835 4.97282 75.9074 2.70494 114.894 1.98894C143.706 1.45983 175.684 0.313587 204.212 3.31596C209.925 3.60546 215.144 4.59884 221.535 5.74551"
+								stroke={`url(#paint0_linear_10365_68643-${id})`}
+								strokeWidth="2"
+								strokeLinecap="round"
+							/>
+							<defs>
+								<linearGradient
+									id={`paint0_linear_10365_68643-${id}`}
+									x1="18.8541"
+									y1="3.72033"
+									x2="42.6487"
+									y2="66.6308"
+									gradientUnits="userSpaceOnUse"
+								>
+									<stop stopColor="var(--primary)" />
+									<stop offset="1" stopColor="var(--primary-foreground)" />
+								</linearGradient>
+							</defs>
+						</svg>
+					</span>{" "}
+					pour échanger
+				</h1>
 
-        <p className="text-muted-foreground">
-          Un espace d'échange bienveillant pour aborder les sujets qui vous
-          touchent.
-          <br />
-          Santé mentale, violences, difficultés... vous n'êtes plus seul(e).
-        </p>
+				<p className="text-muted-foreground">
+					Un espace d'échange bienveillant pour aborder les sujets qui vous
+					touchent.
+					<br />
+					Santé mentale, violences, difficultés... vous n'êtes plus seul(e).
+				</p>
 
-        <Button size="lg" asChild>
-          <Link to="/auth/login">Rejoindre la discussion</Link>
-        </Button>
-      </div>
+				<AnonymousPostButton />
+			</div>
 
-      {/* Images Grid */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
-        {[
-          {
-            src: "/images/hero/community-1.webp",
-            alt: "Groupe d'amis souriants",
-          },
-          {
-            src: "/images/hero/community-2.webp",
-            alt: "Soutien mutuel",
-          },
-          {
-            src: "/images/hero/community-3.webp",
-            alt: "Collaboration au travail",
-          },
-          {
-            src: "/images/hero/community-4.webp",
-            alt: "Discussion en groupe",
-          },
-          {
-            src: "/images/hero/community-5.webp",
-            alt: "Amitié et partage",
-          },
-          {
-            src: "/images/hero/community-6.webp",
-            alt: "Réunion conviviale",
-          },
-        ].map((image) => (
-          <div
-            key={image.alt}
-            className="relative aspect-3/4 overflow-hidden rounded-xl"
-          >
-            <img
-              src={image.src}
-              alt={image.alt}
-              className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
-            />
-          </div>
-        ))}
-      </div>
-    </section>
-  );
+			{/* Images Grid */}
+			<div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+				{HERO_IMAGES.map((image, index) => (
+					<div
+						key={image.alt}
+						className="relative aspect-3/4 overflow-hidden rounded-xl bg-muted"
+					>
+						<img
+							src={image.src}
+							alt={image.alt}
+							width={image.width}
+							height={image.height}
+							loading={index < 2 ? "eager" : "lazy"}
+							fetchPriority={index === 0 ? "high" : "low"}
+							decoding={index < 2 ? "sync" : "async"}
+							className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+						/>
+					</div>
+				))}
+			</div>
+		</section>
+	);
 };
 
 export default HeroSection;

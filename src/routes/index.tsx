@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import HeroSection from "@/components/shadcn-studio/blocks/hero-section/hero-section";
+import FaqSection from "@/components/shadcn-studio/blocks/faq-section";
 
 import FeaturesSection from "@/components/shadcn-studio/blocks/features-section";
-import FaqSection from "@/components/shadcn-studio/blocks/faq-section";
 import Footer from "@/components/shadcn-studio/blocks/footer";
+import HeroSection from "@/components/shadcn-studio/blocks/hero-section/hero-section";
 
 export const Route = createFileRoute("/")({
 	component: App,

@@ -5,13 +5,15 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
-	passwordChangedEmail,
-	resetPasswordEmail,
 	sendEmail,
 	verifyEmailConnection,
+} from "@/features/auth/lib/email/send";
+import {
+	passwordChangedEmail,
+	resetPasswordEmail,
 	verifyEmailTemplate,
 	welcomeEmail,
-} from "@/features/auth/lib/email";
+} from "@/features/auth/lib/email/templates";
 
 const testEmailInputSchema = z.object({
 	type: z.string(),

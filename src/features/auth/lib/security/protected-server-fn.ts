@@ -1,5 +1,6 @@
 import type { ArcjetDecision } from "@arcjet/node";
 import { getRequest } from "@tanstack/react-start/server";
+import { getContextLogger } from "@/lib/logger/server";
 import { runArcjetPolicy } from "./arcjet-policies";
 
 /**
@@ -44,13 +45,40 @@ export type ArcjetPolicyConfig = {
 export async function checkArcjet(
 	config: ArcjetPolicyConfig,
 ): Promise<ArcjetDecision> {
+	const logger = getContextLogger();
 	const request = getRequest();
 
-	return runArcjetPolicy({
-		request,
-		path: config.path,
-		email: config.email,
-	});
+	try {
+		const decision = await runArcjetPolicy({
+			request,
+			path: config.path,
+			email: config.email,
+		});
+
+		// Log la décision Arcjet
+		if (decision.isDenied()) {
+			logger.warn("Arcjet policy denied", {
+				path: config.path,
+				conclusion: decision.conclusion,
+				reason: decision.reason?.toString(),
+				ip: decision.ip,
+			});
+		} else {
+			logger.debug("Arcjet policy allowed", {
+				path: config.path,
+				conclusion: decision.conclusion,
+			});
+		}
+
+		return decision;
+	} catch (error) {
+		logger.error("Arcjet policy check failed", {
+			path: config.path,
+			error: error instanceof Error ? error.message : String(error),
+			stack: error instanceof Error ? error.stack : undefined,
+		});
+		throw error;
+	}
 }
 
 /**
@@ -66,8 +94,14 @@ export async function checkArcjet(
  * ```
  */
 export function handleArcjetDenied(decision: ArcjetDecision) {
+	const logger = getContextLogger();
+
 	// Rate limit dépassé
 	if (decision.reason?.isRateLimit?.()) {
+		logger.warn("Rate limit exceeded", {
+			conclusion: decision.conclusion,
+			ip: decision.ip,
+		});
 		return {
 			success: false as const,
 			error: "Trop de tentatives. Veuillez réessayer plus tard.",
@@ -76,6 +110,10 @@ export function handleArcjetDenied(decision: ArcjetDecision) {
 
 	// Bot détecté
 	if (decision.reason?.isBot?.()) {
+		logger.warn("Bot detected", {
+			conclusion: decision.conclusion,
+			ip: decision.ip,
+		});
 		return {
 			success: false as const,
 			error: "Accès refusé - Bot détecté",
@@ -85,6 +123,12 @@ export function handleArcjetDenied(decision: ArcjetDecision) {
 	// Validation email échouée
 	if (decision.reason?.isEmail?.()) {
 		const types = decision.reason.emailTypes || [];
+
+		logger.warn("Email validation failed", {
+			conclusion: decision.conclusion,
+			emailTypes: types,
+			ip: decision.ip,
+		});
 
 		if (types.includes("INVALID")) {
 			return {
@@ -118,6 +162,12 @@ export function handleArcjetDenied(decision: ArcjetDecision) {
 	}
 
 	// Cas par défaut
+	logger.warn("Arcjet denied for unknown reason", {
+		conclusion: decision.conclusion,
+		reason: decision.reason?.toString(),
+		ip: decision.ip,
+	});
+
 	return {
 		success: false as const,
 		error: "Accès refusé",

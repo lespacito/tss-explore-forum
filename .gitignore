@@ -1,5 +1,10 @@
 node_modules
 .DS_Store
+
+# Lock files - use bun.lock only
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
 dist
 dist-ssr
 *.local

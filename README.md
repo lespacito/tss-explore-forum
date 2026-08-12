@@ -1,310 +1,385 @@
-Welcome to your new TanStack app! 
+# Parlons Violence
 
-# Getting Started
+**Un forum anonyme et sécurisé pour aborder des sujets sensibles liés à la violence, l'abus et la détresse.**
 
-To run this application:
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
+[![TanStack Start](https://img.shields.io/badge/TanStack_Start-RC-orange.svg)](https://tanstack.com/start)
+[![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
+---
+
+## 🎯 Mission
+
+Créer un espace sûr où les personnes confrontées à la violence peuvent **partager, échanger et trouver du soutien** sans barrières à l'entrée. Notre principe fondamental : **Anonymous-first, registration optional**.
+
+### Valeurs Clés
+
+- **Anonymat garanti** : Système d'alias pour séparer l'identité réelle du contenu public
+- **Friction minimale** : Publier sans inscription, en quelques clics
+- **Sécurité par défaut** : Rate limiting, bot protection, redaction automatique
+- **Confiance et empathie** : UX conçue pour utilisateurs vulnérables
+
+---
+
+## ✨ Fonctionnalités Principales
+
+### 🎭 Authentification Anonyme avec Code Secret
+
+- Session anonyme immédiate (aucune donnée personnelle requise)
+- Code secret généré après première publication (format: `XXXX-XXXX-XXXX`)
+- Récupération de session sur n'importe quel appareil
+- Migration optionnelle vers compte email
+
+**Documentation:** [Auth Flows](docs/auth-flows.md)
+
+### 🔒 Système d'Alias
+
+- Séparation totale User ↔ Contenu Public
+- Impossible de lier directement un utilisateur à ses publications
+- Support multi-alias (alias principal + secondaires)
+- Rotation automatique (future feature)
+
+**Documentation:** [Alias System](src/features/alias/README.md) | [ERD](docs/diagrams/alias-system-erd.md)
+
+### 📝 Publications et Réponses
+
+- **Threads** : Sujets principaux avec catégories (support, témoignage, questions, ressources)
+- **Posts** : Réponses aux threads avec support contenu sensible
+- **Comments** : Commentaires imbriqués sur les posts
+- Modération intégrée pour garantir la sécurité
+
+**Documentation:** [Architecture Flows](docs/architecture-flux-threads-posts.md)
+
+### 🛡️ Sécurité Multi-Couches
+
+1. **Client Validation** : TanStack Form + Zod
+2. **Server Validation** : Server Functions + Zod
+3. **Rate Limiting** : Arcjet (anti-brute force)
+4. **Authentication** : Better Auth (sessions sécurisées)
+5. **Authorization** : Middleware checks
+6. **Anonymat** : Alias system
+7. **Redaction** : Logs auto-redactés (passwords, tokens)
+
+**Documentation:** [System Overview](docs/diagrams/system-overview.md)
+
+---
+
+## 🏗️ Stack Technique
+
+### Frontend
+
+- **React 19** : UI moderne avec Server Components
+- **TanStack Start (RC)** : Framework full-stack avec SSR
+- **TanStack Router** : File-based routing
+- **TanStack Query** : Server state management
+- **TanStack Form** : Form state + validation
+- **Shadcn/UI + Radix** : Composants accessibles
+- **Tailwind CSS 4** : Styling utility-first
+
+### Backend
+
+- **TanStack Start Server Functions** : API type-safe
+- **Better Auth** : Authentification (anonyme + email/password)
+- **Drizzle ORM** : Type-safe SQL queries
+- **PostgreSQL** : Base de données relationnelle
+- **Arcjet** : Rate limiting + bot protection
+- **Winston** : Logging structuré avec correlation IDs
+
+### Tooling
+
+- **TypeScript (strict mode)** : Type safety
+- **Vitest 3.x** : Testing framework
+- **Biome** : Linting + formatting
+- **pnpm** : Package manager
+
+**Documentation:** [Project Context](project-context.md)
+
+---
+
+## 🚀 Quick Start
+
+### Prérequis
+
+- Node.js 18+ (recommandé: 20+)
+- pnpm 8+
+- PostgreSQL 14+
+
+### Installation
 
 ```bash
+# Cloner le dépôt
+git clone https://github.com/your-org/parlons-violence.git
+cd parlons-violence
+
+# Installer les dépendances
 pnpm install
-pnpm start
+
+# Configurer les variables d'environnement
+cp .env.example .env
+# Éditer .env avec vos valeurs
+
+# Initialiser la base de données
+pnpm db:push
+
+# Lancer le serveur de développement
+pnpm dev
 ```
 
-# Building For Production
+L'application sera accessible sur [http://localhost:3000](http://localhost:3000)
 
-To build this application for production:
+---
+
+## 📦 Commandes Disponibles
+
+### Développement
 
 ```bash
-pnpm build
+pnpm dev              # Démarrer le serveur de développement (port 3000)
+pnpm build            # Build de production
+pnpm start            # Démarrer le serveur de production
 ```
 
-## Testing
-
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
+### Database (Drizzle)
 
 ```bash
+pnpm db:generate      # Générer les migrations
+pnpm db:migrate       # Exécuter les migrations
+pnpm db:push          # Push du schéma (dev uniquement)
+pnpm db:studio        # Ouvrir Drizzle Studio (GUI)
+```
+
+### Testing
+
+```bash
+pnpm test             # Exécuter tous les tests (Vitest)
+pnpm test:watch       # Mode watch pour les tests
+pnpm test:coverage    # Générer le rapport de couverture
+```
+
+### Code Quality (Biome)
+
+```bash
+pnpm lint             # Linter le code
+pnpm format           # Formatter le code
+pnpm check            # Lint + format (full check)
+```
+
+### UI Components (Shadcn)
+
+```bash
+pnpx shadcn@latest add <component>  # Ajouter un composant Shadcn
+```
+
+---
+
+## 🔧 Variables d'Environnement
+
+Créez un fichier `.env` à la racine avec les variables suivantes:
+
+```bash
+# Database
+DATABASE_URL=postgresql://user:password@localhost:5432/parlons_violence
+
+# Better Auth
+BETTER_AUTH_SECRET=your-secret-key-min-32-chars
+BETTER_AUTH_URL=http://localhost:3000
+
+# Arcjet (Rate Limiting)
+ARCJET_KEY=your-arcjet-api-key
+
+# Email Service (Resend)
+RESEND_API_KEY=your-resend-api-key
+
+# Environment
+NODE_ENV=development
+
+# Logging (optionnel)
+LOG_LEVEL=debug
+LOG_DIR=./logs
+SERVICE_NAME=parlons-violence
+```
+
+**Important:** Ne jamais committer le fichier `.env` dans Git!
+
+---
+
+## 📚 Documentation
+
+### Architecture et Diagrammes
+
+- [System Overview](docs/diagrams/system-overview.md) - Vue d'ensemble complète
+- [Alias System ERD](docs/diagrams/alias-system-erd.md) - Modèle de données détaillé
+- [Logging Architecture](docs/diagrams/logging-architecture.md) - Système de logs
+- [Index des Diagrammes](docs/diagrams/README.md) - Navigation complète
+
+### Guides Techniques
+
+- [Project Context](project-context.md) - Contexte complet du projet (MUST READ)
+- [Auth Flows](docs/auth-flows.md) - Flux d'authentification détaillés
+- [Architecture Flows](docs/architecture-flux-threads-posts.md) - Flux threads/posts
+- [Logger README](src/lib/logger/README.md) - Système de logging Winston
+- [Logger Usage](src/lib/logger/USAGE.md) - Guide d'utilisation du logger
+- [Alias System](src/features/alias/README.md) - Système d'alias anonymes
+
+### Pour Claude Code
+
+- [CLAUDE.md](CLAUDE.md) - Instructions pour Claude Code AI
+
+### Validation
+
+- [Documentation Validation Report](docs/DOCUMENTATION-VALIDATION-REPORT.md) - Audit de la documentation
+
+---
+
+## 🧪 Testing
+
+### Stratégie de Test (Risk-Based)
+
+1. **Critical Path** (priorité HAUTE)
+   - Anonymous user flow (session → first post → secret code)
+   - Secret code generation and validation
+   - Authentication flows (anonymous, email, secret code login)
+   - Content moderation workflows
+
+2. **High-Risk Areas**
+   - Authentication and session management
+   - Secret code security (uniqueness, format, timing)
+   - Database transactions (post creation, user linking)
+   - Server functions (all mutations, sensitive reads)
+
+### Exécuter les Tests
+
+```bash
+# Tous les tests
 pnpm test
+
+# Tests spécifiques
+pnpm test auth              # Tests d'authentification
+pnpm test secret-code       # Tests du code secret
+
+# Mode watch
+pnpm test:watch
+
+# Coverage
+pnpm test:coverage
 ```
 
-## Styling
+**Documentation:** [Project Context - Testing Strategy](project-context.md#-testing-strategy)
 
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
+---
 
+## 🏛️ Structure du Projet
 
-## Linting & Formatting
-
-This project uses [Biome](https://biomejs.dev/) for linting and formatting. The following scripts are available:
-
-
-```bash
-pnpm lint
-pnpm format
-pnpm check
+```
+src/
+├── routes/                # TanStack file-based routing
+│   ├── __root.tsx        # Layout root
+│   ├── index.tsx         # Homepage
+│   ├── threads/          # Routes threads
+│   └── auth/             # Routes authentification
+├── features/             # Modules fonctionnels
+│   ├── auth/            # Authentification (Better Auth)
+│   ├── alias/           # Système d'alias
+│   ├── threads/         # Gestion des threads
+│   ├── posts/           # Gestion des posts
+│   ├── moderation/      # Modération
+│   ├── notifications/   # Notifications
+│   └── users/           # Gestion utilisateurs
+├── components/          # Composants UI partagés
+├── db/                  # Database (Drizzle)
+│   ├── schemas/        # Schémas des tables
+│   ├── migrations/     # Migrations SQL
+│   └── index.ts        # Client DB
+├── lib/                 # Utilitaires
+│   ├── logger/         # Winston logger
+│   └── utils/          # Helpers
+└── integrations/        # Services externes
+    └── tanstack-query/ # Config TanStack Query
 ```
 
+---
 
-## Shadcn
+## 🔒 Sécurité
 
-Add components using the latest version of [Shadcn](https://ui.shadcn.com/).
+### Garanties d'Anonymat
 
-```bash
-pnpx shadcn@latest add button
-```
+- **Séparation totale** : `user.id` n'apparaît JAMAIS dans `threads`, `posts`, ou `comments`
+- **Alias system** : Toutes les interactions publiques passent par un alias
+- **Code secret sécurisé** : Format `XXXX-XXXX-XXXX`, 30^12 combinaisons possibles
+- **Rate limiting** : Arcjet protège contre le brute force
+- **Redaction automatique** : Passwords, tokens, secrets jamais loggés
 
+### Conformité
 
+- **WCAG 2.1 AA** : Accessibilité pour tous
+- **RGPD** : Données minimales, droit à l'oubli
+- **OWASP Top 10** : Protection contre les vulnérabilités courantes
 
-## Routing
-This project uses [TanStack Router](https://tanstack.com/router). The initial setup is a file based router. Which means that the routes are managed as files in `src/routes`.
+**Documentation:** [Security Considerations](project-context.md#-security-considerations)
 
-### Adding A Route
+---
 
-To add a new route to your application just add another a new file in the `./src/routes` directory.
+## 🤝 Contributing
 
-TanStack will automatically generate the content of the route file for you.
+Les contributions sont les bienvenues! Veuillez suivre ces étapes:
 
-Now that you have two routes you can use a `Link` component to navigate between them.
+1. Fork le projet
+2. Créer une branche feature (`git checkout -b feature/amazing-feature`)
+3. Commit vos changements (`git commit -m 'Add amazing feature'`)
+4. Push vers la branche (`git push origin feature/amazing-feature`)
+5. Ouvrir une Pull Request
 
-### Adding Links
+### Guidelines
 
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
+- Respecter la structure des features (`src/features/<feature>/`)
+- Écrire des tests pour les nouvelles fonctionnalités
+- Suivre les conventions de code (Biome)
+- Documenter les changements importants
 
-```tsx
-import { Link } from "@tanstack/react-router";
-```
+---
 
-Then anywhere in your JSX you can use it like so:
+## 📖 Ressources Externes
 
-```tsx
-<Link to="/about">About</Link>
-```
+### TanStack Ecosystem
 
-This will create a link that will navigate to the `/about` route.
+- [TanStack Start](https://tanstack.com/start) - Framework full-stack
+- [TanStack Router](https://tanstack.com/router) - Routing
+- [TanStack Query](https://tanstack.com/query) - Server state
+- [TanStack Form](https://tanstack.com/form) - Forms
 
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
+### Technologies
 
-### Using A Layout
+- [Better Auth](https://www.better-auth.com) - Authentication
+- [Drizzle ORM](https://orm.drizzle.team) - Database ORM
+- [Shadcn/UI](https://ui.shadcn.com) - UI Components
+- [Arcjet](https://arcjet.com) - Security
 
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you use the `<Outlet />` component.
+---
 
-Here is an example layout that includes a header:
+## 📄 License
 
-```tsx
-import { Outlet, createRootRoute } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
+Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
 
-import { Link } from "@tanstack/react-router";
+---
 
-export const Route = createRootRoute({
-  component: () => (
-    <>
-      <header>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/about">About</Link>
-        </nav>
-      </header>
-      <Outlet />
-      <TanStackRouterDevtools />
-    </>
-  ),
-})
-```
+## 👥 Équipe
 
-The `<TanStackRouterDevtools />` component is not required so you can remove it if you don't want it in your layout.
+Développé avec ❤️ par l'équipe Parlons Violence.
 
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
+**Contact:** [contact@parlonsviolence.ch](mailto:contact@parlonsviolence.ch)
 
+**Site web:** [parlonsviolence.ch](https://parlonsviolence.ch)
 
-## Data Fetching
+---
 
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
+## 🙏 Remerciements
 
-For example:
+- Communauté TanStack pour l'écosystème incroyable
+- Better Auth pour l'authentification flexible
+- Shadcn pour les composants accessibles
+- Tous les contributeurs et testeurs
 
-```tsx
-const peopleRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/people",
-  loader: async () => {
-    const response = await fetch("https://swapi.dev/api/people");
-    return response.json() as Promise<{
-      results: {
-        name: string;
-      }[];
-    }>;
-  },
-  component: () => {
-    const data = peopleRoute.useLoaderData();
-    return (
-      <ul>
-        {data.results.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    );
-  },
-});
-```
+---
 
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-### React-Query
-
-React-Query is an excellent addition or alternative to route loading and integrating it into you application is a breeze.
-
-First add your dependencies:
-
-```bash
-pnpm add @tanstack/react-query @tanstack/react-query-devtools
-```
-
-Next we'll need to create a query client and provider. We recommend putting those in `main.tsx`.
-
-```tsx
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-// ...
-
-const queryClient = new QueryClient();
-
-// ...
-
-if (!rootElement.innerHTML) {
-  const root = ReactDOM.createRoot(rootElement);
-
-  root.render(
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
-  );
-}
-```
-
-You can also add TanStack Query Devtools to the root route (optional).
-
-```tsx
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-
-const rootRoute = createRootRoute({
-  component: () => (
-    <>
-      <Outlet />
-      <ReactQueryDevtools buttonPosition="top-right" />
-      <TanStackRouterDevtools />
-    </>
-  ),
-});
-```
-
-Now you can use `useQuery` to fetch your data.
-
-```tsx
-import { useQuery } from "@tanstack/react-query";
-
-import "./App.css";
-
-function App() {
-  const { data } = useQuery({
-    queryKey: ["people"],
-    queryFn: () =>
-      fetch("https://swapi.dev/api/people")
-        .then((res) => res.json())
-        .then((data) => data.results as { name: string }[]),
-    initialData: [],
-  });
-
-  return (
-    <div>
-      <ul>
-        {data.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-export default App;
-```
-
-You can find out everything you need to know on how to use React-Query in the [React-Query documentation](https://tanstack.com/query/latest/docs/framework/react/overview).
-
-## State Management
-
-Another common requirement for React applications is state management. There are many options for state management in React. TanStack Store provides a great starting point for your project.
-
-First you need to add TanStack Store as a dependency:
-
-```bash
-pnpm add @tanstack/store
-```
-
-Now let's create a simple counter in the `src/App.tsx` file as a demonstration.
-
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store } from "@tanstack/store";
-import "./App.css";
-
-const countStore = new Store(0);
-
-function App() {
-  const count = useStore(countStore);
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-    </div>
-  );
-}
-
-export default App;
-```
-
-One of the many nice features of TanStack Store is the ability to derive state from other state. That derived state will update when the base state updates.
-
-Let's check this out by doubling the count using derived state.
-
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store, Derived } from "@tanstack/store";
-import "./App.css";
-
-const countStore = new Store(0);
-
-const doubledStore = new Derived({
-  fn: () => countStore.state * 2,
-  deps: [countStore],
-});
-doubledStore.mount();
-
-function App() {
-  const count = useStore(countStore);
-  const doubledCount = useStore(doubledStore);
-
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-      <div>Doubled - {doubledCount}</div>
-    </div>
-  );
-}
-
-export default App;
-```
-
-We use the `Derived` class to create a new store that is derived from another store. The `Derived` class has a `mount` method that will start the derived store updating.
-
-Once we've created the derived store we can use it in the `App` component just like we would any other store using the `useStore` hook.
-
-You can find out everything you need to know on how to use TanStack Store in the [TanStack Store documentation](https://tanstack.com/store/latest).
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
+**Note:** Ce projet est en développement actif. Pour toute question ou problème, veuillez ouvrir une issue sur GitHub.
