@@ -22,7 +22,7 @@ describe("TipTap Editor - Unit Tests", () => {
 				screen.getByRole("button", { name: /italique/i }),
 			).toBeInTheDocument();
 			expect(
-				screen.getByRole("button", { name: /titre/i }),
+				screen.getByRole("button", { name: "Titre 2" }),
 			).toBeInTheDocument();
 			expect(
 				screen.getByRole("button", { name: /citation/i }),
@@ -137,7 +137,7 @@ describe("TipTap Editor - Unit Tests", () => {
 		it("heading button has correct initial state", () => {
 			render(<TipTap content="<p>Text</p>" onChange={() => {}} />);
 
-			const headingButton = screen.getByRole("button", { name: /titre/i });
+			const headingButton = screen.getByRole("button", { name: "Titre 2" });
 
 			expect(headingButton).toHaveAttribute("aria-pressed", "false");
 			expect(headingButton).toHaveAttribute("type", "button");
@@ -237,16 +237,16 @@ describe("TipTap Editor - Unit Tests", () => {
 			).not.toBeInTheDocument();
 		});
 
-		it("only allows h2 headings, not h1", () => {
+		it("only allows h2 and h3 headings, not h1", () => {
 			// H1 is reserved for page titles
-			// Tiptap is configured to only allow h2
+			// Tiptap is configured to allow h2 and h3
 			render(<TipTap content="" onChange={() => {}} />);
 
-			// Only one heading button should exist (for h2)
+			// Only h2 and h3 heading buttons should exist (h1 is reserved for pages)
 			const headingButtons = screen.queryAllByRole("button", {
 				name: /titre|heading/i,
 			});
-			expect(headingButtons).toHaveLength(1);
+			expect(headingButtons).toHaveLength(2);
 		});
 	});
 

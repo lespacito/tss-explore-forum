@@ -1,12 +1,12 @@
 import { useRouter } from "@tanstack/react-router";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { z } from "zod";
-import { logger } from "@/lib/logger/client-logger";
 import { useAppForm } from "@/components/form/hooks";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { logger } from "@/lib/logger/client-logger";
 import { signIn } from "../lib/auth-client";
 
 const formSchema = z.object({
@@ -20,8 +20,28 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export function SecretCodeLoginForm({ redirectTo }: { redirectTo?: string } = {}) {
+function getValidationMessage(error: unknown): string {
+	if (typeof error === "string") return error;
+	if (error instanceof Error) return error.message;
+	if (
+		typeof error === "object" &&
+		error !== null &&
+		"message" in error &&
+		typeof error.message === "string"
+	) {
+		return error.message;
+	}
+	return "Une erreur de validation est survenue.";
+}
+
+export function SecretCodeLoginForm({
+	redirectTo,
+}: {
+	redirectTo?: string;
+} = {}) {
 	const router = useRouter();
+	const secretCodeId = useId();
+	const codeHelpId = useId();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [serverError, setServerError] = useState<string | null>(null);
 
@@ -39,14 +59,17 @@ export function SecretCodeLoginForm({ redirectTo }: { redirectTo?: string } = {}
 
 			try {
 				// Utiliser le plugin credentials avec providerId "secret-code"
-				await signIn.credentials({
+				const result = await signIn.credentials({
 					secretCode: value.secretCode,
-					providerId: "secret-code",
 				});
+				if (result.error) {
+					setServerError("Impossible de se connecter. Vérifiez votre code.");
+					return;
+				}
 
 				// Succès - redirection
 				router.navigate({ to: redirectTo || "/threads" });
-			} catch (error) {
+			} catch {
 				// Afficher erreur bienveillante (pas "code invalide")
 				setServerError("Impossible de se connecter. Vérifiez votre code.");
 			} finally {
@@ -78,9 +101,9 @@ export function SecretCodeLoginForm({ redirectTo }: { redirectTo?: string } = {}
 				<form.Field name="secretCode">
 					{(field) => (
 						<Field>
-							<Label htmlFor="secretCode">Code Secret</Label>
+							<Label htmlFor={secretCodeId}>Code Secret</Label>
 							<Input
-								id="secretCode"
+								id={secretCodeId}
 								type="text"
 								value={field.state.value}
 								onChange={(e) =>
@@ -88,17 +111,17 @@ export function SecretCodeLoginForm({ redirectTo }: { redirectTo?: string } = {}
 								}
 								onBlur={field.handleBlur}
 								placeholder="AB7K-9X2M"
-								aria-describedby="code-help"
+								aria-describedby={codeHelpId}
 								autoComplete="off"
 								autoCapitalize="characters"
 							/>
-							<span id="code-help" className="text-sm text-muted-foreground">
+							<span id={codeHelpId} className="text-sm text-muted-foreground">
 								Format: XXXX-XXXX ou XXXX-XXXX-XXXX
 							</span>
 							{field.state.meta.errors &&
 								field.state.meta.errors.length > 0 && (
 									<span className="text-sm text-destructive" role="alert">
-										{String(field.state.meta.errors[0])}
+										{getValidationMessage(field.state.meta.errors[0])}
 									</span>
 								)}
 						</Field>

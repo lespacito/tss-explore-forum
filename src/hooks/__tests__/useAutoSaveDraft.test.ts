@@ -1,6 +1,7 @@
 import { act, renderHook } from "@testing-library/react";
 import { toast } from "sonner";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { logger } from "@/lib/logger/client-logger";
 import { useAutoSaveDraft } from "../useAutoSaveDraft";
 
 // Mock sonner toast
@@ -303,13 +304,13 @@ describe("useAutoSaveDraft", () => {
 
 	it("should handle localStorage errors gracefully", async () => {
 		const key = "test-draft";
-		const consoleErrorSpy = vi
-			.spyOn(console, "error")
+		const loggerErrorSpy = vi
+			.spyOn(logger, "error")
 			.mockImplementation(() => {});
 
 		// Mock localStorage.setItem to throw error
-		const originalSetItem = Storage.prototype.setItem;
-		Storage.prototype.setItem = vi.fn(() => {
+		const originalSetItem = localStorage.setItem;
+		localStorage.setItem = vi.fn(() => {
 			throw new Error("localStorage is full");
 		});
 
@@ -334,15 +335,15 @@ describe("useAutoSaveDraft", () => {
 			await Promise.resolve();
 		});
 
-		expect(consoleErrorSpy).toHaveBeenCalled();
+		expect(loggerErrorSpy).toHaveBeenCalled();
 		expect(toast.error).toHaveBeenCalledWith(
 			"Impossible de sauvegarder le brouillon",
 			expect.any(Object),
 		);
 
 		// Restore original
-		Storage.prototype.setItem = originalSetItem;
-		consoleErrorSpy.mockRestore();
+		localStorage.setItem = originalSetItem;
+		loggerErrorSpy.mockRestore();
 	});
 
 	it("should NOT trigger save if value hasn't changed", async () => {

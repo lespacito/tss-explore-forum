@@ -22,12 +22,12 @@ describe("TipTap Editor - Accessibility (WCAG 2.1 AA)", () => {
 			expect(italicButton).toHaveAttribute("aria-label", "Italique");
 		});
 
-		it("has aria-label on Heading button", () => {
+		it("has aria-label on Heading 2 button", () => {
 			render(<TipTap content="" onChange={() => {}} />);
 
-			const headingButton = screen.getByRole("button", { name: /titre/i });
+			const headingButton = screen.getByRole("button", { name: "Titre 2" });
 			expect(headingButton).toBeInTheDocument();
-			expect(headingButton).toHaveAttribute("aria-label", "Titre");
+			expect(headingButton).toHaveAttribute("aria-label", "Titre 2");
 		});
 
 		it("has aria-label on Blockquote button", () => {
@@ -98,7 +98,7 @@ describe("TipTap Editor - Accessibility (WCAG 2.1 AA)", () => {
 
 			const boldButton = screen.getByRole("button", { name: /gras/i });
 			const italicButton = screen.getByRole("button", { name: /italique/i });
-			const headingButton = screen.getByRole("button", { name: /titre/i });
+			const headingButton = screen.getByRole("button", { name: "Titre 2" });
 			const quoteButton = screen.getByRole("button", { name: /citation/i });
 			const bulletButton = screen.getByRole("button", {
 				name: /liste à puces/i,
@@ -131,11 +131,11 @@ describe("TipTap Editor - Accessibility (WCAG 2.1 AA)", () => {
 			expect(italicButton).toHaveAttribute("title", "Italique (Ctrl+I)");
 		});
 
-		it("Heading button shows Ctrl+Alt+2 shortcut in title", () => {
+		it("Heading 2 button shows Ctrl+Alt+2 shortcut in title", () => {
 			render(<TipTap content="" onChange={() => {}} />);
 
-			const headingButton = screen.getByRole("button", { name: /titre/i });
-			expect(headingButton).toHaveAttribute("title", "Titre (Ctrl+Alt+2)");
+			const headingButton = screen.getByRole("button", { name: "Titre 2" });
+			expect(headingButton).toHaveAttribute("title", "Titre 2 (Ctrl+Alt+2)");
 		});
 
 		it("Blockquote button shows Ctrl+Shift+B shortcut in title", () => {
@@ -150,8 +150,6 @@ describe("TipTap Editor - Accessibility (WCAG 2.1 AA)", () => {
 		it("toolbar buttons are focusable with Tab", async () => {
 			const user = userEvent.setup();
 			render(<TipTap content="" onChange={() => {}} />);
-
-			const boldButton = screen.getByRole("button", { name: /gras/i });
 
 			// Tab should focus the first button
 			await user.tab();

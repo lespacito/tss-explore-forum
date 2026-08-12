@@ -1,10 +1,10 @@
+import crypto from "node:crypto";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { createAuthMiddleware } from "better-auth/api";
 import { admin, anonymous, username } from "better-auth/plugins";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { credentials } from "better-auth-credentials-plugin";
-import crypto from "crypto";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { env } from "@/data/env/server";
@@ -52,7 +52,7 @@ export const auth = betterAuth({
 		sendOnSignUp: true,
 		sendVerificationEmail: async ({ user, url }) => {
 			// Ne pas envoyer d'emails de vérification aux utilisateurs anonymes
-			if (user.isAnonymous) {
+			if ((user as { isAnonymous?: boolean }).isAnonymous) {
 				logger.info("Skipping verification email for anonymous user", {
 					userId: user.id,
 				});
@@ -81,9 +81,21 @@ export const auth = betterAuth({
 		provider: "pg",
 	}),
 	plugins: [
-		credentials({
+		credentials<
+			{
+				id: string;
+				email: string;
+				name: string;
+				image?: string | null;
+				emailVerified: boolean;
+				createdAt: Date;
+				updatedAt: Date;
+				isAnonymous?: boolean;
+			},
+			"/sign-in/credentials",
+			typeof secretCodeSchema
+		>({
 			providerId: "secret-code",
-			name: "Secret Code",
 			inputSchema: secretCodeSchema,
 			linkAccountIfExisting: true, // Permet de lier un account à un user existant
 			callback: async (ctx) => {
