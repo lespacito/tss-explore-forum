@@ -65,7 +65,6 @@ export const SignUpTab = ({
 				toast.error(parsed.message);
 				logger.error("Erreur durant l'inscription", {
 					message: res.error.message,
-					stack: res.error.stack,
 					parsedField: parsed.field,
 				});
 				if (parsed.field) {

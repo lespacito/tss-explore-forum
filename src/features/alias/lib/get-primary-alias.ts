@@ -1,8 +1,4 @@
-import {
-	getAliasById,
-	getUserAliases,
-	getUserPrimaryAlias,
-} from "../server/db/alias-queries";
+import { getUserPrimaryAlias } from "../server/db/alias-queries";
 
 /**
  * Récupère l'alias principal d'un utilisateur
@@ -34,8 +30,6 @@ export async function getPrimaryAlias(userId: string) {
  * console.log(`L'utilisateur a ${allAliases.length} alias`);
  * ```
  */
-export { getUserAliases } from "../server/db/alias-queries";
-
 /**
  * Récupère un alias spécifique par son ID
  *
@@ -50,4 +44,4 @@ export { getUserAliases } from "../server/db/alias-queries";
  * }
  * ```
  */
-export { getAliasById } from "../server/db/alias-queries";
+export { getAliasById, getUserAliases } from "../server/db/alias-queries";

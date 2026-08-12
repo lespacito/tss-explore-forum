@@ -4,9 +4,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SecretCodeLoginForm } from "../SecretCodeLoginForm";
 import "@testing-library/jest-dom/vitest";
 
-// Mock the server function
-vi.mock("../../server/signin-with-secret-code", () => ({
-	signinWithSecretCodeFn: vi.fn(),
+vi.mock("@/features/auth/lib/auth-client", () => ({
+	signIn: {
+		credentials: vi.fn(),
+	},
 }));
 
 // Mock TanStack Router
@@ -17,7 +18,7 @@ vi.mock("@tanstack/react-router", () => ({
 }));
 
 import { useRouter } from "@tanstack/react-router";
-import { signinWithSecretCodeFn } from "../../server/signin-with-secret-code";
+import { signIn } from "@/features/auth/lib/auth-client";
 
 /**
  * Tests for SecretCodeLoginForm Component (Task 4)
@@ -31,7 +32,7 @@ import { signinWithSecretCodeFn } from "../../server/signin-with-secret-code";
  * - Subtask 4.6: Empathetic error messages (not accusatory)
  */
 describe("SecretCodeLoginForm Component - Task 4", () => {
-	const mockSigninFn = vi.mocked(signinWithSecretCodeFn);
+	const mockSigninFn = vi.mocked(signIn.credentials);
 	const mockNavigate = vi.fn();
 	let clipboardReadTextSpy: ReturnType<typeof vi.fn>;
 
@@ -53,6 +54,16 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 			configurable: true,
 		});
 	});
+
+	const createUser = () => {
+		const user = userEvent.setup();
+		Object.defineProperty(navigator, "clipboard", {
+			value: { readText: clipboardReadTextSpy },
+			writable: true,
+			configurable: true,
+		});
+		return user;
+	};
 
 	describe("Subtask 4.1: Component Rendering", () => {
 		it("should render the form with code input field", () => {
@@ -120,7 +131,7 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 			render(<SecretCodeLoginForm />);
 
 			const input = screen.getByLabelText("Code Secret");
-			await user.type(input, "INVALID");
+			await user.type(input, "ABCDEFGHX");
 
 			const submitButton = screen.getByRole("button", {
 				name: /se connecter/i,
@@ -201,7 +212,7 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 
 	describe("Subtask 4.4: Paste Button", () => {
 		it("should paste code from clipboard when button clicked", async () => {
-			const user = userEvent.setup();
+			const user = createUser();
 			clipboardReadTextSpy.mockResolvedValue("K7MNP8QR");
 			render(<SecretCodeLoginForm />);
 
@@ -217,7 +228,7 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 		});
 
 		it("should format pasted code with dashes", async () => {
-			const user = userEvent.setup();
+			const user = createUser();
 			clipboardReadTextSpy.mockResolvedValue("x4bt9c2wh5jk");
 			render(<SecretCodeLoginForm />);
 
@@ -233,7 +244,7 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 		});
 
 		it("should sanitize pasted code with whitespace", async () => {
-			const user = userEvent.setup();
+			const user = createUser();
 			clipboardReadTextSpy.mockResolvedValue("  K7MN P8QR  ");
 			render(<SecretCodeLoginForm />);
 
@@ -249,7 +260,7 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 		});
 
 		it("should handle clipboard permission denied gracefully", async () => {
-			const user = userEvent.setup();
+			const user = createUser();
 			const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation();
 			clipboardReadTextSpy.mockRejectedValue(new Error("Permission denied"));
 			render(<SecretCodeLoginForm />);
@@ -261,6 +272,7 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 
 			await waitFor(() => {
 				expect(consoleWarnSpy).toHaveBeenCalledWith(
+					expect.stringMatching(/^\[.*\] \[WARN\]$/),
 					"Impossible d'accéder au presse-papiers",
 					expect.any(Error),
 				);
@@ -298,7 +310,7 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 			expect(submitButton).toBeDisabled();
 		});
 
-		it("should redirect to /posts on successful signin", async () => {
+		it("should redirect to /threads on successful signin", async () => {
 			const user = userEvent.setup();
 			mockSigninFn.mockResolvedValue({ success: true, userId: "user_123" });
 			render(<SecretCodeLoginForm />);
@@ -312,7 +324,7 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 			await user.click(submitButton);
 
 			await waitFor(() => {
-				expect(mockNavigate).toHaveBeenCalledWith({ to: "/posts" });
+				expect(mockNavigate).toHaveBeenCalledWith({ to: "/threads" });
 			});
 		});
 
@@ -339,11 +351,11 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 			});
 		});
 
-		it("should show fallback error message if error is undefined", async () => {
+		it("should show a generic error message for an unsuccessful response", async () => {
 			const user = userEvent.setup();
 			mockSigninFn.mockResolvedValue({
 				success: false,
-				error: undefined,
+				error: "Unexpected error",
 			});
 			render(<SecretCodeLoginForm />);
 
@@ -357,7 +369,7 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 
 			await waitFor(() => {
 				expect(
-					screen.getByText(/vérifiez votre code et réessayez/i),
+					screen.getByText(/impossible de se connecter/i),
 				).toBeInTheDocument();
 			});
 		});
@@ -419,7 +431,11 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 			render(<SecretCodeLoginForm />);
 
 			const input = screen.getByLabelText("Code Secret");
-			expect(input).toHaveAttribute("aria-describedby", "code-help");
+			const descriptionId = input.getAttribute("aria-describedby");
+			expect(descriptionId).toBeTruthy();
+			expect(
+				document.getElementById(descriptionId as string),
+			).toHaveTextContent("Format: XXXX-XXXX ou XXXX-XXXX-XXXX");
 		});
 
 		it("should have accessible paste button", () => {
@@ -463,7 +479,7 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 	});
 
 	describe("Integration", () => {
-		it("should call server function with sanitized code", async () => {
+		it("should call Better Auth with a sanitized code", async () => {
 			const user = userEvent.setup();
 			mockSigninFn.mockResolvedValue({ success: true, userId: "user_123" });
 			render(<SecretCodeLoginForm />);
@@ -478,7 +494,7 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 
 			await waitFor(() => {
 				expect(mockSigninFn).toHaveBeenCalledWith({
-					data: { secretCode: "K7MN-P8QR" },
+					secretCode: "K7MN-P8QR",
 				});
 			});
 		});

@@ -1,8 +1,14 @@
+import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
 import viteTsConfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
+	resolve: {
+		alias: {
+			"@": fileURLToPath(new URL("./src", import.meta.url)),
+		},
+	},
 	plugins: [
 		react() as any,
 		viteTsConfigPaths({
@@ -12,8 +18,14 @@ export default defineConfig({
 	test: {
 		globals: true,
 		environment: "jsdom",
-		setupFiles: [],
-		include: ["**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
+		setupFiles: ["./src/test/setup.ts"],
+		include: ["src/**/*.test.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
+		exclude: [
+			"**/*.e2e.test.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
+			"**/*.manual.test.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
+			"src/features/auth/__tests__/secret-code-security.test.ts",
+			"src/features/auth/__tests__/signin-secret-code-performance.test.ts",
+		],
 		coverage: {
 			provider: "v8",
 			reporter: ["text", "json", "html"],

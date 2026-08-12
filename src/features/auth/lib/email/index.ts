@@ -10,4 +10,4 @@ export {
 	welcomeEmail,
 } from "./templates";
 
-export { emailConfig, getEmailTransporter } from "./transport";
+export { emailConfig, getResendClient } from "./transport";

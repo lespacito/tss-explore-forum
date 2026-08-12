@@ -108,10 +108,9 @@ export const ForgotPassword = ({
 				selector={(state) => ({
 					isSubmitting: state.isSubmitting,
 					canSubmit: state.canSubmit,
-					isDirty: state.isDirty,
 				})}
 			>
-				{({ isSubmitting, canSubmit, isDirty }) => (
+				{({ isSubmitting, canSubmit }) => (
 					<Field orientation="horizontal">
 						<Button
 							type="button"

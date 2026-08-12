@@ -67,6 +67,7 @@ vi.mock("@/db/schemas/alias", () => ({
 vi.mock("drizzle-orm", () => ({
 	eq: vi.fn(() => "mocked-eq"),
 	and: vi.fn(() => "mocked-and"),
+	relations: vi.fn(() => ({})),
 }));
 
 vi.mock("@/features/auth/lib/generate-secret-code", () => ({
@@ -110,7 +111,7 @@ describe("Thread Creation - Secret Code Integration (Task 4)", () => {
 	describe("Task 4.1: Detect if first publication for anonymous user", () => {
 		it("should detect when anonymous user has no previous threads", async () => {
 			// GIVEN: An anonymous user with no threads
-			
+
 			// Mock: Query for existing threads returns empty array
 			mockDb.limit.mockResolvedValue([]);
 

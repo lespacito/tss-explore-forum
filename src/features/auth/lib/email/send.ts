@@ -31,7 +31,7 @@ export const sendEmail = async (
 			subject: options.subject,
 			html: options.html,
 			text: options.text,
-			reply_to: options.replyTo || emailConfig.replyTo,
+			replyTo: options.replyTo || emailConfig.replyTo,
 		});
 
 		if (error) {

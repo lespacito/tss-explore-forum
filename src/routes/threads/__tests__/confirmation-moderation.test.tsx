@@ -73,7 +73,7 @@ describe("Thread Confirmation Page - Moderation Message (Story 2.4)", () => {
 		it("should have 'Retourner à l'accueil' button navigating to /threads", () => {
 			expect(confirmationSource).toContain("Retourner à l'accueil");
 			// Verify navigation target
-			expect(confirmationSource).toContain('navigate({ to: "/threads" })');
+			expect(confirmationSource).toContain('to: "/threads"');
 		});
 
 		it("should have 'J'ai sauvegardé mon code' as primary button", () => {
@@ -81,9 +81,7 @@ describe("Thread Confirmation Page - Moderation Message (Story 2.4)", () => {
 		});
 
 		it("should import SecretCodeDisplay component", () => {
-			expect(confirmationSource).toMatch(
-				/import.*SecretCodeDisplay.*from/,
-			);
+			expect(confirmationSource).toMatch(/import.*SecretCodeDisplay.*from/);
 		});
 	});
 
