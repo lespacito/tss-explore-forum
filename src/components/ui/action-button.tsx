@@ -23,6 +23,13 @@ interface props
 	requireAreYouSure?: boolean;
 }
 
+/**
+ * Renders a button with optional loading and confirmation states.
+ *
+ * @param isPending - Displays a loading indicator and disables the button while true.
+ * @param requireAreYouSure - Requires confirmation before invoking `onClick`.
+ * @returns The rendered button, optionally wrapped in a confirmation dialog.
+ */
 export default function ActionButton({
 	children,
 	isPending,
@@ -31,6 +38,9 @@ export default function ActionButton({
 	className,
 	onClick,
 	requireAreYouSure,
+	disabled,
+	type = "submit",
+	...buttonProps
 }: props) {
 	const button = (
 		<Button
@@ -44,14 +54,15 @@ export default function ActionButton({
 							}
 						: undefined
 			}
-			type="submit"
-			disabled={isPending}
+			type={type}
+			disabled={disabled || isPending}
 			variant={variant}
 			size={size}
 			className={cn(
 				className,
 				"inline-grid place-items-center [grid-template-areas:'stack']",
 			)}
+			{...buttonProps}
 		>
 			<span
 				className={cn(

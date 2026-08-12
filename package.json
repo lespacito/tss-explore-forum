@@ -8,6 +8,8 @@
     "serve": "bun --bun vite preview",
     "start": "bun .output/server/index.mjs",
     "test": "vitest",
+    "test:unit": "vitest run",
+    "typecheck": "tsc --noEmit",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
