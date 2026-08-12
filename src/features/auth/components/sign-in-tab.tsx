@@ -1,63 +1,113 @@
-import { useForm } from "@tanstack/react-form";
 import { useRouter } from "@tanstack/react-router";
-import { useId } from "react";
+import { useId, useState } from "react";
 import { toast } from "sonner";
-import { FormField } from "@/components/form/form-field";
+import { useAppForm } from "@/components/form/hooks";
 import ActionButton from "@/components/ui/action-button";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup } from "@/components/ui/field";
-import { authClient } from "@/features/auth/lib/auth-client";
+import { Separator } from "@/components/ui/separator";
+import { SocialAuthButtons } from "@/features/auth/components/social-auth-buttons";
+import { signIn } from "@/features/auth/lib/auth-client";
+import { parseSignInError } from "@/features/auth/lib/client/parse-auth-error";
 import {
 	type SignInInput,
 	signInSchema,
-} from "@/features/auth/schema/sign-in-schema";
+} from "@/features/auth/schemas/sign-in-schema";
+import { getUserEmailByUsername } from "@/features/auth/server/get-user-email-by-username";
+import { logger } from "@/lib/logger";
 
-export const SignInTab = () => {
+export const SignInTab = ({
+	openEmailVerificationTab,
+	openForgotPassword,
+	redirectTo,
+}: {
+	openEmailVerificationTab: (email: string) => void;
+	openForgotPassword: () => void;
+	redirectTo?: string;
+}) => {
 	const id = useId();
 	const router = useRouter();
+	const [serverErrors, setServerErrors] = useState<
+		Partial<Record<keyof SignInInput, string>>
+	>({});
 
-	const form = useForm({
+	const form = useAppForm({
 		defaultValues: {
 			username: "",
 			password: "",
-		} satisfies SignInInput,
+		} satisfies SignInInput as SignInInput,
 		validators: {
 			onSubmit: signInSchema,
 			onBlur: signInSchema,
 		},
 		onSubmit: async ({ value }) => {
-			const { error } = await authClient.signIn.username({
-				username: value.username,
-				password: value.password,
-				callbackURL: "/",
-			});
+			// Réinitialiser les erreurs serveur au début de la soumission
+			setServerErrors({});
 
-			if (error) {
-				const errorData = error;
-				if (errorData?.message) {
-					// Set field-specific error
-					// Assuming similar error structure as sign-up
-					if ((errorData as any).field) {
-						form.setFieldMeta((errorData as any).field, (prev) => ({
-							...prev,
-							isTouched: true,
-							isValid: false,
-							errors: [(errorData as any).error],
-						}));
-						toast.error((errorData as any).error || "Erreur de validation");
-					} else {
-						toast.error(errorData.message || "Erreur inconnue");
-					}
-				}
-			} else {
-				toast.success("Connexion réussie ! Bienvenue.");
-				form.reset();
-				await router.invalidate();
-				router.navigate({ to: "/" });
+			const result = await signIn.username(
+				{
+					username: value.username,
+					password: value.password,
+					callbackURL: redirectTo || "/",
+				},
+				{
+					onError: async (error) => {
+						// Parser l'erreur avec le parseur centralisé
+						const parsed = parseSignInError(error);
+
+						// Vérifier si l'email n'est pas vérifiéa
+						const errorCode = (error as { error?: { code?: string } }).error
+							?.code;
+						if (errorCode === "EMAIL_NOT_VERIFIED") {
+							// Récupérer l'email par username
+							try {
+								const emailResult = await getUserEmailByUsername({
+									data: { username: value.username },
+								});
+
+								if (emailResult.email) {
+									openEmailVerificationTab(emailResult.email);
+									toast.info(
+										"Veuillez vérifier votre email avant de vous connecter.",
+									);
+									return;
+								}
+							} catch (err) {
+								logger.error("Impossible de récupérer l'email", { err });
+								toast.error(
+									"Impossible de récuperer l'email. Merci de contacter le support.",
+								);
+							}
+						}
+
+						// Afficher le message dans un toast
+						toast.error(parsed.message);
+
+						// Logger l'erreur pour le debug
+						logger.error("Erreur durant la connexion", {
+							message: error instanceof Error ? error.message : String(error),
+							stack: error instanceof Error ? error.stack : undefined,
+							parsedField: parsed.field,
+						});
+
+						// Mapper l'erreur vers le champ spécifique si identifié
+						if (parsed.field) {
+							setServerErrors({ [parsed.field]: parsed.message });
+						}
+					},
+					onSuccess: () => {
+						toast.success("Connexion réussie ! Bienvenue à bord !");
+						form.reset();
+						router.navigate({ to: redirectTo || "/" });
+					},
+				},
+			);
+
+			// Vérifier si l'utilisateur n'a pas vérifié son email (cas où pas d'erreur mais pas de session)
+			if (result?.data?.user && !result.data.user.emailVerified) {
+				openEmailVerificationTab(result.data.user.email);
+				toast.info("Veuillez vérifier votre email avant de vous connecter.");
 			}
-		},
-		onSubmitInvalid: () => {
-			toast.error("Veuillez corriger les erreurs dans le formulaire");
 		},
 	});
 
@@ -71,31 +121,58 @@ export const SignInTab = () => {
 			}}
 			className="space-y-4"
 		>
-			<FieldGroup>
-				<form.Field name="username">
-					{(field) => (
-						<FormField
-							field={field}
-							label="Nom d'utilisateur"
-							type="text"
-							placeholder="votre_pseudo"
-							autoComplete="username"
-						/>
-					)}
-				</form.Field>
+			{/* Boutons OAuth */}
+			<SocialAuthButtons redirectTo={redirectTo} />
 
-				<form.Field name="password">
+			{/* Séparateur */}
+			<div className="relative">
+				<Separator />
+				<div className="relative flex justify-center text-xs uppercase">
+					<span className="bg-background px-2 text-muted-foreground">
+						Ou continuer avec
+					</span>
+				</div>
+			</div>
+
+			{/* Formulaire classique */}
+			<FieldGroup>
+				<form.AppField name="username">
 					{(field) => (
-						<FormField
-							field={field}
-							label="Mot de passe"
-							placeholder="********"
-							autoComplete="current-password"
-							isPassword
+						<field.UsernameInput
+							label="Nom d'utilisateur"
+							aria-invalid={!!serverErrors.username}
 						/>
 					)}
-				</form.Field>
+				</form.AppField>
+				{serverErrors.username && (
+					<p className="text-sm text-destructive">{serverErrors.username}</p>
+				)}
+
+				<form.AppField name="password">
+					{(field) => (
+						<field.CurrentPasswordInput
+							label="Mot de passe"
+							aria-invalid={!!serverErrors.password}
+						/>
+					)}
+				</form.AppField>
+				{serverErrors.password && (
+					<p className="text-sm text-destructive">{serverErrors.password}</p>
+				)}
 			</FieldGroup>
+
+			{/* Lien mot de passe oublié */}
+			<div className="flex justify-between items-center">
+				<Button
+					onClick={openForgotPassword}
+					type="button"
+					variant="link"
+					size="sm"
+					className="text-sm font-normal underline cursor-pointer"
+				>
+					Mot de passe oublié ?
+				</Button>
+			</div>
 
 			<form.Subscribe
 				selector={(state) => ({

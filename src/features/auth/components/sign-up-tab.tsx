@@ -1,76 +1,114 @@
-import { useForm } from "@tanstack/react-form";
-import { useRouter } from "@tanstack/react-router";
-import { useId } from "react";
+import { useId, useState } from "react";
 import { toast } from "sonner";
-import { FormField } from "@/components/form/form-field";
+import { useAppForm } from "@/components/form/hooks";
 import ActionButton from "@/components/ui/action-button";
-import { Button } from "@/components/ui/button";
 import { Field, FieldGroup } from "@/components/ui/field";
-import { authClient } from "@/features/auth/lib/auth-client";
+import { signUp } from "@/features/auth/lib/auth-client";
+import { parseSignUpError } from "@/features/auth/lib/client/parse-auth-error";
+import type { User } from "@/features/auth/lib/map-auth-user";
 import {
 	type SignUpInput,
 	signUpSchema,
-} from "@/features/auth/schema/sign-up-schema";
+} from "@/features/auth/schemas/sign-up-schema";
 import { sendWelcomeEmailFn } from "@/features/auth/server/send-welcome-email";
+import { logger } from "@/lib/logger/client-logger";
+import { LinkAnonymousModal } from "./link-anonymous-modal";
 
-export const SignUpTab = () => {
+export const SignUpTab = ({
+	openEmailVerificationTab,
+	currentUser,
+}: {
+	openEmailVerificationTab: (email: string) => void;
+	currentUser: User | null;
+}) => {
 	const id = useId();
-	const router = useRouter();
+	const [serverErrors, setServerErrors] = useState<
+		Partial<Record<keyof SignUpInput, string>>
+	>({});
 
-	const form = useForm({
+	// États pour gérer la liaison de compte anonyme
+	const [showLinkModal, setShowLinkModal] = useState(false);
+	const [pendingEmailVerification, setPendingEmailVerification] = useState<{
+		email: string;
+		newUserId: string;
+	} | null>(null);
+
+	// Détecter si l'utilisateur actuel est anonyme
+	const anonymousUserId = currentUser?.isAnonymous ? currentUser.id : null;
+
+	const form = useAppForm({
 		defaultValues: {
 			name: "",
 			email: "",
 			password: "",
 			username: "",
 			displayUsername: "",
-		} satisfies SignUpInput,
+		} satisfies SignUpInput as SignUpInput,
 		validators: {
 			onSubmit: signUpSchema,
 			onBlur: signUpSchema,
 		},
 		onSubmit: async ({ value }) => {
-			const { error } = await authClient.signUp.email({
-				email: value.email,
-				password: value.password,
-				name: value.name,
-				username: value.username,
-				displayUsername: value.displayUsername,
-				callbackURL: "/",
-			});
+			// Réinitialiser les erreurs serveur au début de la soumission
+			setServerErrors({});
 
-			if (error) {
-				const errorData = error;
-				if (errorData?.message) {
-					if ((errorData as any).field) {
-						form.setFieldMeta((errorData as any).field, (prev) => ({
-							...prev,
-							isTouched: true,
-							errorMap: {
-								onChange: (errorData as any).error || errorData.message,
-							},
-						}));
-						toast.error((errorData as any).error || "Erreur de validation");
-					} else {
-						toast.error(errorData.message || "Erreur inconnue");
-					}
+			const res = await signUp.email(
+				{
+					...value,
+					callbackURL: "/",
+				},
+				{},
+			);
+
+			if (res.error) {
+				const parsed = parseSignUpError(res.error);
+				toast.error(parsed.message);
+				logger.error("Erreur durant l'inscription", {
+					message: res.error.message,
+					stack: res.error.stack,
+					parsedField: parsed.field,
+				});
+				if (parsed.field) {
+					setServerErrors((prev) => ({
+						...prev,
+						[parsed.field as keyof SignUpInput]: parsed.message,
+					}));
 				}
-			} else {
+				return;
+			}
+
+			if (res.data?.user) {
 				await sendWelcomeEmailFn({
 					data: {
 						email: value.email,
 						name: value.name,
 					},
 				});
+				toast.success("Inscription réussie ! Bienvenue à bord !");
 
-				toast.success("Inscription réussie ! Vous êtes maintenant connecté.");
-				form.reset();
-				await router.invalidate();
-				router.navigate({ to: "/" });
+				if (anonymousUserId) {
+					logger.info(
+						"Anonymous user signed up, preparing to show link modal",
+						{
+							anonymousUserId,
+							newUserId: res.data.user.id,
+						},
+					);
+					setPendingEmailVerification({
+						email: value.email,
+						newUserId: res.data.user.id,
+					});
+					setShowLinkModal(true);
+				}
 			}
-		},
-		onSubmitInvalid: () => {
-			toast.error("Veuillez corriger les erreurs dans le formulaire");
+
+			form.reset();
+
+			// Ne rediriger vers email verification que si ce n'est PAS un utilisateur anonyme
+			// (pour les anonymes, on redirige après le choix dans la modal)
+			if (res.data?.user && !res.data.user.emailVerified && !anonymousUserId) {
+				openEmailVerificationTab(value.email);
+			}
 		},
 	});
 
@@ -85,85 +123,134 @@ export const SignUpTab = () => {
 			className="space-y-4"
 		>
 			<FieldGroup>
-				<form.Field name="name">
+				<form.AppField name="name">
 					{(field) => (
-						<FormField
-							field={field}
+						<field.Input
 							label="Nom"
-							placeholder="Votre nom"
-							autoComplete="name"
+							description="Utilisé pour personnaliser vos emails de bienvenue"
+							aria-invalid={!!serverErrors.name}
 						/>
 					)}
-				</form.Field>
-				<form.Field name="username">
+				</form.AppField>
+				{serverErrors.name && (
+					<p className="text-sm text-destructive">{serverErrors.name}</p>
+				)}
+
+				<form.AppField name="username">
 					{(field) => (
-						<FormField
-							field={field}
+						<field.UsernameInput
 							label="Nom d'utilisateur"
-							placeholder="votre_pseudo"
-							autoComplete="username"
+							description="Utilisé lors de la connexion et dans votre profil"
+							aria-invalid={!!serverErrors.username}
 						/>
 					)}
-				</form.Field>
-				<form.Field name="displayUsername">
+				</form.AppField>
+				{serverErrors.username && (
+					<p className="text-sm text-destructive">{serverErrors.username}</p>
+				)}
+
+				<form.AppField name="displayUsername">
 					{(field) => (
-						<FormField
-							field={field}
+						<field.DisplayUsernameInput
 							label="Nom d'affichage"
-							placeholder="Pseudo Affiché"
-							autoComplete="displayUsername"
+							description="C'est le nom qui sera visible publiquement"
+							aria-invalid={!!serverErrors.displayUsername}
 						/>
 					)}
-				</form.Field>
-				<form.Field name="email">
+				</form.AppField>
+				{serverErrors.displayUsername && (
+					<p className="text-sm text-destructive">
+						{serverErrors.displayUsername}
+					</p>
+				)}
+
+				<form.AppField name="email">
 					{(field) => (
-						<FormField
-							field={field}
+						<field.EmailInput
 							label="Email"
-							type="email"
-							placeholder="exemple@email.com"
-							autoComplete="email"
+							description="Pour recevoir des notifications et récupérer votre compte"
+							aria-invalid={!!serverErrors.email}
 						/>
 					)}
-				</form.Field>
-				<form.Field name="password">
+				</form.AppField>
+				{serverErrors.email && (
+					<p className="text-sm text-destructive">{serverErrors.email}</p>
+				)}
+
+				<form.AppField name="password">
 					{(field) => (
-						<FormField
-							field={field}
+						<field.PasswordInput
 							label="Mot de passe"
-							placeholder="*******"
-							autoComplete="new-password"
-							isPassword
+							description="Au moins 6 caractères"
+							aria-invalid={!!serverErrors.password}
 						/>
 					)}
-				</form.Field>
+				</form.AppField>
+				{serverErrors.password && (
+					<p className="text-sm text-destructive">{serverErrors.password}</p>
+				)}
 			</FieldGroup>
 			<form.Subscribe
 				selector={(state) => ({
 					isSubmitting: state.isSubmitting,
-					canSubmit: state.canSubmit,
 					isDirty: state.isDirty,
+					values: state.values,
 				})}
 			>
-				{({ isSubmitting, canSubmit, isDirty }) => (
+				{({ isSubmitting, isDirty, values }) => (
 					<Field orientation="horizontal">
-						<Button
+						<ActionButton
 							type="button"
 							variant="outline"
+							isPending={isSubmitting}
 							onClick={() => form.reset()}
 							disabled={isSubmitting || !isDirty}
 						>
 							Annuler
-						</Button>
+						</ActionButton>
 						<ActionButton
 							isPending={isSubmitting}
-							disabled={!canSubmit || isSubmitting}
+							disabled={
+								!isDirty ||
+								!signUpSchema.safeParse(values).success ||
+								isSubmitting
+							}
 						>
 							S'inscrire
 						</ActionButton>
 					</Field>
 				)}
 			</form.Subscribe>
+
+			{/* Modal de liaison de compte anonyme */}
+			{anonymousUserId && (
+				<LinkAnonymousModal
+					isOpen={showLinkModal}
+					onClose={() => setShowLinkModal(false)}
+					anonymousUserId={anonymousUserId}
+					newUserId={pendingEmailVerification?.newUserId || null}
+					onLinkSuccess={(count) => {
+						logger.info("Anonymous account linked successfully", {
+							linkedCount: count,
+						});
+
+						// Rediriger vers email verification après liaison réussie
+						if (pendingEmailVerification) {
+							openEmailVerificationTab(pendingEmailVerification.email);
+							setPendingEmailVerification(null);
+						}
+					}}
+					onLinkDecline={() => {
+						logger.info("User declined anonymous account linking");
+
+						// Rediriger vers email verification même si refus de liaison
+						if (pendingEmailVerification) {
+							openEmailVerificationTab(pendingEmailVerification.email);
+							setPendingEmailVerification(null);
+						}
+					}}
+				/>
+			)}
 		</form>
 	);
 };

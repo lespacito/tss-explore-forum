@@ -1,36 +1,78 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { useState } from "react";
+import { z } from "zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { EmailVerification } from "@/features/auth/components/email-verification";
+import { ForgotPassword } from "@/features/auth/components/forgot-password";
 import { SignInTab } from "@/features/auth/components/sign-in-tab";
 import { SignUpTab } from "@/features/auth/components/sign-up-tab";
-import { getAuthSession } from "@/features/auth/server/get-auth-session";
+import { getAuthSessionCached } from "@/features/auth/server/get-auth-session";
+
+const loginSearchSchema = z.object({
+	redirect: z.string().optional(),
+});
 
 export const Route = createFileRoute("/auth/login/")({
 	component: RouteComponent,
+	validateSearch: (search) => loginSearchSchema.parse(search),
 	loader: async () => {
-		const session = await getAuthSession();
-		if (session?.user) {
+		const session = await getAuthSessionCached();
+		// Permettre aux utilisateurs anonymes d'accéder à cette page pour créer un compte permanent
+		if (session?.user && !session.user.isAnonymous) {
 			throw redirect({
 				to: "/",
 			});
 		}
+		// Retourner authSession pour que le Navbar puisse y accéder
+		return {
+			authSession: session,
+		};
 	},
 });
 
+type Tab = "sign-in" | "sign-up" | "email-verification" | "forgot-password";
+
 function RouteComponent() {
+	const { authSession } = Route.useLoaderData();
+	const { redirect: redirectParam } = Route.useSearch();
+	const [email, setEmail] = useState("");
+	const [selectedTab, setSelectedTab] = useState<Tab>("sign-in");
+
+	// Sanitize redirect to prevent open redirects — only allow relative paths
+	const redirectTo =
+		redirectParam && redirectParam.startsWith("/")
+			? redirectParam
+			: undefined;
+
+	function openEmailVerificationTab(email: string) {
+		setEmail(email);
+		setSelectedTab("email-verification");
+	}
+
 	return (
-		<Tabs defaultValue="sign-up" className="w-full max-w-md mx-auto my-6 px-4">
-			<TabsList>
-				<TabsTrigger value="sign-in">Se connecter</TabsTrigger>
-				<TabsTrigger value="sign-up">S'inscrire</TabsTrigger>
-			</TabsList>
+		<Tabs
+			value={selectedTab}
+			onValueChange={(t) => setSelectedTab(t as Tab)}
+			className="w-full mx-auto max-w-2xl my-6 px-4"
+		>
+			{(selectedTab === "sign-in" || selectedTab === "sign-up") && (
+				<TabsList>
+					<TabsTrigger value="sign-in">Se connecter</TabsTrigger>
+					<TabsTrigger value="sign-up">S'inscrire</TabsTrigger>
+				</TabsList>
+			)}
 			<TabsContent value="sign-in">
 				<Card>
 					<CardHeader className="text-2xl font-bold">
 						<CardTitle>Se connecter</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<SignInTab />
+						<SignInTab
+							openEmailVerificationTab={openEmailVerificationTab}
+							openForgotPassword={() => setSelectedTab("forgot-password")}
+							redirectTo={redirectTo}
+						/>
 					</CardContent>
 				</Card>
 			</TabsContent>
@@ -40,7 +82,30 @@ function RouteComponent() {
 						<CardTitle>S'inscrire</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<SignUpTab />
+						<SignUpTab
+							openEmailVerificationTab={openEmailVerificationTab}
+							currentUser={authSession?.user ?? null}
+						/>
+					</CardContent>
+				</Card>
+			</TabsContent>
+			<TabsContent value="email-verification">
+				<Card>
+					<CardHeader className="text-2xl font-bold">
+						<CardTitle>Vérifier votre email</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<EmailVerification email={email} />
+					</CardContent>
+				</Card>
+			</TabsContent>
+			<TabsContent value="forgot-password">
+				<Card>
+					<CardHeader className="text-2xl font-bold">
+						<CardTitle>Mot de passe oublié</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<ForgotPassword openSignInTab={() => setSelectedTab("sign-in")} />
 					</CardContent>
 				</Card>
 			</TabsContent>
