@@ -16,7 +16,7 @@ interface BetterAuthUser extends BetterUser {
 	secretCodeGeneratedAt?: Date | null;
 }
 
-interface AuthDataWithUser {
+export interface AuthDataWithUser {
 	user?: BetterAuthUser;
 }
 

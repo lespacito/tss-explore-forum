@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { signIn } from "../lib/auth-client";
+import { signinWithSecretCodeFn } from "../server/signin-with-secret-code";
 
 const formSchema = z.object({
 	secretCode: z
@@ -38,14 +38,19 @@ export function SecretCodeLoginForm({ redirectTo }: { redirectTo?: string } = {}
 			setServerError(null);
 
 			try {
-				// Utiliser le plugin credentials avec providerId "secret-code"
-				await signIn.credentials({
-					secretCode: value.secretCode,
-					providerId: "secret-code",
+				const result = await signinWithSecretCodeFn({
+					data: { secretCode: value.secretCode },
 				});
 
-				// Succès - redirection
-				router.navigate({ to: redirectTo || "/threads" });
+				if (result.success) {
+					// Succès - redirection
+					router.navigate({ to: redirectTo || "/posts" });
+				} else {
+					setServerError(
+						result.error ||
+							"Impossible de se connecter. Vérifiez votre code.",
+					);
+				}
 			} catch (error) {
 				// Afficher erreur bienveillante (pas "code invalide")
 				setServerError("Impossible de se connecter. Vérifiez votre code.");

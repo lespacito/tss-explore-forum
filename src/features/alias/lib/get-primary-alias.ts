@@ -1,8 +1,4 @@
-import {
-	getAliasById,
-	getUserAliases,
-	getUserPrimaryAlias,
-} from "../server/db/alias-queries";
+import { getUserPrimaryAlias } from "../server/db/alias-queries";
 
 /**
  * Récupère l'alias principal d'un utilisateur

@@ -52,7 +52,7 @@ export const auth = betterAuth({
 		sendOnSignUp: true,
 		sendVerificationEmail: async ({ user, url }) => {
 			// Ne pas envoyer d'emails de vérification aux utilisateurs anonymes
-			if (user.isAnonymous) {
+			if ((user as { isAnonymous?: boolean }).isAnonymous) {
 				logger.info("Skipping verification email for anonymous user", {
 					userId: user.id,
 				});
@@ -83,7 +83,6 @@ export const auth = betterAuth({
 	plugins: [
 		credentials({
 			providerId: "secret-code",
-			name: "Secret Code",
 			inputSchema: secretCodeSchema,
 			linkAccountIfExisting: true, // Permet de lier un account à un user existant
 			callback: async (ctx) => {

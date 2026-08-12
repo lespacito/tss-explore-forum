@@ -1,5 +1,4 @@
 import { pgTable, foreignKey, text, timestamp, uuid, unique, boolean, index, json, varchar, pgEnum } from "drizzle-orm/pg-core"
-import { sql } from "drizzle-orm"
 
 export const notificationType = pgEnum("notification_type", ['NEW_REPLY', 'REPORT_RECEIVED', 'MODERATION_ACTION'])
 export const reportStatus = pgEnum("report_status", ['PENDING', 'RESOLVED', 'DISMISSED'])

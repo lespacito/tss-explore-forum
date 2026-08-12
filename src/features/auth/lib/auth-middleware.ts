@@ -3,6 +3,7 @@ import { getRequest } from "@tanstack/react-start/server";
 import type { Session } from "better-auth";
 import {
 	mapAuthDataToUser,
+	type AuthDataWithUser,
 	type User,
 } from "@/features/auth/lib/map-auth-user";
 import {
@@ -33,7 +34,7 @@ export const authMiddleware = createMiddleware().server(async ({ next }) => {
 		});
 
 		const session = authData?.session || null;
-		const user = mapAuthDataToUser(authData);
+		const user = mapAuthDataToUser(authData as AuthDataWithUser | null);
 
 		// Enrichir le contexte de log avec les infos utilisateur
 		if (user) {

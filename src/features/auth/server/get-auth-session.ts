@@ -4,6 +4,7 @@ import type { Session } from "better-auth";
 import { auth } from "@/features/auth/lib/auth";
 import {
 	mapAuthDataToUser,
+	type AuthDataWithUser,
 	type User,
 } from "@/features/auth/lib/map-auth-user";
 import { getContextLogger } from "@/lib/logger/middleware";
@@ -25,7 +26,7 @@ export const getAuthSession = createServerFn({ method: "GET" }).handler(
 			});
 
 			const session = authData?.session || null;
-			const user = mapAuthDataToUser(authData);
+			const user = mapAuthDataToUser(authData as AuthDataWithUser | null);
 
 			return {
 				user,
