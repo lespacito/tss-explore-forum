@@ -1,9 +1,21 @@
-export type ThreadCategory =
-	| "VIOLENCE"
-	| "ABUS"
-	| "TEMOIN"
-	| "DETRESSE"
-	| "AUTRE";
+export const threadCategoryIds = [
+	"VIOLENCE",
+	"ABUS",
+	"TEMOIN",
+	"DETRESSE",
+	"AUTRE",
+] as const;
+
+export type ThreadCategory = (typeof threadCategoryIds)[number];
+
+export function parseThreadCategory(
+	value: unknown,
+): ThreadCategory | undefined {
+	if (typeof value !== "string") return undefined;
+
+	const normalizedValue = value.toUpperCase();
+	return threadCategoryIds.find((category) => category === normalizedValue);
+}
 
 export interface CategoryConfig {
 	id: ThreadCategory;

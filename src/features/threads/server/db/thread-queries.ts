@@ -51,6 +51,29 @@ export async function getAllPublishedThreads() {
 	}));
 }
 
+/** Return published, non-deleted threads for one category. */
+export async function getPublishedThreadsByCategory(category: ThreadCategory) {
+	const result = await db
+		.select(threadWithAliasSelect)
+		.from(threads)
+		.where(
+			and(
+				eq(threads.status, "published"),
+				isNull(threads.deletedAt),
+				eq(threads.category, category),
+			),
+		)
+		.leftJoin(alias, eq(threads.aliasId, alias.id))
+		.leftJoin(user, eq(alias.userId, user.id))
+		.orderBy(desc(threads.createdAt));
+
+	return result.map((thread) => ({
+		...thread,
+		createdAt: thread.createdAt.toISOString(),
+		updatedAt: thread.updatedAt.toISOString(),
+	}));
+}
+
 /**
  * Get a single thread by its slug
  * Pure database query - returns thread with alias and user data

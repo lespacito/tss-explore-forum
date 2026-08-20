@@ -1,5 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getAllPublishedThreads } from "../db/thread-queries";
+import { z } from "zod";
+import { threadCategoryIds } from "@/data/threads-categories";
+import {
+	getAllPublishedThreads,
+	getPublishedThreadsByCategory,
+} from "../db/thread-queries";
 
 /**
  * Server function to get all published threads
@@ -15,3 +20,9 @@ export const getThreadsFn = createServerFn({ method: "GET" }).handler(
 
 // Export as alias for compatibility with optimized loaders
 export { getThreadsFn as getThreadsCached };
+
+export const getThreadsByCategoryFn = createServerFn({ method: "GET" })
+	.inputValidator(z.object({ category: z.enum(threadCategoryIds) }))
+	.handler(async ({ data }) => {
+		return await getPublishedThreadsByCategory(data.category);
+	});
