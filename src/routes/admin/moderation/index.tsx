@@ -48,19 +48,22 @@ export const Route = createFileRoute("/admin/moderation/")({
 
 function ModerationPage() {
 	const { threads, moderator } = Route.useLoaderData();
+	const moderationThreads = threads as ModerationQueueItem[];
 	const [filter, setFilter] = useState<QueueStatus>("pending");
 	const counts = useMemo(
 		() =>
-			threads.reduce<Record<QueueStatus, number>>(
+			moderationThreads.reduce<Record<QueueStatus, number>>(
 				(result, thread) => {
 					result[thread.status] += 1;
 					return result;
 				},
 				{ pending: 0, published: 0, rejected: 0 },
 			),
-		[threads],
+		[moderationThreads],
 	);
-	const visibleThreads = threads.filter((thread) => thread.status === filter);
+	const visibleThreads = moderationThreads.filter(
+		(thread) => thread.status === filter,
+	);
 
 	return (
 		<main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
