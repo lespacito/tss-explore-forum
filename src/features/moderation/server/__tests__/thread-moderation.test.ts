@@ -1,6 +1,8 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { User } from "@/features/auth/lib/map-auth-user";
 import { assertModerator, moderationActionSchema } from "../thread-moderation";
+
+vi.mock("@/db", () => ({ db: {} }));
 
 function userWithRole(role: User["role"]): User {
 	return {
