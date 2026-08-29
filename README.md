@@ -91,7 +91,7 @@ Créer un espace sûr où les personnes confrontées à la violence peuvent **pa
 - **TypeScript (strict mode)** : Type safety
 - **Vitest 3.x** : Testing framework
 - **Biome** : Linting + formatting
-- **pnpm** : Package manager
+- **Bun** : runtime et gestionnaire de paquets
 
 **Documentation:** [Project Context](project-context.md)
 
@@ -101,8 +101,7 @@ Créer un espace sûr où les personnes confrontées à la violence peuvent **pa
 
 ### Prérequis
 
-- Node.js 18+ (recommandé: 20+)
-- pnpm 8+
+- Bun 1.3+
 - PostgreSQL 14+
 
 ### Installation
@@ -113,20 +112,20 @@ git clone https://github.com/your-org/parlons-violence.git
 cd parlons-violence
 
 # Installer les dépendances
-pnpm install
+bun install --frozen-lockfile
 
 # Configurer les variables d'environnement
 cp .env.example .env
 # Éditer .env avec vos valeurs
 
 # Initialiser la base de données
-pnpm db:push
+bun run db:push
 
 # Lancer le serveur de développement
-pnpm dev
+bun run dev
 ```
 
-L'application sera accessible sur [http://localhost:3000](http://localhost:3000)
+L'application sera accessible sur [http://localhost:3001](http://localhost:3001)
 
 ---
 
@@ -135,40 +134,40 @@ L'application sera accessible sur [http://localhost:3000](http://localhost:3000)
 ### Développement
 
 ```bash
-pnpm dev              # Démarrer le serveur de développement (port 3000)
-pnpm build            # Build de production
-pnpm start            # Démarrer le serveur de production
+bun run dev           # Démarrer le serveur de développement (port 3001)
+bun run build         # Build de production
+bun run start         # Démarrer le serveur de production
 ```
 
 ### Database (Drizzle)
 
 ```bash
-pnpm db:generate      # Générer les migrations
-pnpm db:migrate       # Exécuter les migrations
-pnpm db:push          # Push du schéma (dev uniquement)
-pnpm db:studio        # Ouvrir Drizzle Studio (GUI)
+bun run db:generate   # Générer les migrations
+bun run db:migrate    # Exécuter les migrations
+bun run db:push       # Push du schéma (dev uniquement)
+bun run db:studio     # Ouvrir Drizzle Studio (GUI)
 ```
 
 ### Testing
 
 ```bash
-pnpm test             # Exécuter tous les tests (Vitest)
-pnpm test:watch       # Mode watch pour les tests
-pnpm test:coverage    # Générer le rapport de couverture
+bun run test:unit     # Exécuter tous les tests unitaires une fois
+bun run test          # Mode interactif Vitest
+bun run test:e2e      # Exécuter les tests Playwright
 ```
 
 ### Code Quality (Biome)
 
 ```bash
-pnpm lint             # Linter le code
-pnpm format           # Formatter le code
-pnpm check            # Lint + format (full check)
+bun run lint          # Linter le code
+bun run format        # Formatter le code
+bun run check         # Vérification Biome complète
 ```
 
 ### UI Components (Shadcn)
 
 ```bash
-pnpx shadcn@latest add <component>  # Ajouter un composant Shadcn
+bunx shadcn@latest add <component>  # Ajouter un composant Shadcn
 ```
 
 ---
@@ -252,17 +251,17 @@ SERVICE_NAME=parlons-violence
 
 ```bash
 # Tous les tests
-pnpm test
+bun run test:unit
 
 # Tests spécifiques
-pnpm test auth              # Tests d'authentification
-pnpm test secret-code       # Tests du code secret
+bun run test:unit auth        # Tests d'authentification
+bun run test:unit secret-code # Tests du code secret
 
 # Mode watch
-pnpm test:watch
+bun run test
 
 # Coverage
-pnpm test:coverage
+bunx vitest run --coverage
 ```
 
 **Documentation:** [Project Context - Testing Strategy](project-context.md#-testing-strategy)
