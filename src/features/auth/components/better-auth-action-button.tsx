@@ -1,42 +1,39 @@
-import ActionButton from "@/components/ui/action-button";
 import type { ComponentProps } from "react";
 import { useState } from "react";
+import { toast } from "sonner";
+import ActionButton from "@/components/ui/action-button";
 
 export function BetterAuthActionButton({
-  action,
-  successMessage,
-  ...props
+	action,
+	successMessage,
+	...props
 }: Omit<ComponentProps<typeof ActionButton>, "isPending" | "onClick"> & {
-  action: () => Promise<{ error: null | { message?: string } }>;
-  successMessage?: string;
+	action: () => Promise<{ error: null | { message?: string } }>;
+	successMessage?: string;
 }) {
-  const [isPending, setIsPending] = useState(false);
+	const [isPending, setIsPending] = useState(false);
 
-  const handleClick = async () => {
-    setIsPending(true);
-    try {
-      const res = await action();
-      if (res.error) {
-        return { error: true, message: res.error.message };
-      } else if (successMessage) {
-        return { error: false, message: successMessage };
-      } else {
-        return undefined;
-      }
-    } catch (error) {
-      return {
-        error: true,
-        message:
-          error instanceof Error
-            ? error.message
-            : String(error) || "Une erreur est survenue",
-      };
-    } finally {
-      setIsPending(false);
-    }
-  };
+	const handleClick = async () => {
+		setIsPending(true);
+		try {
+			const res = await action();
+			if (res.error) {
+				toast.error(res.error.message || "Une erreur est survenue.");
+			} else if (successMessage) {
+				toast.success(successMessage);
+			}
+		} catch (error) {
+			toast.error(
+				error instanceof Error
+					? error.message
+					: String(error) || "Une erreur est survenue",
+			);
+		} finally {
+			setIsPending(false);
+		}
+	};
 
-  return (
-    <ActionButton {...props} isPending={isPending} onClick={handleClick} />
-  );
+	return (
+		<ActionButton {...props} isPending={isPending} onClick={handleClick} />
+	);
 }

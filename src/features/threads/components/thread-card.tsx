@@ -1,120 +1,108 @@
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
+import { Link } from "@tanstack/react-router";
+import { formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
+import { memo } from "react";
+import { SafeHtmlDisplay } from "@/components/tiptap/SafeHtmlDisplay";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { MessageSquare, ThumbsUp } from "lucide-react";
-import { fr } from "date-fns/locale";
-import { formatDistanceToNow } from "date-fns";
-import { Link } from "@tanstack/react-router";
-import { getAuthorDisplayName } from "@/lib/utils/thread-utils";
+import {
+	Card,
+	CardContent,
+	CardFooter,
+	CardHeader,
+} from "@/components/ui/card";
+import { getInitials } from "@/lib/utils/string-utils";
+import {
+	getAuthorDisplayName,
+	getCategoryColor,
+} from "@/lib/utils/thread-utils";
 
 interface ThreadCardProps {
-  thread: {
-    id: string;
-    title: string;
-    body: string;
-    slug: string;
-    category: string;
-    createdAt: Date;
-    updatedAt: Date;
-    aliasName: string | null;
-    aliasId: string | null;
-    displayUsername: string | null;
-  };
+	thread: {
+		id: string;
+		title: string;
+		body: string;
+		slug: string;
+		category: string;
+		createdAt: Date | string;
+		updatedAt: Date | string;
+		aliasName: string | null;
+		aliasId: string | null;
+		displayUsername: string | null;
+	};
 }
 
-export function ThreadCard({ thread }: ThreadCardProps) {
-  const getInitials = (name: string) => {
-    return name
-      .split("-")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  };
+// OPTIMIZATION: Memoize ThreadCard to prevent re-renders when parent updates
+// This improves performance when scrolling through long lists of threads
+export const ThreadCard = memo(function ThreadCard({
+	thread,
+}: ThreadCardProps) {
+	const authorName = getAuthorDisplayName({
+		isSensitive: false,
+		threadCategory: thread.category,
+		aliasName: thread.aliasName,
+		displayUsername: thread.displayUsername,
+	});
 
-  const getCategoryColor = (category: string) => {
-    const colors: Record<string, string> = {
-      support: "bg-blue-500/10 text-blue-700 border-blue-500/20",
-      discussion: "bg-purple-500/10 text-purple-700 border-purple-500/20",
-      question: "bg-green-500/10 text-green-700 border-green-500/20",
-      partage: "bg-orange-500/10 text-orange-700 border-orange-500/20",
-      temoignage: "bg-pink-500/10 text-pink-700 border-pink-500/20",
-      urgent: "bg-red-500/10 text-red-700 border-red-500/20",
-    };
-    return (
-      colors[category.toLowerCase()] ||
-      "bg-gray-500/10 text-gray-700 border-gray-500/20"
-    );
-  };
-
-  const authorName = getAuthorDisplayName({
-    isSensitive: false,
-    threadCategory: thread.category,
-    aliasName: thread.aliasName,
-    displayUsername: thread.displayUsername,
-  });
-
-  return (
-    <Link
-      to="/threads/$threadSlug"
-      params={{ threadSlug: thread.slug }}
-      className="block"
-    >
-      <Card className="w-full hover:shadow-md transition-shadow cursor-pointer">
-        <CardHeader className="flex flex-row items-center gap-4 p-4">
-          <Avatar>
-            <AvatarFallback className="bg-primary/10 text-primary">
-              {authorName ? getInitials(authorName) : "??"}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex flex-col flex-1">
-            <div className="flex items-center gap-2">
-              <span className="font-semibold text-sm">{authorName}</span>
-              <Badge
-                variant="outline"
-                className={`text-xs ${getCategoryColor(thread.category)}`}
-              >
-                {thread.category}
-              </Badge>
-            </div>
-            <span className="text-xs text-muted-foreground">
-              {formatDistanceToNow(new Date(thread.createdAt), {
-                addSuffix: true,
-                locale: fr,
-              })}
-            </span>
-          </div>
-        </CardHeader>
-        <CardContent className="p-4 pt-0 space-y-2">
-          <h3 className="font-bold text-lg font-serif hover:text-primary transition-colors">
-            {thread.title}
-          </h3>
-          <p className="text-sm text-muted-foreground line-clamp-3">
-            {thread.body}
-          </p>
-        </CardContent>
-        <CardFooter className="p-4 border-t flex justify-between text-muted-foreground">
-          <div className="flex gap-4 text-xs">
-            <div className="flex items-center gap-1">
-              <MessageSquare className="h-3 w-3" />
-              <span>0 réponses</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <ThumbsUp className="h-3 w-3" />
-              <span>0 j'aime</span>
-            </div>
-          </div>
-          <Button variant="ghost" size="sm" className="h-7 text-xs">
-            Voir la discussion →
-          </Button>
-        </CardFooter>
-      </Card>
-    </Link>
-  );
-}
+	return (
+		<Link
+			to="/threads/$threadSlug"
+			params={{ threadSlug: thread.slug }}
+			className="block"
+		>
+			<Card
+				className="w-full hover:shadow-md transition-shadow cursor-pointer"
+				data-testid="thread-card"
+			>
+				<CardHeader className="flex flex-row items-center gap-4 p-4">
+					<Avatar>
+						<AvatarFallback className="bg-primary/10 text-primary">
+							{getInitials(authorName)}
+						</AvatarFallback>
+					</Avatar>
+					<div className="flex flex-col flex-1">
+						<div className="flex items-center gap-2">
+							<span className="font-semibold text-sm" data-testid="thread-author">
+								{authorName}
+							</span>
+							<Badge
+								variant="outline"
+								className={`text-xs ${getCategoryColor(thread.category)}`}
+								data-testid="thread-category"
+							>
+								{thread.category}
+							</Badge>
+						</div>
+						<span
+							className="text-xs text-muted-foreground"
+							data-testid="thread-timestamp"
+						>
+							{formatDistanceToNow(new Date(thread.createdAt), {
+								addSuffix: true,
+								locale: fr,
+							})}
+						</span>
+					</div>
+				</CardHeader>
+				<CardContent className="p-4 pt-0 space-y-2">
+					<h3
+						className="font-bold text-lg font-serif hover:text-primary transition-colors"
+						data-testid="thread-title"
+					>
+						{thread.title}
+					</h3>
+					<SafeHtmlDisplay
+						html={thread.body}
+						className="text-sm text-muted-foreground line-clamp-3"
+						data-testid="thread-excerpt"
+					/>
+				</CardContent>
+				<CardFooter className="p-4 border-t flex justify-end text-muted-foreground">
+					<span className="text-xs font-medium text-primary">
+						Voir la discussion →
+					</span>
+				</CardFooter>
+			</Card>
+		</Link>
+	);
+});

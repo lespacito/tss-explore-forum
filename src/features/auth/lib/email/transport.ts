@@ -1,41 +1,18 @@
+import { Resend } from "resend";
 import { env } from "@/data/env/server";
-import type { Transporter } from "nodemailer";
-import nodemailer from "nodemailer";
 
-// Configuration du transport SMTP pour Mailpit
-const createTransporter = (): Transporter => {
-  const config = {
-    host: env.SMTP_HOST || "localhost",
-    port: Number(env.SMTP_PORT) || 1025,
-    secure: false, // Mailpit n'utilise pas SSL/TLS
-    auth:
-      env.SMTP_USER && env.SMTP_PASSWORD
-        ? {
-            user: env.SMTP_USER,
-            pass: env.SMTP_PASSWORD,
-          }
-        : undefined,
-    // Options pour le développement avec Mailpit
-    tls: {
-      rejectUnauthorized: false,
-    },
-  };
+// Instance singleton de Resend
+let resendClient: Resend | null = null;
 
-  return nodemailer.createTransport(config);
-};
-
-// Instance singleton du transporter
-let transporter: Transporter | null = null;
-
-export const getEmailTransporter = (): Transporter => {
-  if (!transporter) {
-    transporter = createTransporter();
-  }
-  return transporter;
+export const getResendClient = (): Resend => {
+	if (!resendClient) {
+		resendClient = new Resend(env.RESEND_API_KEY);
+	}
+	return resendClient;
 };
 
 // Configuration par défaut pour l'envoi
 export const emailConfig = {
-  from: env.SMTP_FROM || "noreply@forum.local",
-  replyTo: env.SMTP_REPLY_TO,
+	from: env.EMAIL_FROM,
+	replyTo: env.EMAIL_REPLY_TO,
 };

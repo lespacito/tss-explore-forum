@@ -1,7 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { z } from "zod";
-import { sendEmail, welcomeEmail } from "@/features/auth/lib/email";
+import { logger } from "@/lib/logger/server";
+import { sendEmail } from "@/features/auth/lib/email/send";
+import { welcomeEmail } from "@/features/auth/lib/email/templates";
 
 const sendWelcomeEmailSchema = z.object({
 	email: z.email(),
@@ -25,9 +27,9 @@ export const sendWelcomeEmailFn = createServerFn({ method: "POST" })
 			});
 
 			if (!result.success) {
-				console.error(
-					"Échec de l'envoi de l'email de bienvenue:",
-					result.error,
+				logger.error(
+					"Échec de l'envoi de l'email de bienvenue",
+					{ error: result.error },
 				);
 				return {
 					success: false,
@@ -40,7 +42,7 @@ export const sendWelcomeEmailFn = createServerFn({ method: "POST" })
 				messageId: result.messageId,
 			};
 		} catch (error) {
-			console.error("Erreur lors de l'envoi de l'email de bienvenue:", error);
+			logger.error("Erreur lors de l'envoi de l'email de bienvenue", { error });
 			return {
 				success: false,
 				error: error instanceof Error ? error.message : "Erreur inconnue",

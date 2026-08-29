@@ -1,49 +1,49 @@
 import { findIp } from "@arcjet/ip";
 import {
-  type ArcjetNodeRequest,
-  type BotOptions,
-  detectBot,
-  type EmailOptions,
-  protectSignup,
-  type SlidingWindowRateLimitOptions,
-  slidingWindow,
+	type ArcjetNodeRequest,
+	type BotOptions,
+	detectBot,
+	type EmailOptions,
+	protectSignup,
+	type SlidingWindowRateLimitOptions,
+	slidingWindow,
 } from "@arcjet/node";
+import { env } from "@/data/env/server";
 import { auth } from "@/features/auth/lib/auth";
 import { ARCJET_MODE, arcjet } from "./arcjet-core";
-import { env } from "@/data/env/server";
 
 /**
  * Context pour l'exécution d'une policy Arcjet
  */
 export type ArcjetContext = {
-  request: Request;
-  path: string;
-  email?: string;
+	request: Request;
+	path: string;
+	email?: string;
 };
 
 /**
  * Presets de configuration pour les différentes règles Arcjet
  */
 const botSettings: BotOptions = {
-  mode: ARCJET_MODE,
-  allow: ["CATEGORY:SEARCH_ENGINE"],
+	mode: ARCJET_MODE,
+	allow: ["CATEGORY:SEARCH_ENGINE"],
 };
 
 const restrictiveRateLimit: SlidingWindowRateLimitOptions<[]> = {
-  mode: ARCJET_MODE,
-  max: 10,
-  interval: "10m",
+	mode: ARCJET_MODE,
+	max: 10,
+	interval: "10m",
 };
 
 const laxRateLimit: SlidingWindowRateLimitOptions<[]> = {
-  mode: ARCJET_MODE,
-  max: 60,
-  interval: "1m",
+	mode: ARCJET_MODE,
+	max: 60,
+	interval: "1m",
 };
 
 const emailSettings: EmailOptions = {
-  mode: ARCJET_MODE,
-  block: ["DISPOSABLE", "INVALID", "NO_MX_RECORDS"],
+	mode: ARCJET_MODE,
+	block: ["DISPOSABLE", "INVALID", "NO_MX_RECORDS"],
 };
 
 /**
@@ -51,16 +51,16 @@ const emailSettings: EmailOptions = {
  * Utilise l'ID utilisateur si connecté, sinon l'IP
  */
 async function getBaseCharacteristics(ctx: ArcjetContext) {
-  const session = await auth.api.getSession({ headers: ctx.request.headers });
-  let userIdOrIp = (session?.user.id ?? findIp(ctx.request)) || "127.0.0.1";
+	const session = await auth.api.getSession({ headers: ctx.request.headers });
+	let userIdOrIp = (session?.user.id ?? findIp(ctx.request)) || "127.0.0.1";
 
-  // En développement, Arcjet a besoin d'une IP publique pour fonctionner correctement
-  // On utilise une IP de test standard (TEST-NET-1) si on est en localhost
-  if (env.NODE_ENV === "development" && userIdOrIp === "127.0.0.1") {
-    userIdOrIp = "192.0.2.1";
-  }
+	// En développement, Arcjet a besoin d'une IP publique pour fonctionner correctement
+	// On utilise une IP de test standard (TEST-NET-1) si on est en localhost
+	if (env.NODE_ENV === "development" && userIdOrIp === "127.0.0.1") {
+		userIdOrIp = "192.0.2.1";
+	}
 
-  return { userIdOrIp };
+	return { userIdOrIp };
 }
 
 /**
@@ -68,13 +68,13 @@ async function getBaseCharacteristics(ctx: ArcjetContext) {
  * À utiliser sur les endpoints génériques (listes publiques, etc.)
  */
 export async function protectDefault(ctx: ArcjetContext) {
-  const { request } = ctx;
-  const { userIdOrIp } = await getBaseCharacteristics(ctx);
+	const { request } = ctx;
+	const { userIdOrIp } = await getBaseCharacteristics(ctx);
 
-  return arcjet
-    .withRule(detectBot(botSettings))
-    .withRule(slidingWindow(laxRateLimit))
-    .protect(request as unknown as ArcjetNodeRequest, { userIdOrIp });
+	return arcjet
+		.withRule(detectBot(botSettings))
+		.withRule(slidingWindow(laxRateLimit))
+		.protect(request as unknown as ArcjetNodeRequest, { userIdOrIp });
 }
 
 /**
@@ -84,26 +84,26 @@ export async function protectDefault(ctx: ArcjetContext) {
  * - Rate limit restrictif
  */
 export async function protectSignupEndpoint(ctx: ArcjetContext) {
-  const { request, email } = ctx;
-  const { userIdOrIp } = await getBaseCharacteristics(ctx);
+	const { request, email } = ctx;
+	const { userIdOrIp } = await getBaseCharacteristics(ctx);
 
-  if (email) {
-    return arcjet
-      .withRule(
-        protectSignup({
-          email: emailSettings,
-          bots: botSettings,
-          rateLimit: restrictiveRateLimit,
-        }),
-      )
-      .protect(request as unknown as ArcjetNodeRequest, { email, userIdOrIp });
-  }
+	if (email) {
+		return arcjet
+			.withRule(
+				protectSignup({
+					email: emailSettings,
+					bots: botSettings,
+					rateLimit: restrictiveRateLimit,
+				}),
+			)
+			.protect(request as unknown as ArcjetNodeRequest, { email, userIdOrIp });
+	}
 
-  // Fallback si email pas encore connu (ne devrait pas arriver dans le flow normal)
-  return arcjet
-    .withRule(detectBot(botSettings))
-    .withRule(slidingWindow(restrictiveRateLimit))
-    .protect(request as unknown as ArcjetNodeRequest, { userIdOrIp });
+	// Fallback si email pas encore connu (ne devrait pas arriver dans le flow normal)
+	return arcjet
+		.withRule(detectBot(botSettings))
+		.withRule(slidingWindow(restrictiveRateLimit))
+		.protect(request as unknown as ArcjetNodeRequest, { userIdOrIp });
 }
 
 /**
@@ -111,13 +111,13 @@ export async function protectSignupEndpoint(ctx: ArcjetContext) {
  * Rate limit restrictif + détection bot
  */
 export async function protectAuthEndpoint(ctx: ArcjetContext) {
-  const { request } = ctx;
-  const { userIdOrIp } = await getBaseCharacteristics(ctx);
+	const { request } = ctx;
+	const { userIdOrIp } = await getBaseCharacteristics(ctx);
 
-  return arcjet
-    .withRule(detectBot(botSettings))
-    .withRule(slidingWindow(restrictiveRateLimit))
-    .protect(request as unknown as ArcjetNodeRequest, { userIdOrIp });
+	return arcjet
+		.withRule(detectBot(botSettings))
+		.withRule(slidingWindow(restrictiveRateLimit))
+		.protect(request as unknown as ArcjetNodeRequest, { userIdOrIp });
 }
 
 /**
@@ -125,30 +125,30 @@ export async function protectAuthEndpoint(ctx: ArcjetContext) {
  * Protection contre le spam : Rate limit restrictif + Bot detection
  */
 export async function protectContentCreationEndpoint(ctx: ArcjetContext) {
-  const { request } = ctx;
-  const { userIdOrIp } = await getBaseCharacteristics(ctx);
+	const { request } = ctx;
+	const { userIdOrIp } = await getBaseCharacteristics(ctx);
 
-  return arcjet
-    .withRule(detectBot(botSettings))
-    .withRule(slidingWindow(restrictiveRateLimit))
-    .protect(request as unknown as ArcjetNodeRequest, { userIdOrIp });
+	return arcjet
+		.withRule(detectBot(botSettings))
+		.withRule(slidingWindow(restrictiveRateLimit))
+		.protect(request as unknown as ArcjetNodeRequest, { userIdOrIp });
 }
 
 /**
  * Exécute la policy Arcjet appropriée selon le path
  */
 export async function runArcjetPolicy(ctx: ArcjetContext) {
-  switch (ctx.path) {
-    case "/auth/sign-up":
-      return protectSignupEndpoint(ctx);
-    case "/auth/sign-in":
-    case "/auth/reset-password":
-    case "/auth/change-password":
-      return protectAuthEndpoint(ctx);
-    case "/threads/create":
-    case "/posts/create":
-      return protectContentCreationEndpoint(ctx);
-    default:
-      return protectDefault(ctx);
-  }
+	switch (ctx.path) {
+		case "/auth/sign-up":
+			return protectSignupEndpoint(ctx);
+		case "/auth/sign-in":
+		case "/auth/reset-password":
+		case "/auth/change-password":
+			return protectAuthEndpoint(ctx);
+		case "/threads/create":
+		case "/posts/create":
+			return protectContentCreationEndpoint(ctx);
+		default:
+			return protectDefault(ctx);
+	}
 }

@@ -1,0 +1,1 @@
+CREATE INDEX "idx_users_secret_code" ON "user" USING btree ("secret_code");

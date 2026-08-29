@@ -1,26 +1,33 @@
-import { defineConfig } from 'vite'
-import { tanstackStart } from '@tanstack/react-start/plugin/vite'
-import viteReact from '@vitejs/plugin-react'
-import viteTsConfigPaths from 'vite-tsconfig-paths'
-import tailwindcss from '@tailwindcss/vite'
-import { nitro } from 'nitro/vite'
-const config = defineConfig({
+import type { PluginOption } from "vite";
+import { defineConfig } from "vite";
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import { nitro } from "nitro/vite";
+import viteReact from "@vitejs/plugin-react";
+import viteTsConfigPaths from "vite-tsconfig-paths";
+import tailwindcss from "@tailwindcss/vite";
+
+export default defineConfig(({ command }) => ({
   plugins: [
-    // this is the plugin that enables path aliases
     viteTsConfigPaths({
-      projects: ['./tsconfig.json'],
-    }),
+      projects: ["./tsconfig.json"],
+    }) as PluginOption,
     tailwindcss(),
-    tanstackStart(),
+    tanstackStart({
+      router: {
+        routeFileIgnorePattern: "(__tests__|__mocks__)",
+      },
+    }),
+    command === "build" && nitro({ preset: "bun" }),
     viteReact(),
-    nitro({preset: 'node-server'})
   ],
   preview: {
-    allowedHosts: [
-      'parlonsviolence.ch',
-      'www.parlonsviolence.ch',
-    ],
+    allowedHosts: ["parlonsviolence.ch", "www.parlonsviolence.ch"],
   },
-})
-
-export default config
+  build: {
+    rollupOptions: {
+      maxParallelFileOps: 2,
+    },
+    chunkSizeWarningLimit: 1000,
+    sourcemap: false,
+  },
+}));

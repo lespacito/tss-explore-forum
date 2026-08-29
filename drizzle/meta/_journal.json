@@ -15,6 +15,41 @@
       "when": 1766492353219,
       "tag": "0001_natural_terror",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1767540365937,
+      "tag": "0002_condemned_network",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1767819514023,
+      "tag": "0003_daily_spectrum",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1767827308795,
+      "tag": "0004_woozy_lily_hollister",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1767877921731,
+      "tag": "0005_clear_hemingway",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1770506834177,
+      "tag": "0006_wise_blackheart",
+      "breakpoints": true
     }
   ]
 }
