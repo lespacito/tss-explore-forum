@@ -3,6 +3,9 @@ import type { User } from "@/features/auth/lib/map-auth-user";
 import { assertModerator, moderationActionSchema } from "../thread-moderation";
 
 vi.mock("@/db", () => ({ db: {} }));
+vi.mock("@/features/auth/server/get-auth-session", () => ({
+	getAuthSession: vi.fn(),
+}));
 
 function userWithRole(role: User["role"]): User {
 	return {
