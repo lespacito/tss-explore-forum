@@ -3,7 +3,6 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { logger } from "@/lib/logger/client-logger";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -22,10 +21,14 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { type ThreadCategory, threadCategories } from "@/data/threads-categories";
+import {
+	type ThreadCategory,
+	threadCategories,
+} from "@/data/threads-categories";
 import { ThreadCard } from "@/features/threads/components/thread-card";
 import { createThreadFn } from "@/features/threads/server/actions/create-thread";
 import { getThreadsCached } from "@/features/threads/server/actions/get-threads";
+import { logger } from "@/lib/logger/client-logger";
 
 export const Route = createFileRoute("/threads/")({
 	component: ThreadsPage,
@@ -83,7 +86,11 @@ function ThreadsPage() {
 				});
 
 				// Check if secret code was generated for first publication
-				if ((result as any).isFirstPublication && (result as any).secretCode && (result as any).thread) {
+				if (
+					(result as any).isFirstPublication &&
+					(result as any).secretCode &&
+					(result as any).thread
+				) {
 					// Redirect to confirmation page with secret code
 					router.navigate({
 						to: "/threads/confirmation",
@@ -237,7 +244,7 @@ function ThreadsPage() {
 			</div>
 
 			<div className="space-y-4">
-				{threads.map((thread) => (
+				{threads.map((thread: Parameters<typeof ThreadCard>[0]["thread"]) => (
 					<ThreadCard key={thread.id} thread={thread} />
 				))}
 				{threads.length === 0 && (

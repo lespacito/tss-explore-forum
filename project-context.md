@@ -87,7 +87,7 @@ An anonymous support forum addressing violence, abuse, and distress. Trust, anon
 - Vite 7.x
 - Vitest 3.x (testing)
 - Biome (linting & formatting)
-- pnpm (package manager)
+- bun run (package manager)
 
 ### Project Structure
 
@@ -215,10 +215,10 @@ Drizzle ORM with PostgreSQL adapter
 
 **Commands:**
 ```bash
-pnpm db:generate   # Generate migrations
-pnpm db:migrate    # Run migrations
-pnpm db:push       # Push schema changes
-pnpm db:studio     # Open Drizzle Studio
+bun run db:generate   # Generate migrations
+bun run db:migrate    # Run migrations
+bun run db:push       # Push schema changes
+bun run db:studio     # Open Drizzle Studio
 ```
 
 ---
@@ -500,25 +500,25 @@ pnpm db:studio     # Open Drizzle Studio
 
 ```bash
 # Development
-pnpm dev              # Start dev server (port 3000)
-pnpm build            # Production build
-pnpm start            # Start production server
+bun run dev              # Start dev server (port 3001)
+bun run build            # Production build
+bun run start            # Start production server
 
 # Testing
-pnpm test             # Run Vitest tests
-pnpm test:watch       # Watch mode
-pnpm test:coverage    # Generate coverage
+bun run test             # Run Vitest tests
+bun run test             # Watch mode
+bunx vitest run --coverage # Generate coverage
 
 # Database
-pnpm db:generate      # Generate migrations
-pnpm db:migrate       # Run migrations
-pnpm db:push          # Push schema
-pnpm db:studio        # Open Drizzle Studio
+bun run db:generate      # Generate migrations
+bun run db:migrate       # Run migrations
+bun run db:push          # Push schema
+bun run db:studio        # Open Drizzle Studio
 
 # Code Quality
-pnpm lint             # Biome linting
-pnpm format           # Biome formatting
-pnpm check            # Full check
+bun run lint             # Biome linting
+bun run format           # Biome formatting
+bun run check            # Full check
 ```
 
 ---
@@ -690,7 +690,7 @@ pnpm check            # Full check
 
 ### Run Existing Tests
 ```bash
-pnpm test
+bun run test
 ```
 
 ### Add New Test

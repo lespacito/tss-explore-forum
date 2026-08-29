@@ -68,6 +68,14 @@ export const Route = createFileRoute("/account/profile/")({
 
 function PublicProfilePage() {
 	const { user, threads, posts } = Route.useLoaderData();
+	const profileThreads = threads as Parameters<
+		typeof UserThreadCard
+	>[0]["thread"][];
+	const profilePosts = posts as Array<
+		Parameters<typeof PostCard>[0]["post"] & {
+			threadCategory?: string | null;
+		}
+	>;
 	const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
 	const displayName = user?.name ?? user?.username ?? "Utilisateur";
 	const avatarSrc = user?.image ?? "";
@@ -77,12 +85,12 @@ function PublicProfilePage() {
 
 	const filteredThreads =
 		statusFilter === "all"
-			? threads
-			: threads.filter((t) => t.status === statusFilter);
+			? profileThreads
+			: profileThreads.filter((thread) => thread.status === statusFilter);
 
-	const statusCounts = threads.reduce<Record<string, number>>(
-		(acc, t) => {
-			acc[t.status] = (acc[t.status] ?? 0) + 1;
+	const statusCounts = profileThreads.reduce<Record<string, number>>(
+		(acc, thread) => {
+			acc[thread.status] = (acc[thread.status] ?? 0) + 1;
 			return acc;
 		},
 		{},
@@ -218,11 +226,13 @@ function PublicProfilePage() {
 							{filteredThreads.length === 0 ? (
 								<div className="text-center py-10 text-muted-foreground">
 									<FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-									{threads.length === 0 ? (
+									{profileThreads.length === 0 ? (
 										<>
 											<p>Vous n'avez pas encore créé de publication.</p>
 											<Button asChild className="mt-4" variant="outline">
-												<Link to="/threads" search={{ openDialog: false }}>Explorer les discussions</Link>
+												<Link to="/threads" search={{ openDialog: false }}>
+													Explorer les discussions
+												</Link>
 											</Button>
 										</>
 									) : (
@@ -244,11 +254,13 @@ function PublicProfilePage() {
 									<MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
 									<p>Vous n'avez pas encore posté de réponse.</p>
 									<Button asChild className="mt-4" variant="outline">
-										<Link to="/threads" search={{ openDialog: false }}>Participer aux discussions</Link>
+										<Link to="/threads" search={{ openDialog: false }}>
+											Participer aux discussions
+										</Link>
 									</Button>
 								</div>
 							) : (
-								posts.map((post) => (
+								profilePosts.map((post) => (
 									<PostCard
 										key={post.id}
 										post={post}
