@@ -1,5 +1,5 @@
 import { Link, useRouter } from "@tanstack/react-router";
-import { LogOut, Settings, User, UserPlus } from "lucide-react";
+import { LogOut, Settings, ShieldCheck, User, UserPlus } from "lucide-react";
 import { useCallback, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -110,6 +110,14 @@ export function UserProfileMenu({ user }: UserProfileMenuProps) {
 						<span>Paramètres</span>
 					</Link>
 				</DropdownMenuItem>
+				{["ADMIN", "MODERATOR"].includes(user.role) && (
+					<DropdownMenuItem asChild>
+						<Link to="/admin/moderation" className="cursor-pointer">
+							<ShieldCheck className="mr-2 h-4 w-4" />
+							<span>Modération</span>
+						</Link>
+					</DropdownMenuItem>
+				)}
 				<DropdownMenuSeparator />
 				<DropdownMenuItem
 					onClick={handleSignOut}

@@ -20,6 +20,7 @@ import { Route as AuthAnonymousSigninRouteImport } from './routes/auth/anonymous
 import { Route as ThreadsNewIndexRouteImport } from './routes/threads/new/index'
 import { Route as AuthResetPasswordIndexRouteImport } from './routes/auth/reset-password/index'
 import { Route as AuthLoginIndexRouteImport } from './routes/auth/login/index'
+import { Route as AdminModerationIndexRouteImport } from './routes/admin/moderation/index'
 import { Route as AccountSettingsIndexRouteImport } from './routes/account/settings/index'
 import { Route as AccountProfileIndexRouteImport } from './routes/account/profile/index'
 import { Route as ThreadsNewCategoryRouteImport } from './routes/threads/new/$category'
@@ -80,6 +81,11 @@ const AuthLoginIndexRoute = AuthLoginIndexRouteImport.update({
   path: '/auth/login/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminModerationIndexRoute = AdminModerationIndexRouteImport.update({
+  id: '/admin/moderation/',
+  path: '/admin/moderation/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AccountSettingsIndexRoute = AccountSettingsIndexRouteImport.update({
   id: '/account/settings/',
   path: '/account/settings/',
@@ -114,6 +120,7 @@ export interface FileRoutesByFullPath {
   '/threads/new/$category': typeof ThreadsNewCategoryRoute
   '/account/profile/': typeof AccountProfileIndexRoute
   '/account/settings/': typeof AccountSettingsIndexRoute
+  '/admin/moderation/': typeof AdminModerationIndexRoute
   '/auth/login/': typeof AuthLoginIndexRoute
   '/auth/reset-password/': typeof AuthResetPasswordIndexRoute
   '/threads/new/': typeof ThreadsNewIndexRoute
@@ -131,6 +138,7 @@ export interface FileRoutesByTo {
   '/threads/new/$category': typeof ThreadsNewCategoryRoute
   '/account/profile': typeof AccountProfileIndexRoute
   '/account/settings': typeof AccountSettingsIndexRoute
+  '/admin/moderation': typeof AdminModerationIndexRoute
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/reset-password': typeof AuthResetPasswordIndexRoute
   '/threads/new': typeof ThreadsNewIndexRoute
@@ -149,6 +157,7 @@ export interface FileRoutesById {
   '/threads/new/$category': typeof ThreadsNewCategoryRoute
   '/account/profile/': typeof AccountProfileIndexRoute
   '/account/settings/': typeof AccountSettingsIndexRoute
+  '/admin/moderation/': typeof AdminModerationIndexRoute
   '/auth/login/': typeof AuthLoginIndexRoute
   '/auth/reset-password/': typeof AuthResetPasswordIndexRoute
   '/threads/new/': typeof ThreadsNewIndexRoute
@@ -168,6 +177,7 @@ export interface FileRouteTypes {
     | '/threads/new/$category'
     | '/account/profile/'
     | '/account/settings/'
+    | '/admin/moderation/'
     | '/auth/login/'
     | '/auth/reset-password/'
     | '/threads/new/'
@@ -185,6 +195,7 @@ export interface FileRouteTypes {
     | '/threads/new/$category'
     | '/account/profile'
     | '/account/settings'
+    | '/admin/moderation'
     | '/auth/login'
     | '/auth/reset-password'
     | '/threads/new'
@@ -202,6 +213,7 @@ export interface FileRouteTypes {
     | '/threads/new/$category'
     | '/account/profile/'
     | '/account/settings/'
+    | '/admin/moderation/'
     | '/auth/login/'
     | '/auth/reset-password/'
     | '/threads/new/'
@@ -220,6 +232,7 @@ export interface RootRouteChildren {
   ThreadsNewCategoryRoute: typeof ThreadsNewCategoryRoute
   AccountProfileIndexRoute: typeof AccountProfileIndexRoute
   AccountSettingsIndexRoute: typeof AccountSettingsIndexRoute
+  AdminModerationIndexRoute: typeof AdminModerationIndexRoute
   AuthLoginIndexRoute: typeof AuthLoginIndexRoute
   AuthResetPasswordIndexRoute: typeof AuthResetPasswordIndexRoute
   ThreadsNewIndexRoute: typeof ThreadsNewIndexRoute
@@ -304,6 +317,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/moderation/': {
+      id: '/admin/moderation/'
+      path: '/admin/moderation'
+      fullPath: '/admin/moderation/'
+      preLoaderRoute: typeof AdminModerationIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/account/settings/': {
       id: '/account/settings/'
       path: '/account/settings'
@@ -348,6 +368,7 @@ const rootRouteChildren: RootRouteChildren = {
   ThreadsNewCategoryRoute: ThreadsNewCategoryRoute,
   AccountProfileIndexRoute: AccountProfileIndexRoute,
   AccountSettingsIndexRoute: AccountSettingsIndexRoute,
+  AdminModerationIndexRoute: AdminModerationIndexRoute,
   AuthLoginIndexRoute: AuthLoginIndexRoute,
   AuthResetPasswordIndexRoute: AuthResetPasswordIndexRoute,
   ThreadsNewIndexRoute: ThreadsNewIndexRoute,
@@ -355,12 +376,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

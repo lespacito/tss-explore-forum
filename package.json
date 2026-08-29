@@ -1,6 +1,7 @@
 {
   "name": "parlons-violence",
   "private": true,
+  "packageManager": "bun@1.3.10",
   "type": "module",
   "scripts": {
     "dev": "bun --bun vite dev --port 3001",

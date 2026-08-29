@@ -12,28 +12,28 @@ Parlons Violence is an anonymous-first support forum for sensitive topics (viole
 
 ```bash
 # Development
-pnpm dev              # Start dev server on port 3000
-pnpm build            # Production build
-pnpm start            # Start production server
+bun run dev              # Start dev server on port 3001
+bun run build            # Production build
+bun run start            # Start production server
 
 # Testing
-pnpm test             # Run all tests (Vitest)
-pnpm test <pattern>   # Run specific tests (e.g., pnpm test auth)
-pnpm test --watch     # Watch mode
+bun run test             # Run all tests (Vitest)
+bun run test <pattern>   # Run specific tests (e.g., bun run test auth)
+bun run test --watch     # Watch mode
 
 # Database (Drizzle)
-pnpm db:generate      # Generate migrations
-pnpm db:migrate       # Run migrations
-pnpm db:push          # Push schema changes directly
-pnpm db:studio        # Open Drizzle Studio GUI
+bun run db:generate      # Generate migrations
+bun run db:migrate       # Run migrations
+bun run db:push          # Push schema changes directly
+bun run db:studio        # Open Drizzle Studio GUI
 
 # Code Quality (Biome)
-pnpm lint             # Lint only
-pnpm format           # Auto-format
-pnpm check            # Full check (lint + format)
+bun run lint             # Lint only
+bun run format           # Auto-format
+bun run check            # Full check (lint + format)
 
 # Shadcn components
-pnpx shadcn@latest add <component>
+bunx shadcn@latest add <component>
 ```
 
 ## Architecture
@@ -448,7 +448,7 @@ When moving code to new architecture:
 
 2. **Check database:**
    ```bash
-   pnpm db:studio
+   bun run db:studio
    # Navigate to user table
    # Verify secretCode and secretCodeGeneratedAt fields
    ```
@@ -509,14 +509,14 @@ jobLogger.info('Job started');
 ```bash
 # 1. Modify schema in src/db/schemas/
 # 2. Generate migration
-pnpm db:generate
+bun run db:generate
 
 # 3. Review generated SQL in src/db/migrations/
 # 4. Apply migration
-pnpm db:migrate
+bun run db:migrate
 
 # For dev only (skips migrations):
-pnpm db:push
+bun run db:push
 ```
 
 ## Environment Variables
