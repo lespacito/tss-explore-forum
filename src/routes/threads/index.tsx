@@ -259,7 +259,7 @@ function ThreadsPage() {
 			<CategoryFilter activeCategory={search.category} />
 
 			<div className="space-y-4">
-				{threads.map((thread) => (
+				{threads.map((thread: Parameters<typeof ThreadCard>[0]["thread"]) => (
 					<ThreadCard key={thread.id} thread={thread} />
 				))}
 				{threads.length === 0 && (

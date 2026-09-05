@@ -4,7 +4,6 @@ import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ArrowLeft, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
-import { logger } from "@/lib/logger/client-logger";
 import { SafeHtmlDisplay } from "@/components/tiptap/SafeHtmlDisplay";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +17,7 @@ import { PostCard } from "@/features/posts/components/post-card";
 import { createPostFn } from "@/features/posts/server/actions/create-post";
 import { getPostsByThreadFn } from "@/features/posts/server/actions/get-posts-by-thread";
 import { getThreadBySlugFn } from "@/features/threads/server/actions/get-thread-by-slug";
+import { logger } from "@/lib/logger/client-logger";
 import { getInitials } from "@/lib/utils/string-utils";
 import {
 	getAuthorDisplayName,
@@ -254,7 +254,7 @@ function ThreadDetailPage() {
 				<h2 className="text-xl font-semibold">
 					{posts.length > 0 ? "Réponses" : "Aucune réponse pour le moment"}
 				</h2>
-				{posts.map((post) => (
+				{posts.map((post: (typeof posts)[number]) => (
 					<PostCard
 						key={post.id}
 						post={{
