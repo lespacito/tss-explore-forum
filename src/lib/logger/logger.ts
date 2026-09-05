@@ -11,8 +11,8 @@
  */
 
 import os from "node:os";
-import pino from "pino";
 import type { Logger as PinoLogger } from "pino";
+import pino from "pino";
 import { env } from "@/data/env/server";
 
 const isProd = env.NODE_ENV === "production";
@@ -55,18 +55,19 @@ const pinoConfig: pino.LoggerOptions = {
 		censor: "[REDACTED]",
 	},
 	// Format dev avec pino-pretty
-	transport: !isProd && !isTest
-		? {
-				target: "pino-pretty",
-				options: {
-					colorize: true,
-					translateTime: "yyyy-mm-dd HH:MM:ss.l",
-					ignore: "pid,hostname",
-					singleLine: false,
-					messageFormat: "{msg}",
-				},
-		  }
-		: undefined,
+	transport:
+		!isProd && !isTest
+			? {
+					target: "pino-pretty",
+					options: {
+						colorize: true,
+						translateTime: "yyyy-mm-dd HH:MM:ss.l",
+						ignore: "pid,hostname",
+						singleLine: false,
+						messageFormat: "{msg}",
+					},
+				}
+			: undefined,
 	// Silent en test
 	enabled: !isTest,
 };

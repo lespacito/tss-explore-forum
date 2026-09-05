@@ -16,12 +16,10 @@ export function RejectionMessage({ reason }: RejectionMessageProps) {
 					<h4 className="font-semibold text-warning-foreground dark:text-warning">
 						Pourquoi des modifications sont nécessaires
 					</h4>
-					<p className="text-sm text-foreground/80">
-						{reason}
-					</p>
+					<p className="text-sm text-foreground/80">{reason}</p>
 					<p className="text-sm text-muted-foreground">
-						Notre équipe est là pour vous aider. N'hésitez pas à nous
-						contacter si vous avez des questions.
+						Notre équipe est là pour vous aider. N'hésitez pas à nous contacter
+						si vous avez des questions.
 					</p>
 				</div>
 			</div>

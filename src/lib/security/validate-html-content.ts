@@ -67,10 +67,11 @@ export function validateHtmlContent(html: string): ValidationResult {
 	// Extract all HTML tag names from content
 	const tagRegex = /<(\w+)[^>]*>/g;
 	const foundTags = new Set<string>();
-	let match: RegExpExecArray | null;
+	let match = tagRegex.exec(html);
 
-	while ((match = tagRegex.exec(html)) !== null) {
+	while (match !== null) {
 		foundTags.add(match[1].toLowerCase());
+		match = tagRegex.exec(html);
 	}
 
 	// Check if all found tags are in the whitelist

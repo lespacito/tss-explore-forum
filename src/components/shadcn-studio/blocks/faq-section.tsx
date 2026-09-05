@@ -38,8 +38,8 @@ export default function FaqSection() {
 				</p>
 			</div>
 			<div className="space-y-4">
-				{faqs.map((f, i) => (
-					<FaqItem key={i} question={f.q} answer={f.a} />
+				{faqs.map((f) => (
+					<FaqItem key={f.q} question={f.q} answer={f.a} />
 				))}
 			</div>
 		</section>

@@ -7,7 +7,6 @@ import {
 import { ArrowLeft, FileText, Send } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { logger } from "@/lib/logger/client-logger";
 import { TipTap } from "@/components/tiptap/TiptapEditor";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +18,7 @@ import {
 } from "@/data/threads-categories";
 import { createThreadFn } from "@/features/threads/server/actions/create-thread";
 import { useAutoSaveDraft } from "@/hooks/useAutoSaveDraft";
+import { logger } from "@/lib/logger/client-logger";
 import { validateHtmlContent } from "@/lib/security/validate-html-content";
 
 export const Route = createFileRoute("/threads/new/$category")({
@@ -130,9 +130,6 @@ function NewThreadFormPage() {
 		key: `draft-thread-${category}-title`,
 		value: form.state.values.title,
 		delay: 1500,
-		onRestore: (_value) => {
-			setDraftRestored(true);
-		},
 	});
 
 	// Auto-save body to localStorage
@@ -144,12 +141,9 @@ function NewThreadFormPage() {
 		key: `draft-thread-${category}-body`,
 		value: form.state.values.body,
 		delay: 1500,
-		onRestore: (_value) => {
-			setDraftRestored(true);
-		},
 	});
 
-	// Restore drafts on mount
+	// Restore drafts when the auto-save hooks finish loading localStorage.
 	useEffect(() => {
 		if (restoredTitle) {
 			form.setFieldValue("title", restoredTitle);
@@ -160,12 +154,19 @@ function NewThreadFormPage() {
 
 		// Show toast if draft was restored
 		if (hasTitleDraft || hasBodyDraft) {
+			setDraftRestored(true);
 			toast.info("Brouillon restauré", {
 				duration: 3000,
 				description: "Votre brouillon précédent a été récupéré",
 			});
 		}
-	}, []); // Run only on mount
+	}, [
+		form.setFieldValue,
+		hasBodyDraft,
+		hasTitleDraft,
+		restoredBody,
+		restoredTitle,
+	]);
 
 	// Redirect if invalid category
 	if (!categoryConfig) {

@@ -12,8 +12,8 @@
 import { createMiddleware } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import { v4 as uuidv4 } from "uuid";
-import type { Logger } from "./logger";
 import { getContext, type LogContext, runWithContext } from "./context";
+import type { Logger } from "./logger";
 import { logger, withMeta } from "./logger";
 
 export interface LoggingContext {

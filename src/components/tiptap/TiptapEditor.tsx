@@ -85,8 +85,7 @@ export const TipTap = ({
 						"aria-multiline": "true",
 					},
 				}}
-			>
-			</EditorProvider>
+			></EditorProvider>
 		</div>
 	);
 };

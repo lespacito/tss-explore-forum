@@ -32,6 +32,7 @@ const Header = ({ navigationData, className }: HeaderProps) => {
 		>
 			<div className="mx-auto flex h-full max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8">
 				{/* Logo */}
+				{/* biome-ignore lint/a11y/useValidAnchor: Placeholder link retained for the template header. */}
 				<a href="#">
 					<Logo className="gap-3" />
 				</a>
@@ -54,12 +55,14 @@ const Header = ({ navigationData, className }: HeaderProps) => {
 
 				{/* Login Button */}
 				<Button className="rounded-lg max-md:hidden" asChild>
+					{/* biome-ignore lint/a11y/useValidAnchor: Placeholder link retained for the template header. */}
 					<a href="#">Login</a>
 				</Button>
 
 				{/* Navigation for small screens */}
 				<div className="flex gap-4 md:hidden">
 					<Button className="rounded-lg" asChild>
+						{/* biome-ignore lint/a11y/useValidAnchor: Placeholder link retained for the template header. */}
 						<a href="#">Login</a>
 					</Button>
 
@@ -71,8 +74,8 @@ const Header = ({ navigationData, className }: HeaderProps) => {
 							</Button>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent className="w-56" align="end">
-							{navigationData.map((item, index) => (
-								<DropdownMenuItem key={index}>
+							{navigationData.map((item) => (
+								<DropdownMenuItem key={`${item.href}-${item.title}`}>
 									<a href={item.href}>{item.title}</a>
 								</DropdownMenuItem>
 							))}

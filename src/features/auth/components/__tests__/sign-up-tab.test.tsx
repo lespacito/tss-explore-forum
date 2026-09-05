@@ -175,7 +175,9 @@ describe("SignUpTab Component - Task 8 Subtask 8.4", () => {
 			await user.tab();
 
 			await waitFor(() => {
-				expect(screen.getByText(/email.*invalide|invalide.*email/i)).toBeInTheDocument();
+				expect(
+					screen.getByText(/email.*invalide|invalide.*email/i),
+				).toBeInTheDocument();
 			});
 		});
 

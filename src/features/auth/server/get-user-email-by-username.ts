@@ -1,8 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
-import { logger } from "@/lib/logger/server";
 import { db } from "@/db";
 import { user } from "@/db/schema";
+import { logger } from "@/lib/logger/server";
 
 export const getUserEmailByUsername = createServerFn({
 	method: "GET",

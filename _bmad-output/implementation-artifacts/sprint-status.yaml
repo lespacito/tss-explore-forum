@@ -1,7 +1,8 @@
-# Reconciled from the repository on 2026-08-29.
-# Historical test counts were removed because they have not yet been reproduced.
+# Reconciled from the repository on 2026-09-05.
+# Current local quality-gate results are recorded below; provider-backed and
+# database-backed checks remain pending until their required services are run.
 generated: 2026-01-07
-updated: 2026-08-29
+updated: 2026-09-05
 project: tss-explore-forum
 project_key: tss-explore-forum
 tracking_system: file-system
@@ -26,7 +27,7 @@ development_status:
   epic-2-retrospective: optional
   epic-3: in-progress
   3-1-liste-des-publications-publiees: done
-  3-2-filtrage-par-categorie: ready-for-dev
+  3-2-filtrage-par-categorie: review
   3-3-avertissements-et-floutage-contenu-sensible: backlog
   3-4-revelation-controlee-du-contenu: backlog
   3-5-lecture-complete-avec-reponses: deferred-after-private-beta
@@ -59,11 +60,11 @@ beta_scope:
   moderation_sla: 24 hours
 
 verification:
-  historical_test_claims: unverified
-  typecheck: passed-2026-08-29
-  biome_check: failed-pre-existing-format-and-lint-debt
-  unit_tests: unavailable-windows-esbuild-parent-directory-access
-  production_build: unavailable-windows-esbuild-parent-directory-access
+  historical_test_claims: superseded-by-local-run-2026-09-05
+  typecheck: passed-2026-09-05
+  biome_check: passed-2026-09-05-zero-errors-237-warnings
+  unit_tests: passed-2026-09-05-42-files-685-tests
+  production_build: passed-2026-09-05-with-css-and-dependency-warnings
   database_migrations: pending-recheck
   critical_e2e: pending-recheck
   backup_restore: pending-recheck
@@ -76,13 +77,10 @@ blockers:
     description: Privacy, terms, and emergency guidance are not implemented.
   - id: account-erasure
     description: Account deletion is partially implemented and its audit trail is deferred.
-  - id: reproducible-validation
-    description: Historical test metrics must be reproduced in the current environment.
 
 next_priority:
-  - reconcile-and-run-quality-gates
   - complete-account-erasure
-  - implement-minimal-moderation-dashboard
+  - validate-moderation-dashboard-runtime-and-e2e
   - implement-sensitive-content-display
   - add-legal-and-emergency-pages
   - validate-backup-restore-and-private-beta-flow

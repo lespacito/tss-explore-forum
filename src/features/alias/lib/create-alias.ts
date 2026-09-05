@@ -1,9 +1,9 @@
-import { generateAlias } from "./generate-alias";
 import {
 	createAliasRecord,
 	findAliasByName,
 	isAliasNameAvailable,
 } from "../server/db/alias-queries";
+import { generateAlias } from "./generate-alias";
 
 /**
  * Crée un alias principal pour un utilisateur lors de l'inscription

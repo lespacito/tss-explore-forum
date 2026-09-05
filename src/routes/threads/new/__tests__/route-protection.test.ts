@@ -1,5 +1,5 @@
-import type { AuthContext } from "@/features/auth/server/get-auth-session";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { AuthContext } from "@/features/auth/server/get-auth-session";
 
 /**
  * Test Suite: Route Protection for /threads/new
