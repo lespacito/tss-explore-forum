@@ -254,7 +254,7 @@ function ThreadDetailPage() {
 				<h2 className="text-xl font-semibold">
 					{posts.length > 0 ? "Réponses" : "Aucune réponse pour le moment"}
 				</h2>
-				{posts.map((post: Parameters<typeof PostCard>[0]["post"]) => (
+				{posts.map((post: (typeof posts)[number]) => (
 					<PostCard
 						key={post.id}
 						post={{

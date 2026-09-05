@@ -17,7 +17,7 @@ export const reports = pgTable("reports", {
 		.notNull()
 		.references(() => user.id, { onDelete: "cascade" }),
 	targetId: uuid("target_id").notNull(), // Polymorphic ID
-	targetType: reportTypeEnum().notNull(),
+	targetType: reportTypeEnum("target_type").notNull(),
 	reason: text("reason").notNull(),
 	details: varchar("details"),
 	status: reportStatusEnum().notNull(),
