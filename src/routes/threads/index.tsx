@@ -22,20 +22,33 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import {
+	parseThreadCategory,
 	type ThreadCategory,
 	threadCategories,
 } from "@/data/threads-categories";
+import { CategoryFilter } from "@/features/threads/components/category-filter";
+import { EmptyThreadsState } from "@/features/threads/components/empty-threads-state";
 import { ThreadCard } from "@/features/threads/components/thread-card";
 import { createThreadFn } from "@/features/threads/server/actions/create-thread";
-import { getThreadsCached } from "@/features/threads/server/actions/get-threads";
+import {
+	getThreadsByCategoryFn,
+	getThreadsCached,
+} from "@/features/threads/server/actions/get-threads";
 import { logger } from "@/lib/logger/client-logger";
+
+type ThreadsSearch = { category?: ThreadCategory; openDialog?: boolean };
 
 export const Route = createFileRoute("/threads/")({
 	component: ThreadsPage,
-	loader: () => getThreadsCached(),
-	validateSearch: (search: Record<string, unknown>) => {
+	loaderDeps: ({ search }) => ({ category: search.category }),
+	loader: ({ deps }) =>
+		deps.category
+			? getThreadsByCategoryFn({ data: { category: deps.category } })
+			: getThreadsCached(),
+	validateSearch: (search: Record<string, unknown>): ThreadsSearch => {
 		return {
 			openDialog: search.openDialog === true || search.openDialog === "true",
+			category: parseThreadCategory(search.category),
 		};
 	},
 });
@@ -53,11 +66,11 @@ function ThreadsPage() {
 			// Clear the search param after opening
 			router.navigate({
 				to: "/threads",
-				search: { openDialog: false },
+				search: search.category ? { category: search.category } : {},
 				replace: true,
 			});
 		}
-	}, [search.openDialog, router]);
+	}, [search.category, search.openDialog, router]);
 
 	// Auto-open dialog if coming from anonymous session creation
 	useEffect(() => {
@@ -243,14 +256,14 @@ function ThreadsPage() {
 				</Dialog>
 			</div>
 
+			<CategoryFilter activeCategory={search.category} />
+
 			<div className="space-y-4">
 				{threads.map((thread: Parameters<typeof ThreadCard>[0]["thread"]) => (
 					<ThreadCard key={thread.id} thread={thread} />
 				))}
 				{threads.length === 0 && (
-					<div className="text-center py-10 text-muted-foreground">
-						Aucune discussion pour le moment. Soyez le premier à en créer une !
-					</div>
+					<EmptyThreadsState activeCategory={search.category} />
 				)}
 			</div>
 		</div>
