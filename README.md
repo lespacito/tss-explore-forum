@@ -102,7 +102,7 @@ Créer un espace sûr où les personnes confrontées à la violence peuvent **pa
 ### Prérequis
 
 - Bun 1.3+
-- PostgreSQL 14+
+- Docker, ou PostgreSQL 17 installé localement
 
 ### Installation
 
@@ -114,18 +114,46 @@ cd parlons-violence
 # Installer les dépendances
 bun install --frozen-lockfile
 
-# Configurer les variables d'environnement
-cp .env.example .env
-# Éditer .env avec vos valeurs
+# Configurer l'environnement local (fichier ignoré par Git)
+cp .env.example .env.local
 
-# Initialiser la base de données
-bun run db:push
+# Démarrer PostgreSQL avec Docker
+docker compose --env-file .env.local up -d postgres
+
+# Appliquer les migrations versionnées
+bun run db:local:migrate
 
 # Lancer le serveur de développement
-bun run dev
+bun run dev:local
 ```
 
 L'application sera accessible sur [http://localhost:3001](http://localhost:3001)
+
+Le parcours ci-dessus suppose une base neuve. Ne lancez pas
+`db:local:migrate` sur une base créée auparavant avec `db:push` et dépourvue de
+journal Drizzle : la migration initiale serait rejouée.
+
+Pour conserver un volume Docker existant, gardez d'abord son ancien fichier
+d'environnement et sauvegardez la base avec `pg_dump`. Ouvrez ensuite `psql`
+dans le conteneur avec l'ancien superutilisateur :
+
+```bash
+docker compose --env-file .env.previous exec postgres \
+  psql -U <ancien_utilisateur> -d postgres
+```
+
+Créez une base migrée distincte sans supprimer l'ancienne :
+
+```sql
+CREATE ROLE tss_local LOGIN PASSWORD 'tss_local_password';
+CREATE DATABASE tss_explore_forum OWNER tss_local;
+```
+
+Quittez `psql`, alignez `.env.local` sur ces valeurs, puis lancez
+`bun run db:local:migrate`. `db:local:push` reste disponible uniquement pour
+synchroniser temporairement l'ancienne base pendant la récupération des
+données. Les variables `POSTGRES_*` de Compose ne créent pas de nouveau rôle ou
+de nouvelle base lorsqu'un volume PostgreSQL existe déjà.
 
 ---
 
@@ -135,6 +163,7 @@ L'application sera accessible sur [http://localhost:3001](http://localhost:3001)
 
 ```bash
 bun run dev           # Démarrer le serveur de développement (port 3001)
+bun run dev:local     # Démarrer avec les variables de .env.local
 bun run build         # Build de production
 bun run start         # Démarrer le serveur de production
 ```
@@ -143,8 +172,11 @@ bun run start         # Démarrer le serveur de production
 
 ```bash
 bun run db:generate   # Générer les migrations
+bun run db:local:generate # Générer avec les variables de .env.local
 bun run db:migrate    # Exécuter les migrations
+bun run db:local:migrate # Migrer la base définie dans .env.local
 bun run db:push       # Push du schéma (dev uniquement)
+bun run db:local:push # Push vers la base définie dans .env.local
 bun run db:studio     # Ouvrir Drizzle Studio (GUI)
 ```
 
@@ -174,15 +206,22 @@ bunx shadcn@latest add <component>  # Ajouter un composant Shadcn
 
 ## 🔧 Variables d'Environnement
 
-Créez un fichier `.env` à la racine avec les variables suivantes:
+Copiez `.env.example` vers `.env.local`. Les scripts `*:local` chargent ce
+fichier explicitement, y compris pour les variables serveur non exposées par
+Vite :
 
 ```bash
 # Database
-DATABASE_URL=postgresql://user:password@localhost:5432/parlons_violence
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_NAME=tss_explore_forum
+DB_USER=tss_local
+DB_PASSWORD=tss_local_password
+DB_SSL=false
 
 # Better Auth
 BETTER_AUTH_SECRET=your-secret-key-min-32-chars
-BETTER_AUTH_URL=http://localhost:3000
+BETTER_AUTH_URL=http://127.0.0.1:3001
 
 # Arcjet (Rate Limiting)
 ARCJET_KEY=your-arcjet-api-key
@@ -193,13 +232,18 @@ RESEND_API_KEY=your-resend-api-key
 # Environment
 NODE_ENV=development
 
+# Client
+VITE_APP_NAME=Parlons Violence
+VITE_APP_URL=http://127.0.0.1:3001
+VITE_BETTER_AUTH_URL=http://127.0.0.1:3001
+
 # Logging (optionnel)
 LOG_LEVEL=debug
 LOG_DIR=./logs
 SERVICE_NAME=parlons-violence
 ```
 
-**Important:** Ne jamais committer le fichier `.env` dans Git!
+**Important:** Ne jamais committer `.env.local`; il est ignoré par Git.
 
 ---
 
