@@ -11,15 +11,19 @@ export default function Footer() {
 						réservés.
 					</div>
 					<nav className="flex gap-6 text-sm font-medium">
+						{/* biome-ignore lint/a11y/useValidAnchor: Placeholder link retained until the legal page is implemented. */}
 						<a href="#" className="hover:underline">
 							Mentions légales
 						</a>
+						{/* biome-ignore lint/a11y/useValidAnchor: Placeholder link retained until the privacy page is implemented. */}
 						<a href="#" className="hover:underline">
 							Confidentialité
 						</a>
+						{/* biome-ignore lint/a11y/useValidAnchor: Placeholder link retained until the contact page is implemented. */}
 						<a href="#" className="hover:underline">
 							Contact
 						</a>
+						{/* biome-ignore lint/a11y/useValidAnchor: Placeholder link retained until the resources page is implemented. */}
 						<a href="#" className="hover:underline">
 							Ressources d'aide
 						</a>

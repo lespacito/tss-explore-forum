@@ -104,6 +104,9 @@ export function useAutoSaveDraft({
 		try {
 			const saved = localStorage.getItem(key);
 			if (saved && saved.trim().length > 0) {
+				// The consumer may hydrate its controlled value with this draft.
+				// Treat that update as restoration, not as fresh user input to re-save.
+				previousValueRef.current = saved;
 				setRestoredDraft(saved);
 				setHasDraft(true);
 				onRestore?.(saved);

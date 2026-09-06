@@ -6,7 +6,7 @@
  * Real contrast validation requires rendered components in Playwright with axe-core.
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 describe("Task 3 Subtask 3.4: Color Contrast Validation", () => {
 	describe("Tailwind CSS variables meet WCAG 2.1 AA", () => {

@@ -21,7 +21,10 @@ export const confirmationCheckboxSchema = z
  * Password validation for account deletion
  * Required for security - user must enter their current password
  */
-export const passwordSchema = z.string().trim().min(1, "Le mot de passe est requis");
+export const passwordSchema = z
+	.string()
+	.trim()
+	.min(1, "Le mot de passe est requis");
 
 /**
  * Complete schema for account deletion with options

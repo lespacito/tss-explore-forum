@@ -1,7 +1,7 @@
 ---
 document_type: private-beta-readiness
 project: tss-explore-forum
-updated: 2026-08-29
+updated: 2026-09-05
 status: in-progress
 ---
 
@@ -46,8 +46,8 @@ Validate that 5-10 invited adults can submit content anonymously and that one mo
 ## Entry gates
 
 - [x] TypeScript check passes
-- [ ] Unit test suite passes in a clean environment
-- [ ] Production build succeeds
+- [x] Unit test suite passes in a clean environment
+- [x] Production build succeeds
 - [ ] Migrations apply to an empty disposable database
 - [ ] Anonymous submit-to-moderation flow passes end to end
 - [ ] Moderator approve, reject, and mark-sensitive actions pass end to end
@@ -74,3 +74,26 @@ Validate that 5-10 invited adults can submit content anonymously and that one mo
 - PASS: the Impeccable interface detector reports no mechanical design findings.
 - PASS: 8 targeted moderation authorization and validation tests run with
   Bun's test runner.
+
+## Validation run — 2026-09-03
+
+- PASS: `bun run typecheck`.
+- PASS: `bun run test:unit` — 42 test files and 684 tests passed.
+- PASS: `bun run build` — production output generated successfully.
+- FAIL, pre-existing: `bun run check` reports 69 errors and 238 warnings.
+- WARN: the build reports generated-CSS optimizer warnings and third-party
+  module directive warnings; neither prevents production output generation.
+- WARN: account-deletion component tests pass but emit Radix accessibility
+  warnings about dialog title/description discovery; this remains part of the
+  account-erasure hardening work.
+- PENDING: database migrations, critical Playwright flows, backup/restore,
+  and end-to-end account-erasure verification.
+
+## Validation run — 2026-09-05
+
+- PASS: `bun run check` — no Biome errors; 237 non-blocking warnings remain.
+- PASS: `bun run typecheck`.
+- PASS: `bun run test:unit` — 42 test files and 685 tests passed.
+- PASS: `bun run build` — production output generated successfully.
+- WARN: the build still reports generated-CSS optimizer warnings and
+  third-party module directive warnings; neither prevents output generation.

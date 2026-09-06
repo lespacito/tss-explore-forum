@@ -72,8 +72,7 @@ function NewThreadPage() {
 			</div>
 
 			{/* Categories Grid */}
-			<div
-				role="group"
+			<fieldset
 				aria-label="Sélection de la catégorie de publication"
 				className="grid grid-cols-1 md:grid-cols-2 gap-4"
 			>
@@ -105,7 +104,7 @@ function NewThreadPage() {
 						</span>
 					</button>
 				))}
-			</div>
+			</fieldset>
 
 			{/* Action Buttons */}
 			<div className="flex justify-between items-center">

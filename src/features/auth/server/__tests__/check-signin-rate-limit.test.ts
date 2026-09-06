@@ -218,7 +218,7 @@ describe("checkSignInRateLimit handler logic", () => {
 			});
 
 			let errorCaught = false;
-			let result;
+			let result: { allowed: boolean; code: string } | undefined;
 
 			try {
 				await protectAuthEndpoint({

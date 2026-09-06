@@ -41,9 +41,7 @@ function RouteComponent() {
 
 	// Sanitize redirect to prevent open redirects — only allow relative paths
 	const redirectTo =
-		redirectParam && redirectParam.startsWith("/")
-			? redirectParam
-			: undefined;
+		redirectParam && redirectParam.startsWith("/") ? redirectParam : undefined;
 
 	function openEmailVerificationTab(email: string) {
 		setEmail(email);

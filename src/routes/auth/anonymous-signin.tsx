@@ -65,7 +65,9 @@ function RouteComponent() {
 								Vous n'avez pas encore publié anonymement ?
 							</p>
 							<Button variant="outline" asChild>
-								<Link to="/threads" search={{ openDialog: false }}>Créer ma première publication anonyme</Link>
+								<Link to="/threads" search={{ openDialog: false }}>
+									Créer ma première publication anonyme
+								</Link>
 							</Button>
 						</div>
 

@@ -62,7 +62,10 @@ export const ThreadCard = memo(function ThreadCard({
 					</Avatar>
 					<div className="flex flex-col flex-1">
 						<div className="flex items-center gap-2">
-							<span className="font-semibold text-sm" data-testid="thread-author">
+							<span
+								className="font-semibold text-sm"
+								data-testid="thread-author"
+							>
 								{authorName}
 							</span>
 							<Badge

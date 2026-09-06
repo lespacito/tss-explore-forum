@@ -1,6 +1,6 @@
 import type { InferSelectModel } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { user } from "@/db/schemas/user";
+import type { user } from "@/db/schemas/user";
 
 // Mock all server-side dependencies BEFORE imports
 vi.mock("@/data/env/server", () => ({

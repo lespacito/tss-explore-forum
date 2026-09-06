@@ -43,6 +43,31 @@ describe("useAutoSaveDraft", () => {
 		expect(result.current.hasDraft).toBe(true);
 	});
 
+	it("should not re-save a draft when the consumer hydrates the restored value", async () => {
+		const key = "test-draft";
+		const savedContent = "Previously saved content";
+		localStorage.setItem(key, savedContent);
+
+		const { rerender } = renderHook(
+			({ value }) =>
+				useAutoSaveDraft({
+					key,
+					value,
+					delay: 1500,
+				}),
+			{ initialProps: { value: "" } },
+		);
+
+		await act(async () => {
+			rerender({ value: savedContent });
+			vi.advanceTimersByTime(1500);
+			await Promise.resolve();
+		});
+
+		expect(localStorage.getItem(key)).toBe(savedContent);
+		expect(toast.success).not.toHaveBeenCalled();
+	});
+
 	it("should NOT restore draft if localStorage is empty", () => {
 		const { result } = renderHook(() =>
 			useAutoSaveDraft({

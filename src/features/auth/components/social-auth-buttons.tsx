@@ -6,7 +6,11 @@ import {
 } from "@/features/auth/lib/o-auth-providers";
 import { logger } from "@/lib/logger";
 
-export function SocialAuthButtons({ redirectTo }: { redirectTo?: string } = {}) {
+export function SocialAuthButtons({
+	redirectTo,
+}: {
+	redirectTo?: string;
+} = {}) {
 	const handleOAuthSignIn = async (
 		provider: (typeof SUPPORTED_OAUTH_PROVIDERS)[number],
 	) => {

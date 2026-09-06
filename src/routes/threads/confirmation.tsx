@@ -99,7 +99,9 @@ function ThreadConfirmationPage() {
 
 				<Button
 					variant="outline"
-					onClick={() => navigate({ to: "/threads", search: { openDialog: false } })}
+					onClick={() =>
+						navigate({ to: "/threads", search: { openDialog: false } })
+					}
 					size="lg"
 					className="w-full sm:w-auto"
 				>

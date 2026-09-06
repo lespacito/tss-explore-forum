@@ -386,7 +386,9 @@ describe("generateSecretCodeLogic - Task 3", () => {
 			const result = await generateSecretCodeLogic(session, mockDb);
 
 			expect(result.success).toBe(false);
-			expect((result as any).error).toBe("Impossible de générer le code secret");
+			expect((result as any).error).toBe(
+				"Impossible de générer le code secret",
+			);
 		});
 
 		it("should not expose internal error details to client", async () => {
