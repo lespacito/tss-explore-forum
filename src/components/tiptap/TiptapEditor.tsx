@@ -86,13 +86,25 @@ export const TipTap = ({
 						"aria-multiline": "true",
 					},
 				}}
-			><EditorContentSync content={content} onTextChange={onTextChange}/></EditorProvider>
+			>
+				<EditorContentSync content={content} onTextChange={onTextChange} />
+			</EditorProvider>
 		</div>
 	);
 };
 
-function EditorContentSync({content, onTextChange}: Pick<TipTapProps, "content" | "onTextChange">) {
- const { editor } = useCurrentEditor();
- useEffect(() => { if (!editor || editor.isDestroyed) return; if (editor.getHTML() !== content) { editor.commands.setContent(content, {emitUpdate: false}); const text = editor.getText(); onTextChange?.(text, text.length); } }, [editor, content, onTextChange]);
- return null;
+function EditorContentSync({
+	content,
+	onTextChange,
+}: Pick<TipTapProps, "content" | "onTextChange">) {
+	const { editor } = useCurrentEditor();
+	useEffect(() => {
+		if (!editor || editor.isDestroyed) return;
+		if (editor.getHTML() !== content) {
+			editor.commands.setContent(content, { emitUpdate: false });
+			const text = editor.getText();
+			onTextChange?.(text, text.length);
+		}
+	}, [editor, content, onTextChange]);
+	return null;
 }

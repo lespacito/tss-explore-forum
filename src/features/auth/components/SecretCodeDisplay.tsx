@@ -108,8 +108,8 @@ export function SecretCodeDisplay({
 						</p>
 						<ol className="list-decimal list-inside space-y-2 text-foreground/90">
 							<li>
-								Notez ce code dans un endroit privé (carnet personnel, gestionnaire
-								de mots de passe)
+								Notez ce code dans un endroit privé (carnet personnel,
+								gestionnaire de mots de passe)
 							</li>
 							<li>
 								Utilisez-le pour vous reconnecter sur n'importe quel appareil
@@ -129,7 +129,10 @@ export function SecretCodeDisplay({
 						aria-hidden="true"
 					/>
 					<AlertDescription className="text-base">
-						<strong className="font-semibold">Important :</strong> Si vous perdez ce code et votre session ouverte, vous ne pourrez plus retrouver votre compte. Ne partagez pas ce code. Le presse-papier et les captures d’écran peuvent rester accessibles sur votre appareil.
+						<strong className="font-semibold">Important :</strong> Si vous
+						perdez ce code et votre session ouverte, vous ne pourrez plus
+						retrouver votre compte. Ne partagez pas ce code. Le presse-papier et
+						les captures d’écran peuvent rester accessibles sur votre appareil.
 					</AlertDescription>
 				</Alert>
 

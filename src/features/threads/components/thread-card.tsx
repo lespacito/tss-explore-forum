@@ -24,7 +24,7 @@ interface ThreadCardProps {
 		body: string;
 		slug: string;
 		category: string;
- isSensitive?: boolean;
+		isSensitive?: boolean;
 		createdAt: Date | string;
 		updatedAt: Date | string;
 		aliasName: string | null;
@@ -95,7 +95,17 @@ export const ThreadCard = memo(function ThreadCard({
 					>
 						{thread.title}
 					</h3>
-{thread.isSensitive ? <p className="text-sm text-muted-foreground">Contenu sensible. Ouvrez la publication pour choisir de le lire.</p> : <SafeHtmlDisplay html={thread.body} className="text-sm text-muted-foreground line-clamp-3 break-words" data-testid="thread-excerpt"/>}
+					{thread.isSensitive ? (
+						<p className="text-sm text-muted-foreground">
+							Contenu sensible. Ouvrez la publication pour choisir de le lire.
+						</p>
+					) : (
+						<SafeHtmlDisplay
+							html={thread.body}
+							className="text-sm text-muted-foreground line-clamp-3 break-words"
+							data-testid="thread-excerpt"
+						/>
+					)}
 				</CardContent>
 				<CardFooter className="p-4 border-t flex justify-end text-muted-foreground">
 					<span className="text-xs font-medium text-primary">

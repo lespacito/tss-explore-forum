@@ -93,7 +93,10 @@ vi.mock("@/db/schemas/user", () => ({
 	user: { id: "user.id", displayUsername: "user.displayUsername" },
 }));
 
-import { getAllPublishedThreads } from "../db/thread-queries";
+import {
+	getAllPublishedThreads,
+	getPublishedThreadsByCategory,
+} from "../db/thread-queries";
 
 describe("getAllPublishedThreads", () => {
 	beforeEach(() => {
@@ -213,5 +216,37 @@ describe("getAllPublishedThreads", () => {
 				expect(results[0]).toHaveProperty(field);
 			}
 		});
+	});
+});
+
+describe("getPublishedThreadsByCategory", () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+		mockOrderBy.mockResolvedValue([mockDbRows[0]]);
+	});
+
+	it("executes the complete query chain", async () => {
+		await getPublishedThreadsByCategory("VIOLENCE");
+
+		expect(mockSelect).toHaveBeenCalledOnce();
+		expect(mockWhere).toHaveBeenCalledOnce();
+		expect(mockLeftJoin1).toHaveBeenCalledOnce();
+		expect(mockLeftJoin2).toHaveBeenCalledOnce();
+		expect(mockOrderBy).toHaveBeenCalledOnce();
+	});
+
+	it("serializes dates and preserves the selected category", async () => {
+		const results = await getPublishedThreadsByCategory("VIOLENCE");
+
+		expect(results).toHaveLength(1);
+		expect(results[0].category).toBe("VIOLENCE");
+		expect(results[0].createdAt).toBe("2024-01-15T10:00:00.000Z");
+		expect(results[0].updatedAt).toBe("2024-01-15T12:00:00.000Z");
+	});
+
+	it("returns an empty array when the category has no published thread", async () => {
+		mockOrderBy.mockResolvedValue([]);
+
+		await expect(getPublishedThreadsByCategory("AUTRE")).resolves.toEqual([]);
 	});
 });
