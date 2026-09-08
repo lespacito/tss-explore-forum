@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import FaqSection from "@/components/shadcn-studio/blocks/faq-section";
 
 import FeaturesSection from "@/components/shadcn-studio/blocks/features-section";
-import Footer from "@/components/shadcn-studio/blocks/footer";
+
 import HeroSection from "@/components/shadcn-studio/blocks/hero-section/hero-section";
 
 export const Route = createFileRoute("/")({
@@ -12,12 +12,12 @@ export const Route = createFileRoute("/")({
 function App() {
 	return (
 		<div className="min-h-screen bg-background text-foreground">
-			<main className="container mx-auto px-4">
+			<div className="container mx-auto px-4">
 				<HeroSection />
 				<FeaturesSection />
 				<FaqSection />
-			</main>
-			<Footer />
+			</div>
+
 		</div>
 	);
 }

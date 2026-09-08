@@ -5,7 +5,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { mainNavLinks } from "@/data/navigation";
 import { AuthButtons } from "./auth-buttons";
 import { MobileMenu } from "./mobile-menu";
-import { SearchBar } from "./search-bar";
+
 import { UserProfileMenu } from "./user-profile-menu";
 import { UserSkeleton } from "./user-skeleton";
 
@@ -29,11 +29,11 @@ const Navbar = () => {
 
 	return (
 		<header className="bg-background sticky top-0 z-50 border-b">
-			<div className="mx-auto flex max-w-7xl items-center justify-between gap-8 px-4 py-7 sm:px-6">
+			<div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-4 sm:gap-4 sm:px-6">
 				{/* Left side - Logo and navigation links */}
-				<div className="flex items-center gap-4">
+				<div className="flex min-w-0 items-center gap-2">
 					<SidebarTrigger />
-					<nav className="text-muted-foreground flex flex-1 items-center gap-8 font-medium md:justify-center lg:gap-16">
+					<nav className="text-muted-foreground flex flex-1 items-center gap-5 font-medium">
 						<Link to="/" className="flex items-center">
 							<Logo />
 							<span className="sr-only">Page d'accueil</span>
@@ -42,7 +42,7 @@ const Navbar = () => {
 							<Link
 								key={item.href}
 								to={item.href}
-								className="hover:text-primary max-md:hidden whitespace-nowrap transition-colors"
+								className="hover:text-primary max-xl:hidden whitespace-nowrap transition-colors"
 								activeProps={{
 									className: "text-primary",
 								}}
@@ -54,12 +54,12 @@ const Navbar = () => {
 				</div>
 
 				{/* Right side - Search, Theme, Menu, Auth */}
-				<div className="flex items-center gap-4">
+				<div className="flex min-w-0 items-center gap-2">
 					{/* Desktop search */}
-					<SearchBar />
+
 
 					{/* Theme toggle */}
-					<ToggleTheme />
+					<div className="hidden sm:flex"><ToggleTheme /></div>
 
 					{/* Mobile menu with search */}
 					<MobileMenu />
@@ -74,7 +74,7 @@ const Navbar = () => {
 					)}
 				</div>
 			</div>
-		</header>
+		<div className="border-t px-4 py-2 text-sm leading-6 text-muted-foreground"><p className="mx-auto max-w-7xl">{loaderData?.beta?.submissionsOpen ? "Dépôts ouverts · " : "Dépôts suspendus · "}{loaderData?.beta?.moderationSchedule}</p></div></header>
 	);
 };
 

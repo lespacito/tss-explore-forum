@@ -1,5 +1,5 @@
 import { Link, useRouter } from "@tanstack/react-router";
-import { LogOut, Settings, ShieldCheck, User, UserPlus } from "lucide-react";
+import { LogOut, Settings, ShieldCheck, User } from "lucide-react";
 import { useCallback, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,7 @@ export function UserProfileMenu({ user }: UserProfileMenuProps) {
 		await signOut({
 			fetchOptions: {
 				onSuccess: () => {
-					router.navigate({ to: "/" });
+					window.location.assign("/beta?leave=1");
 				},
 			},
 		});
@@ -47,7 +47,8 @@ export function UserProfileMenu({ user }: UserProfileMenuProps) {
 			<DropdownMenuTrigger asChild>
 				<Button
 					variant="ghost"
-					className="relative h-10 gap-2 rounded-full pl-2 pr-3 hover:bg-accent"
+					aria-label="Mon compte"
+					className="relative h-11 gap-2 rounded-full pl-2 pr-3 hover:bg-accent"
 				>
 					<Avatar className="h-8 w-8">
 						{user.image && (
@@ -82,26 +83,16 @@ export function UserProfileMenu({ user }: UserProfileMenuProps) {
 							</p>
 						)}
 						<p className="text-xs leading-none text-muted-foreground">
-							{user.email}
+							{user.isAnonymous ? "Session anonyme" : user.email}
 						</p>
 					</div>
 				</DropdownMenuLabel>
 				<DropdownMenuSeparator />
-				{user.isAnonymous && (
-					<>
-						<DropdownMenuItem asChild>
-							<Link to="/auth/login" className="cursor-pointer bg-primary/10">
-								<UserPlus className="mr-2 h-4 w-4" />
-								<span className="font-medium">Créer un compte permanent</span>
-							</Link>
-						</DropdownMenuItem>
-						<DropdownMenuSeparator />
-					</>
-				)}
+
 				<DropdownMenuItem asChild>
 					<Link to="/account/profile" className="cursor-pointer">
 						<User className="mr-2 h-4 w-4" />
-						<span>Profil</span>
+						<span>Mes publications</span>
 					</Link>
 				</DropdownMenuItem>
 				<DropdownMenuItem asChild>

@@ -99,7 +99,7 @@ export function useAutoSaveDraft({
 
 	// Restore draft on mount
 	useEffect(() => {
-		if (typeof window === "undefined") return;
+		if (!enabled || typeof window === "undefined") return;
 
 		try {
 			const saved = localStorage.getItem(key);
@@ -114,7 +114,7 @@ export function useAutoSaveDraft({
 		} catch (error) {
 			logger.error("Failed to restore draft from localStorage:", error);
 		}
-	}, [key, onRestore]);
+	}, [key, enabled, onRestore]);
 
 	/**
 	 * Save draft to localStorage
@@ -151,6 +151,7 @@ export function useAutoSaveDraft({
 	 * Clear draft from localStorage
 	 */
 	const clearDraft = useCallback(() => {
+		if (timeoutRef.current) clearTimeout(timeoutRef.current);
 		if (typeof window === "undefined") return;
 
 		try {

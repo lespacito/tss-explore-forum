@@ -1,75 +1,47 @@
-import { ChevronDown, ChevronRight } from "lucide-react";
-import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-
+import { ChevronDown } from "lucide-react";
+const faqs = [
+	{
+		q: "Qui peut lire mes publications ?",
+		a: "Seules les personnes invitées peuvent consulter cette bêta. Le modérateur relit chaque publication avant sa mise en ligne. Utilisez uniquement des scénarios fictifs pendant cette première cohorte.",
+	},
+	{
+		q: "Que protège mon alias ?",
+		a: "Votre alias remplace votre identité dans les publications. Il ne rend pas un récit impossible à reconnaître : évitez les noms, lieux précis et autres détails identifiants. Consultez la page Confidentialité pour les limites de cette protection.",
+	},
+	{
+		q: "Quand mon message sera-t-il examiné ?",
+		a: "Les créneaux de modération sont communiqués avec votre invitation. La modération n’est pas permanente. Retrouvez la décision et, en cas de refus, son motif dans Mes publications.",
+	},
+	{
+		q: "Comment retrouver ou effacer ma session ?",
+		a: "Conservez votre code secret dans un endroit privé. Il permet de retrouver votre session et vos publications. L’effacement est accessible depuis Gérer le compte. Ne partagez ni ce code ni votre code d’invitation.",
+	},
+];
 export default function FaqSection() {
-	const faqs = [
-		{
-			q: "Est-ce vraiment anonyme ?",
-			a: "Oui. Nous ne demandons pas votre nom réel et les données sont sécurisées. Vous choisissez un pseudonyme pour interagir.",
-		},
-		{
-			q: "Comment fonctionne la modération ?",
-			a: "Notre équipe et des outils automatiques veillent à ce que les échanges restent respectueux. Tout contenu haineux est rapidement supprimé.",
-		},
-		{
-			q: "Que faire si je me sens en danger ?",
-			a: "Si vous êtes en danger immédiat, contactez les services d'urgence (15 ou 112). Notre plateforme propose aussi des liens vers des services d'écoute.",
-		},
-		{
-			q: "Puis-je supprimer mes messages ?",
-			a: "Oui, vous gardez le contrôle total sur vos publications et pouvez les supprimer à tout moment.",
-		},
-	];
-
 	return (
-		<section className="mx-auto max-w-3xl py-12 sm:py-16 px-4">
-			<div className="flex flex-col items-center gap-2 mb-8 text-center">
-				<Badge variant="outline">FAQ</Badge>
-				<h2 className="text-2xl sm:text-3xl font-bold">Questions fréquentes</h2>
-				<p className="text-muted-foreground">
-					Tout ce que vous devez savoir pour utiliser l'espace sereinement.
-				</p>
-			</div>
-			<div className="space-y-4">
+		<section
+			className="mx-auto max-w-3xl px-4 py-12"
+			aria-labelledby="faq-heading"
+		>
+			<h2 id="faq-heading" className="mb-6 font-serif text-2xl font-semibold">
+				Questions sur la bêta
+			</h2>
+			<div className="divide-y border-y">
 				{faqs.map((f) => (
-					<FaqItem key={f.q} question={f.q} answer={f.a} />
+					<details key={f.q} className="group py-2">
+						<summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 py-3 font-medium">
+							{f.q}
+							<ChevronDown
+								className="size-5 shrink-0 group-open:rotate-180"
+								aria-hidden="true"
+							/>
+						</summary>
+						<p className="max-w-prose pb-4 leading-7 text-muted-foreground">
+							{f.a}
+						</p>
+					</details>
 				))}
 			</div>
 		</section>
-	);
-}
-
-function FaqItem({ question, answer }: { question: string; answer: string }) {
-	const [isOpen, setIsOpen] = useState(false);
-
-	return (
-		<Collapsible
-			open={isOpen}
-			onOpenChange={setIsOpen}
-			className="border rounded-md p-4 bg-card"
-		>
-			<CollapsibleTrigger asChild>
-				<div className="flex items-center justify-between cursor-pointer font-medium hover:underline">
-					{question}
-					<Button variant="ghost" size="icon" className="w-8 h-8">
-						{isOpen ? (
-							<ChevronDown className="h-4 w-4" />
-						) : (
-							<ChevronRight className="h-4 w-4" />
-						)}
-					</Button>
-				</div>
-			</CollapsibleTrigger>
-			<CollapsibleContent className="mt-2 text-muted-foreground text-sm">
-				{answer}
-			</CollapsibleContent>
-		</Collapsible>
 	);
 }

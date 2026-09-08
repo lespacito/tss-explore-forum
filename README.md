@@ -426,3 +426,32 @@ Développé avec ❤️ par l'équipe Parlons Violence.
 ---
 
 **Note:** Ce projet est en développement actif. Pour toute question ou problème, veuillez ouvrir une issue sur GitHub.
+
+## Bêta privée sur invitation
+
+L’accès à la lecture, aux dépôts et aux API nécessite une invitation. Les pages d’aide,
+de confidentialité et de règles restent publiques. Sans `BETA_INVITATION_CODES` et
+un `BETTER_AUTH_SECRET` d’au moins 32 caractères, l’accès reste fermé.
+
+Générer un code aléatoire distinct par invité, puis les configurer séparés par des
+virgules dans `BETA_INVITATION_CODES` (jamais dans Git ou une URL). Retirer un code
+et redémarrer les instances révoque aussi ses cookies existants. Les cookies
+expirent après 14 jours. Le limiteur d’essais est local à chaque instance.
+
+Les dépôts exigent à la fois `BETA_SUBMISSIONS_OPEN=true` et un créneau réel dans
+`BETA_MODERATION_SCHEDULE`. Passer le premier à `false` et redémarrer suspend les
+nouveaux dépôts, tout en conservant lecture et modération. Déployer derrière HTTPS.
+La première cohorte utilise uniquement des scénarios fictifs.
+
+Pour une validation locale isolée, `node scripts/beta-validation-setup.mjs` utilise
+la connexion de `.env.local`, crée un **nouveau schéma vide**, applique les migrations
+versionnées et écrit `.env.beta-validation.local` (ignoré, contient des secrets de
+test). Il ne modifie pas le schéma public. Démarrer avec :
+
+```sh
+bunx dotenv -e .env.beta-validation.local -- bun run dev
+```
+
+Avant toute invitation réelle : confirmer les créneaux, la capacité quotidienne,
+le contact organisateur, l’hébergement et le délai de conservation des sauvegardes.
+Voir `docs/private-beta-interface-audit-2026-09-06.md` pour l’audit initial.

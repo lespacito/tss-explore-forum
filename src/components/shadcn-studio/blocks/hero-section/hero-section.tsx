@@ -1,5 +1,5 @@
 import { useId } from "react";
-import { Badge } from "@/components/ui/badge";
+
 import { AnonymousPostButton } from "@/features/auth/components/AnonymousPostButton";
 
 type HeroImage = {
@@ -53,19 +53,14 @@ const HeroSection = () => {
 	return (
 		<section
 			id={`hero-section-${id}`}
-			className="flex min-h-[calc(100dvh-4rem)] flex-1 flex-col justify-between gap-12 overflow-x-hidden pt-8 sm:gap-16 sm:pt-16 lg:gap-24 lg:pt-24"
+			className="flex  flex-1 flex-col justify-between gap-12 overflow-x-hidden pt-8 sm:gap-16 sm:pt-16 lg:gap-16 lg:pt-16"
 		>
 			{/* Hero Content */}
 			<div className="mx-auto flex max-w-7xl flex-col items-center gap-8 px-4 text-center sm:px-6 lg:px-8">
-				<div className="bg-muted flex items-center gap-2.5 rounded-full border px-3 py-2">
-					<Badge>Communauté Solidaire</Badge>
-					<span className="text-muted-foreground">
-						Anonymat et respect garantis
-					</span>
-				</div>
+
 
 				<h1 className="text-3xl leading-[1.29167] font-bold font-serif text-balance sm:text-4xl lg:text-5xl">
-					Un Espace de
+					Un espace de
 					<br />
 					<span className="relative">
 						Confiance
@@ -100,14 +95,13 @@ const HeroSection = () => {
 							</defs>
 						</svg>
 					</span>{" "}
-					pour échanger
+					pour partager
 				</h1>
 
 				<p className="text-muted-foreground">
-					Un espace d'échange bienveillant pour aborder les sujets qui vous
-					touchent.
+					Bêta privée, sur invitation, pour adultes en Suisse romande.
 					<br />
-					Santé mentale, violences, difficultés... vous n'êtes plus seul(e).
+					Pour ce premier test, utilisez uniquement un scénario fictif.
 				</p>
 
 				<AnonymousPostButton />
@@ -128,7 +122,7 @@ const HeroSection = () => {
 							loading={index < 2 ? "eager" : "lazy"}
 							fetchPriority={index === 0 ? "high" : "low"}
 							decoding={index < 2 ? "sync" : "async"}
-							className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+							className="h-full w-full object-cover motion-safe:transition-transform motion-safe:duration-300 motion-safe:hover:scale-105"
 						/>
 					</div>
 				))}

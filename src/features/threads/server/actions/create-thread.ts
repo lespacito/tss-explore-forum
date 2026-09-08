@@ -1,3 +1,4 @@
+import { betaSettings } from "@/features/beta/server/settings";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import type { ThreadCategory } from "@/data/threads-categories";
@@ -6,7 +7,7 @@ import {
 	checkArcjet,
 	handleArcjetDenied,
 } from "@/features/auth/lib/security/protected-server-fn";
-import { generateSecretCodeLogic } from "@/features/auth/server/generate-secret-code-fn";
+import { generateSecretCodeLogic } from "@/features/auth/server/generate-secret-code-logic";
 import { getAuthSession } from "@/features/auth/server/get-auth-session";
 import { getUserById } from "@/features/users/server/db/user-queries";
 import { logger } from "@/lib/logger/server";
@@ -29,6 +30,7 @@ const createThreadSchema = z.object({
 export const createThreadFn = createServerFn({ method: "POST" })
 	.inputValidator((data: unknown) => createThreadSchema.parse(data))
 	.handler(async ({ data }) => {
+ if (!betaSettings().submissionsOpen) throw new Error("Les dépôts sont suspendus. Consultez les informations de l’organisateur.");
 		const decision = await checkArcjet({
 			path: "/threads/create",
 		});

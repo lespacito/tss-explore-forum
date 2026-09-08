@@ -6,6 +6,9 @@ import type { AuthContext } from "@/features/auth/server/get-auth-session";
  * Coverage: AC4 - Protected route with authentication verification
  */
 
+vi.mock("@/features/auth/components/AnonymousPostButton", () => ({
+	AnonymousPostButton: () => null,
+}));
 const mockGetAuthSession = vi.fn();
 vi.mock("@/features/auth/server/get-auth-session", () => ({
 	getAuthSession: () => mockGetAuthSession(),
@@ -16,47 +19,12 @@ describe("Route Protection: /threads/new/", () => {
 		vi.clearAllMocks();
 	});
 
-	describe("Subtask 1.5: Unauthenticated user → redirect to login", () => {
-		it("should redirect to /auth/login when no session exists", async () => {
-			mockGetAuthSession.mockResolvedValue({
-				user: null,
-				isAuthenticated: false,
-				session: null,
-			} satisfies AuthContext);
-
-			const { Route } = await import("../index.tsx");
-			const loader = Route.options.loader;
-
-			if (!loader) {
-				throw new Error("Loader not defined on route");
-			}
-
-			await expect(loader()).rejects.toThrowError();
-			expect(mockGetAuthSession).toHaveBeenCalledOnce();
-		});
-
-		it("should include redirect search param pointing back to /threads/new", async () => {
-			mockGetAuthSession.mockResolvedValue({
-				user: null,
-				isAuthenticated: false,
-				session: null,
-			} satisfies AuthContext);
-
-			const { Route } = await import("../index.tsx");
-			const loader = Route.options.loader;
-
-			try {
-				await loader?.();
-				expect.fail("Expected redirect to be thrown");
-			} catch (error: unknown) {
-				expect(error).toHaveProperty("options");
-				const redirectError = error as {
-					options: { to: string; search: { redirect: string } };
-				};
-				expect(redirectError.options.to).toBe("/auth/login");
-				expect(redirectError.options.search.redirect).toBe("/threads/new");
-			}
-		});
+	it("lets invited visitors reach the session creation step", async () => {
+		const session = { user: null, isAuthenticated: false, session: null };
+		mockGetAuthSession.mockResolvedValue(session);
+		const { Route } = await import("../index.tsx");
+		expect(await Route.options.loader?.()).toEqual({ session });
+		expect(mockGetAuthSession).toHaveBeenCalledOnce();
 	});
 
 	describe("Subtask 1.6: Anonymous user → allow access", () => {

@@ -1,4 +1,6 @@
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { SafetyNotice } from "@/features/beta/components/safety-notice";
+import { AnonymousPostButton } from "@/features/auth/components/AnonymousPostButton";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,14 +14,6 @@ export const Route = createFileRoute("/threads/new/")({
 	loader: async () => {
 		const session = await getAuthSession();
 
-		// Redirect to login if no session
-		if (!session?.user) {
-			throw redirect({
-				to: "/auth/login",
-				search: { redirect: "/threads/new" },
-			});
-		}
-
 		// Allow access for both anonymous and registered users
 		return { session };
 	},
@@ -27,6 +21,7 @@ export const Route = createFileRoute("/threads/new/")({
 
 function NewThreadPage() {
 	const navigate = useNavigate();
+	const { session } = Route.useLoaderData();
 	const [selectedCategory, setSelectedCategory] =
 		useState<ThreadCategory | null>(null);
 
@@ -42,6 +37,17 @@ function NewThreadPage() {
 		});
 	};
 
+	if (!session?.user)
+		return (
+			<div className="mx-auto max-w-xl space-y-5 px-4 py-10">
+				<h1 className="font-serif text-3xl">Créer une publication</h1>
+				<p>
+					Commencez une session anonyme pour rédiger un scénario fictif. Aucun
+					email n’est nécessaire.
+				</p>
+				<AnonymousPostButton />
+			</div>
+		);
 	return (
 		<div className="container max-w-4xl mx-auto px-4 py-8 space-y-8">
 			{/* Header */}
@@ -54,22 +60,7 @@ function NewThreadPage() {
 				</p>
 			</div>
 
-			{/* Safety Disclaimer */}
-			<div className="p-4 bg-warning/30 border-2 border-warning rounded-lg">
-				<div className="flex items-start gap-3">
-					<span className="text-2xl">⚠️</span>
-					<div className="flex-1">
-						<p className="text-sm text-foreground font-bold mb-1">
-							Important : Cette plateforme n&apos;est pas un service
-							d&apos;urgence
-						</p>
-						<p className="text-sm text-foreground">
-							Si vous êtes en danger immédiat, contactez le 117 (Police), le 143
-							(La Main Tendue) ou le 147 (CPN - Conseils + aide 147).
-						</p>
-					</div>
-				</div>
-			</div>
+			<SafetyNotice />
 
 			{/* Categories Grid */}
 			<fieldset

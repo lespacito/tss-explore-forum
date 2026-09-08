@@ -24,6 +24,7 @@ interface ThreadCardProps {
 		body: string;
 		slug: string;
 		category: string;
+		isSensitive?: boolean;
 		createdAt: Date | string;
 		updatedAt: Date | string;
 		aliasName: string | null;
@@ -38,7 +39,7 @@ export const ThreadCard = memo(function ThreadCard({
 	thread,
 }: ThreadCardProps) {
 	const authorName = getAuthorDisplayName({
-		isSensitive: false,
+		isSensitive: thread.isSensitive ?? false,
 		threadCategory: thread.category,
 		aliasName: thread.aliasName,
 		displayUsername: thread.displayUsername,
@@ -60,8 +61,8 @@ export const ThreadCard = memo(function ThreadCard({
 							{getInitials(authorName)}
 						</AvatarFallback>
 					</Avatar>
-					<div className="flex flex-col flex-1">
-						<div className="flex items-center gap-2">
+					<div className="flex min-w-0 flex-col flex-1">
+						<div className="flex flex-wrap items-center gap-2">
 							<span
 								className="font-semibold text-sm"
 								data-testid="thread-author"
@@ -94,11 +95,17 @@ export const ThreadCard = memo(function ThreadCard({
 					>
 						{thread.title}
 					</h3>
-					<SafeHtmlDisplay
-						html={thread.body}
-						className="text-sm text-muted-foreground line-clamp-3"
-						data-testid="thread-excerpt"
-					/>
+					{thread.isSensitive ? (
+						<p className="text-sm text-muted-foreground">
+							Contenu sensible. Ouvrez la publication pour choisir de le lire.
+						</p>
+					) : (
+						<SafeHtmlDisplay
+							html={thread.body}
+							className="text-sm text-muted-foreground line-clamp-3 break-words"
+							data-testid="thread-excerpt"
+						/>
+					)}
 				</CardContent>
 				<CardFooter className="p-4 border-t flex justify-end text-muted-foreground">
 					<span className="text-xs font-medium text-primary">

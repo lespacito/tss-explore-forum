@@ -5,6 +5,7 @@ import * as schema from "@/db/schema";
 
 const client = postgres(env.DATABASE_URL, {
 	max: 10,
+ connection: { search_path: env.DB_SCHEMA },
 	connect_timeout: 30,
 });
 

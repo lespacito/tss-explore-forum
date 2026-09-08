@@ -74,10 +74,10 @@ export function SecretCodeDisplay({
 
 			<CardContent className="space-y-6">
 				{/* Code display with copy button */}
-				<div className="flex items-center gap-3 p-6 bg-muted rounded-lg border border-border">
+				<div className="flex items-center gap-3 p-3 sm:p-6 bg-muted rounded-lg border border-border">
 					{/* biome-ignore lint/a11y/useSemanticElements: The value is code first; role=status announces it when rendered. */}
 					<code
-						className="flex-1 text-2xl md:text-3xl font-mono font-bold tracking-wider text-center select-all break-all"
+						className="flex-1 text-xl sm:text-2xl md:text-3xl font-mono font-bold tracking-wider text-center select-all break-all"
 						aria-label={`Code secret: ${secretCode}`}
 						role="status"
 					>
@@ -108,8 +108,8 @@ export function SecretCodeDisplay({
 						</p>
 						<ol className="list-decimal list-inside space-y-2 text-foreground/90">
 							<li>
-								Notez ce code dans un endroit sûr (carnet, photo, gestionnaire
-								de mots de passe)
+								Notez ce code dans un endroit privé (carnet personnel,
+								gestionnaire de mots de passe)
 							</li>
 							<li>
 								Utilisez-le pour vous reconnecter sur n'importe quel appareil
@@ -130,9 +130,9 @@ export function SecretCodeDisplay({
 					/>
 					<AlertDescription className="text-base">
 						<strong className="font-semibold">Important :</strong> Si vous
-						perdez ce code, vous ne pourrez plus accéder à vos publications
-						anonymes. Aucune récupération n'est possible pour préserver votre
-						anonymat.
+						perdez ce code et votre session ouverte, vous ne pourrez plus
+						retrouver votre compte. Ne partagez pas ce code. Le presse-papier et
+						les captures d’écran peuvent rester accessibles sur votre appareil.
 					</AlertDescription>
 				</Alert>
 

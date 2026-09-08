@@ -59,7 +59,7 @@ import { db } from "@/db";
 // Now safe to import
 import { ensureUniqueCode } from "@/features/auth/lib/generate-secret-code";
 import { logger } from "@/lib/logger/server";
-import { generateSecretCodeLogic } from "../generate-secret-code-fn";
+import { generateSecretCodeLogic } from "../generate-secret-code-logic";
 
 // Get reference to mocked db for test assertions
 const mockDb = db as any;

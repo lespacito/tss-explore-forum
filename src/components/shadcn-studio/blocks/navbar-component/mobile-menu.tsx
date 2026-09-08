@@ -6,26 +6,21 @@ import {
 	DropdownMenuContent,
 	DropdownMenuGroup,
 	DropdownMenuItem,
-	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { mainNavLinks } from "@/data/navigation";
-import { SearchBar } from "./search-bar";
+
 
 export function MobileMenu() {
 	return (
 		<DropdownMenu>
-			<DropdownMenuTrigger className="md:hidden" asChild>
+			<DropdownMenuTrigger className="xl:hidden" asChild>
 				<Button variant="outline" size="icon">
 					<MenuIcon className="h-4 w-4" />
 					<span className="sr-only">Ouvrir le menu</span>
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent className="w-72" align="end">
-				<div className="p-2">
-					<SearchBar isMobile className="mb-2" />
-				</div>
-				<DropdownMenuSeparator />
 				<DropdownMenuGroup>
 					{mainNavLinks.map((item) => (
 						<DropdownMenuItem key={item.href} asChild>

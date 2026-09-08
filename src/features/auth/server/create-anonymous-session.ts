@@ -8,6 +8,8 @@ export const createAnonymousSessionFn = createServerFn({
 }).handler(async () => {
 	const request = getRequest();
 	try {
+		const existing = await auth.api.getSession({ headers: request.headers });
+		if (existing?.user) return { success: true, userId: existing.user.id };
 		const session = await auth.api.signInAnonymous({
 			headers: request.headers,
 		});

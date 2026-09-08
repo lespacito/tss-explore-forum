@@ -77,7 +77,7 @@ vi.mock("@/features/auth/lib/generate-secret-code", () => ({
 // Now safe to import
 import { db } from "@/db";
 import { ensureUniqueCode } from "@/features/auth/lib/generate-secret-code";
-import { generateSecretCodeLogic } from "@/features/auth/server/generate-secret-code-fn";
+import { generateSecretCodeLogic } from "@/features/auth/server/generate-secret-code-logic";
 
 const mockDb = db as any;
 
