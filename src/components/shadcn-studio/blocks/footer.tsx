@@ -1,31 +1,4 @@
-import { Separator } from "@/components/ui/separator";
-
+import { Link } from "@tanstack/react-router";
 export default function Footer() {
-	return (
-		<footer className="py-12 bg-background">
-			<div className="container mx-auto px-4">
-				<Separator className="mb-8" />
-				<div className="flex flex-col md:flex-row justify-between items-center gap-6">
-					<div className="text-sm text-muted-foreground">
-						&copy; {new Date().getFullYear()} TSS Explore Forum. Tous droits
-						réservés.
-					</div>
-					<nav className="flex gap-6 text-sm font-medium">
-						<a href="#" className="hover:underline">
-							Mentions légales
-						</a>
-						<a href="#" className="hover:underline">
-							Confidentialité
-						</a>
-						<a href="#" className="hover:underline">
-							Contact
-						</a>
-						<a href="#" className="hover:underline">
-							Ressources d'aide
-						</a>
-					</nav>
-				</div>
-			</div>
-		</footer>
-	);
+ return <footer className="border-t px-4 py-8"><div className="mx-auto flex max-w-6xl flex-col gap-4 text-sm sm:flex-row sm:justify-between"><p className="text-muted-foreground">Parlons Violence · Bêta privée pour adultes</p><nav aria-label="Informations" className="flex flex-wrap gap-x-6 gap-y-2"><Link className="inline-flex min-h-11 items-center underline underline-offset-4" to="/rules">Règles</Link><Link className="inline-flex min-h-11 items-center underline underline-offset-4" to="/privacy">Confidentialité</Link><Link className="inline-flex min-h-11 items-center underline underline-offset-4" to="/help">Aide et contact</Link></nav></div></footer>;
 }

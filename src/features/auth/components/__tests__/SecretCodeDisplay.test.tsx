@@ -72,7 +72,7 @@ describe("SecretCodeDisplay Component", () => {
 				screen.getByText("Comment utiliser ce code :"),
 			).toBeInTheDocument();
 			expect(
-				screen.getByText(/Notez ce code dans un endroit sûr/i),
+				screen.getByText(/Notez ce code dans un endroit privé/i),
 			).toBeInTheDocument();
 			expect(
 				screen.getByText(/Utilisez-le pour vous reconnecter/i),
@@ -110,7 +110,7 @@ describe("SecretCodeDisplay Component", () => {
 			expect(screen.getByText("Important :")).toBeInTheDocument();
 			expect(screen.getByText(/Si vous perdez ce code/i)).toBeInTheDocument();
 			expect(
-				screen.getByText(/Aucune récupération n'est possible/i),
+				screen.getByText(/ce code et votre session ouverte/i),
 			).toBeInTheDocument();
 		});
 
@@ -118,7 +118,7 @@ describe("SecretCodeDisplay Component", () => {
 			render(<SecretCodeDisplay secretCode={mockSecretCode} />);
 
 			// Check that warning exists but uses reassuring tone
-			const warningText = screen.getByText(/préserver votre anonymat/i);
+			const warningText = screen.getByText(/Ne partagez pas ce code/i);
 			expect(warningText).toBeInTheDocument();
 
 			// Should not contain panic-inducing language
@@ -317,7 +317,7 @@ describe("SecretCodeDisplay Component", () => {
 			);
 
 			const codeElement = container.querySelector("code");
-			expect(codeElement).toHaveClass("text-2xl"); // Base mobile size
+			expect(codeElement).toHaveClass("text-xl"); // Base mobile size
 			expect(codeElement).toHaveClass("md:text-3xl"); // Larger on desktop
 		});
 
@@ -438,7 +438,7 @@ describe("SecretCodeDisplay Component", () => {
 			render(<SecretCodeDisplay secretCode={mockSecretCode} />);
 
 			// Should explain anonymat preservation positively
-			expect(screen.getByText(/préserver votre anonymat/i)).toBeInTheDocument();
+			expect(screen.getByText(/Ne partagez pas ce code/i)).toBeInTheDocument();
 		});
 	});
 });

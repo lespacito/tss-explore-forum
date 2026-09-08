@@ -1,13 +1,17 @@
 import { useForm } from "@tanstack/react-form";
 import {
 	createFileRoute,
+	redirect,
 	useNavigate,
 	useRouter,
 } from "@tanstack/react-router";
+import { useStore } from "@tanstack/react-form";
+import { SafetyNotice } from "@/features/beta/components/safety-notice";
+import { usePublicationReceipt } from "@/features/beta/components/publication-receipt";
+import { getAuthSession } from "@/features/auth/server/get-auth-session";
 import { ArrowLeft, FileText, Send } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { logger } from "@/lib/logger/client-logger";
 import { TipTap } from "@/components/tiptap/TiptapEditor";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,16 +23,27 @@ import {
 } from "@/data/threads-categories";
 import { createThreadFn } from "@/features/threads/server/actions/create-thread";
 import { useAutoSaveDraft } from "@/hooks/useAutoSaveDraft";
+import { logger } from "@/lib/logger/client-logger";
 import { validateHtmlContent } from "@/lib/security/validate-html-content";
 
 export const Route = createFileRoute("/threads/new/$category")({
 	component: NewThreadFormPage,
+	loader: async ({ params }) => {
+		if (!getCategoryConfig(params.category as ThreadCategory))
+			throw redirect({ to: "/threads/new" });
+		const session = await getAuthSession();
+		if (!session.user) throw redirect({ to: "/threads/new" });
+		return { userId: session.user.id };
+	},
 });
 
 function NewThreadFormPage() {
 	const { category } = Route.useParams();
 	const navigate = useNavigate();
 	const router = useRouter();
+	const { userId } = Route.useLoaderData();
+	const { setSecretCode } = usePublicationReceipt();
+	const [saveOnDevice, setSaveOnDevice] = useState(false);
 	const [textLength, setTextLength] = useState(0);
 	const [draftRestored, setDraftRestored] = useState(false);
 
@@ -91,25 +106,20 @@ function NewThreadFormPage() {
 				});
 
 				// Clear drafts after successful submission
+
+				if (!("thread" in result) || !result.thread) {
+					throw new Error(
+						"error" in result
+							? result.error
+							: "Le dépôt n’a pas été confirmé. Réessayez.",
+					);
+				}
 				clearTitleDraft();
 				clearBodyDraft();
-
-				// Check if secret code was generated for first publication
-				if ("secretCode" in result && result.secretCode && result.thread) {
-					toast.success("Votre publication a été soumise pour modération !");
-					navigate({
-						to: "/threads/confirmation",
-						search: {
-							secretCode: result.secretCode,
-							threadSlug: result.thread.slug,
-							isFirstPublication: true,
-						},
-					});
-				} else if ("thread" in result && result.thread) {
-					toast.success("Votre publication a été soumise pour modération !");
-					navigate({ to: "/threads", search: { openDialog: false } });
-					router.invalidate();
-				}
+				setSecretCode("secretCode" in result ? (result.secretCode ?? "") : "");
+				toast.success("Votre publication a été envoyée pour modération.");
+				await router.invalidate();
+				await navigate({ to: "/threads/confirmation" });
 			} catch (error) {
 				logger.error("Failed to create thread:", error);
 				toast.error(
@@ -121,18 +131,20 @@ function NewThreadFormPage() {
 		},
 	});
 
+	const draftTitle = useStore(form.store, (state) => state.values.title);
+	const draftBody = useStore(form.store, (state) => state.values.body);
+	const isSubmitting = useStore(form.store, (state) => state.isSubmitting);
+	// Auto-save only with consent, scoped to this session owner.
 	// Auto-save title to localStorage
 	const {
 		restoredDraft: restoredTitle,
 		hasDraft: hasTitleDraft,
 		clearDraft: clearTitleDraft,
 	} = useAutoSaveDraft({
-		key: `draft-thread-${category}-title`,
-		value: form.state.values.title,
+		key: `draft-thread-${userId}-${category}-title`,
+		value: draftTitle,
+		enabled: saveOnDevice,
 		delay: 1500,
-		onRestore: (_value) => {
-			setDraftRestored(true);
-		},
 	});
 
 	// Auto-save body to localStorage
@@ -141,15 +153,13 @@ function NewThreadFormPage() {
 		hasDraft: hasBodyDraft,
 		clearDraft: clearBodyDraft,
 	} = useAutoSaveDraft({
-		key: `draft-thread-${category}-body`,
-		value: form.state.values.body,
+		key: `draft-thread-${userId}-${category}-body`,
+		value: draftBody,
+		enabled: saveOnDevice,
 		delay: 1500,
-		onRestore: (_value) => {
-			setDraftRestored(true);
-		},
 	});
 
-	// Restore drafts on mount
+	// Restore drafts when the auto-save hooks finish loading localStorage.
 	useEffect(() => {
 		if (restoredTitle) {
 			form.setFieldValue("title", restoredTitle);
@@ -160,18 +170,29 @@ function NewThreadFormPage() {
 
 		// Show toast if draft was restored
 		if (hasTitleDraft || hasBodyDraft) {
+			setDraftRestored(true);
 			toast.info("Brouillon restauré", {
 				duration: 3000,
 				description: "Votre brouillon précédent a été récupéré",
 			});
 		}
-	}, []); // Run only on mount
+	}, [
+		form.setFieldValue,
+		hasBodyDraft,
+		hasTitleDraft,
+		restoredBody,
+		restoredTitle,
+	]);
 
-	// Redirect if invalid category
-	if (!categoryConfig) {
-		navigate({ to: "/threads/new" });
-		return null;
-	}
+	const forgetDraft = () => {
+		setSaveOnDevice(false);
+		clearTitleDraft();
+		clearBodyDraft();
+		form.reset();
+		setDraftRestored(false);
+		toast.success("Brouillon effacé de cet appareil.");
+	};
+	if (!categoryConfig) return null;
 
 	return (
 		<div className="container max-w-3xl mx-auto px-4 py-8 space-y-6">
@@ -182,11 +203,12 @@ function NewThreadFormPage() {
 					size="icon"
 					onClick={() => navigate({ to: "/threads/new" })}
 					className="mt-1"
+					aria-label="Revenir aux catégories"
 				>
 					<ArrowLeft className="h-4 w-4" />
 				</Button>
-				<div className="flex-1">
-					<div className="flex items-center gap-2 mb-2">
+				<div className="min-w-0 flex-1">
+					<div className="flex flex-wrap items-center gap-2 mb-2">
 						<span className="text-3xl">{categoryConfig.icon}</span>
 						<h1 className="text-3xl font-bold tracking-tight">
 							{categoryConfig.label}
@@ -230,6 +252,34 @@ function NewThreadFormPage() {
 				</CardContent>
 			</Card>
 
+			<aside className="space-y-3 rounded-xl border p-4 text-sm">
+				<p>
+					Première cohorte : rédigez uniquement un scénario fictif, sans détail
+					identifiant.
+				</p>
+				<label className="flex min-h-11 items-start gap-3">
+					<input
+						type="checkbox"
+						checked={saveOnDevice}
+						onChange={(event) => {
+							setSaveOnDevice(event.target.checked);
+							if (!event.target.checked) {
+								clearTitleDraft();
+								clearBodyDraft();
+							}
+						}}
+						className="mt-1 size-5 shrink-0"
+					/>
+					<span>
+						Conserver mon brouillon sur cet appareil. Toute personne utilisant
+						ce navigateur pourrait le retrouver. Réactivez cette option pour
+						restaurer un brouillon conservé.
+					</span>
+				</label>
+				<Button type="button" variant="outline" onClick={forgetDraft}>
+					Effacer le brouillon
+				</Button>
+			</aside>
 			{/* Form */}
 			<form
 				onSubmit={(e) => {
@@ -249,6 +299,9 @@ function NewThreadFormPage() {
 							</Label>
 							<Input
 								id={field.name}
+								required
+								minLength={3}
+								maxLength={200}
 								name={field.name}
 								value={field.state.value}
 								onChange={(e) => field.handleChange(e.target.value)}
@@ -271,7 +324,7 @@ function NewThreadFormPage() {
 				<form.Field name="body">
 					{(field) => (
 						<div className="space-y-2">
-							<Label htmlFor={field.name}>
+							<Label id="body-label">
 								Votre message <span className="text-destructive">*</span>
 							</Label>
 							<TipTap
@@ -301,14 +354,14 @@ function NewThreadFormPage() {
 					<CardContent className="p-4">
 						<p className="text-sm text-foreground">
 							<strong>Modération :</strong> Votre publication sera examinée par
-							notre équipe dans les 24-48 heures avant d'être publiée. Cette
-							étape garantit un espace sûr et bienveillant pour tous.
+							le modérateur avant sa mise en ligne. Consultez les créneaux
+							indiqués dans votre invitation et le statut dans Mes publications.
 						</p>
 					</CardContent>
 				</Card>
 
 				{/* Actions */}
-				<div className="flex justify-between items-center pt-4">
+				<div className="flex flex-wrap justify-between items-center gap-4 pt-4">
 					<div className="flex gap-2">
 						<Button
 							type="button"
@@ -317,37 +370,14 @@ function NewThreadFormPage() {
 						>
 							Retour
 						</Button>
-						{(hasTitleDraft || hasBodyDraft) && (
-							<Button
-								type="button"
-								variant="ghost"
-								size="sm"
-								onClick={() => {
-									if (
-										confirm(
-											"Voulez-vous vraiment effacer votre brouillon ? Cette action est irréversible.",
-										)
-									) {
-										clearTitleDraft();
-										clearBodyDraft();
-										form.reset();
-										setDraftRestored(false);
-										toast.success("Brouillon effacé");
-									}
-								}}
-								className="text-muted-foreground"
-							>
-								Effacer le brouillon
-							</Button>
-						)}
 					</div>
 					<Button
 						type="submit"
 						size="lg"
-						disabled={form.state.isSubmitting}
+						disabled={isSubmitting}
 						className="gap-2"
 					>
-						{form.state.isSubmitting ? (
+						{isSubmitting ? (
 							"Envoi en cours..."
 						) : (
 							<>
@@ -359,17 +389,7 @@ function NewThreadFormPage() {
 				</div>
 			</form>
 
-			{/* Safety footer */}
-			<Card className="bg-warning/30 border-2 border-warning">
-				<CardContent className="p-4">
-					<p className="text-sm text-foreground">
-						<strong>Rappel important :</strong> Cette plateforme n'est pas un
-						service d'urgence. En cas de danger immédiat, contactez le 117
-						(Police), le 143 (La Main Tendue) ou le 147 (CPN - Conseils + aide
-						147).
-					</p>
-				</CardContent>
-			</Card>
+			<SafetyNotice />
 		</div>
 	);
 }

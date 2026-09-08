@@ -1,5 +1,6 @@
 import Placeholder from "@tiptap/extension-placeholder";
-import { EditorProvider } from "@tiptap/react";
+import { useEffect } from "react";
+import { EditorProvider, useCurrentEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { cn } from "@/lib/utils";
 import { Toolbar } from "./Toolbar";
@@ -85,8 +86,13 @@ export const TipTap = ({
 						"aria-multiline": "true",
 					},
 				}}
-			>
-			</EditorProvider>
+			><EditorContentSync content={content} onTextChange={onTextChange}/></EditorProvider>
 		</div>
 	);
 };
+
+function EditorContentSync({content, onTextChange}: Pick<TipTapProps, "content" | "onTextChange">) {
+ const { editor } = useCurrentEditor();
+ useEffect(() => { if (!editor || editor.isDestroyed) return; if (editor.getHTML() !== content) { editor.commands.setContent(content, {emitUpdate: false}); const text = editor.getText(); onTextChange?.(text, text.length); } }, [editor, content, onTextChange]);
+ return null;
+}

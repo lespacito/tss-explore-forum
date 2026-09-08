@@ -59,7 +59,7 @@ import { db } from "@/db";
 // Now safe to import
 import { ensureUniqueCode } from "@/features/auth/lib/generate-secret-code";
 import { logger } from "@/lib/logger/server";
-import { generateSecretCodeLogic } from "../generate-secret-code-fn";
+import { generateSecretCodeLogic } from "../generate-secret-code-logic";
 
 // Get reference to mocked db for test assertions
 const mockDb = db as any;
@@ -386,7 +386,9 @@ describe("generateSecretCodeLogic - Task 3", () => {
 			const result = await generateSecretCodeLogic(session, mockDb);
 
 			expect(result.success).toBe(false);
-			expect((result as any).error).toBe("Impossible de générer le code secret");
+			expect((result as any).error).toBe(
+				"Impossible de générer le code secret",
+			);
 		});
 
 		it("should not expose internal error details to client", async () => {

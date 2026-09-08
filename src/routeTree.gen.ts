@@ -10,6 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TestEmailRouteImport } from './routes/test-email'
+import { Route as RulesRouteImport } from './routes/rules'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as HelpRouteImport } from './routes/help'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ThreadsIndexRouteImport } from './routes/threads/index'
@@ -29,6 +32,21 @@ import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 const TestEmailRoute = TestEmailRouteImport.update({
   id: '/test-email',
   path: '/test-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RulesRoute = RulesRouteImport.update({
+  id: '/rules',
+  path: '/rules',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -110,6 +128,9 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/help': typeof HelpRoute
+  '/privacy': typeof PrivacyRoute
+  '/rules': typeof RulesRoute
   '/test-email': typeof TestEmailRoute
   '/auth/anonymous-signin': typeof AuthAnonymousSigninRoute
   '/threads/$threadSlug': typeof ThreadsThreadSlugRoute
@@ -128,6 +149,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/help': typeof HelpRoute
+  '/privacy': typeof PrivacyRoute
+  '/rules': typeof RulesRoute
   '/test-email': typeof TestEmailRoute
   '/auth/anonymous-signin': typeof AuthAnonymousSigninRoute
   '/threads/$threadSlug': typeof ThreadsThreadSlugRoute
@@ -147,6 +171,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/help': typeof HelpRoute
+  '/privacy': typeof PrivacyRoute
+  '/rules': typeof RulesRoute
   '/test-email': typeof TestEmailRoute
   '/auth/anonymous-signin': typeof AuthAnonymousSigninRoute
   '/threads/$threadSlug': typeof ThreadsThreadSlugRoute
@@ -167,6 +194,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/help'
+    | '/privacy'
+    | '/rules'
     | '/test-email'
     | '/auth/anonymous-signin'
     | '/threads/$threadSlug'
@@ -185,6 +215,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/dashboard'
+    | '/help'
+    | '/privacy'
+    | '/rules'
     | '/test-email'
     | '/auth/anonymous-signin'
     | '/threads/$threadSlug'
@@ -203,6 +236,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/dashboard'
+    | '/help'
+    | '/privacy'
+    | '/rules'
     | '/test-email'
     | '/auth/anonymous-signin'
     | '/threads/$threadSlug'
@@ -222,6 +258,9 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
+  HelpRoute: typeof HelpRoute
+  PrivacyRoute: typeof PrivacyRoute
+  RulesRoute: typeof RulesRoute
   TestEmailRoute: typeof TestEmailRoute
   AuthAnonymousSigninRoute: typeof AuthAnonymousSigninRoute
   ThreadsThreadSlugRoute: typeof ThreadsThreadSlugRoute
@@ -245,6 +284,27 @@ declare module '@tanstack/react-router' {
       path: '/test-email'
       fullPath: '/test-email'
       preLoaderRoute: typeof TestEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rules': {
+      id: '/rules'
+      path: '/rules'
+      fullPath: '/rules'
+      preLoaderRoute: typeof RulesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -358,6 +418,9 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
+  HelpRoute: HelpRoute,
+  PrivacyRoute: PrivacyRoute,
+  RulesRoute: RulesRoute,
   TestEmailRoute: TestEmailRoute,
   AuthAnonymousSigninRoute: AuthAnonymousSigninRoute,
   ThreadsThreadSlugRoute: ThreadsThreadSlugRoute,
@@ -376,3 +439,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

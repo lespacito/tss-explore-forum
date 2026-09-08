@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
 /**
  * Tests for /threads route components (Story 3.1 AC1, AC3)
@@ -135,9 +135,7 @@ describe("ThreadCard rendering", () => {
 		render(<ThreadCard thread={baseThread} />);
 
 		const link = screen.getByTestId("router-link");
-		expect(link.getAttribute("href")).toBe(
-			"/threads/mon-temoignage-important",
-		);
+		expect(link.getAttribute("href")).toBe("/threads/mon-temoignage-important");
 	});
 
 	it("should not contain a nested button inside the link (a11y)", () => {
@@ -165,16 +163,14 @@ describe("ThreadCard with different categories", () => {
 
 describe("Empty state logic", () => {
 	it("should render nothing when threads array is empty (map produces no elements)", () => {
-		const threads: typeof baseThread[] = [];
+		const threads: (typeof baseThread)[] = [];
 		render(
 			<div data-testid="thread-list">
 				{threads.map((thread) => (
 					<ThreadCard key={thread.id} thread={thread} />
 				))}
 				{threads.length === 0 && (
-					<div data-testid="empty-state">
-						Aucune discussion pour le moment.
-					</div>
+					<div data-testid="empty-state">Aucune discussion pour le moment.</div>
 				)}
 			</div>,
 		);
@@ -193,9 +189,7 @@ describe("Empty state logic", () => {
 					<ThreadCard key={thread.id} thread={thread} />
 				))}
 				{threads.length === 0 && (
-					<div data-testid="empty-state">
-						Aucune discussion pour le moment.
-					</div>
+					<div data-testid="empty-state">Aucune discussion pour le moment.</div>
 				)}
 			</div>,
 		);

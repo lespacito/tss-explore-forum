@@ -6,14 +6,12 @@ const STATUS_CONFIG = {
 	pending: {
 		label: "En attente",
 		icon: Clock,
-		className:
-			"bg-muted border-border text-muted-foreground",
+		className: "bg-muted border-border text-muted-foreground",
 	},
 	published: {
 		label: "Publié",
 		icon: CheckCircle,
-		className:
-			"bg-primary/10 border-primary/30 text-primary",
+		className: "bg-primary/10 border-primary/30 text-primary",
 	},
 	rejected: {
 		label: "Modifications nécessaires",
@@ -28,22 +26,28 @@ interface ThreadStatusBadgeProps {
 	className?: string;
 }
 
-export function ThreadStatusBadge({ status, className }: ThreadStatusBadgeProps) {
+export function ThreadStatusBadge({
+	status,
+	className,
+}: ThreadStatusBadgeProps) {
 	const config = STATUS_CONFIG[status];
 	const Icon = config.icon;
 
 	return (
-		<div
-			className={cn(
-				"inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-medium",
-				config.className,
-				className,
-			)}
-			role="status"
-			aria-label={`Statut: ${config.label}`}
-		>
-			<Icon className="h-3.5 w-3.5" aria-hidden="true" />
-			<span>{config.label}</span>
-		</div>
+		<>
+			{/* biome-ignore lint/a11y/useSemanticElements: This is a visual badge with a live status role, not a form output. */}
+			<div
+				className={cn(
+					"inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-medium",
+					config.className,
+					className,
+				)}
+				role="status"
+				aria-label={`Statut: ${config.label}`}
+			>
+				<Icon className="h-3.5 w-3.5" aria-hidden="true" />
+				<span>{config.label}</span>
+			</div>
+		</>
 	);
 }

@@ -6,7 +6,7 @@
 @import "@fontsource-variable/plus-jakarta-sans";
 @import "@fontsource-variable/roboto-mono";
 
-@custom-variant dark (&: is(.dark *));
+@custom-variant dark (&:is(.dark *));
 
 body {
   @apply m-0;
@@ -31,7 +31,7 @@ code {
   --secondary: oklch(0.8687 0.0043 56.366);
   --secondary-foreground: oklch(0.4461 0.0263 256.8018);
   --muted: oklch(0.9232 0.0026 48.7171);
-  --muted-foreground: oklch(0.551 0.0234 264.3637);
+  --muted-foreground: oklch(0.46 0.0234 264.3637);
   --accent: oklch(0.9376 0.026 321.9388);
   --accent-foreground: oklch(0.3729 0.0306 259.7328);
   --destructive: oklch(0.6368 0.2078 25.3313);
@@ -239,3 +239,9 @@ code {
       color 0.2s ease;
   }
 }
+
+::selection { background: var(--primary); color: var(--primary-foreground); }
+input, textarea, [contenteditable] { caret-color: var(--primary); }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
+html { scroll-padding-top: 6rem; }
+@media (prefers-reduced-motion: reduce) { body { transition: none; } }

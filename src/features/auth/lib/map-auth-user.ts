@@ -63,7 +63,7 @@ export function mapAuthDataToUser(
 				: inferAnonymousUser(authUser),
 		bio: authUser.bio ?? null,
 		banned: authUser.banned ?? false,
-		secretCode: authUser.secretCode ?? null,
+		secretCode: null,
 		secretCodeGeneratedAt: authUser.secretCodeGeneratedAt ?? null,
 	};
 }

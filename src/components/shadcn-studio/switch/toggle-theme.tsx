@@ -21,10 +21,10 @@ const ToggleTheme = () => {
 				id={id}
 				checked={checked}
 				onCheckedChange={(v) => setTheme(v ? "dark" : "light")}
-				aria-label="Toggle theme"
+				aria-label="Thème sombre"
 			/>
 			<Label htmlFor={id}>
-				<span className="sr-only">Toggle theme</span>
+				<span className="sr-only">Thème sombre</span>
 				{checked ? (
 					<MoonIcon className="size-4" aria-hidden="true" />
 				) : (

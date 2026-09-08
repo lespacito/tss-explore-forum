@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-	threadStatus,
-	threadStatusEnum,
-	type ThreadStatus,
-} from "../thread";
+import { type ThreadStatus, threadStatus, threadStatusEnum } from "../thread";
 
 /**
  * Unit tests for Thread Status Schema (Story 2.4)

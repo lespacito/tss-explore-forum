@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { db } from "@/db/index";
 import { user as userTable } from "@/db/schemas/user";
 import { logger } from "@/lib/logger/server";
-import { generateSecretCodeLogic } from "../server/generate-secret-code-fn";
+import { generateSecretCodeLogic } from "../server/generate-secret-code-logic";
 
 /**
  * Security Tests for Story 1.2: Code Secret pour Utilisateur Anonyme

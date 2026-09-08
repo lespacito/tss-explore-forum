@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import {
+	type ThreadStatus,
 	threadStatus,
 	threadStatusEnum,
-	type ThreadStatus,
 } from "@/db/schemas/thread";
 
 /**
@@ -103,9 +103,7 @@ describe("createThreadFn - Status Field (Story 2.4)", () => {
 		});
 
 		it("should match pgEnum enumValues exactly", () => {
-			expect([...threadStatus]).toEqual([
-				...threadStatusEnum.enumValues,
-			]);
+			expect([...threadStatus]).toEqual([...threadStatusEnum.enumValues]);
 		});
 	});
 
@@ -127,9 +125,7 @@ describe("createThreadFn - Status Field (Story 2.4)", () => {
 
 		it("should keep threadStatus and threadStatusEnum in sync", () => {
 			// Critical: the array and pgEnum must have the same values
-			expect([...threadStatus]).toEqual([
-				...threadStatusEnum.enumValues,
-			]);
+			expect([...threadStatus]).toEqual([...threadStatusEnum.enumValues]);
 		});
 	});
 });

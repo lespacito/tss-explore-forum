@@ -49,9 +49,11 @@ function Slider({
 					)}
 				/>
 			</SliderPrimitive.Track>
+			{/* Biome cannot infer stable identities for Radix's positional thumbs. */}
 			{Array.from({ length: _values.length }, (_, index) => (
 				<SliderPrimitive.Thumb
 					data-slot="slider-thumb"
+					// biome-ignore lint/suspicious/noArrayIndexKey: Radix thumbs are positional and expose no stable item identity.
 					key={index}
 					className="border-primary ring-ring/50 block size-4 shrink-0 rounded-full border bg-white shadow-sm transition-[color,box-shadow] hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50"
 				/>

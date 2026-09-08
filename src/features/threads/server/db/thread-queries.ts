@@ -15,11 +15,12 @@ const threadWithAliasSelect = {
 	body: threads.body,
 	slug: threads.slug,
 	category: threads.category,
+ isSensitive: threads.isSensitive,
 	createdAt: threads.createdAt,
 	updatedAt: threads.updatedAt,
 	aliasName: alias.alias,
 	aliasId: alias.id,
-	displayUsername: user.displayUsername,
+	displayUsername: alias.alias,
 } as const;
 
 /**
@@ -139,7 +140,7 @@ export async function getUserThreads(
 			updatedAt: threads.updatedAt,
 			aliasId: threads.aliasId,
 			aliasName: alias.alias,
-			displayUsername: user.displayUsername,
+			displayUsername: alias.alias,
 		})
 		.from(threads)
 		.innerJoin(alias, eq(threads.aliasId, alias.id))

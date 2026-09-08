@@ -16,10 +16,7 @@
  * getInitials(null)             // "??"
  * getInitials("", "NA")         // "NA"
  */
-export function getInitials(
-	name?: string | null,
-	fallback = "??",
-): string {
+export function getInitials(name?: string | null, fallback = "??"): string {
 	const safe = (name ?? "").trim();
 	if (!safe) return fallback;
 

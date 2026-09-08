@@ -57,9 +57,10 @@ describe("AccountDeletion Component", () => {
 			await user.click(button);
 
 			// Check AlertDialogDescription specifically
-			const description = screen
-				.getByRole("alertdialog")
-				.querySelector('[id="delete-account-description"]');
+			const modal = screen.getByRole("alertdialog");
+			const description = document.getElementById(
+				modal.getAttribute("aria-describedby") ?? "",
+			);
 			expect(description).toHaveTextContent(/cette action est irréversible/i);
 
 			// Check retention options are present
@@ -213,9 +214,10 @@ describe("AccountDeletion Component", () => {
 
 			// Should be back at Step 1
 			await waitFor(() => {
-				const description = screen
-					.getByRole("alertdialog")
-					.querySelector('[id="delete-account-description"]');
+				const modal = screen.getByRole("alertdialog");
+				const description = document.getElementById(
+					modal.getAttribute("aria-describedby") ?? "",
+				);
 				expect(description).toHaveTextContent(/cette action est irréversible/i);
 				expect(
 					screen.queryByPlaceholderText(/\*\*\*\*\*\*\*\*/),
@@ -236,11 +238,16 @@ describe("AccountDeletion Component", () => {
 
 			const modal = await screen.findByRole("alertdialog");
 
-			// Check that modal has proper ARIA labelledby attribute
-			expect(modal).toHaveAttribute("aria-labelledby", "delete-account-title");
-			expect(modal).toHaveAttribute(
-				"aria-describedby",
-				"delete-account-description",
+			// Check that the ARIA relationships target existing elements
+			const titleId = modal.getAttribute("aria-labelledby");
+			const descriptionId = modal.getAttribute("aria-describedby");
+			expect(titleId).toBeTruthy();
+			expect(descriptionId).toBeTruthy();
+			expect(document.getElementById(titleId ?? "")).toHaveTextContent(
+				/supprimer définitivement votre compte/i,
+			);
+			expect(document.getElementById(descriptionId ?? "")).toHaveTextContent(
+				/cette action est irréversible/i,
 			);
 
 			// Check that the title and description are present

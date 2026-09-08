@@ -7,6 +7,7 @@ export const env = createEnv({
 			.enum(["development", "test", "production"])
 			.default("development"),
 		DB_HOST: z.string().min(1),
+ DB_SCHEMA: z.string().regex(/^[a-z][a-z0-9_]*$/).default("public"),
 		DB_PORT: z.coerce.number().default(5432),
 		DB_NAME: z.string().min(1),
 		DB_USER: z.string().min(1),

@@ -1,4 +1,4 @@
-import { useRouter } from "@tanstack/react-router";
+import { getRouteApi, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,8 @@ import { createAnonymousSessionFn } from "@/features/auth/server/create-anonymou
 
 export function AnonymousPostButton() {
 	const router = useRouter();
+	const data = getRouteApi("__root__").useLoaderData();
+	const paused = data?.beta?.submissionsOpen === false;
 	const [isLoading, setIsLoading] = useState(false);
 
 	const handleClick = async () => {
@@ -15,10 +17,10 @@ export function AnonymousPostButton() {
 			const result = await createAnonymousSessionFn();
 
 			if (result.success) {
-				// Redirection vers liste des threads avec ouverture automatique du dialog de création
+				// Actualiser la session avant le parcours guidé.
+				await router.invalidate();
 				await router.navigate({
-					to: "/threads",
-					search: { openDialog: true },
+					to: "/threads/new",
 				});
 			} else {
 				toast.error(result.error || "Une erreur est survenue");
@@ -33,12 +35,16 @@ export function AnonymousPostButton() {
 	return (
 		<Button
 			onClick={handleClick}
-			disabled={isLoading}
+			disabled={isLoading || paused}
 			size="lg"
 			className="min-w-[200px]"
 			aria-label="Publier anonymement sans créer de compte"
 		>
-			{isLoading ? "Chargement..." : "Publier Anonymement"}
+			{isLoading
+				? "Chargement..."
+				: paused
+					? "Dépôts suspendus"
+					: "Créer une publication"}
 		</Button>
 	);
 }

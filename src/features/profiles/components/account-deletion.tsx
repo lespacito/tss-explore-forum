@@ -1,8 +1,7 @@
 import { AlertTriangle, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
-import { logger } from "@/lib/logger/client-logger";
 import { useAppForm } from "@/components/form/hooks";
 import {
 	AlertDialog,
@@ -16,11 +15,13 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { authClient } from "@/features/auth/lib/auth-client";
+import { logger } from "@/lib/logger/client-logger";
 
 type RetentionOption = "delete_all" | "anonymize";
 
-
 export const AccountDeletion = () => {
+	const anonymizeOptionId = useId();
+	const deleteAllOptionId = useId();
 	const [isOpen, setIsOpen] = useState(false);
 	const [step, setStep] = useState<1 | 2>(1);
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -92,22 +93,15 @@ export const AccountDeletion = () => {
 			</Button>
 
 			<AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-				<AlertDialogContent
-					className="max-w-2xl"
-					aria-labelledby="delete-account-title"
-					aria-describedby="delete-account-description"
-				>
+				<AlertDialogContent className="max-w-2xl">
 					{step === 1 && (
 						<>
 							<AlertDialogHeader>
-								<AlertDialogTitle
-									id="delete-account-title"
-									className="flex items-center gap-2 text-destructive"
-								>
+								<AlertDialogTitle className="flex items-center gap-2 text-destructive">
 									<AlertTriangle className="size-5" />
 									Supprimer définitivement votre compte
 								</AlertDialogTitle>
-								<AlertDialogDescription id="delete-account-description">
+								<AlertDialogDescription>
 									Cette action est irréversible. Veuillez lire attentivement les
 									conséquences.
 								</AlertDialogDescription>
@@ -141,10 +135,13 @@ export const AccountDeletion = () => {
 										}
 									>
 										<div className="flex items-start space-x-3 rounded-lg border p-4 hover:bg-accent">
-											<RadioGroupItem value="anonymize" id="option-anonymize" />
+											<RadioGroupItem
+												value="anonymize"
+												id={anonymizeOptionId}
+											/>
 											<div className="flex-1 space-y-1">
 												<Label
-													htmlFor="option-anonymize"
+													htmlFor={anonymizeOptionId}
 													className="cursor-pointer font-medium text-sm"
 												>
 													Anonymiser mes publications (recommandé)
@@ -160,11 +157,11 @@ export const AccountDeletion = () => {
 										<div className="flex items-start space-x-3 rounded-lg border p-4 hover:bg-accent">
 											<RadioGroupItem
 												value="delete_all"
-												id="option-delete-all"
+												id={deleteAllOptionId}
 											/>
 											<div className="flex-1 space-y-1">
 												<Label
-													htmlFor="option-delete-all"
+													htmlFor={deleteAllOptionId}
 													className="cursor-pointer font-medium text-sm"
 												>
 													Supprimer toutes mes publications
@@ -220,13 +217,10 @@ export const AccountDeletion = () => {
 					{step === 2 && (
 						<>
 							<AlertDialogHeader>
-								<AlertDialogTitle
-									id="delete-account-title"
-									className="text-destructive"
-								>
+								<AlertDialogTitle className="text-destructive">
 									Confirmation finale
 								</AlertDialogTitle>
-								<AlertDialogDescription id="delete-account-description">
+								<AlertDialogDescription>
 									Pour confirmer la suppression, veuillez entrer votre mot de
 									passe.
 								</AlertDialogDescription>

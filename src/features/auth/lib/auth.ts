@@ -73,7 +73,7 @@ export const auth = betterAuth({
 	},
 	session: {
 		cookieCache: {
-			enabled: true,
+			enabled: false,
 			maxAge: 60, // 1 minute
 		},
 	},
@@ -103,7 +103,7 @@ export const auth = betterAuth({
 
 				if (!user || !user.email) {
 					logger.warn("Secret code not found or no email", {
-						secretCode: ctx.body.secretCode,
+
 					});
 					return null;
 				}

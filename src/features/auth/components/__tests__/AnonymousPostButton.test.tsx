@@ -5,8 +5,12 @@ import { AnonymousPostButton } from "../AnonymousPostButton";
 // Mock the router
 const mockNavigate = vi.fn();
 vi.mock("@tanstack/react-router", () => ({
+	getRouteApi: () => ({
+		useLoaderData: () => ({ beta: { submissionsOpen: true } }),
+	}),
 	useRouter: () => ({
 		navigate: mockNavigate,
+		invalidate: vi.fn(),
 	}),
 }));
 
@@ -160,7 +164,7 @@ describe("AnonymousPostButton", () => {
 			});
 		});
 
-		it("should navigate to /threads on success", async () => {
+		it("should navigate to the guided publication flow on success", async () => {
 			const { createAnonymousSessionFn } = await import(
 				"@/features/auth/server/create-anonymous-session"
 			);
@@ -177,8 +181,7 @@ describe("AnonymousPostButton", () => {
 
 			await waitFor(() => {
 				expect(mockNavigate).toHaveBeenCalledWith({
-					to: "/threads",
-					search: { openDialog: true },
+					to: "/threads/new",
 				});
 			});
 		});

@@ -26,7 +26,7 @@ export const threadCategories: CategoryConfig[] = [
 		icon: "🛡️",
 		color: "border-primary bg-primary/10 hover:bg-primary/20",
 		helpText:
-			"Vous êtes en sécurité ici. Votre témoignage restera anonyme et sera traité avec respect.",
+			"Pour cette bêta, décrivez une situation fictive sans nom réel ni détail identifiant.",
 		titlePlaceholder: "Ex: J'ai besoin de parler de ce qui m'est arrivé",
 		bodyPlaceholder:
 			"Prenez le temps dont vous avez besoin. Vous n'êtes pas obligé(e) de tout raconter...",
@@ -42,7 +42,7 @@ export const threadCategories: CategoryConfig[] = [
 		description: "Témoigner d'une situation d'abus ou de manipulation",
 		icon: "💔",
 		color: "border-chart-2 bg-chart-2/10 hover:bg-chart-2/20",
-		helpText: "Votre expérience est valide. Nous vous écoutons sans jugement.",
+		helpText: "Utilisez une situation inventée pour tester le dépôt. Le modérateur examinera le message.",
 		titlePlaceholder: "Ex: Je pense être dans une situation d'abus",
 		bodyPlaceholder: "Décrivez votre situation à votre rythme...",
 		guidingQuestions: [
@@ -70,11 +70,11 @@ export const threadCategories: CategoryConfig[] = [
 	{
 		id: "DETRESSE",
 		label: "Détresse",
-		description: "Exprimer un besoin urgent de soutien émotionnel",
+		description: "Tester un scénario de détresse émotionnelle",
 		icon: "🆘",
 		color: "border-warning bg-warning/10 hover:bg-warning/20",
-		helpText: "Vous n'êtes pas seul(e). Nous sommes là pour vous écouter.",
-		titlePlaceholder: "Ex: J'ai besoin de soutien émotionnel urgent",
+		helpText: "Ce test ne fournit pas de soutien immédiat. Utilisez un scénario fictif et consultez Aide si nécessaire.",
+		titlePlaceholder: "Ex: Scénario fictif de détresse",
 		bodyPlaceholder: "Exprimez ce que vous ressentez...",
 		guidingQuestions: [
 			"Comment vous sentez-vous en ce moment ?",

@@ -7,6 +7,7 @@ import viteTsConfigPaths from "vite-tsconfig-paths";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig(({ command }) => ({
+  resolve: { dedupe: ["react", "react-dom", "@tanstack/react-router"] },
   plugins: [
     viteTsConfigPaths({
       projects: ["./tsconfig.json"],

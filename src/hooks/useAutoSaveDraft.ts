@@ -99,11 +99,14 @@ export function useAutoSaveDraft({
 
 	// Restore draft on mount
 	useEffect(() => {
-		if (typeof window === "undefined") return;
+		if (!enabled || typeof window === "undefined") return;
 
 		try {
 			const saved = localStorage.getItem(key);
 			if (saved && saved.trim().length > 0) {
+				// The consumer may hydrate its controlled value with this draft.
+				// Treat that update as restoration, not as fresh user input to re-save.
+				previousValueRef.current = saved;
 				setRestoredDraft(saved);
 				setHasDraft(true);
 				onRestore?.(saved);
@@ -111,7 +114,7 @@ export function useAutoSaveDraft({
 		} catch (error) {
 			logger.error("Failed to restore draft from localStorage:", error);
 		}
-	}, [key, onRestore]);
+	}, [key, enabled, onRestore]);
 
 	/**
 	 * Save draft to localStorage
@@ -148,6 +151,7 @@ export function useAutoSaveDraft({
 	 * Clear draft from localStorage
 	 */
 	const clearDraft = useCallback(() => {
+		if (timeoutRef.current) clearTimeout(timeoutRef.current);
 		if (typeof window === "undefined") return;
 
 		try {

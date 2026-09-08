@@ -4,9 +4,7 @@ import { getAuthSession } from "@/features/auth/server/get-auth-session";
 import { getUserThreads } from "../db/thread-queries";
 
 const getUserThreadsSchema = z.object({
-	statusFilter: z
-		.enum(["pending", "published", "rejected"])
-		.optional(),
+	statusFilter: z.enum(["pending", "published", "rejected"]).optional(),
 });
 
 /**

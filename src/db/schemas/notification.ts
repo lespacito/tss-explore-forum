@@ -26,7 +26,7 @@ export const notificationsColumns = {
 	userId: text("user_id")
 		.notNull()
 		.references(() => user.id, { onDelete: "cascade" }),
-	targetType: notificationTypeEnum().notNull(),
+	targetType: notificationTypeEnum("notifications_type").notNull(),
 	payload: json("payload").notNull(),
 	isRead: boolean("is_read").default(false).notNull(),
 	createdAt: createdAt(),
