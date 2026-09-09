@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+	act,
+	fireEvent,
+	render,
+	screen,
+	waitFor,
+} from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AnonymousPostButton } from "../AnonymousPostButton";
 
@@ -29,7 +35,7 @@ vi.mock("sonner", () => ({
 
 describe("AnonymousPostButton", () => {
 	beforeEach(() => {
-		vi.clearAllMocks();
+		vi.resetAllMocks();
 	});
 	describe("Rendering", () => {
 		it("should render the button with correct text", () => {
@@ -95,53 +101,39 @@ describe("AnonymousPostButton", () => {
 	});
 
 	describe("Loading State", () => {
-		it("should show loading text when processing", async () => {
-			const { createAnonymousSessionFn } = await import(
-				"@/features/auth/server/create-anonymous-session"
-			);
-			vi.mocked(createAnonymousSessionFn).mockImplementation(
-				() =>
-					new Promise((resolve) => {
-						setTimeout(
-							() => resolve({ success: true, userId: "test-id" }),
-							100,
-						);
-					}),
-			);
-
-			render(<AnonymousPostButton />);
-
-			const button = screen.getByRole("button");
-			fireEvent.click(button);
-
-			await waitFor(() => {
-				expect(button.textContent).toContain("Chargement");
-			});
-		});
-
-		it("should disable button while loading", async () => {
-			const { createAnonymousSessionFn } = await import(
-				"@/features/auth/server/create-anonymous-session"
-			);
-			vi.mocked(createAnonymousSessionFn).mockImplementation(
-				() =>
-					new Promise((resolve) => {
-						setTimeout(
-							() => resolve({ success: true, userId: "test-id" }),
-							100,
-						);
-					}),
-			);
-
-			render(<AnonymousPostButton />);
-
-			const button = screen.getByRole("button");
-			fireEvent.click(button);
-
-			await waitFor(() => {
-				expect(button.getAttribute("disabled")).not.toBeNull();
-			});
-		});
+		it.each(["loading text", "disabled button"])(
+			"shows %s until the request completes",
+			async (state) => {
+				const { createAnonymousSessionFn } = await import(
+					"@/features/auth/server/create-anonymous-session"
+				);
+				let finish!: () => void;
+				const pending = new Promise<{ success: true; userId: string }>(
+					(resolve) => {
+						finish = () => resolve({ success: true, userId: "test-id" });
+					},
+				);
+				vi.mocked(createAnonymousSessionFn).mockReturnValue(pending);
+				render(<AnonymousPostButton />);
+				const button = screen.getByRole("button");
+				fireEvent.click(button);
+				try {
+					if (state === "loading text")
+						expect(button.textContent).toContain("Chargement");
+					else expect(button.getAttribute("disabled")).not.toBeNull();
+					expect(mockNavigate).not.toHaveBeenCalled();
+				} finally {
+					// Finish the handler while jsdom still exists, including on assertion failure.
+					await act(async () => {
+						finish();
+						await pending;
+					});
+				}
+				expect(mockNavigate).toHaveBeenCalledWith({ to: "/threads/new" });
+				expect(button.textContent).not.toContain("Chargement");
+				expect(button.getAttribute("disabled")).toBeNull();
+			},
+		);
 	});
 
 	describe("Click Behavior", () => {
@@ -157,7 +149,9 @@ describe("AnonymousPostButton", () => {
 			render(<AnonymousPostButton />);
 
 			const button = screen.getByRole("button");
-			fireEvent.click(button);
+			await act(async () => {
+				fireEvent.click(button);
+			});
 
 			await waitFor(() => {
 				expect(createAnonymousSessionFn).toHaveBeenCalled();
@@ -177,7 +171,9 @@ describe("AnonymousPostButton", () => {
 			render(<AnonymousPostButton />);
 
 			const button = screen.getByRole("button");
-			fireEvent.click(button);
+			await act(async () => {
+				fireEvent.click(button);
+			});
 
 			await waitFor(() => {
 				expect(mockNavigate).toHaveBeenCalledWith({
@@ -200,7 +196,9 @@ describe("AnonymousPostButton", () => {
 			render(<AnonymousPostButton />);
 
 			const button = screen.getByRole("button");
-			fireEvent.click(button);
+			await act(async () => {
+				fireEvent.click(button);
+			});
 
 			await waitFor(() => {
 				expect(toast.error).toHaveBeenCalledWith("Une erreur est survenue");
@@ -220,7 +218,9 @@ describe("AnonymousPostButton", () => {
 			render(<AnonymousPostButton />);
 
 			const button = screen.getByRole("button");
-			fireEvent.click(button);
+			await act(async () => {
+				fireEvent.click(button);
+			});
 
 			await waitFor(() => {
 				expect(toast.error).toHaveBeenCalledWith(
@@ -242,7 +242,9 @@ describe("AnonymousPostButton", () => {
 			render(<AnonymousPostButton />);
 
 			const button = screen.getByRole("button");
-			fireEvent.click(button);
+			await act(async () => {
+				fireEvent.click(button);
+			});
 
 			await waitFor(() => {
 				expect(button.textContent).not.toContain("Chargement");
@@ -262,7 +264,9 @@ describe("AnonymousPostButton", () => {
 			render(<AnonymousPostButton />);
 
 			const button = screen.getByRole("button");
-			fireEvent.click(button);
+			await act(async () => {
+				fireEvent.click(button);
+			});
 
 			await waitFor(() => {
 				expect(button.textContent).not.toContain("Chargement");
