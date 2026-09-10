@@ -1,4 +1,5 @@
 import { ChevronDown } from "lucide-react";
+
 const faqs = [
 	{
 		q: "Qui peut lire mes publications ?",
@@ -19,10 +20,7 @@ const faqs = [
 ];
 export default function FaqSection() {
 	return (
-		<section
-			className="mx-auto max-w-3xl px-4 py-12"
-			aria-labelledby="faq-heading"
-		>
+		<section className="mx-auto max-w-xl py-12" aria-labelledby="faq-heading">
 			<h2 id="faq-heading" className="mb-6 font-serif text-2xl font-semibold">
 				Questions sur la bêta
 			</h2>

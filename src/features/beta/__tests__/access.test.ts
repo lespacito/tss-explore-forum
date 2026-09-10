@@ -121,4 +121,23 @@ describe("private beta boundary", () => {
 		expect(response?.headers.get("set-cookie")).toContain(`${BETA_COOKIE}=`);
 		expect(response?.headers.get("set-cookie")).toContain("Max-Age=0");
 	});
+	it("preserves an account-erasure confirmation after clearing access", async () => {
+		const leaveResponse = await betaAccessResponse(
+			new Request("http://localhost/beta?leave=erased"),
+		);
+		expect(leaveResponse?.status).toBe(303);
+		expect(leaveResponse?.headers.get("location")).toBe("/beta?erased=1");
+		expect(leaveResponse?.headers.get("set-cookie")).toContain("Max-Age=0");
+
+		const confirmationResponse = await betaAccessResponse(
+			new Request("http://localhost/beta?erased=1"),
+		);
+		const html = await confirmationResponse?.text();
+		expect(confirmationResponse?.status).toBe(200);
+		expect(html).toContain('role="status"');
+		expect(html).toContain(
+			"Votre compte et vos publications ont été effacés de la base active.",
+		);
+		expect(html).toContain("sept jours supplémentaires");
+	});
 });

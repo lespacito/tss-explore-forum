@@ -1,7 +1,7 @@
 import Placeholder from "@tiptap/extension-placeholder";
-import { useEffect } from "react";
 import { EditorProvider, useCurrentEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Toolbar } from "./Toolbar";
 
@@ -9,7 +9,7 @@ const editorClasses = cn(
 	// Base styles
 	"p-4 min-h-50 focus:outline-none text-foreground leading-7",
 	// Blockquote styles
-	"[&_blockquote]:border-l-4 [&_blockquote]:border-primary [&_blockquote]:pl-4",
+	"[&_blockquote]:border-l [&_blockquote]:border-primary [&_blockquote]:pl-4",
 	"[&_blockquote]:py-2 [&_blockquote]:my-4 [&_blockquote]:italic [&_blockquote]:text-muted-foreground",
 	// Heading styles
 	"[&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mt-6 [&_h2]:mb-3 [&_h2]:text-foreground",
@@ -30,14 +30,20 @@ const editorClasses = cn(
 
 interface TipTapProps {
 	content: string;
+	id?: string;
 	placeholder?: string;
+	ariaDescribedBy?: string;
+	ariaInvalid?: boolean;
 	onChange?: (html: string) => void;
 	onTextChange?: (text: string, length: number) => void;
 }
 
 export const TipTap = ({
 	content,
+	id,
 	placeholder,
+	ariaDescribedBy,
+	ariaInvalid = false,
 	onChange,
 	onTextChange,
 }: TipTapProps) => {
@@ -66,7 +72,7 @@ export const TipTap = ({
 	];
 
 	return (
-		<div className="border-2 border-border rounded-lg bg-card overflow-hidden">
+		<div className="overflow-hidden rounded-xl border bg-card focus-within:border-primary focus-within:ring-3 focus-within:ring-primary/20">
 			<EditorProvider
 				immediatelyRender={false}
 				slotBefore={<Toolbar />}
@@ -81,8 +87,11 @@ export const TipTap = ({
 				editorProps={{
 					attributes: {
 						class: editorClasses,
+						...(id ? { id } : {}),
 						role: "textbox",
 						"aria-label": placeholder || "Zone de texte avec formatage",
+						...(ariaDescribedBy ? { "aria-describedby": ariaDescribedBy } : {}),
+						"aria-invalid": String(ariaInvalid),
 						"aria-multiline": "true",
 					},
 				}}

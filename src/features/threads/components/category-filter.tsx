@@ -26,7 +26,7 @@ export function CategoryFilter({ activeCategory }: CategoryFilterProps) {
 				aria-pressed={!activeCategory}
 				onClick={() => selectCategory()}
 				className={cn(
-					"rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
+					"min-h-11 rounded-full px-4 py-2 text-sm font-medium transition-colors",
 					!activeCategory
 						? "bg-primary text-primary-foreground"
 						: "bg-muted text-muted-foreground hover:bg-muted/80",
@@ -41,13 +41,13 @@ export function CategoryFilter({ activeCategory }: CategoryFilterProps) {
 					aria-pressed={activeCategory === category.id}
 					onClick={() => selectCategory(category.id)}
 					className={cn(
-						"rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
+						"min-h-11 rounded-full border px-4 py-2 text-sm font-medium transition-colors",
 						activeCategory === category.id
 							? getCategoryColor(category.id)
 							: "border-transparent bg-muted text-muted-foreground hover:bg-muted/80",
 					)}
 				>
-					{category.icon} {category.label}
+					{category.label}
 				</button>
 			))}
 		</fieldset>

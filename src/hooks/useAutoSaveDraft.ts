@@ -130,6 +130,7 @@ export function useAutoSaveDraft({
 				}
 
 				localStorage.setItem(key, content);
+				setHasDraft(true);
 				onSave?.();
 
 				// Show toast feedback

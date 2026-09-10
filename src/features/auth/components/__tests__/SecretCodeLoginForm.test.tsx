@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { toast } from "sonner";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SecretCodeLoginForm } from "../SecretCodeLoginForm";
 import "@testing-library/jest-dom/vitest";
@@ -7,6 +8,12 @@ import "@testing-library/jest-dom/vitest";
 vi.mock("@/features/auth/lib/auth-client", () => ({
 	signIn: {
 		credentials: vi.fn(),
+	},
+}));
+
+vi.mock("sonner", () => ({
+	toast: {
+		success: vi.fn(),
 	},
 }));
 
@@ -305,12 +312,12 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 			await user.click(submitButton);
 
 			expect(
-				screen.getByRole("button", { name: /connexion\.\.\./i }),
+				screen.getByRole("button", { name: /connexion…/i }),
 			).toBeInTheDocument();
 			expect(submitButton).toBeDisabled();
 		});
 
-		it("should redirect to /threads on successful signin", async () => {
+		it("should confirm the recovered session and open personal publications", async () => {
 			const user = userEvent.setup();
 			mockSigninFn.mockResolvedValue({ success: true, userId: "user_123" });
 			render(<SecretCodeLoginForm />);
@@ -324,7 +331,10 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 			await user.click(submitButton);
 
 			await waitFor(() => {
-				expect(mockNavigate).toHaveBeenCalledWith({ to: "/threads" });
+				expect(toast.success).toHaveBeenCalledWith("Session retrouvée", {
+					description: "Voici vos publications.",
+				});
+				expect(mockNavigate).toHaveBeenCalledWith({ to: "/account/profile" });
 			});
 		});
 
@@ -385,7 +395,7 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 			render(<SecretCodeLoginForm />);
 
 			const input = screen.getByLabelText("Code Secret");
-			await user.type(input, "FAKE-CODE");
+			await user.type(input, "XXXX-YYYY");
 
 			const submitButton = screen.getByRole("button", {
 				name: /se connecter/i,
@@ -466,6 +476,10 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 			await waitFor(() => {
 				const errorAlert = screen.getByRole("alert");
 				expect(errorAlert).toBeInTheDocument();
+				expect(input).toHaveAttribute("aria-invalid", "true");
+				expect(input.getAttribute("aria-describedby")?.split(" ")).toContain(
+					errorAlert.id,
+				);
 			});
 		});
 

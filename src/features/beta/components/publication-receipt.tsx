@@ -3,6 +3,8 @@ import { createContext, type ReactNode, useContext, useState } from "react";
 const ReceiptContext = createContext<{
 	secretCode: string;
 	setSecretCode: (code: string) => void;
+	submissionConfirmed: boolean;
+	setSubmissionConfirmed: (confirmed: boolean) => void;
 } | null>(null);
 export function PublicationReceiptProvider({
 	children,
@@ -10,8 +12,16 @@ export function PublicationReceiptProvider({
 	children: ReactNode;
 }) {
 	const [secretCode, setSecretCode] = useState("");
+	const [submissionConfirmed, setSubmissionConfirmed] = useState(false);
 	return (
-		<ReceiptContext.Provider value={{ secretCode, setSecretCode }}>
+		<ReceiptContext.Provider
+			value={{
+				secretCode,
+				setSecretCode,
+				submissionConfirmed,
+				setSubmissionConfirmed,
+			}}
+		>
 			{children}
 		</ReceiptContext.Provider>
 	);

@@ -26,7 +26,7 @@ export const Toolbar = () => {
 			<Button
 				onClick={() => editor.chain().focus().toggleBold().run()}
 				variant={editor.isActive("bold") ? "default" : "outline"}
-				size="icon-sm"
+				size="icon"
 				type="button"
 				aria-label="Gras"
 				aria-pressed={editor.isActive("bold")}
@@ -38,7 +38,7 @@ export const Toolbar = () => {
 			<Button
 				onClick={() => editor.chain().focus().toggleItalic().run()}
 				variant={editor.isActive("italic") ? "default" : "outline"}
-				size="icon-sm"
+				size="icon"
 				type="button"
 				aria-label="Italique"
 				aria-pressed={editor.isActive("italic")}
@@ -54,7 +54,7 @@ export const Toolbar = () => {
 				variant={
 					editor.isActive("heading", { level: 2 }) ? "default" : "outline"
 				}
-				size="icon-sm"
+				size="icon"
 				type="button"
 				aria-label="Titre 2"
 				aria-pressed={editor.isActive("heading", { level: 2 })}
@@ -68,7 +68,7 @@ export const Toolbar = () => {
 				variant={
 					editor.isActive("heading", { level: 3 }) ? "default" : "outline"
 				}
-				size="icon-sm"
+				size="icon"
 				type="button"
 				aria-label="Titre 3"
 				aria-pressed={editor.isActive("heading", { level: 3 })}
@@ -80,7 +80,7 @@ export const Toolbar = () => {
 			<Button
 				onClick={() => editor.chain().focus().toggleBlockquote().run()}
 				variant={editor.isActive("blockquote") ? "default" : "outline"}
-				size="icon-sm"
+				size="icon"
 				type="button"
 				aria-label="Citation"
 				aria-pressed={editor.isActive("blockquote")}
@@ -94,7 +94,7 @@ export const Toolbar = () => {
 			<Button
 				onClick={() => editor.chain().focus().toggleBulletList().run()}
 				variant={editor.isActive("bulletList") ? "default" : "outline"}
-				size="icon-sm"
+				size="icon"
 				type="button"
 				aria-label="Liste à puces"
 				aria-pressed={editor.isActive("bulletList")}
@@ -106,7 +106,7 @@ export const Toolbar = () => {
 			<Button
 				onClick={() => editor.chain().focus().toggleOrderedList().run()}
 				variant={editor.isActive("orderedList") ? "default" : "outline"}
-				size="icon-sm"
+				size="icon"
 				type="button"
 				aria-label="Liste numérotée"
 				aria-pressed={editor.isActive("orderedList")}

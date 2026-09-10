@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "execution_step": "step-03-execute.md",
+  "tasks": [
+    {
+      "id": "install-zed-stable",
+      "objective": "Installer la version stable de Zed via le cask Homebrew officiel",
+      "dependencies": [],
+      "read_set": ["macOS version", "CPU architecture", "Homebrew cask metadata"],
+      "write_set": ["/Applications/Zed.app", "/usr/local/bin/zed", "Homebrew cask state"],
+      "side_effects": ["network download", "system application installation"],
+      "owner": "coordinator",
+      "inputs": ["Homebrew", "zed cask"],
+      "expected_outputs": ["Zed.app", "zed CLI"],
+      "validation": ["brew list --cask zed", "bundle metadata inspection"],
+      "evidence_required": ["installed version", "binary architecture", "code signature"],
+      "stop_condition": "Installation succeeds or Homebrew reports a compatibility/permission blocker",
+      "status": "complete"
+    },
+    {
+      "id": "runtime-proof",
+      "objective": "Lancer Zed et confirmer que le processus reste actif sur ce Mac",
+      "dependencies": ["install-zed-stable"],
+      "read_set": ["installed Zed bundle"],
+      "write_set": ["Zed user runtime state"],
+      "side_effects": ["GUI application launch"],
+      "owner": "coordinator",
+      "inputs": ["/Applications/Zed.app"],
+      "expected_outputs": ["running Zed process"],
+      "validation": ["process inspection", "CLI version"],
+      "evidence_required": ["live process", "CLI version output"],
+      "stop_condition": "Zed launches successfully or macOS produces an actionable launch error",
+      "status": "complete"
+    }
+  ]
+}

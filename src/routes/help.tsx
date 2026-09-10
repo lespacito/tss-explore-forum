@@ -18,9 +18,13 @@ function Page() {
 			</p>
 			<h2>Un problème pendant le test ?</h2>
 			<p>
-				Contactez la personne qui vous a envoyé l’invitation, par le même canal.
-				Indiquez l’étape et ce qui ne fonctionne pas, sans joindre de récit
-				personnel, de code secret ou de capture contenant ce code.
+				Écrivez à{" "}
+				<a href="mailto:contact@parlonsviolence.ch">
+					contact@parlonsviolence.ch
+				</a>{" "}
+				ou contactez la personne qui vous a envoyé l’invitation, par le même
+				canal. Indiquez l’étape et ce qui ne fonctionne pas, sans joindre de
+				récit personnel, de code secret ou de capture contenant ce code.
 			</p>
 			<h2>Préparer un appareil partagé</h2>
 			<p>

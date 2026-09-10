@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "tasks": [
+    {
+      "id": "pr9-refresh",
+      "objective": "Résoudre la divergence de PR #9 sur le dev actuel en conservant son filtre de catégorie",
+      "dependencies": [],
+      "read_set": ["origin/dev", "feature/story-3.2-category-filter", "PR #9"],
+      "write_set": ["copie Git isolée de PR #9"],
+      "side_effects": ["push de feature/story-3.2-category-filter"],
+      "owner": "coordinator",
+      "inputs": ["diff PR #9", "conflit src/routes/threads/index.tsx"],
+      "expected_outputs": ["branche PR #9 compatible avec dev"],
+      "validation": ["tests ciblés", "Biome", "typecheck", "build"],
+      "evidence_required": ["résultats locaux", "read-back GitHub"],
+      "stop_condition": "conflit résolu et validations à jour, ou défaut produit nécessitant replanification",
+      "status": "complete"
+    },
+    {
+      "id": "pr9-runtime-review",
+      "objective": "Vérifier ensemble le filtre de catégorie et obtenir une revue contradictoire indépendante",
+      "dependencies": ["pr9-refresh"],
+      "read_set": ["application locale", "diff PR #9"],
+      "write_set": ["données de test locales uniquement"],
+      "side_effects": ["insertions/suppressions locales identifiables"],
+      "owner": "coordinator",
+      "inputs": ["branche PR #9 validée", "PostgreSQL local"],
+      "expected_outputs": ["preuve visuelle et runtime", "rapport contradictoire"],
+      "validation": ["filtrage URL/UI/DB", "absence de fuite de discussions non publiées"],
+      "evidence_required": ["browser", "requêtes locales", "review indépendante"],
+      "stop_condition": "parcours prouvé et constats matériels résolus",
+      "status": "complete"
+    },
+    {
+      "id": "biome-autosave-package",
+      "objective": "Isoler et livrer les corrections Biome, autosave et typecheck",
+      "dependencies": ["pr9-runtime-review"],
+      "read_set": ["diff local hors DB"],
+      "write_set": ["branche codex/fix-biome-autosave"],
+      "side_effects": ["commit", "push", "création de PR vers dev"],
+      "owner": "coordinator",
+      "inputs": ["changements locaux existants"],
+      "expected_outputs": ["PR Biome/autosave autonome"],
+      "validation": ["Biome", "typecheck", "tests ciblés", "build"],
+      "evidence_required": ["diff scopé", "checks locaux", "read-back GitHub"],
+      "stop_condition": "PR ouverte sans changement DB accidentel",
+      "status": "complete"
+    },
+    {
+      "id": "db-local-package",
+      "objective": "Isoler et livrer PostgreSQL local, migrations, Compose, scripts et documentation",
+      "dependencies": ["biome-autosave-package"],
+      "read_set": ["diff DB local", "schéma Drizzle", "README"],
+      "write_set": ["branche codex/local-postgres"],
+      "side_effects": ["migration et données de test locales", "commit", "push", "création de PR vers dev"],
+      "owner": "coordinator",
+      "inputs": ["changements DB locaux existants"],
+      "expected_outputs": ["PR DB locale autonome"],
+      "validation": ["Drizzle", "migration fraîche", "runtime DB", "Biome", "typecheck", "build"],
+      "evidence_required": ["état DB", "route HTTP", "diff scopé", "read-back GitHub"],
+      "stop_condition": "PR ouverte sans changement Biome/autosave accidentel",
+      "status": "complete"
+    },
+    {
+      "id": "final-readback",
+      "objective": "Relire les trois PR et confirmer le workflow feature vers dev sans fusion",
+      "dependencies": ["biome-autosave-package", "db-local-package"],
+      "read_set": ["PR #9", "deux nouvelles PR", "branches distantes"],
+      "write_set": [],
+      "side_effects": [],
+      "owner": "coordinator",
+      "inputs": ["résultats de livraison"],
+      "expected_outputs": ["handoff prouvé"],
+      "validation": ["baseRefName=dev", "états et checks GitHub", "aucun merge"],
+      "evidence_required": ["read-back fournisseur"],
+      "stop_condition": "état distant confirmé ou anomalie explicitement signalée",
+      "status": "complete"
+    }
+  ]
+}

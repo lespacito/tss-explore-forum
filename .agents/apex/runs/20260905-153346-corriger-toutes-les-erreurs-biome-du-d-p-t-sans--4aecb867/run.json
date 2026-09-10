@@ -1,0 +1,479 @@
+{
+  "baseline": {
+    "available": true,
+    "branch": "master",
+    "branch_fingerprint": "9b3162498c21d7f960877099174ecea13410bd21d12440b2ea8868117fc08ae0",
+    "changes": [
+      {
+        "path": "_bmad-output/implementation-artifacts/private-beta-readiness.md",
+        "status": " M"
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/sprint-status.yaml",
+        "status": " M"
+      },
+      {
+        "path": ".agents/",
+        "status": "??"
+      }
+    ],
+    "errors": [],
+    "paths_redacted": false,
+    "revision": "847c35ac784f1abac5c7e366dbc68d9ea04de0f9",
+    "status_fingerprint": "bc51f1bb8bbaf71cf996aa22dffaa08e7c7fe1b477bcf935497e5a566c619520",
+    "upstream": "origin/master",
+    "upstream_error": null,
+    "verified": true
+  },
+  "checkpoints": [
+    {
+      "git": {
+        "available": true,
+        "branch": "master",
+        "branch_fingerprint": "9b3162498c21d7f960877099174ecea13410bd21d12440b2ea8868117fc08ae0",
+        "changes": [
+          {
+            "path": "_bmad-output/implementation-artifacts/private-beta-readiness.md",
+            "status": " M"
+          },
+          {
+            "path": "_bmad-output/implementation-artifacts/sprint-status.yaml",
+            "status": " M"
+          },
+          {
+            "path": ".agents/",
+            "status": "??"
+          }
+        ],
+        "errors": [],
+        "paths_redacted": false,
+        "revision": "847c35ac784f1abac5c7e366dbc68d9ea04de0f9",
+        "status_fingerprint": "bc51f1bb8bbaf71cf996aa22dffaa08e7c7fe1b477bcf935497e5a566c619520",
+        "upstream": "origin/master",
+        "upstream_error": null,
+        "verified": true
+      },
+      "id": "96d58483-90cb-4dff-ad48-5bfb3e2ae119",
+      "message": "Ready to execute safe Biome fixes",
+      "phase": "plan",
+      "timestamp": "2026-09-05T13:34:55+00:00"
+    },
+    {
+      "git": {
+        "available": true,
+        "branch": "master",
+        "branch_fingerprint": "9b3162498c21d7f960877099174ecea13410bd21d12440b2ea8868117fc08ae0",
+        "changes": [
+          {
+            "path": "_bmad-output/implementation-artifacts/private-beta-readiness.md",
+            "status": " M"
+          },
+          {
+            "path": "_bmad-output/implementation-artifacts/sprint-status.yaml",
+            "status": " M"
+          },
+          {
+            "path": "src/components/shadcn-studio/blocks/faq-section.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/components/shadcn-studio/blocks/footer.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/components/shadcn-studio/blocks/hero-section/header.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/components/tiptap/TiptapEditor.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/components/ui/field.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/components/ui/sidebar.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/components/ui/slider.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/db/schemas/__tests__/thread-status.test.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/db/seed-e2e.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/features/alias/lib/create-alias.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/features/auth/components/SecretCodeDisplay.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/features/auth/components/__tests__/sign-up-tab.test.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/features/auth/components/social-auth-buttons.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/features/auth/server/__tests__/check-signin-rate-limit.test.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/features/auth/server/__tests__/generate-secret-code-fn.test.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/features/auth/server/__tests__/signin-with-secret-code.test.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/features/auth/server/get-user-email-by-username.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/features/auth/server/send-welcome-email.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/features/posts/components/post-card.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/features/profiles/__tests__/account-deletion.test.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/features/profiles/components/RejectionMessage.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/features/profiles/components/ThreadStatusBadge.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/features/profiles/components/account-deletion.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/features/profiles/schemas/delete-account-schema.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/features/threads/__tests__/thread-list.e2e.test.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/features/threads/components/thread-card.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/features/threads/server/__tests__/create-thread-status.test.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/features/threads/server/__tests__/create-thread-validation.test.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/features/threads/server/__tests__/get-all-published-threads.test.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/features/threads/server/actions/get-user-threads.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/lib/logger/logger.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/lib/logger/middleware.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/lib/security/validate-html-content.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/lib/utils/string-utils.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/routes/auth/anonymous-signin.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/routes/auth/login/index.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/routes/threads/__tests__/index.test.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/routes/threads/confirmation.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/routes/threads/new/$category.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/routes/threads/new/__tests__/contrast-validation.test.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/routes/threads/new/__tests__/route-protection.test.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/routes/threads/new/index.tsx",
+            "status": " M"
+          },
+          {
+            "path": ".agents/",
+            "status": "??"
+          }
+        ],
+        "errors": [],
+        "paths_redacted": false,
+        "revision": "847c35ac784f1abac5c7e366dbc68d9ea04de0f9",
+        "status_fingerprint": "a58d72afe9e276622d893a7ee68f52a0c28e8ca876b20c0799acb049b7889fb4",
+        "upstream": "origin/master",
+        "upstream_error": null,
+        "verified": true
+      },
+      "id": "54921e42-ad75-4345-b4fe-1b0608f47b17",
+      "message": "Integrated validation checkpoint: all required checks pass.",
+      "phase": "validate",
+      "timestamp": "2026-09-05T13:46:48+00:00"
+    },
+    {
+      "git": {
+        "available": true,
+        "branch": "master",
+        "branch_fingerprint": "9b3162498c21d7f960877099174ecea13410bd21d12440b2ea8868117fc08ae0",
+        "changes": [
+          {
+            "path": "_bmad-output/implementation-artifacts/private-beta-readiness.md",
+            "status": " M"
+          },
+          {
+            "path": "_bmad-output/implementation-artifacts/sprint-status.yaml",
+            "status": " M"
+          },
+          {
+            "path": "src/components/shadcn-studio/blocks/faq-section.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/components/shadcn-studio/blocks/footer.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/components/shadcn-studio/blocks/hero-section/header.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/components/tiptap/TiptapEditor.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/components/ui/field.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/components/ui/sidebar.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/components/ui/slider.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/db/schemas/__tests__/thread-status.test.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/db/seed-e2e.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/features/alias/lib/create-alias.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/features/auth/components/SecretCodeDisplay.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/features/auth/components/__tests__/sign-up-tab.test.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/features/auth/components/social-auth-buttons.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/features/auth/server/__tests__/check-signin-rate-limit.test.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/features/auth/server/__tests__/generate-secret-code-fn.test.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/features/auth/server/__tests__/signin-with-secret-code.test.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/features/auth/server/get-user-email-by-username.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/features/auth/server/send-welcome-email.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/features/posts/components/post-card.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/features/profiles/__tests__/account-deletion.test.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/features/profiles/components/RejectionMessage.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/features/profiles/components/ThreadStatusBadge.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/features/profiles/components/account-deletion.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/features/profiles/schemas/delete-account-schema.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/features/threads/__tests__/thread-list.e2e.test.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/features/threads/components/thread-card.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/features/threads/server/__tests__/create-thread-status.test.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/features/threads/server/__tests__/create-thread-validation.test.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/features/threads/server/__tests__/get-all-published-threads.test.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/features/threads/server/actions/get-user-threads.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/hooks/__tests__/useAutoSaveDraft.test.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/hooks/useAutoSaveDraft.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/lib/logger/logger.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/lib/logger/middleware.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/lib/security/validate-html-content.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/lib/utils/string-utils.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/routes/auth/anonymous-signin.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/routes/auth/login/index.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/routes/threads/__tests__/index.test.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/routes/threads/confirmation.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/routes/threads/new/$category.tsx",
+            "status": " M"
+          },
+          {
+            "path": "src/routes/threads/new/__tests__/contrast-validation.test.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/routes/threads/new/__tests__/route-protection.test.ts",
+            "status": " M"
+          },
+          {
+            "path": "src/routes/threads/new/index.tsx",
+            "status": " M"
+          },
+          {
+            "path": ".agents/",
+            "status": "??"
+          }
+        ],
+        "errors": [],
+        "paths_redacted": false,
+        "revision": "847c35ac784f1abac5c7e366dbc68d9ea04de0f9",
+        "status_fingerprint": "0016ef5a1b0e66619eb79311d0b3412fccab3abc356d30d555380950d68cc754",
+        "upstream": "origin/master",
+        "upstream_error": null,
+        "verified": true
+      },
+      "id": "d8c85b4b-2785-4b69-b7c7-08cf03bfd270",
+      "message": "APEX run complete",
+      "phase": "handoff",
+      "timestamp": "2026-09-05T15:45:46+00:00"
+    }
+  ],
+  "created_at": "2026-09-05T13:33:46+00:00",
+  "current_phase": "handoff",
+  "last_event_id": "170e7c9e-9ae0-466d-aa52-ef46f21cf52d",
+  "root": "/Users/dev/Documents/Codex/2026-09-03/onn/tss-explore-forum",
+  "run_id": "20260905-153346-corriger-toutes-les-erreurs-biome-du-d-p-t-sans--4aecb867",
+  "schema_version": 1,
+  "status": "complete",
+  "task": "Corriger toutes les erreurs Biome du d\u00e9p\u00f4t sans modifier le comportement fonctionnel, pr\u00e9server les changements locaux existants, puis valider typecheck, tests et build",
+  "updated_at": "2026-09-05T15:45:48+00:00"
+}

@@ -1,0 +1,13 @@
+     database      |  db_user  | applied_migrations | public_tables 
+-------------------+-----------+--------------------+---------------
+ tss_explore_forum | tss_local |                  2 |            13
+(1 row)
+
+ column_name |        data_type         |      column_default      
+-------------+--------------------------+--------------------------
+ created_at  | timestamp with time zone | now()
+ deleted_at  | timestamp with time zone | 
+ status      | USER-DEFINED             | 'pending'::thread_status
+ updated_at  | timestamp with time zone | now()
+(4 rows)
+

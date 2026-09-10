@@ -1,0 +1,72 @@
+{
+  "tasks": [
+    {
+      "id": "safe-biome-fixes",
+      "objective": "Apply Biome safe formatting and import fixes across configured source files.",
+      "dependencies": [],
+      "read_set": ["biome.json", "src/**"],
+      "write_set": ["src/**"],
+      "side_effects": ["Repository-wide source formatting"],
+      "owner": "coordinator",
+      "inputs": ["Biome 2.2.4 baseline"],
+      "expected_outputs": ["All safe fixes applied"],
+      "validation": ["bunx biome check --reporter=summary"],
+      "evidence_required": ["Reduced diagnostic count", "Diff scope review"],
+      "stop_condition": "Safe fix command completes and remaining errors are inventoried.",
+      "status": "complete"
+    },
+    {
+      "id": "manual-biome-errors",
+      "objective": "Resolve every remaining Biome error without intentional behavior changes.",
+      "dependencies": ["safe-biome-fixes"],
+      "read_set": ["src/**", "nearby tests"],
+      "write_set": ["src/**"],
+      "side_effects": [],
+      "owner": "coordinator",
+      "inputs": ["Post-safe-fix error inventory"],
+      "expected_outputs": ["Zero Biome errors"],
+      "validation": ["bun run check"],
+      "evidence_required": ["Biome exit code 0", "Targeted tests for behavior-sensitive edits"],
+      "stop_condition": "Biome exits successfully or a concrete behavior-preserving fix is unavailable.",
+      "status": "complete"
+    },
+    {
+      "id": "regression-validation",
+      "objective": "Prove the repository still typechecks, tests, and builds after lint corrections.",
+      "dependencies": ["manual-biome-errors"],
+      "read_set": ["package.json", "changed source and tests"],
+      "write_set": [],
+      "side_effects": ["Ignored build output"],
+      "owner": "coordinator",
+      "inputs": ["Completed Biome diff"],
+      "expected_outputs": ["Classified validation ledger"],
+      "validation": ["bun run typecheck", "bun run test:unit", "bun run build"],
+      "evidence_required": ["Exit status and summaries"],
+      "stop_condition": "All checks are classified and introduced failures are resolved.",
+      "status": "complete"
+    },
+    {
+      "id": "independent-review",
+      "objective": "Review the material repository-wide diff for behavior changes and missed defects.",
+      "dependencies": ["regression-validation"],
+      "read_set": ["git diff", "validation results"],
+      "write_set": [],
+      "side_effects": [],
+      "owner": "delegated-reviewer",
+      "inputs": ["Final intended diff"],
+      "expected_outputs": ["Severity-ranked findings or explicit clean review"],
+      "validation": ["Coordinator verifies each finding"],
+      "evidence_required": ["Independent review report"],
+      "stop_condition": "All valid material findings are resolved or precisely disclosed.",
+      "status": "complete"
+    }
+  ],
+  "execution_step": "step-03-execute.md",
+  "replan_triggers": [
+    "Safe fixes change behavior-sensitive syntax",
+    "Biome reveals errors outside src/**",
+    "Typecheck or tests fail after edits",
+    "Independent review finds a material behavior regression",
+    "Repository state changes outside the recorded baseline"
+  ]
+}

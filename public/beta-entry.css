@@ -1,2 +1,244 @@
-@font-face{font-family:Lora;src:url('/fonts/lora-latin.woff2') format('woff2');font-display:swap}@font-face{font-family:Jakarta;src:url('/fonts/jakarta-latin.woff2') format('woff2');font-display:swap}
-:root{color-scheme:light dark;--bg:#e6e5e4;--fg:#243041;--muted:#4d5667;--primary:#6551ca;--on-primary:white}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:1rem/1.7 Jakarta,sans-serif}main{max-width:42rem;margin:8vh auto;padding:1.5rem}h1{font:600 clamp(1.8rem,6vw,2.8rem)/1.2 Lora,serif}p{color:var(--muted)}form{display:grid;gap:.75rem;margin:2rem 0}input,button{font:inherit;min-height:48px;border:1px solid var(--muted);border-radius:12px;padding:.6rem 1rem;max-width:100%;min-width:0}input{background:var(--bg);color:var(--fg)}button{cursor:pointer;background:var(--primary);color:var(--on-primary);border:0;font-weight:600}a{color:inherit;text-underline-offset:4px;display:inline-flex;align-items:center;min-height:44px}nav{display:flex;flex-wrap:wrap;gap:1.5rem}:focus-visible{outline:2px solid var(--primary);outline-offset:3px}[role=alert]{border:1px solid currentColor;border-radius:12px;padding:1rem}@media(prefers-color-scheme:dark){:root{--bg:#211e1b;--fg:#e3eaf2;--muted:#b4bac6;--primary:#a598ff;--on-primary:#211e1b}}::selection{background:var(--primary);color:var(--on-primary)}input{caret-color:var(--primary)}
+@font-face {
+  font-family: "Lora Variable";
+  src: url("/fonts/lora-latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Plus Jakarta Sans Variable";
+  src: url("/fonts/jakarta-latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: light dark;
+  --bg: oklch(0.9232 0.0026 48.7171);
+  --fg: oklch(0.2795 0.0368 260.031);
+  --muted: oklch(0.46 0.0234 264.3637);
+  --primary: oklch(0.5854 0.2041 277.1173);
+  --on-primary: oklch(1 0 0);
+  --border: oklch(0.8687 0.0043 56.366);
+  --destructive: oklch(0.6368 0.2078 25.3313);
+  --status-surface: oklch(0.9376 0.026 321.9388);
+  --radius-control: 1.125rem;
+  --radius-message: 1.5rem;
+  scrollbar-color: var(--muted) var(--bg);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family:
+    "Plus Jakarta Sans Variable", "Avenir Next", Avenir, "Segoe UI",
+    sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.75;
+  font-optical-sizing: auto;
+  font-synthesis: none;
+  -webkit-tap-highlight-color: color-mix(
+    in oklab,
+    var(--primary) 24%,
+    transparent
+  );
+}
+
+main {
+  max-width: 42rem;
+  margin: 8vh auto;
+  padding: 1.5rem;
+}
+
+h1 {
+  max-inline-size: 22ch;
+  margin-block: 0 1rem;
+  font-family: "Lora Variable", Georgia, serif;
+  font-size: 1.875rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+p {
+  max-inline-size: 68ch;
+  margin-block: 0 1rem;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+}
+
+form {
+  display: grid;
+  gap: 0.75rem;
+  margin: 2rem 0;
+}
+
+input,
+button {
+  min-width: 0;
+  max-width: 100%;
+  min-height: 48px;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+}
+
+input {
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+  caret-color: var(--primary);
+  transition: border-color 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+input:focus-visible {
+  border-color: var(--primary);
+}
+
+input:user-invalid {
+  border-color: var(--destructive);
+}
+
+input:disabled {
+  cursor: not-allowed;
+  background: color-mix(in oklab, var(--border) 40%, var(--bg));
+  color: var(--muted);
+}
+
+button {
+  cursor: pointer;
+  border-color: transparent;
+  background: var(--primary);
+  color: var(--on-primary);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25;
+  transition: background-color 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+button:active:not(:disabled) {
+  background: color-mix(in oklab, var(--primary) 82%, var(--fg));
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+label,
+nav a {
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: inherit;
+  overflow-wrap: anywhere;
+  text-underline-offset: 4px;
+  transition: color 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+nav a {
+  color: var(--muted);
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+[role="alert"],
+[role="status"] {
+  margin-block: 1.5rem;
+  padding: 1rem;
+  border: 1px solid;
+  border-radius: var(--radius-message);
+  color: var(--fg);
+  overflow-wrap: anywhere;
+}
+
+[role="alert"] {
+  border-color: var(--destructive);
+  background: color-mix(in oklab, var(--destructive) 12%, var(--bg));
+}
+
+[role="status"] {
+  border-color: var(--primary);
+  background: var(--status-surface);
+}
+
+::selection {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: oklch(0.2244 0.0074 67.437);
+    --fg: oklch(0.9288 0.0126 255.5078);
+    --muted: oklch(0.7137 0.0192 261.3246);
+    --primary: oklch(0.6801 0.1583 276.9349);
+    --on-primary: oklch(0.2244 0.0074 67.437);
+    --border: oklch(0.3359 0.0077 59.4197);
+    --status-surface: oklch(0.3896 0.0074 59.4734);
+  }
+}
+
+@media (hover: hover) {
+  input:hover:not(:disabled):not(:focus-visible) {
+    border-color: var(--muted);
+  }
+
+  button:hover:not(:disabled) {
+    background: color-mix(in oklab, var(--primary) 88%, var(--fg));
+  }
+
+  a:hover {
+    color: var(--primary);
+    text-decoration-thickness: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  input,
+  button,
+  a {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  :focus-visible {
+    outline-color: Highlight;
+  }
+
+  input {
+    border-color: FieldText;
+  }
+
+  button,
+  [role="alert"],
+  [role="status"] {
+    border-color: ButtonText;
+  }
+}

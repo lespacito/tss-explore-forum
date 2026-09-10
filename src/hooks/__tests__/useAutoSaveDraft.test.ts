@@ -84,7 +84,7 @@ describe("useAutoSaveDraft", () => {
 		const key = "test-draft";
 		const content = "New content to save";
 
-		const { rerender } = renderHook(
+		const { result, rerender } = renderHook(
 			({ value }) =>
 				useAutoSaveDraft({
 					key,
@@ -112,6 +112,7 @@ describe("useAutoSaveDraft", () => {
 
 		// Should save after debounce
 		expect(localStorage.getItem(key)).toBe(content);
+		expect(result.current.hasDraft).toBe(true);
 
 		// Should show success toast
 		expect(toast.success).toHaveBeenCalledWith(
@@ -230,6 +231,7 @@ describe("useAutoSaveDraft", () => {
 		});
 
 		expect(localStorage.getItem(key)).toBe(content);
+		expect(result.current.hasDraft).toBe(true);
 		expect(toast.success).toHaveBeenCalledWith(
 			"Brouillon sauvegardé automatiquement",
 			expect.any(Object),
@@ -406,21 +408,28 @@ describe("useAutoSaveDraft", () => {
 });
 
 describe("private beta draft consent", () => {
- it("does not restore private text before consent", () => {
-  localStorage.setItem("consent-test", "Private draft");
-  const {result, rerender} = renderHook(({enabled}) => useAutoSaveDraft({key:"consent-test",value:"",enabled}),{initialProps:{enabled:false}});
-  expect(result.current.restoredDraft).toBeNull();
-  rerender({enabled:true});
-  expect(result.current.restoredDraft).toBe("Private draft");
-  localStorage.removeItem("consent-test");
- });
- it("does not resurrect a cleared draft through a pending debounce", () => {
-  vi.useFakeTimers();
-  const {result, rerender} = renderHook(({value}) => useAutoSaveDraft({key:"clear-test",value}),{initialProps:{value:""}});
-  act(()=>rerender({value:"Unsent private draft"}));
-  act(()=>result.current.clearDraft());
-  act(()=>vi.advanceTimersByTime(2000));
-  expect(localStorage.getItem("clear-test")).toBeNull();
-  vi.useRealTimers();
- });
+	it("does not restore private text before consent", () => {
+		localStorage.setItem("consent-test", "Private draft");
+		const { result, rerender } = renderHook(
+			({ enabled }) =>
+				useAutoSaveDraft({ key: "consent-test", value: "", enabled }),
+			{ initialProps: { enabled: false } },
+		);
+		expect(result.current.restoredDraft).toBeNull();
+		rerender({ enabled: true });
+		expect(result.current.restoredDraft).toBe("Private draft");
+		localStorage.removeItem("consent-test");
+	});
+	it("does not resurrect a cleared draft through a pending debounce", () => {
+		vi.useFakeTimers();
+		const { result, rerender } = renderHook(
+			({ value }) => useAutoSaveDraft({ key: "clear-test", value }),
+			{ initialProps: { value: "" } },
+		);
+		act(() => rerender({ value: "Unsent private draft" }));
+		act(() => result.current.clearDraft());
+		act(() => vi.advanceTimersByTime(2000));
+		expect(localStorage.getItem("clear-test")).toBeNull();
+		vi.useRealTimers();
+	});
 });

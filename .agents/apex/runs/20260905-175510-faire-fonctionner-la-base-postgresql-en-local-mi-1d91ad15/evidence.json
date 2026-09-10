@@ -1,0 +1,57 @@
+{
+  "artifacts": [
+    {
+      "created_at": "2026-09-05T15:57:49+00:00",
+      "id": "6940329e-a004-4105-a4e7-6c21240585d2",
+      "layer": "local",
+      "path": ".agents/apex/runs/20260905-175510-faire-fonctionner-la-base-postgresql-en-local-mi-1d91ad15/tasks.json",
+      "phase": "plan",
+      "revision": "ab9566d9e013ded61a91885f550588a4c91ff480",
+      "sha256": "fcc2e9406ed3eba667abde07b0c3086e72ac8fec3a6d0c743eab947549af9c81",
+      "size": 3438,
+      "status": "current",
+      "task_id": null,
+      "type": "task-graph"
+    },
+    {
+      "created_at": "2026-09-05T17:01:53+00:00",
+      "id": "4c4f32da-52f2-4fc5-8816-cb5dbd0fb496",
+      "layer": "local",
+      "path": ".agents/apex/runs/20260905-175510-faire-fonctionner-la-base-postgresql-en-local-mi-1d91ad15/tasks.json",
+      "phase": "verify",
+      "revision": "ab9566d9e013ded61a91885f550588a4c91ff480",
+      "sha256": "6e3781467dc940f5fc47042dff4189f6dd22de9b2cc9fe363e4101fbb3dd43bc",
+      "size": 3661,
+      "status": "current",
+      "task_id": null,
+      "type": "task-graph"
+    },
+    {
+      "created_at": "2026-09-05T17:01:54+00:00",
+      "id": "7dc98a89-7e41-4802-b1c9-ddef2907ba91",
+      "layer": "local",
+      "path": ".agents/apex/runs/20260905-175510-faire-fonctionner-la-base-postgresql-en-local-mi-1d91ad15/artifacts/local-db-proof.txt",
+      "phase": "verify",
+      "revision": "ab9566d9e013ded61a91885f550588a4c91ff480",
+      "sha256": "9701ed2076c30cfb481c1f4776e7cf6db5d0f5a210f9b1b2992ffdefd55948d0",
+      "size": 567,
+      "status": "current",
+      "task_id": null,
+      "type": "runtime-proof"
+    },
+    {
+      "created_at": "2026-09-05T17:01:54+00:00",
+      "id": "f0690fd0-4568-4cab-b7ca-248e720a8a41",
+      "layer": "local",
+      "path": ".agents/apex/runs/20260905-175510-faire-fonctionner-la-base-postgresql-en-local-mi-1d91ad15/artifacts/threads-page.html",
+      "phase": "verify",
+      "revision": "ab9566d9e013ded61a91885f550588a4c91ff480",
+      "sha256": "44be25b277794843e156489d9e99c1fc3e204248ce592ef5e085c8f4812b553f",
+      "size": 28457,
+      "status": "current",
+      "task_id": null,
+      "type": "runtime-proof"
+    }
+  ],
+  "schema_version": 1
+}

@@ -1,0 +1,41 @@
+{
+  "tasks": [
+    {
+      "id": "reconcile-quality-gates",
+      "objective": "Reproduce the current local typecheck, unit-test, build, and Biome status.",
+      "dependencies": [],
+      "read_set": ["package.json", "bun.lock", ".github/workflows/playwright.yml"],
+      "write_set": ["_bmad-output/implementation-artifacts/private-beta-readiness.md", "_bmad-output/implementation-artifacts/sprint-status.yaml"],
+      "side_effects": ["Install locked dependencies", "Generate ignored build output"],
+      "owner": "coordinator",
+      "inputs": ["master@847c35a"],
+      "expected_outputs": ["Current reproducible gate evidence", "Updated beta-readiness record"],
+      "validation": ["bun run typecheck", "bun run test:unit", "bun run build", "bun run check"],
+      "evidence_required": ["Exit status and summary for each command", "Diff review"],
+      "stop_condition": "All four commands classified and readiness files reconciled.",
+      "status": "complete"
+    },
+    {
+      "id": "select-next-critical-work",
+      "objective": "Identify the next bounded implementation task from verified beta blockers.",
+      "dependencies": ["reconcile-quality-gates"],
+      "read_set": ["_bmad-output/implementation-artifacts/private-beta-readiness.md", "_bmad-output/implementation-artifacts/sprint-status.yaml", "src/features/profiles/server/delete-account-with-options.ts"],
+      "write_set": [],
+      "side_effects": [],
+      "owner": "coordinator",
+      "inputs": ["Current beta blockers and local validation evidence"],
+      "expected_outputs": ["Risk-ranked next task with exact proof boundary"],
+      "validation": ["Repository evidence review"],
+      "evidence_required": ["Paths and current implementation gaps"],
+      "stop_condition": "One next task is recommended without silently expanding scope.",
+      "status": "complete"
+    }
+  ],
+  "execution_step": "step-03-execute.md",
+  "replan_triggers": [
+    "Repository state changes outside the declared write set",
+    "Validation fails for a newly introduced reason",
+    "A beta blocker requires credentials or provider access",
+    "Evidence contradicts the documented priority"
+  ]
+}

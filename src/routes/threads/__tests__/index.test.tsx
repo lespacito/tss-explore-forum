@@ -64,7 +64,7 @@ describe("ThreadCard rendering", () => {
 		render(<ThreadCard thread={baseThread} />);
 
 		const badge = screen.getByTestId("thread-category");
-		expect(badge.textContent).toBe("VIOLENCE");
+		expect(badge.textContent).toBe("Violence");
 	});
 
 	it("should render author alias for sensitive categories (VIOLENCE)", () => {
@@ -121,7 +121,7 @@ describe("ThreadCard rendering", () => {
 		const timestamp = screen.getByTestId("thread-timestamp");
 		expect(timestamp.textContent).toBeTruthy();
 		// date-fns formatDistanceToNow with French locale produces text like "il y a environ 2 ans"
-		expect(timestamp.textContent!.length).toBeGreaterThan(0);
+		expect(timestamp.textContent?.length).toBeGreaterThan(0);
 	});
 
 	it("should render the body excerpt via SafeHtmlDisplay", () => {
@@ -148,15 +148,21 @@ describe("ThreadCard rendering", () => {
 });
 
 describe("ThreadCard with different categories", () => {
-	const categories = ["VIOLENCE", "ABUS", "TEMOIN", "DETRESSE", "AUTRE"];
+	const categories = [
+		["VIOLENCE", "Violence"],
+		["ABUS", "Abus"],
+		["TEMOIN", "Témoin"],
+		["DETRESSE", "Détresse"],
+		["AUTRE", "Autre situation"],
+	] as const;
 
-	for (const category of categories) {
+	for (const [category, label] of categories) {
 		it(`should render category badge for ${category}`, () => {
 			const thread = { ...baseThread, id: `thread-${category}`, category };
 			render(<ThreadCard thread={thread} />);
 
 			const badge = screen.getByTestId("thread-category");
-			expect(badge.textContent).toBe(category);
+			expect(badge.textContent).toBe(label);
 		});
 	}
 });

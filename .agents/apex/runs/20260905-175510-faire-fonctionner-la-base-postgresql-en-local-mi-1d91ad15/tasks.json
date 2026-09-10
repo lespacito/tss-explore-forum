@@ -1,0 +1,71 @@
+{
+  "tasks": [
+    {
+      "id": "local-db-config",
+      "objective": "Align Compose, Drizzle, local scripts and documentation on one reproducible PostgreSQL configuration",
+      "dependencies": [],
+      "read_set": ["compose.yaml", "drizzle.config.ts", "package.json", ".env.example", "README.md"],
+      "write_set": ["compose.yaml", "drizzle.config.ts", "package.json", ".env.example", "README.md", ".env.local"],
+      "side_effects": ["Create an ignored local environment file"],
+      "owner": "coordinator",
+      "inputs": ["Existing PostgreSQL schema and migration journal"],
+      "expected_outputs": ["Consistent local commands and configuration"],
+      "validation": ["Compose config inspection", "Drizzle migration discovery"],
+      "evidence_required": ["Relevant diff", "successful configuration commands"],
+      "stop_condition": "Configuration is internally consistent or a required interface is unavailable",
+      "status": "complete"
+    },
+    {
+      "id": "local-db-runtime",
+      "objective": "Run PostgreSQL 17 locally and apply the checked-in migration",
+      "dependencies": ["local-db-config"],
+      "read_set": [".env.local", "src/db/migrations"],
+      "write_set": ["src/db/migrations/0001_flaky_cerise.sql", "src/db/migrations/meta/0001_snapshot.json", "src/db/migrations/meta/_journal.json", "src/db/schemaHelpers.ts", "src/db/schemas/moderation.ts", "src/db/schemas/notification.ts"],
+      "side_effects": ["Install/start a local Homebrew service", "Create a local role and database", "Apply schema migration"],
+      "owner": "coordinator",
+      "inputs": ["Local-only credentials"],
+      "expected_outputs": ["Healthy listener on 127.0.0.1:5432", "Drizzle migration recorded"],
+      "validation": ["pg_isready", "drizzle-kit migrate", "SQL schema read-back"],
+      "evidence_required": ["successful service and SQL commands"],
+      "stop_condition": "Migration and schema read-back succeed or installation is blocked",
+      "status": "complete"
+    },
+    {
+      "id": "app-runtime-proof",
+      "objective": "Prove the application reads the local database through a real route",
+      "dependencies": ["local-db-runtime"],
+      "read_set": ["application routes", "server logs"],
+      "write_set": [],
+      "side_effects": ["Restart local development server"],
+      "owner": "coordinator",
+      "inputs": ["Migrated local database"],
+      "expected_outputs": ["HTTP success without database errors"],
+      "validation": ["direct Drizzle query", "HTTP route request", "browser reload"],
+      "evidence_required": ["query result", "HTTP status", "runtime logs"],
+      "stop_condition": "Database-backed route succeeds or a product dependency blocks it",
+      "status": "complete"
+    },
+    {
+      "id": "adversarial-review",
+      "objective": "Independently challenge local database safety and reproducibility",
+      "dependencies": ["local-db-config"],
+      "read_set": ["relevant diff"],
+      "write_set": [],
+      "side_effects": [],
+      "owner": "delegated-reviewer",
+      "inputs": ["Final local database diff"],
+      "expected_outputs": ["Actionable findings or clean review"],
+      "validation": ["Coordinator validates each finding"],
+      "evidence_required": ["Independent review report"],
+      "stop_condition": "Review completes without edits",
+      "status": "complete"
+    }
+  ],
+  "execution_step": "step-03-execute.md",
+  "replan_triggers": [
+    "PostgreSQL installation or service interface differs from assumptions",
+    "Migration fails unexpectedly",
+    "Runtime evidence reveals missing external credentials",
+    "Worktree changes outside declared scope"
+  ]
+}

@@ -320,9 +320,9 @@ describe("TipTap Editor - Accessibility (WCAG 2.1 AA)", () => {
 			const buttons = screen.getAllByRole("button");
 
 			for (const button of buttons) {
-				// Shadcn icon-sm size renders as size-8 (32px x 32px)
-				// which meets WCAG touch target size requirements (minimum 24x24px)
-				expect(button.className).toContain("size-8");
+				// Shadcn icon size renders as size-11 (44px x 44px), providing
+				// a comfortable target beyond the WCAG 2.5.8 minimum of 24px.
+				expect(button.className).toContain("size-11");
 			}
 		});
 
@@ -330,14 +330,15 @@ describe("TipTap Editor - Accessibility (WCAG 2.1 AA)", () => {
 			const { container } = render(<TipTap content="" onChange={() => {}} />);
 
 			const editorContainer = container.firstChild as HTMLElement;
-			expect(editorContainer).toHaveClass("rounded-lg");
+			expect(editorContainer).toHaveClass("rounded-xl");
 		});
 
 		it("editor has visible border for clarity", () => {
 			const { container } = render(<TipTap content="" onChange={() => {}} />);
 
 			const editorContainer = container.firstChild as HTMLElement;
-			expect(editorContainer).toHaveClass("border-2", "border-border");
+			expect(editorContainer).toHaveClass("border");
+			expect(editorContainer).toHaveClass("focus-within:border-primary");
 		});
 	});
 });

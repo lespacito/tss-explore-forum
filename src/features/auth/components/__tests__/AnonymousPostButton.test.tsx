@@ -38,22 +38,14 @@ describe("AnonymousPostButton", () => {
 		vi.resetAllMocks();
 	});
 	describe("Rendering", () => {
-		it("should render the button with correct text", () => {
+		it("uses its visible text as its accessible name", () => {
 			render(<AnonymousPostButton />);
 
 			const button = screen.getByRole("button", {
-				name: /publier anonymement/i,
+				name: "Créer une publication",
 			});
 			expect(button).toBeDefined();
-		});
-
-		it("should have proper aria-label for accessibility", () => {
-			render(<AnonymousPostButton />);
-
-			const button = screen.getByRole("button");
-			expect(button.getAttribute("aria-label")).toContain(
-				"Publier anonymement",
-			);
+			expect(button.getAttribute("aria-label")).toBeNull();
 		});
 
 		it("should have large size button styling", () => {
@@ -118,9 +110,10 @@ describe("AnonymousPostButton", () => {
 				const button = screen.getByRole("button");
 				fireEvent.click(button);
 				try {
-					if (state === "loading text")
+					if (state === "loading text") {
 						expect(button.textContent).toContain("Chargement");
-					else expect(button.getAttribute("disabled")).not.toBeNull();
+						expect(button.getAttribute("aria-busy")).toBe("true");
+					} else expect(button.getAttribute("disabled")).not.toBeNull();
 					expect(mockNavigate).not.toHaveBeenCalled();
 				} finally {
 					// Finish the handler while jsdom still exists, including on assertion failure.
@@ -132,6 +125,7 @@ describe("AnonymousPostButton", () => {
 				expect(mockNavigate).toHaveBeenCalledWith({ to: "/threads/new" });
 				expect(button.textContent).not.toContain("Chargement");
 				expect(button.getAttribute("disabled")).toBeNull();
+				expect(button.getAttribute("aria-busy")).toBe("false");
 			},
 		);
 	});

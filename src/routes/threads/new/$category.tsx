@@ -1,26 +1,24 @@
-import { useForm } from "@tanstack/react-form";
+import { useForm, useStore } from "@tanstack/react-form";
 import {
 	createFileRoute,
 	redirect,
 	useNavigate,
 	useRouter,
 } from "@tanstack/react-router";
-import { useStore } from "@tanstack/react-form";
-import { SafetyNotice } from "@/features/beta/components/safety-notice";
-import { usePublicationReceipt } from "@/features/beta/components/publication-receipt";
-import { getAuthSession } from "@/features/auth/server/get-auth-session";
-import { ArrowLeft, FileText, Send } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ArrowLeft, Send } from "lucide-react";
+import { useEffect, useId, useState } from "react";
 import { toast } from "sonner";
 import { TipTap } from "@/components/tiptap/TiptapEditor";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
 	getCategoryConfig,
 	type ThreadCategory,
 } from "@/data/threads-categories";
+import { getAuthSession } from "@/features/auth/server/get-auth-session";
+import { usePublicationReceipt } from "@/features/beta/components/publication-receipt";
+import { SafetyNotice } from "@/features/beta/components/safety-notice";
 import { createThreadFn } from "@/features/threads/server/actions/create-thread";
 import { useAutoSaveDraft } from "@/hooks/useAutoSaveDraft";
 import { logger } from "@/lib/logger/client-logger";
@@ -42,10 +40,17 @@ function NewThreadFormPage() {
 	const navigate = useNavigate();
 	const router = useRouter();
 	const { userId } = Route.useLoaderData();
-	const { setSecretCode } = usePublicationReceipt();
+	const { setSecretCode, setSubmissionConfirmed } = usePublicationReceipt();
 	const [saveOnDevice, setSaveOnDevice] = useState(false);
 	const [textLength, setTextLength] = useState(0);
 	const [draftRestored, setDraftRestored] = useState(false);
+	const [validationErrors, setValidationErrors] = useState<{
+		title?: string;
+		body?: string;
+	}>({});
+	const titleErrorId = useId();
+	const bodyId = useId();
+	const bodyErrorId = useId();
 
 	const categoryConfig = getCategoryConfig(category as ThreadCategory);
 
@@ -58,12 +63,18 @@ function NewThreadFormPage() {
 			try {
 				// Client-side validation - Title
 				if (value.title.trim().length < 3) {
+					setValidationErrors({
+						title: "Saisissez un titre d’au moins 3 caractères.",
+					});
 					toast.error("Le titre doit contenir au moins 3 caractères", {
-						description: "Prenez le temps de décrire votre situation",
+						description: "Décrivez le scénario fictif en quelques mots",
 					});
 					return;
 				}
 				if (value.title.length > 200) {
+					setValidationErrors({
+						title: "Raccourcissez le titre à 200 caractères maximum.",
+					});
 					toast.error("Le titre ne peut pas dépasser 200 caractères", {
 						description: "Essayez de résumer en quelques mots",
 					});
@@ -72,13 +83,19 @@ function NewThreadFormPage() {
 
 				// Client-side validation - Content length
 				if (textLength < 10) {
+					setValidationErrors({
+						body: "Rédigez un message d’au moins 10 caractères.",
+					});
 					toast.error("Le contenu doit contenir au moins 10 caractères", {
 						description:
-							"Quelques phrases suffisent pour partager ce qui vous préoccupe",
+							"Quelques phrases suffisent pour décrire le scénario fictif",
 					});
 					return;
 				}
 				if (textLength > 10000) {
+					setValidationErrors({
+						body: "Raccourcissez le message à 10 000 caractères maximum.",
+					});
 					toast.error("Le contenu ne peut pas dépasser 10000 caractères", {
 						description:
 							"Essayez de vous concentrer sur l'essentiel de votre message",
@@ -89,6 +106,11 @@ function NewThreadFormPage() {
 				// Client-side security validation - HTML content
 				const htmlValidation = validateHtmlContent(value.body);
 				if (!htmlValidation.isValid) {
+					setValidationErrors({
+						body:
+							htmlValidation.error ??
+							"Utilisez uniquement les options de formatage proposées.",
+					});
 					toast.error("Contenu non autorisé", {
 						description:
 							htmlValidation.error ||
@@ -96,6 +118,7 @@ function NewThreadFormPage() {
 					});
 					return;
 				}
+				setValidationErrors({});
 
 				const result = await createThreadFn({
 					data: {
@@ -117,6 +140,7 @@ function NewThreadFormPage() {
 				clearTitleDraft();
 				clearBodyDraft();
 				setSecretCode("secretCode" in result ? (result.secretCode ?? "") : "");
+				setSubmissionConfirmed(true);
 				toast.success("Votre publication a été envoyée pour modération.");
 				await router.invalidate();
 				await navigate({ to: "/threads/confirmation" });
@@ -125,7 +149,7 @@ function NewThreadFormPage() {
 				toast.error(
 					error instanceof Error
 						? error.message
-						: "Erreur lors de la création du thread",
+						: "La publication n’a pas pu être envoyée. Réessayez.",
 				);
 			}
 		},
@@ -188,15 +212,15 @@ function NewThreadFormPage() {
 		setSaveOnDevice(false);
 		clearTitleDraft();
 		clearBodyDraft();
-		form.reset();
 		setDraftRestored(false);
-		toast.success("Brouillon effacé de cet appareil.");
+		toast.success("Copie enregistrée retirée", {
+			description: "Votre texte reste dans ce formulaire.",
+		});
 	};
 	if (!categoryConfig) return null;
 
 	return (
-		<div className="container max-w-3xl mx-auto px-4 py-8 space-y-6">
-			{/* Header with category info */}
+		<main className="container mx-auto max-w-3xl space-y-8 px-4 py-8">
 			<div className="flex items-start gap-4">
 				<Button
 					variant="ghost"
@@ -208,14 +232,12 @@ function NewThreadFormPage() {
 					<ArrowLeft className="h-4 w-4" />
 				</Button>
 				<div className="min-w-0 flex-1">
-					<div className="flex flex-wrap items-center gap-2 mb-2">
-						<span className="text-3xl">{categoryConfig.icon}</span>
-						<h1 className="text-3xl font-bold tracking-tight">
+					<div className="mb-2 flex flex-wrap items-center gap-3">
+						<h1 className="font-serif text-3xl font-semibold">
 							{categoryConfig.label}
 						</h1>
 						{draftRestored && (
-							<span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-accent/80 text-accent-foreground">
-								<FileText className="h-3 w-3" />
+							<span className="text-xs font-medium text-muted-foreground">
 								Brouillon restauré
 							</span>
 						)}
@@ -224,38 +246,24 @@ function NewThreadFormPage() {
 				</div>
 			</div>
 
-			{/* Help text card */}
-			<Card className={`${categoryConfig.color} border-2`}>
-				<CardContent className="p-4">
-					<p className="text-sm">{categoryConfig.helpText}</p>
-				</CardContent>
-			</Card>
-
-			{/* Guiding questions */}
-			<Card>
-				<CardHeader>
-					<CardTitle className="text-lg">Questions pour vous guider</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<ul className="space-y-2 text-sm text-muted-foreground">
+			<details className="border-y py-4 text-sm">
+				<summary className="cursor-pointer font-medium underline-offset-4 hover:underline">
+					Besoin d’aide pour commencer ?
+				</summary>
+				<div className="mt-3 space-y-3 text-muted-foreground">
+					<p>{categoryConfig.helpText}</p>
+					<ul className="list-disc space-y-1 pl-5">
 						{categoryConfig.guidingQuestions.map((question) => (
-							<li key={question} className="flex items-start gap-2">
-								<span className="text-primary mt-0.5">•</span>
-								<span>{question}</span>
-							</li>
+							<li key={question}>{question}</li>
 						))}
 					</ul>
-					<p className="text-xs text-muted-foreground mt-4 italic">
-						Ces questions sont optionnelles. Sentez-vous libre de partager ce
-						qui vous semble juste.
-					</p>
-				</CardContent>
-			</Card>
+				</div>
+			</details>
 
-			<aside className="space-y-3 rounded-xl border p-4 text-sm">
-				<p>
-					Première cohorte : rédigez uniquement un scénario fictif, sans détail
-					identifiant.
+			<aside className="space-y-3 text-sm">
+				<p className="font-medium">
+					Pour ce test, rédigez uniquement un scénario fictif, sans détail
+					permettant d’identifier quelqu’un.
 				</p>
 				<label className="flex min-h-11 items-start gap-3">
 					<input
@@ -264,24 +272,34 @@ function NewThreadFormPage() {
 						onChange={(event) => {
 							setSaveOnDevice(event.target.checked);
 							if (!event.target.checked) {
+								const hadStoredDraft = hasTitleDraft || hasBodyDraft;
 								clearTitleDraft();
 								clearBodyDraft();
+								setDraftRestored(false);
+								if (hadStoredDraft) {
+									toast.success("Copie enregistrée retirée", {
+										description: "Votre texte reste dans ce formulaire.",
+									});
+								}
 							}
 						}}
 						className="mt-1 size-5 shrink-0"
 					/>
 					<span>
-						Conserver mon brouillon sur cet appareil. Toute personne utilisant
-						ce navigateur pourrait le retrouver. Réactivez cette option pour
-						restaurer un brouillon conservé.
+						Conserver une copie sur cet appareil
+						<span className="mt-1 block text-muted-foreground">
+							Toute personne utilisant ce navigateur pourra la retrouver.
+						</span>
 					</span>
 				</label>
-				<Button type="button" variant="outline" onClick={forgetDraft}>
-					Effacer le brouillon
-				</Button>
+				{(hasTitleDraft || hasBodyDraft) && (
+					<Button type="button" variant="outline" onClick={forgetDraft}>
+						Retirer la copie enregistrée
+					</Button>
+				)}
 			</aside>
-			{/* Form */}
 			<form
+				noValidate
 				onSubmit={(e) => {
 					e.preventDefault();
 					e.stopPropagation();
@@ -289,7 +307,6 @@ function NewThreadFormPage() {
 				}}
 				className="space-y-6"
 			>
-				{/* Title field */}
 				<form.Field name="title">
 					{(field) => (
 						<div className="space-y-2">
@@ -304,9 +321,21 @@ function NewThreadFormPage() {
 								maxLength={200}
 								name={field.name}
 								value={field.state.value}
-								onChange={(e) => field.handleChange(e.target.value)}
+								onChange={(e) => {
+									field.handleChange(e.target.value);
+									if (validationErrors.title) {
+										setValidationErrors((current) => ({
+											...current,
+											title: undefined,
+										}));
+									}
+								}}
 								onBlur={field.handleBlur}
 								placeholder={categoryConfig.titlePlaceholder}
+								aria-invalid={Boolean(validationErrors.title)}
+								aria-describedby={
+									validationErrors.title ? titleErrorId : undefined
+								}
 								className={
 									field.state.meta.errors.length > 0 ? "border-destructive" : ""
 								}
@@ -316,21 +345,42 @@ function NewThreadFormPage() {
 									{field.state.meta.errors[0]}
 								</p>
 							)}
+							{validationErrors.title && (
+								<p
+									id={titleErrorId}
+									role="alert"
+									className="text-sm text-destructive"
+								>
+									{validationErrors.title}
+								</p>
+							)}
 						</div>
 					)}
 				</form.Field>
 
-				{/* Body field */}
 				<form.Field name="body">
 					{(field) => (
 						<div className="space-y-2">
-							<Label id="body-label">
+							<Label htmlFor={bodyId}>
 								Votre message <span className="text-destructive">*</span>
 							</Label>
 							<TipTap
+								id={bodyId}
 								content={field.state.value}
 								placeholder={categoryConfig.bodyPlaceholder}
-								onChange={(html) => field.handleChange(html)}
+								ariaInvalid={Boolean(validationErrors.body)}
+								ariaDescribedBy={
+									validationErrors.body ? bodyErrorId : undefined
+								}
+								onChange={(html) => {
+									field.handleChange(html);
+									if (validationErrors.body) {
+										setValidationErrors((current) => ({
+											...current,
+											body: undefined,
+										}));
+									}
+								}}
 								onTextChange={(_text, length) => setTextLength(length)}
 							/>
 							<div className="flex justify-between items-center">
@@ -338,6 +388,15 @@ function NewThreadFormPage() {
 									{field.state.meta.errors.length > 0 && (
 										<p className="text-sm text-destructive">
 											{field.state.meta.errors[0]}
+										</p>
+									)}
+									{validationErrors.body && (
+										<p
+											id={bodyErrorId}
+											role="alert"
+											className="text-sm text-destructive"
+										>
+											{validationErrors.body}
 										</p>
 									)}
 								</div>
@@ -349,36 +408,20 @@ function NewThreadFormPage() {
 					)}
 				</form.Field>
 
-				{/* Moderation Info (Story 2.4) */}
-				<Card className="bg-warning/30 border-2 border-warning">
-					<CardContent className="p-4">
-						<p className="text-sm text-foreground">
-							<strong>Modération :</strong> Votre publication sera examinée par
-							le modérateur avant sa mise en ligne. Consultez les créneaux
-							indiqués dans votre invitation et le statut dans Mes publications.
-						</p>
-					</CardContent>
-				</Card>
+				<p className="border-t pt-4 text-sm text-muted-foreground">
+					Votre publication sera examinée avant sa mise en ligne. Suivez son
+					statut dans Mes publications.
+				</p>
 
-				{/* Actions */}
-				<div className="flex flex-wrap justify-between items-center gap-4 pt-4">
-					<div className="flex gap-2">
-						<Button
-							type="button"
-							variant="ghost"
-							onClick={() => navigate({ to: "/threads/new" })}
-						>
-							Retour
-						</Button>
-					</div>
+				<div className="flex justify-end pt-2">
 					<Button
 						type="submit"
 						size="lg"
 						disabled={isSubmitting}
-						className="gap-2"
+						className="min-h-11 w-full gap-2 sm:w-auto"
 					>
 						{isSubmitting ? (
-							"Envoi en cours..."
+							"Envoi en cours…"
 						) : (
 							<>
 								<Send className="h-4 w-4" />
@@ -390,6 +433,6 @@ function NewThreadFormPage() {
 			</form>
 
 			<SafetyNotice />
-		</div>
+		</main>
 	);
 }
