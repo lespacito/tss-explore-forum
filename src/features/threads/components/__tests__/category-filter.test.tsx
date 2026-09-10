@@ -84,7 +84,7 @@ describe("EmptyThreadsState", () => {
 	it("shows a category-aware empty state and alternative filters", () => {
 		render(<EmptyThreadsState activeCategory="VIOLENCE" />);
 
-		expect(screen.getByText(/pas encore de discussions/i)).toBeTruthy();
+		expect(screen.getByText(/aucune publication validée/i)).toBeTruthy();
 		expect(screen.getByText(/« Violence »/)).toBeTruthy();
 		expect(screen.queryByRole("button", { name: /violence/i })).toBeNull();
 		expect(screen.getByRole("button", { name: /abus/i })).toBeTruthy();
@@ -93,7 +93,7 @@ describe("EmptyThreadsState", () => {
 	it("can return to the complete thread list", () => {
 		render(<EmptyThreadsState activeCategory="DETRESSE" />);
 		fireEvent.click(
-			screen.getByRole("button", { name: /voir toutes les discussions/i }),
+			screen.getByRole("button", { name: /voir toutes les publications/i }),
 		);
 
 		expect(navigate).toHaveBeenCalledWith({ to: "/threads", search: {} });

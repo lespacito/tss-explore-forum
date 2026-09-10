@@ -1,5 +1,6 @@
 import { useRouter } from "@tanstack/react-router";
 import { useId, useState } from "react";
+import { toast } from "sonner";
 import { z } from "zod";
 import { useAppForm } from "@/components/form/hooks";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,8 @@ export function SecretCodeLoginForm({
 	const router = useRouter();
 	const secretCodeId = useId();
 	const codeHelpId = useId();
+	const validationErrorId = useId();
+	const serverErrorId = useId();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [serverError, setServerError] = useState<string | null>(null);
 
@@ -67,8 +70,10 @@ export function SecretCodeLoginForm({
 					return;
 				}
 
-				// Succès - redirection
-				router.navigate({ to: redirectTo || "/threads" });
+				toast.success("Session retrouvée", {
+					description: "Voici vos publications.",
+				});
+				router.navigate({ to: redirectTo || "/account/profile" });
 			} catch {
 				// Afficher erreur bienveillante (pas "code invalide")
 				setServerError("Impossible de se connecter. Vérifiez votre code.");
@@ -92,6 +97,7 @@ export function SecretCodeLoginForm({
 
 	return (
 		<form
+			aria-busy={isSubmitting}
 			onSubmit={(e) => {
 				e.preventDefault();
 				form.handleSubmit();
@@ -99,44 +105,64 @@ export function SecretCodeLoginForm({
 		>
 			<FieldGroup>
 				<form.Field name="secretCode">
-					{(field) => (
-						<Field>
-							<Label htmlFor={secretCodeId}>Code Secret</Label>
-							<Input
-								id={secretCodeId}
-								type="text"
-								value={field.state.value}
-								onChange={(e) =>
-									field.handleChange(formatSecretCode(e.target.value))
-								}
-								onBlur={field.handleBlur}
-								placeholder="AB7K-9X2M"
-								aria-describedby={codeHelpId}
-								autoComplete="off"
-								autoCapitalize="characters"
-							/>
-							<span id={codeHelpId} className="text-sm text-muted-foreground">
-								Format: XXXX-XXXX ou XXXX-XXXX-XXXX
-							</span>
-							{field.state.meta.errors &&
-								field.state.meta.errors.length > 0 && (
-									<span className="text-sm text-destructive" role="alert">
-										{getValidationMessage(field.state.meta.errors[0])}
+					{(field) => {
+						const validationError = field.state.meta.errors?.[0];
+						const describedBy = [
+							codeHelpId,
+							validationError ? validationErrorId : null,
+							serverError ? serverErrorId : null,
+						]
+							.filter(Boolean)
+							.join(" ");
+
+						return (
+							<Field data-invalid={Boolean(validationError || serverError)}>
+								<Label htmlFor={secretCodeId}>Code Secret</Label>
+								<Input
+									id={secretCodeId}
+									type="text"
+									value={field.state.value}
+									onChange={(e) => {
+										setServerError(null);
+										field.handleChange(formatSecretCode(e.target.value));
+									}}
+									onBlur={field.handleBlur}
+									placeholder="AB7K-9X2M"
+									aria-describedby={describedBy}
+									aria-invalid={Boolean(validationError || serverError)}
+									autoComplete="off"
+									autoCapitalize="characters"
+								/>
+								<span id={codeHelpId} className="text-sm text-muted-foreground">
+									Format: XXXX-XXXX ou XXXX-XXXX-XXXX
+								</span>
+								{validationError && (
+									<span
+										id={validationErrorId}
+										className="text-sm text-destructive"
+										role="alert"
+									>
+										{getValidationMessage(validationError)}
 									</span>
 								)}
-						</Field>
-					)}
+							</Field>
+						);
+					}}
 				</form.Field>
 
 				{serverError && (
-					<div className="text-sm text-destructive" role="alert">
+					<div
+						id={serverErrorId}
+						className="text-sm text-destructive"
+						role="alert"
+					>
 						{serverError}
 					</div>
 				)}
 
 				<div className="flex gap-2">
 					<Button type="submit" disabled={isSubmitting} className="flex-1">
-						{isSubmitting ? "Connexion..." : "Se connecter"}
+						{isSubmitting ? "Connexion…" : "Se connecter"}
 					</Button>
 
 					<Button
@@ -145,7 +171,7 @@ export function SecretCodeLoginForm({
 						onClick={handlePaste}
 						aria-label="Coller le code depuis le presse-papiers"
 					>
-						Coller le code
+						Coller
 					</Button>
 				</div>
 			</FieldGroup>

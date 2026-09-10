@@ -6,12 +6,16 @@ import { eraseBetaAccount } from "@/features/beta/server/erase-account";
 export function EraseAccountForm({ anonymous }: { anonymous: boolean }) {
 	const confirmationId = useId();
 	const passwordId = useId();
+	const descriptionId = useId();
+	const errorId = useId();
 	const [confirmation, setConfirmation] = useState("");
 	const [password, setPassword] = useState("");
 	const [pending, setPending] = useState(false);
 	const [error, setError] = useState("");
 	return (
 		<form
+			aria-busy={pending}
+			aria-describedby={`${descriptionId}${error ? ` ${errorId}` : ""}`}
 			className="space-y-4"
 			onSubmit={async (event) => {
 				event.preventDefault();
@@ -19,14 +23,16 @@ export function EraseAccountForm({ anonymous }: { anonymous: boolean }) {
 				setPending(true);
 				setError("");
 				try {
-					await eraseBetaAccount({
+					const result = await eraseBetaAccount({
 						data: { confirmation: "EFFACER", password: password || undefined },
 					});
+					if (!result.success)
+						throw new Error("La suppression n’a pas été confirmée. Réessayez.");
 					try {
 						for (const key of Object.keys(localStorage))
 							if (key.startsWith("draft-thread-")) localStorage.removeItem(key);
 					} catch {}
-					window.location.assign("/beta?leave=1");
+					window.location.assign("/beta?leave=erased");
 				} catch (e) {
 					setError(
 						e instanceof Error
@@ -37,22 +43,27 @@ export function EraseAccountForm({ anonymous }: { anonymous: boolean }) {
 				}
 			}}
 		>
-			<h2 className="font-serif text-2xl font-semibold">
-				Effacer mon compte et mes publications
-			</h2>
-			<p>
-				Cette action est définitive. Vos publications, vos alias, votre code
-				secret et toutes vos sessions seront supprimés de la base active. Les
-				sauvegardes suivent le cycle de conservation communiqué par
-				l’organisateur.
+			<p id={descriptionId} className="leading-7 text-muted-foreground">
+				Cette action définitive supprime vos publications, alias, code secret et
+				sessions de la base active. Une copie peut subsister sept jours
+				supplémentaires dans une sauvegarde.
 			</p>
 			<Label htmlFor={confirmationId}>Saisissez EFFACER pour confirmer</Label>
 			<Input
 				id={confirmationId}
 				value={confirmation}
-				onChange={(e) => setConfirmation(e.target.value)}
+				onChange={(e) => {
+					setError("");
+					setConfirmation(e.target.value.toUpperCase());
+				}}
 				autoComplete="off"
+				autoCapitalize="characters"
+				spellCheck={false}
+				maxLength={7}
+				aria-invalid={Boolean(error)}
+				aria-describedby={`${descriptionId}${error ? ` ${errorId}` : ""}`}
 				required
+				disabled={pending}
 			/>
 			{!anonymous && (
 				<>
@@ -62,12 +73,22 @@ export function EraseAccountForm({ anonymous }: { anonymous: boolean }) {
 						type="password"
 						autoComplete="current-password"
 						value={password}
-						onChange={(e) => setPassword(e.target.value)}
+						onChange={(e) => {
+							setError("");
+							setPassword(e.target.value);
+						}}
+						aria-invalid={Boolean(error)}
+						aria-describedby={`${descriptionId}${error ? ` ${errorId}` : ""}`}
 						required
+						disabled={pending}
 					/>
 				</>
 			)}
-			{error && <p role="alert">{error}</p>}
+			{error && (
+				<p id={errorId} className="text-sm text-destructive" role="alert">
+					{error}
+				</p>
+			)}
 			<Button
 				type="submit"
 				variant="destructive"

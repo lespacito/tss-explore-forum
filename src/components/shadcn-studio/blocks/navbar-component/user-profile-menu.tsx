@@ -54,7 +54,7 @@ export function UserProfileMenu({ user }: UserProfileMenuProps) {
 						{user.image && (
 							<>
 								{!imageLoaded && (
-									<div className="h-full w-full bg-muted animate-pulse rounded-full" />
+									<div className="h-full w-full rounded-full bg-muted motion-safe:animate-pulse" />
 								)}
 								<AvatarImage
 									src={user.image}

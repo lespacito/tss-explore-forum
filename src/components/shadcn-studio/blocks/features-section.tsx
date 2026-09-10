@@ -1,3 +1,27 @@
 export default function FeaturesSection() {
- return <section className="mx-auto max-w-3xl py-12"><h2 className="mb-6 font-serif text-2xl font-semibold">Un parcours simple, à votre rythme</h2><ol className="list-decimal space-y-5 pl-5 leading-7"><li><strong>Écrivez un scénario fictif.</strong> Choisissez une catégorie puis rédigez votre message, sans nom réel ni détail identifiant.</li><li><strong>Conservez votre code secret.</strong> Il permet de retrouver votre session, sans inscription par email.</li><li><strong>Consultez la décision.</strong> Le modérateur examine le message avant publication. Son statut apparaît dans Mes publications.</li></ol><p className="mt-6 text-muted-foreground">La première cohorte teste ce parcours. Les réponses et commentaires ne sont pas ouverts.</p></section>;
+	return (
+		<section className="mx-auto max-w-xl py-12">
+			<h2 className="mb-6 font-serif text-2xl font-semibold">
+				Un parcours simple, à votre rythme
+			</h2>
+			<ol className="list-decimal space-y-5 pl-5 leading-7">
+				<li>
+					<strong>Écrivez un scénario fictif.</strong> Choisissez une catégorie
+					puis rédigez votre message, sans nom réel ni détail identifiant.
+				</li>
+				<li>
+					<strong>Conservez votre code secret.</strong> Il permet de retrouver
+					votre session, sans inscription par email.
+				</li>
+				<li>
+					<strong>Consultez la décision.</strong> Le modérateur examine le
+					message avant publication. Son statut apparaît dans Mes publications.
+				</li>
+			</ol>
+			<p className="mt-6 text-muted-foreground">
+				La première cohorte teste ce parcours. Les réponses et commentaires ne
+				sont pas ouverts.
+			</p>
+		</section>
+	);
 }

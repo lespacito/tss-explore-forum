@@ -1,0 +1,57 @@
+{
+  "artifacts": [
+    {
+      "created_at": "2026-09-05T17:18:45+00:00",
+      "id": "074fdd87-f30a-4e5e-bbea-fecfb883514d",
+      "layer": "local",
+      "path": ".agents/apex/runs/20260905-191423-auditer-et-remettre-niveau-la-pr-9-corriger-le-t-989a472a/artifacts/analysis.md",
+      "phase": "analyze",
+      "revision": "ab9566d9e013ded61a91885f550588a4c91ff480",
+      "sha256": "894b5a36ffe8d53d86fe9615ac8e3e7d71af72adb5b56ecd5a96d4f13ee1b39b",
+      "size": 2900,
+      "status": "current",
+      "task_id": null,
+      "type": "analysis"
+    },
+    {
+      "created_at": "2026-09-05T18:05:05+00:00",
+      "id": "ad8ced4c-e2c1-4ac0-8e63-dd6819fb441c",
+      "layer": "local",
+      "path": ".agents/apex/runs/20260905-191423-auditer-et-remettre-niveau-la-pr-9-corriger-le-t-989a472a/artifacts/validation-ledger.md",
+      "phase": "validate",
+      "revision": "ab9566d9e013ded61a91885f550588a4c91ff480",
+      "sha256": "891af4e799883563649a1e2076c89c684966d669fc0428c532f85772c2935710",
+      "size": 2420,
+      "status": "current",
+      "task_id": null,
+      "type": "validation-ledger"
+    },
+    {
+      "created_at": "2026-09-05T18:05:20+00:00",
+      "id": "54aba1c5-368e-417b-9f8f-266e3139ca34",
+      "layer": "local",
+      "path": ".agents/apex/runs/20260905-191423-auditer-et-remettre-niveau-la-pr-9-corriger-le-t-989a472a/artifacts/review-ledger.md",
+      "phase": "examine",
+      "revision": "ab9566d9e013ded61a91885f550588a4c91ff480",
+      "sha256": "5b9112cc39f8c87ff08444c4e93df368fbe30a68dae83c1b32666f2597813bd9",
+      "size": 1241,
+      "status": "current",
+      "task_id": null,
+      "type": "review-ledger"
+    },
+    {
+      "created_at": "2026-09-05T18:05:31+00:00",
+      "id": "358503c6-5ab3-46bc-a644-a9da88ed434b",
+      "layer": "provider",
+      "path": ".agents/apex/runs/20260905-191423-auditer-et-remettre-niveau-la-pr-9-corriger-le-t-989a472a/artifacts/proof-matrix.md",
+      "phase": "verify",
+      "revision": "ab9566d9e013ded61a91885f550588a4c91ff480",
+      "sha256": "3d59f642fa0f9deb4c7fb12c2723082a33744335415a16aa321b58a79820d825",
+      "size": 2503,
+      "status": "current",
+      "task_id": null,
+      "type": "proof-matrix"
+    }
+  ],
+  "schema_version": 1
+}

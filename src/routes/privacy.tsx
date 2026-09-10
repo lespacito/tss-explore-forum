@@ -44,17 +44,33 @@ function Page() {
 			<h2>Effacement et limites</h2>
 			<p>
 				Gérer le compte permet de demander la suppression du compte et de ses
-				publications. Les sauvegardes et journaux techniques ont un cycle
-				distinct : leur durée de conservation, l’identité du responsable et les
-				conditions d’hébergement doivent vous être communiquées par
-				l’organisateur avant les invitations. Ce test n’est pas ouvert aux
-				récits personnels.
+				publications dans la base active. Une copie supprimée peut subsister
+				jusqu’à sept jours supplémentaires dans une sauvegarde avant son
+				expiration.
+			</p>
+			<p>
+				Pour cette cohorte, les comptes et les scénarios doivent être supprimés
+				sept jours après la fin du test. Seul un bilan sans identifiants sera
+				conservé ensuite. L’automatisation de cette suppression et la
+				restauration d’une sauvegarde doivent encore être vérifiées sur le
+				serveur avant l’ouverture.
+			</p>
+			<p>
+				Le lieu effectif d’hébergement et la durée de conservation des journaux
+				techniques ne sont pas encore confirmés. Ces informations doivent être
+				vérifiées avant l’ouverture. Ce test n’est pas ouvert aux récits
+				personnels.
 			</p>
 			<h2>Contact</h2>
 			<p>
-				Utilisez le canal par lequel la personne organisant le test vous a
-				invité pour toute question sur vos données. Ne lui envoyez pas votre
-				code secret.
+				La personne qui organise la cohorte est responsable des demandes
+				relatives aux données. Écrivez à{" "}
+				<a href="mailto:contact@parlonsviolence.ch">
+					contact@parlonsviolence.ch
+				</a>{" "}
+				ou utilisez le canal par lequel vous avez reçu votre invitation.
+				N’envoyez jamais votre code secret, un récit personnel ou une capture
+				contenant ce code.
 			</p>
 		</article>
 	);

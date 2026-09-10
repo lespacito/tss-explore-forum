@@ -57,8 +57,6 @@ const HeroSection = () => {
 		>
 			{/* Hero Content */}
 			<div className="mx-auto flex max-w-7xl flex-col items-center gap-8 px-4 text-center sm:px-6 lg:px-8">
-
-
 				<h1 className="text-3xl leading-[1.29167] font-bold font-serif text-balance sm:text-4xl lg:text-5xl">
 					Un espace de
 					<br />
@@ -122,7 +120,7 @@ const HeroSection = () => {
 							loading={index < 2 ? "eager" : "lazy"}
 							fetchPriority={index === 0 ? "high" : "low"}
 							decoding={index < 2 ? "sync" : "async"}
-							className="h-full w-full object-cover motion-safe:transition-transform motion-safe:duration-300 motion-safe:hover:scale-105"
+							className="h-full w-full object-cover outline outline-1 -outline-offset-1 outline-black/10 motion-safe:transition-transform motion-safe:duration-300 motion-safe:hover:scale-105 dark:outline-white/10"
 						/>
 					</div>
 				))}

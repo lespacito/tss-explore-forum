@@ -13,7 +13,7 @@ export function EmptyThreadsState({ activeCategory }: EmptyThreadsStateProps) {
 	if (!activeCategory) {
 		return (
 			<div className="py-10 text-center text-muted-foreground">
-				Aucune discussion pour le moment. Soyez le premier à en créer une !
+				Aucune publication validée pour le moment.
 			</div>
 		);
 	}
@@ -25,11 +25,11 @@ export function EmptyThreadsState({ activeCategory }: EmptyThreadsStateProps) {
 	return (
 		<div className="space-y-4 py-12 text-center">
 			<p className="text-lg text-muted-foreground">
-				Pas encore de discussions dans cette catégorie.
+				Aucune publication validée dans cette catégorie.
 			</p>
 			<p className="text-sm text-muted-foreground">
-				Soyez le premier à partager une expérience dans « {activeConfig?.label}{" "}
-				».
+				Les scénarios publiés dans « {activeConfig?.label} » apparaîtront ici
+				après modération.
 			</p>
 			<div className="flex flex-wrap justify-center gap-2 pt-2">
 				{threadCategories
@@ -47,7 +47,7 @@ export function EmptyThreadsState({ activeCategory }: EmptyThreadsStateProps) {
 								})
 							}
 						>
-							{category.icon} {category.label}
+							{category.label}
 						</Button>
 					))}
 			</div>
@@ -56,7 +56,7 @@ export function EmptyThreadsState({ activeCategory }: EmptyThreadsStateProps) {
 				variant="link"
 				onClick={() => router.navigate({ to: "/threads", search: {} })}
 			>
-				Voir toutes les discussions
+				Voir toutes les publications
 			</Button>
 		</div>
 	);

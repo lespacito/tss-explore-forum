@@ -3,7 +3,6 @@ import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import { memo } from "react";
 import { SafeHtmlDisplay } from "@/components/tiptap/SafeHtmlDisplay";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
 	Card,
@@ -11,7 +10,10 @@ import {
 	CardFooter,
 	CardHeader,
 } from "@/components/ui/card";
-import { getInitials } from "@/lib/utils/string-utils";
+import {
+	getCategoryConfig,
+	type ThreadCategory,
+} from "@/data/threads-categories";
 import {
 	getAuthorDisplayName,
 	getCategoryColor,
@@ -44,6 +46,9 @@ export const ThreadCard = memo(function ThreadCard({
 		aliasName: thread.aliasName,
 		displayUsername: thread.displayUsername,
 	});
+	const categoryLabel = getCategoryConfig(
+		thread.category as ThreadCategory,
+	)?.label;
 
 	return (
 		<Link
@@ -52,16 +57,11 @@ export const ThreadCard = memo(function ThreadCard({
 			className="block"
 		>
 			<Card
-				className="w-full hover:shadow-md transition-shadow cursor-pointer"
+				className="w-full cursor-pointer transition-[border-color,box-shadow] hover:border-primary/35 hover:shadow-sm"
 				data-testid="thread-card"
 			>
-				<CardHeader className="flex flex-row items-center gap-4 p-4">
-					<Avatar>
-						<AvatarFallback className="bg-primary/10 text-primary">
-							{getInitials(authorName)}
-						</AvatarFallback>
-					</Avatar>
-					<div className="flex min-w-0 flex-col flex-1">
+				<CardHeader className="flex flex-row items-start gap-4 p-4">
+					<div className="flex min-w-0 flex-1 flex-col">
 						<div className="flex flex-wrap items-center gap-2">
 							<span
 								className="font-semibold text-sm"
@@ -74,7 +74,7 @@ export const ThreadCard = memo(function ThreadCard({
 								className={`text-xs ${getCategoryColor(thread.category)}`}
 								data-testid="thread-category"
 							>
-								{thread.category}
+								{categoryLabel ?? thread.category}
 							</Badge>
 						</div>
 						<span
@@ -109,7 +109,7 @@ export const ThreadCard = memo(function ThreadCard({
 				</CardContent>
 				<CardFooter className="p-4 border-t flex justify-end text-muted-foreground">
 					<span className="text-xs font-medium text-primary">
-						Voir la discussion →
+						Lire la publication →
 					</span>
 				</CardFooter>
 			</Card>

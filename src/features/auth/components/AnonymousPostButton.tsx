@@ -25,7 +25,7 @@ export function AnonymousPostButton() {
 			} else {
 				toast.error(result.error || "Une erreur est survenue");
 			}
-		} catch (error) {
+		} catch {
 			toast.error("Impossible de continuer. Veuillez réessayer.");
 		} finally {
 			setIsLoading(false);
@@ -38,10 +38,10 @@ export function AnonymousPostButton() {
 			disabled={isLoading || paused}
 			size="lg"
 			className="min-w-[200px]"
-			aria-label="Publier anonymement sans créer de compte"
+			aria-busy={isLoading}
 		>
 			{isLoading
-				? "Chargement..."
+				? "Chargement…"
 				: paused
 					? "Dépôts suspendus"
 					: "Créer une publication"}
