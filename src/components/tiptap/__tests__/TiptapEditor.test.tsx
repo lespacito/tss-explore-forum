@@ -10,7 +10,7 @@ describe("TipTap Editor - Unit Tests", () => {
 
 			// Editor container should be present
 			expect(container.firstChild).toBeInTheDocument();
-			expect(container.firstChild).toHaveClass("border-2", "border-border");
+			expect(container.firstChild).toHaveClass("border", "rounded-xl");
 		});
 
 		it("renders the toolbar with all formatting buttons", () => {
@@ -257,10 +257,10 @@ describe("TipTap Editor - Unit Tests", () => {
 			const editorContainer = container.firstChild as HTMLElement;
 
 			// Check border and styling
-			expect(editorContainer).toHaveClass("border-2");
-			expect(editorContainer).toHaveClass("border-border");
-			expect(editorContainer).toHaveClass("rounded-lg");
+			expect(editorContainer).toHaveClass("border");
+			expect(editorContainer).toHaveClass("rounded-xl");
 			expect(editorContainer).toHaveClass("bg-card");
+			expect(editorContainer).toHaveClass("focus-within:border-primary");
 		});
 
 		it("applies proper text styling classes", () => {
