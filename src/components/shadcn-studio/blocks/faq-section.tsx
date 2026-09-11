@@ -1,42 +1,51 @@
 import { ChevronDown } from "lucide-react";
+import { useId } from "react";
 
 const faqs = [
 	{
 		q: "Qui peut lire mes publications ?",
-		a: "Seules les personnes invitées peuvent consulter cette bêta. Le modérateur relit chaque publication avant sa mise en ligne. Utilisez uniquement des scénarios fictifs pendant cette première cohorte.",
+		a: "Seules les personnes invitées peuvent consulter cette bêta. Chaque publication est relue avant sa mise en ligne. Pour cette cohorte, utilisez uniquement un scénario fictif.",
 	},
 	{
 		q: "Que protège mon alias ?",
-		a: "Votre alias remplace votre identité dans les publications. Il ne rend pas un récit impossible à reconnaître : évitez les noms, lieux précis et autres détails identifiants. Consultez la page Confidentialité pour les limites de cette protection.",
+		a: "L’alias remplace votre identité dans les publications. Il ne rend pas un récit impossible à reconnaître : évitez les noms, lieux précis et autres détails identifiants.",
 	},
 	{
-		q: "Quand mon message sera-t-il examiné ?",
-		a: "Les créneaux de modération sont communiqués avec votre invitation. La modération n’est pas permanente. Retrouvez la décision et, en cas de refus, son motif dans Mes publications.",
+		q: "À quoi servent les deux codes ?",
+		a: "Le code d’invitation ouvre l’accès à la bêta. Le code secret personnel permet de retrouver votre session et ne doit jamais être partagé ni placé dans une URL.",
 	},
 	{
-		q: "Comment retrouver ou effacer ma session ?",
-		a: "Conservez votre code secret dans un endroit privé. Il permet de retrouver votre session et vos publications. L’effacement est accessible depuis Gérer le compte. Ne partagez ni ce code ni votre code d’invitation.",
+		q: "Comment connaître la décision ?",
+		a: "La modération n’est pas permanente. Le statut — en attente, publiée ou refusée — apparaît dans Mes publications, avec un motif lorsqu’un dépôt est refusé.",
 	},
 ];
+
 export default function FaqSection() {
+	const titleId = useId();
 	return (
-		<section className="mx-auto max-w-xl py-12" aria-labelledby="faq-heading">
-			<h2 id="faq-heading" className="mb-6 font-serif text-2xl font-semibold">
-				Questions sur la bêta
-			</h2>
-			<div className="divide-y border-y">
-				{faqs.map((f) => (
-					<details key={f.q} className="group py-2">
-						<summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 py-3 font-medium">
-							{f.q}
-							<ChevronDown
-								className="size-5 shrink-0 group-open:rotate-180"
-								aria-hidden="true"
-							/>
+		// biome-ignore lint/correctness/useUniqueElementIds: This route section owns a stable hash target.
+		<section className="landing-faq" id="questions" aria-labelledby={titleId}>
+			<header>
+				<h2 id={titleId}>
+					Avant d’entrer
+					<br />
+					dans la bêta.
+				</h2>
+				<p>
+					Quatre réponses utiles à lire sur un appareil personnel ou partagé.
+				</p>
+			</header>
+			<div className="landing-faq-list">
+				{faqs.map((item, index) => (
+					<details key={item.q} name="landing-faq">
+						<summary>
+							<span aria-hidden="true">
+								{String(index + 1).padStart(2, "0")}
+							</span>
+							<strong>{item.q}</strong>
+							<ChevronDown aria-hidden="true" />
 						</summary>
-						<p className="max-w-prose pb-4 leading-7 text-muted-foreground">
-							{f.a}
-						</p>
+						<p>{item.a}</p>
 					</details>
 				))}
 			</div>

@@ -1,7 +1,8 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 export default function Footer() {
+	const isLanding = useRouterState().location.pathname === "/";
 	return (
-		<footer className="border-t px-4 py-8">
+		<footer className={isLanding ? "landing-footer" : "border-t px-4 py-8"}>
 			<div className="mx-auto flex max-w-6xl flex-col gap-4 text-sm sm:flex-row sm:justify-between">
 				<p className="text-muted-foreground">
 					Parlons Violence · Bêta privée pour adultes

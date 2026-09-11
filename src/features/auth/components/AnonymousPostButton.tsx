@@ -3,8 +3,17 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { createAnonymousSessionFn } from "@/features/auth/server/create-anonymous-session";
+import { cn } from "@/lib/utils";
 
-export function AnonymousPostButton() {
+type AnonymousPostButtonProps = {
+	className?: string;
+	label?: string;
+};
+
+export function AnonymousPostButton({
+	className,
+	label = "Créer une publication",
+}: AnonymousPostButtonProps = {}) {
 	const router = useRouter();
 	const data = getRouteApi("__root__").useLoaderData();
 	const paused = data?.beta?.submissionsOpen === false;
@@ -37,14 +46,10 @@ export function AnonymousPostButton() {
 			onClick={handleClick}
 			disabled={isLoading || paused}
 			size="lg"
-			className="min-w-[200px]"
+			className={cn("min-w-[200px]", className)}
 			aria-busy={isLoading}
 		>
-			{isLoading
-				? "Chargement…"
-				: paused
-					? "Dépôts suspendus"
-					: "Créer une publication"}
+			{isLoading ? "Chargement…" : paused ? "Dépôts suspendus" : label}
 		</Button>
 	);
 }

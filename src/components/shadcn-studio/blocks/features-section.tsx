@@ -1,27 +1,69 @@
+import { Link } from "@tanstack/react-router";
+import { ArrowUpRight, Check, Minus } from "lucide-react";
+import { useId } from "react";
+
+const commitments = [
+	"Accès réservé aux personnes invitées",
+	"Publication sous alias après examen humain",
+	"Statut et motif de refus visibles dans Mes publications",
+	"Effacement accessible depuis Gérer le compte",
+];
+
+const limits = [
+	"L’alias ne garantit pas un anonymat absolu",
+	"La modération n’est ni immédiate ni permanente",
+	"Les réponses et commentaires restent fermés",
+	"Cette cohorte utilise uniquement des scénarios fictifs",
+];
+
 export default function FeaturesSection() {
+	const titleId = useId();
 	return (
-		<section className="mx-auto max-w-xl py-12">
-			<h2 className="mb-6 font-serif text-2xl font-semibold">
-				Un parcours simple, à votre rythme
-			</h2>
-			<ol className="list-decimal space-y-5 pl-5 leading-7">
-				<li>
-					<strong>Écrivez un scénario fictif.</strong> Choisissez une catégorie
-					puis rédigez votre message, sans nom réel ni détail identifiant.
-				</li>
-				<li>
-					<strong>Conservez votre code secret.</strong> Il permet de retrouver
-					votre session, sans inscription par email.
-				</li>
-				<li>
-					<strong>Consultez la décision.</strong> Le modérateur examine le
-					message avant publication. Son statut apparaît dans Mes publications.
-				</li>
-			</ol>
-			<p className="mt-6 text-muted-foreground">
-				La première cohorte teste ce parcours. Les réponses et commentaires ne
-				sont pas ouverts.
-			</p>
+		// biome-ignore lint/correctness/useUniqueElementIds: This route section owns a stable hash target.
+		<section
+			className="landing-explainer"
+			id="comment-ca-marche"
+			aria-labelledby={titleId}
+		>
+			<header>
+				<h2 id={titleId}>
+					Ce que la bêta teste,
+					<br />
+					très concrètement.
+				</h2>
+				<p>
+					Pendant deux semaines, une petite cohorte vérifie qu’il est possible
+					d’accomplir tout le parcours sans assistance.
+				</p>
+				<Link to="/rules" className="landing-text-link">
+					Lire les règles de la bêta <ArrowUpRight aria-hidden="true" />
+				</Link>
+			</header>
+
+			<div className="landing-ledger">
+				<div>
+					<h3>Les engagements du parcours</h3>
+					<ul>
+						{commitments.map((item) => (
+							<li key={item}>
+								<Check aria-hidden="true" />
+								{item}
+							</li>
+						))}
+					</ul>
+				</div>
+				<div>
+					<h3>Les limites à connaître</h3>
+					<ul>
+						{limits.map((item) => (
+							<li key={item}>
+								<Minus aria-hidden="true" />
+								{item}
+							</li>
+						))}
+					</ul>
+				</div>
+			</div>
 		</section>
 	);
 }

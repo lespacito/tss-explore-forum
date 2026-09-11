@@ -1,252 +1,126 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-09T19:02:55Z",
+  "generatedAt": "2026-09-11T16:13:49Z",
   "title": "Design System: Parlons Violence",
   "extensions": {
     "colorMeta": {
-      "paper-mist": {
-        "role": "neutral",
-        "displayName": "Papier brumeux",
-        "canonical": "oklch(0.9232 0.0026 48.7171)",
-        "tonalRamp": ["oklch(0.15 0.003 49)", "oklch(0.25 0.003 49)", "oklch(0.38 0.003 49)", "oklch(0.52 0.003 49)", "oklch(0.66 0.003 49)", "oklch(0.78 0.003 49)", "oklch(0.88 0.003 49)", "oklch(0.95 0.003 49)"]
-      },
-      "ink-blue": {
-        "role": "neutral",
-        "displayName": "Encre bleutée",
-        "canonical": "oklch(0.2795 0.0368 260.031)",
-        "tonalRamp": ["oklch(0.15 0.037 260)", "oklch(0.25 0.037 260)", "oklch(0.38 0.037 260)", "oklch(0.52 0.037 260)", "oklch(0.66 0.037 260)", "oklch(0.78 0.037 260)", "oklch(0.88 0.037 260)", "oklch(0.95 0.037 260)"]
-      },
-      "warm-card": {
-        "role": "neutral",
-        "displayName": "Carte chaude",
-        "canonical": "oklch(0.9699 0.0013 106.4238)",
-        "tonalRamp": ["oklch(0.15 0.002 106)", "oklch(0.25 0.002 106)", "oklch(0.38 0.002 106)", "oklch(0.52 0.002 106)", "oklch(0.66 0.002 106)", "oklch(0.78 0.002 106)", "oklch(0.88 0.002 106)", "oklch(0.95 0.002 106)"]
-      },
-      "trust-violet": {
-        "role": "primary",
-        "displayName": "Violet de confiance",
-        "canonical": "oklch(0.5854 0.2041 277.1173)",
-        "tonalRamp": ["oklch(0.15 0.08 277)", "oklch(0.25 0.13 277)", "oklch(0.38 0.18 277)", "oklch(0.52 0.204 277)", "oklch(0.66 0.18 277)", "oklch(0.78 0.13 277)", "oklch(0.88 0.08 277)", "oklch(0.95 0.035 277)"]
-      },
-      "on-trust-violet": {
-        "role": "neutral",
-        "displayName": "Blanc franc",
-        "canonical": "oklch(1 0 0)",
-        "tonalRamp": ["oklch(0.15 0 0)", "oklch(0.25 0 0)", "oklch(0.38 0 0)", "oklch(0.52 0 0)", "oklch(0.66 0 0)", "oklch(0.78 0 0)", "oklch(0.88 0 0)", "oklch(0.95 0 0)"]
-      },
-      "quiet-stone": {
-        "role": "secondary",
-        "displayName": "Pierre tranquille",
-        "canonical": "oklch(0.8687 0.0043 56.366)",
-        "tonalRamp": ["oklch(0.15 0.005 56)", "oklch(0.25 0.005 56)", "oklch(0.38 0.005 56)", "oklch(0.52 0.005 56)", "oklch(0.66 0.005 56)", "oklch(0.78 0.005 56)", "oklch(0.88 0.005 56)", "oklch(0.95 0.005 56)"]
-      },
-      "quiet-ink": {
-        "role": "neutral",
-        "displayName": "Encre discrète",
-        "canonical": "oklch(0.4461 0.0263 256.8018)",
-        "tonalRamp": ["oklch(0.15 0.026 257)", "oklch(0.25 0.026 257)", "oklch(0.38 0.026 257)", "oklch(0.52 0.026 257)", "oklch(0.66 0.026 257)", "oklch(0.78 0.026 257)", "oklch(0.88 0.026 257)", "oklch(0.95 0.026 257)"]
-      },
-      "secondary-ink": {
-        "role": "neutral",
-        "displayName": "Encre secondaire",
-        "canonical": "oklch(0.46 0.0234 264.3637)",
-        "tonalRamp": ["oklch(0.15 0.023 264)", "oklch(0.25 0.023 264)", "oklch(0.38 0.023 264)", "oklch(0.52 0.023 264)", "oklch(0.66 0.023 264)", "oklch(0.78 0.023 264)", "oklch(0.88 0.023 264)", "oklch(0.95 0.023 264)"]
-      },
-      "tender-lilac": {
-        "role": "tertiary",
-        "displayName": "Lilas tendre",
-        "canonical": "oklch(0.9376 0.026 321.9388)",
-        "tonalRamp": ["oklch(0.15 0.026 322)", "oklch(0.25 0.026 322)", "oklch(0.38 0.026 322)", "oklch(0.52 0.026 322)", "oklch(0.66 0.026 322)", "oklch(0.78 0.026 322)", "oklch(0.88 0.026 322)", "oklch(0.95 0.026 322)"]
-      },
-      "lilac-ink": {
-        "role": "neutral",
-        "displayName": "Encre lilas",
-        "canonical": "oklch(0.3729 0.0306 259.7328)",
-        "tonalRamp": ["oklch(0.15 0.031 260)", "oklch(0.25 0.031 260)", "oklch(0.38 0.031 260)", "oklch(0.52 0.031 260)", "oklch(0.66 0.031 260)", "oklch(0.78 0.031 260)", "oklch(0.88 0.031 260)", "oklch(0.95 0.031 260)"]
-      },
-      "alert-coral": {
-        "role": "tertiary",
-        "displayName": "Corail d’alerte",
-        "canonical": "oklch(0.6368 0.2078 25.3313)",
-        "tonalRamp": ["oklch(0.15 0.08 25)", "oklch(0.25 0.13 25)", "oklch(0.38 0.18 25)", "oklch(0.52 0.208 25)", "oklch(0.66 0.19 25)", "oklch(0.78 0.14 25)", "oklch(0.88 0.09 25)", "oklch(0.95 0.04 25)"]
-      },
-      "attention-amber": {
-        "role": "tertiary",
-        "displayName": "Ambre d’attention",
-        "canonical": "oklch(0.7528 0.1345 81.4633)",
-        "tonalRamp": ["oklch(0.15 0.055 81)", "oklch(0.25 0.085 81)", "oklch(0.38 0.115 81)", "oklch(0.52 0.135 81)", "oklch(0.66 0.135 81)", "oklch(0.78 0.12 81)", "oklch(0.88 0.08 81)", "oklch(0.95 0.035 81)"]
-      },
-      "night-paper": {
-        "role": "neutral",
-        "displayName": "Papier nocturne",
-        "canonical": "oklch(0.2244 0.0074 67.437)",
-        "tonalRamp": ["oklch(0.15 0.008 67)", "oklch(0.25 0.008 67)", "oklch(0.38 0.008 67)", "oklch(0.52 0.008 67)", "oklch(0.66 0.008 67)", "oklch(0.78 0.008 67)", "oklch(0.88 0.008 67)", "oklch(0.95 0.008 67)"]
-      },
-      "night-ink": {
-        "role": "neutral",
-        "displayName": "Encre nocturne",
-        "canonical": "oklch(0.9288 0.0126 255.5078)",
-        "tonalRamp": ["oklch(0.15 0.013 256)", "oklch(0.25 0.013 256)", "oklch(0.38 0.013 256)", "oklch(0.52 0.013 256)", "oklch(0.66 0.013 256)", "oklch(0.78 0.013 256)", "oklch(0.88 0.013 256)", "oklch(0.95 0.013 256)"]
-      },
-      "night-card": {
-        "role": "neutral",
-        "displayName": "Carte nocturne",
-        "canonical": "oklch(0.2801 0.008 59.3379)",
-        "tonalRamp": ["oklch(0.15 0.008 59)", "oklch(0.25 0.008 59)", "oklch(0.38 0.008 59)", "oklch(0.52 0.008 59)", "oklch(0.66 0.008 59)", "oklch(0.78 0.008 59)", "oklch(0.88 0.008 59)", "oklch(0.95 0.008 59)"]
-      },
-      "night-trust-violet": {
-        "role": "primary",
-        "displayName": "Violet de confiance nocturne",
-        "canonical": "oklch(0.6801 0.1583 276.9349)",
-        "tonalRamp": ["oklch(0.15 0.06 277)", "oklch(0.25 0.1 277)", "oklch(0.38 0.14 277)", "oklch(0.52 0.158 277)", "oklch(0.66 0.158 277)", "oklch(0.78 0.13 277)", "oklch(0.88 0.08 277)", "oklch(0.95 0.035 277)"]
-      },
-      "night-stone": {
-        "role": "secondary",
-        "displayName": "Pierre nocturne",
-        "canonical": "oklch(0.3359 0.0077 59.4197)",
-        "tonalRamp": ["oklch(0.15 0.008 59)", "oklch(0.25 0.008 59)", "oklch(0.38 0.008 59)", "oklch(0.52 0.008 59)", "oklch(0.66 0.008 59)", "oklch(0.78 0.008 59)", "oklch(0.88 0.008 59)", "oklch(0.95 0.008 59)"]
-      },
-      "night-secondary-ink": {
-        "role": "neutral",
-        "displayName": "Encre secondaire nocturne",
-        "canonical": "oklch(0.7137 0.0192 261.3246)",
-        "tonalRamp": ["oklch(0.15 0.019 261)", "oklch(0.25 0.019 261)", "oklch(0.38 0.019 261)", "oklch(0.52 0.019 261)", "oklch(0.66 0.019 261)", "oklch(0.78 0.019 261)", "oklch(0.88 0.019 261)", "oklch(0.95 0.019 261)"]
-      },
-      "night-lilac": {
-        "role": "tertiary",
-        "displayName": "Lilas nocturne",
-        "canonical": "oklch(0.3896 0.0074 59.4734)",
-        "tonalRamp": ["oklch(0.15 0.008 59)", "oklch(0.25 0.008 59)", "oklch(0.38 0.008 59)", "oklch(0.52 0.008 59)", "oklch(0.66 0.008 59)", "oklch(0.78 0.008 59)", "oklch(0.88 0.008 59)", "oklch(0.95 0.008 59)"]
-      },
-      "night-attention-amber": {
-        "role": "tertiary",
-        "displayName": "Ambre d’attention nocturne",
-        "canonical": "oklch(0.8112 0.1567 88.3421)",
-        "tonalRamp": ["oklch(0.15 0.06 88)", "oklch(0.25 0.1 88)", "oklch(0.38 0.14 88)", "oklch(0.52 0.157 88)", "oklch(0.66 0.157 88)", "oklch(0.78 0.14 88)", "oklch(0.88 0.09 88)", "oklch(0.95 0.04 88)"]
-      }
+      "civic-night": { "role": "primary", "displayName": "Bleu nuit civique", "tonalRamp": ["oklch(0.15 0.045 264)", "oklch(0.25 0.045 264)", "oklch(0.38 0.045 264)", "oklch(0.52 0.045 264)", "oklch(0.66 0.045 264)", "oklch(0.78 0.04 264)", "oklch(0.88 0.025 264)", "oklch(0.95 0.012 264)"] },
+      "civic-blue": { "role": "primary", "displayName": "Bleu civique accessible", "tonalRamp": ["oklch(0.15 0.08 263)", "oklch(0.25 0.13 263)", "oklch(0.38 0.18 263)", "oklch(0.52 0.205 263)", "oklch(0.66 0.18 263)", "oklch(0.78 0.13 263)", "oklch(0.88 0.075 263)", "oklch(0.95 0.03 263)"] },
+      "signal-yellow": { "role": "secondary", "displayName": "Jaune signal", "tonalRamp": ["oklch(0.15 0.05 88)", "oklch(0.25 0.08 88)", "oklch(0.38 0.12 88)", "oklch(0.52 0.16 88)", "oklch(0.66 0.18 88)", "oklch(0.78 0.17 88)", "oklch(0.88 0.12 88)", "oklch(0.95 0.055 88)"] },
+      "signal-yellow-hover": { "role": "secondary", "displayName": "Jaune signal au survol", "tonalRamp": ["oklch(0.15 0.05 82)", "oklch(0.25 0.08 82)", "oklch(0.38 0.12 82)", "oklch(0.52 0.16 82)", "oklch(0.66 0.18 82)", "oklch(0.78 0.16 82)", "oklch(0.88 0.11 82)", "oklch(0.95 0.05 82)"] },
+      "uncoated-paper": { "role": "neutral", "displayName": "Papier non couché", "tonalRamp": ["oklch(0.15 0.012 91)", "oklch(0.25 0.012 91)", "oklch(0.38 0.012 91)", "oklch(0.52 0.012 91)", "oklch(0.66 0.012 91)", "oklch(0.78 0.012 91)", "oklch(0.88 0.012 91)", "oklch(0.95 0.012 91)"] },
+      "civic-sky": { "role": "neutral", "displayName": "Ciel civique", "tonalRamp": ["oklch(0.15 0.025 258)", "oklch(0.25 0.025 258)", "oklch(0.38 0.025 258)", "oklch(0.52 0.025 258)", "oklch(0.66 0.025 258)", "oklch(0.78 0.025 258)", "oklch(0.88 0.025 258)", "oklch(0.95 0.018 258)"] },
+      "paper-white": { "role": "neutral", "displayName": "Blanc papier", "tonalRamp": ["oklch(0.15 0.006 91)", "oklch(0.25 0.006 91)", "oklch(0.38 0.006 91)", "oklch(0.52 0.006 91)", "oklch(0.66 0.006 91)", "oklch(0.78 0.006 91)", "oklch(0.88 0.006 91)", "oklch(0.95 0.006 91)"] },
+      "quiet-blue": { "role": "neutral", "displayName": "Bleu discret", "tonalRamp": ["oklch(0.15 0.045 263)", "oklch(0.25 0.045 263)", "oklch(0.38 0.045 263)", "oklch(0.52 0.045 263)", "oklch(0.66 0.045 263)", "oklch(0.78 0.04 263)", "oklch(0.88 0.025 263)", "oklch(0.95 0.012 263)"] },
+      "quiet-on-night": { "role": "neutral", "displayName": "Bleu pâle sur nuit", "tonalRamp": ["oklch(0.15 0.022 258)", "oklch(0.25 0.022 258)", "oklch(0.38 0.022 258)", "oklch(0.52 0.022 258)", "oklch(0.66 0.022 258)", "oklch(0.78 0.022 258)", "oklch(0.88 0.022 258)", "oklch(0.95 0.012 258)"] }
     },
     "typographyMeta": {
-      "display": { "displayName": "Grand titre éditorial", "purpose": "Accueillir et installer la première hiérarchie d’une surface persuasive." },
-      "headline": { "displayName": "Titre de parcours", "purpose": "Nommer clairement la page ou l’étape courante." },
-      "title": { "displayName": "Titre de contenu", "purpose": "Structurer cartes et publications sans rivaliser avec la page." },
-      "body": { "displayName": "Lecture courante", "purpose": "Porter explications, contenus et formulaires avec un rythme confortable." },
-      "label": { "displayName": "Commande", "purpose": "Identifier actions, champs, filtres et métadonnées." },
-      "code": { "displayName": "Code personnel", "purpose": "Distinguer les secrets et valeurs qui doivent être recopiés exactement." }
+      "display": { "displayName": "Déclaration civique", "purpose": "Grands titres publics, compacts et courts." },
+      "headline": { "displayName": "Transition éditoriale", "purpose": "Titres humains sur champ sombre." },
+      "title": { "displayName": "Titre de dossier", "purpose": "Étapes, questions et sous-titres structurants." },
+      "body": { "displayName": "Lecture courante", "purpose": "Explications et informations fonctionnelles." },
+      "label": { "displayName": "Référence documentaire", "purpose": "Folios, statuts, codes et annotations brèves." }
     },
     "shadows": [
-      { "name": "trace-diffuse", "value": "2px 2px 10px 4px hsl(240 4% 60% / 0.09)", "purpose": "Séparation minimale des champs et petites surfaces en thème clair." },
-      { "name": "card-calm", "value": "2px 2px 10px 4px hsl(240 4% 60% / 0.18), 2px 1px 2px 3px hsl(240 4% 60% / 0.18)", "purpose": "Profondeur habituelle des cartes." },
-      { "name": "card-active", "value": "2px 2px 10px 4px hsl(240 4% 60% / 0.18), 2px 2px 4px 3px hsl(240 4% 60% / 0.18)", "purpose": "Survol d’une carte entièrement interactive." },
-      { "name": "foreground", "value": "2px 2px 10px 4px hsl(240 4% 60% / 0.45)", "purpose": "Dialogues et menus au premier plan." }
+      { "name": "paper-lift", "value": "0 28px 65px rgb(2 11 31 / 34%)", "purpose": "Sépare une grande feuille mise en scène du champ bleu nuit." },
+      { "name": "fold-shade", "value": "inset 13px 0 18px -19px rgb(16 28 58 / 70%), inset -13px 0 18px -19px rgb(16 28 58 / 70%)", "purpose": "Suggère les plis verticaux d’un document accordéon sans épaissir ses bordures." }
     ],
     "motion": [
-      { "name": "theme-change", "value": "background-color 0.2s ease, color 0.2s ease", "purpose": "Transition discrète entre les expressions claire et sombre, supprimée si la réduction des mouvements est demandée." }
+      { "name": "paper-unfold", "value": "700ms cubic-bezier(.16, 1, .3, 1)", "purpose": "Introduction unique d’une grande feuille ; désactivée avec prefers-reduced-motion." },
+      { "name": "disclosure", "value": "transform 180ms ease-out", "purpose": "Rotation sobre du chevron d’une ligne dépliable." }
     ],
     "breakpoints": [
-      { "name": "sm", "value": "640px" },
-      { "name": "md", "value": "768px" },
-      { "name": "lg", "value": "1024px" },
-      { "name": "xl", "value": "1280px" }
+      { "name": "sequence-grid", "value": "70rem" },
+      { "name": "single-column", "value": "46rem" }
     ]
   },
   "components": [
     {
-      "name": "Bouton principal",
+      "name": "Action jaune",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "Action positive dominante d’une étape ou d’un formulaire.",
-      "html": "<button class=\"ds-btn-primary\">Continuer</button>",
-      "css": ".ds-btn-primary { min-height: 44px; padding: 8px 16px; border: 0; border-radius: 18px; background: var(--primary); color: var(--primary-foreground); font: 500 14px/1.25 var(--font-sans); transition: background-color 150ms ease, box-shadow 150ms ease; } .ds-btn-primary:hover { background: color-mix(in oklab, var(--primary) 90%, black); } .ds-btn-primary:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent); } .ds-btn-primary:active { transform: translateY(1px); }"
+      "description": "Action principale franche, réservée à l’étape décisive.",
+      "html": "<button class=\"ds-action\">Entrer avec mon invitation <span aria-hidden=\"true\">→</span></button>",
+      "css": ".ds-action { display:flex; width:100%; min-height:60px; align-items:center; justify-content:space-between; border:0; border-radius:0; padding:16px 24px; background:#ffcc4d; color:#101c3a; font:750 16px/1.5 'Plus Jakarta Sans Variable',sans-serif; cursor:pointer; transition:background-color 150ms ease; } .ds-action:hover { background:#f3bb2e; } .ds-action:focus-visible { outline:2px solid #2958d2; outline-offset:3px; } .ds-action:active { background:#e9ae1d; } .ds-action span { font-size:26px; font-weight:400; }"
     },
     {
-      "name": "Bouton secondaire avec contour",
+      "name": "Lien de session",
       "kind": "button",
-      "refersTo": "button-secondary",
-      "description": "Action disponible mais volontairement moins prioritaire.",
-      "html": "<button class=\"ds-btn-outline\">Gérer le compte</button>",
-      "css": ".ds-btn-outline { min-height: 44px; padding: 8px 16px; border: 1px solid var(--border); border-radius: 18px; background: var(--background); color: var(--foreground); box-shadow: var(--shadow-xs); font: 500 14px/1.25 var(--font-sans); transition: background-color 150ms ease, color 150ms ease, box-shadow 150ms ease; } .ds-btn-outline:hover { background: var(--accent); color: var(--accent-foreground); } .ds-btn-outline:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent); } .ds-btn-outline:active { box-shadow: none; }"
+      "refersTo": "session-link",
+      "description": "Action secondaire encadrée sur le champ de navigation.",
+      "html": "<a class=\"ds-session\" href=\"#\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m15.5 7.5 1 1m-6.1 6.1 2.1 2.1 6.2-6.2a4.24 4.24 0 1 0-6-6l-6.2 6.2v2.1H4.4v2.1H2.3V19h4.1l6.2-6.2\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>Retrouver ma session</a>",
+      "css": ".ds-session { display:inline-flex; min-height:44px; align-items:center; gap:10px; border:1px solid #4c79ef; padding:0 16px; background:#101c3a; color:#f8f7f2; text-decoration:none; font:700 13px/1.2 'Plus Jakarta Sans Variable',sans-serif; transition:border-color 150ms ease,color 150ms ease; } .ds-session svg { width:17px; height:17px; } .ds-session:hover { border-color:#ffcc4d; color:#fff; } .ds-session:focus-visible { outline:2px solid #ffcc4d; outline-offset:3px; } .ds-session:active { color:#ffcc4d; }"
     },
     {
-      "name": "Bouton destructeur",
-      "kind": "button",
-      "refersTo": "button-destructive",
-      "description": "Action irréversible, toujours formulée explicitement.",
-      "html": "<button class=\"ds-btn-destructive\">Effacer mon compte</button>",
-      "css": ".ds-btn-destructive { min-height: 44px; padding: 8px 16px; border: 0; border-radius: 18px; background: var(--destructive); color: white; font: 500 14px/1.25 var(--font-sans); transition: background-color 150ms ease, box-shadow 150ms ease; } .ds-btn-destructive:hover { background: color-mix(in oklab, var(--destructive) 90%, black); } .ds-btn-destructive:focus-visible { outline: 2px solid var(--destructive); outline-offset: 3px; box-shadow: 0 0 0 3px color-mix(in oklab, var(--destructive) 25%, transparent); } .ds-btn-destructive:active { transform: translateY(1px); }"
-    },
-    {
-      "name": "Champ de saisie",
-      "kind": "input",
-      "refersTo": "input",
-      "description": "Champ simple, lisible et relié à un libellé visible.",
-      "html": "<label class=\"ds-field\"><span>Titre de votre publication</span><input class=\"ds-input\" placeholder=\"Donnez un titre clair\"></label>",
-      "css": ".ds-field { display: grid; gap: 8px; color: var(--foreground); font: 500 14px/1.25 var(--font-sans); } .ds-input { width: 100%; height: 36px; padding: 4px 12px; border: 1px solid var(--input); border-radius: 18px; background: transparent; color: var(--foreground); font: 400 14px/1.5 var(--font-sans); box-shadow: var(--shadow-xs); transition: border-color 150ms ease, box-shadow 150ms ease; } .ds-input::placeholder { color: var(--muted-foreground); } .ds-input:hover { border-color: var(--foreground); } .ds-input:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; border-color: var(--ring); box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent); }"
-    },
-    {
-      "name": "Filtre de catégorie",
-      "kind": "chip",
-      "refersTo": "category-chip",
-      "description": "Filtre compact dont l’état sélectionné reste textuel et programmatique.",
-      "html": "<button class=\"ds-chip\" aria-pressed=\"false\">🛡️ Violence</button>",
-      "css": ".ds-chip { padding: 6px 12px; border: 1px solid transparent; border-radius: 9999px; background: var(--muted); color: var(--muted-foreground); font: 500 14px/1.25 var(--font-sans); transition: background-color 150ms ease, color 150ms ease; } .ds-chip:hover { background: color-mix(in oklab, var(--muted) 80%, var(--foreground)); } .ds-chip[aria-pressed=\"true\"] { background: var(--primary); color: var(--primary-foreground); } .ds-chip:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; } .ds-chip:active { transform: translateY(1px); }"
-    },
-    {
-      "name": "Carte de publication",
-      "kind": "card",
-      "refersTo": "card",
-      "description": "Conteneur éditorial ouvrable, avec métadonnées calmes et titre en Lora.",
-      "html": "<article class=\"ds-card\"><div class=\"ds-card-meta\">Alias · il y a un jour</div><h3>Une publication de la bêta</h3><p>Un extrait bref aide à décider si l’on souhaite ouvrir le contenu.</p><span class=\"ds-card-link\">Voir la publication →</span></article>",
-      "css": ".ds-card { display: grid; gap: 12px; padding: 16px; border: 1px solid var(--border); border-radius: 24px; background: var(--card); color: var(--card-foreground); box-shadow: var(--shadow-sm); transition: box-shadow 150ms ease; } .ds-card:hover { box-shadow: var(--shadow-md); } .ds-card:focus-within { outline: 2px solid var(--ring); outline-offset: 3px; } .ds-card h3 { margin: 0; font: 700 18px/1.25 var(--font-serif); } .ds-card p { margin: 0; color: var(--muted-foreground); font: 400 14px/1.5 var(--font-sans); } .ds-card-meta { color: var(--muted-foreground); font: 400 12px/1.5 var(--font-sans); } .ds-card-link { justify-self: end; color: var(--primary); font: 500 12px/1.25 var(--font-sans); }"
-    },
-    {
-      "name": "Lien de navigation",
+      "name": "Navigation civique",
       "kind": "nav",
       "refersTo": "navigation-link",
-      "description": "Navigation globale calme, mise en avant seulement au survol ou sur la route active.",
-      "html": "<nav class=\"ds-nav\" aria-label=\"Navigation principale\"><a class=\"ds-nav-link\" href=\"#\">Publications</a><a class=\"ds-nav-link is-active\" href=\"#\" aria-current=\"page\">Aide</a></nav>",
-      "css": ".ds-nav { display: flex; align-items: center; gap: 20px; padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--background); } .ds-nav-link { color: var(--muted-foreground); text-decoration: none; font: 500 14px/1.25 var(--font-sans); transition: color 150ms ease; } .ds-nav-link:hover, .ds-nav-link.is-active { color: var(--primary); } .ds-nav-link:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; border-radius: 4px; } .ds-nav-link:active { color: var(--foreground); }"
+      "description": "Marque forte et liens discrets sur bleu nuit.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Navigation principale\"><a class=\"ds-brand\" href=\"#\">Parlons Violence</a><a class=\"ds-nav-link\" href=\"#projet\">Le projet</a><a class=\"ds-nav-link\" href=\"#questions\">Vos questions</a></nav>",
+      "css": ".ds-nav { display:flex; min-height:68px; align-items:center; gap:32px; padding:0 24px; border-bottom:1px solid rgb(255 255 255 / 15%); background:#101c3a; } .ds-brand { position:relative; margin-right:auto; color:#f8f7f2; text-decoration:none; font:760 23px/1 'Yaldevi Variable',sans-serif; } .ds-brand::after { position:absolute; left:0; bottom:-10px; width:36px; height:5px; background:#ffcc4d; content:''; } .ds-nav-link { color:#d8deea; text-decoration:none; font:400 14px/1.2 'Plus Jakarta Sans Variable',sans-serif; } .ds-nav-link:hover { color:#fff; text-decoration:underline; text-decoration-color:#ffcc4d; text-underline-offset:6px; } .ds-nav a:focus-visible { outline:2px solid #ffcc4d; outline-offset:3px; } .ds-nav-link:active { color:#ffcc4d; }"
     },
     {
-      "name": "Avis de prudence",
+      "name": "Panneau de parcours",
+      "kind": "card",
+      "refersTo": "paper-panel",
+      "description": "Unité numérotée d’une séquence explicative sur papier.",
+      "html": "<article class=\"ds-panel\"><header><span>03</span><h3>Scénario fictif</h3></header><p>Une situation inventée permet de tester le parcours.</p><small>RÉFLÉCHIR · DÉCOUVRIR · SE REPÉRER</small></article>",
+      "css": ".ds-panel { display:flex; min-height:330px; flex-direction:column; padding:24px; border-left:1px solid rgb(16 28 58 / 18%); background:#f4f1e8; color:#101c3a; } .ds-panel header span { display:block; color:#2958d2; font:650 64px/.85 'Lora Variable',serif; letter-spacing:-.04em; } .ds-panel h3 { margin:10px 0 0; font:700 24px/1 'Lora Variable',serif; letter-spacing:-.025em; } .ds-panel h3::after { display:block; width:40px; height:1px; margin-top:14px; background:#2958d2; content:''; } .ds-panel p { margin:auto 0 24px; font:400 16px/1.5 'Plus Jakarta Sans Variable',sans-serif; } .ds-panel small { border-top:1px solid #2958d2; padding-top:16px; color:#2958d2; font:650 12px/1.45 'Roboto Mono Variable',monospace; letter-spacing:.13em; } .ds-panel:hover { background:#f8f7f2; } .ds-panel:focus-within { outline:2px solid #2958d2; outline-offset:-2px; }"
+    },
+    {
+      "name": "Estampille de statut",
+      "kind": "chip",
+      "refersTo": "status-stamp",
+      "description": "Statut textuel bref, volontairement saillant mais jamais autonome.",
+      "html": "<strong class=\"ds-stamp\">EN ATTENTE</strong>",
+      "css": ".ds-stamp { display:inline-block; padding:9px 22px; background:#ffcc4d; color:#101c3a; font:800 18px/1 'Yaldevi Variable',sans-serif; text-align:center; transform:rotate(-4deg); } .ds-stamp:hover { background:#f3bb2e; } .ds-stamp:focus-visible { outline:2px solid #2958d2; outline-offset:3px; }"
+    },
+    {
+      "name": "Registre d’engagements",
       "kind": "custom",
-      "refersTo": "safety-notice",
-      "description": "Information importante et actionnable sans codes visuels d’urgence artificiels.",
-      "html": "<aside class=\"ds-safety\"><strong>Cette plateforme n’est pas un service d’urgence.</strong><span>En Suisse : <a href=\"#\">117 — police</a> · <a href=\"#\">144 — urgence médicale</a>.</span></aside>",
-      "css": ".ds-safety { display: grid; gap: 4px; padding: 16px; border: 1px solid var(--warning); border-radius: 24px; background: color-mix(in oklab, var(--warning) 15%, transparent); color: var(--foreground); font: 400 14px/1.5 var(--font-sans); } .ds-safety strong { font-weight: 600; } .ds-safety a { min-height: 44px; display: inline-flex; align-items: center; color: inherit; text-underline-offset: 4px; } .ds-safety a:hover { color: var(--primary); } .ds-safety a:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; border-radius: 4px; } .ds-safety a:active { color: var(--foreground); }"
+      "description": "Liste structurée par filets, titre éditorial et signes minces.",
+      "html": "<section class=\"ds-ledger\"><h3>Les engagements du parcours</h3><ul><li><span aria-hidden=\"true\">✓</span>Accès réservé aux personnes invitées</li><li><span aria-hidden=\"true\">✓</span>Publication sous alias après examen humain</li></ul></section>",
+      "css": ".ds-ledger { display:grid; grid-template-columns:minmax(140px,.55fr) 1fr; gap:32px; padding:32px 0; border-top:1px solid #101c3a; border-bottom:1px solid rgb(16 28 58 / 35%); background:#f4f1e8; color:#101c3a; } .ds-ledger h3 { margin:0; font:700 22px/1.15 'Lora Variable',serif; } .ds-ledger ul { display:grid; gap:18px; margin:0; padding:0; list-style:none; } .ds-ledger li { display:grid; grid-template-columns:22px 1fr; gap:12px; font:400 16px/1.55 'Plus Jakarta Sans Variable',sans-serif; } .ds-ledger li span { color:#2958d2; } .ds-ledger:focus-within { outline:2px solid #2958d2; outline-offset:3px; }"
+    },
+    {
+      "name": "Question dépliable",
+      "kind": "custom",
+      "description": "Ligne de registre numérotée qui révèle sa réponse sans créer de carte.",
+      "html": "<details class=\"ds-disclosure\"><summary><span>01</span><strong>Qui peut lire mes publications ?</strong><b aria-hidden=\"true\">⌄</b></summary><p>Seules les personnes invitées peuvent consulter cette bêta.</p></details>",
+      "css": ".ds-disclosure { border-top:1px solid #101c3a; border-bottom:1px solid rgb(16 28 58 / 45%); background:#dce2ee; color:#101c3a; } .ds-disclosure summary { display:grid; min-height:88px; cursor:pointer; list-style:none; grid-template-columns:40px 1fr auto; align-items:center; gap:16px; padding:0 8px; } .ds-disclosure summary::-webkit-details-marker { display:none; } .ds-disclosure summary span { color:#2958d2; font:650 12px/1.45 'Roboto Mono Variable',monospace; } .ds-disclosure summary strong { font:700 21px/1.2 'Lora Variable',serif; } .ds-disclosure summary b { transition:transform 180ms ease-out; } .ds-disclosure[open] summary b { transform:rotate(180deg); } .ds-disclosure p { max-width:64ch; margin:0; padding:0 32px 32px 64px; color:#40506e; font:400 16px/1.7 'Plus Jakarta Sans Variable',sans-serif; } .ds-disclosure summary:hover { background:rgb(255 255 255 / 22%); } .ds-disclosure summary:focus-visible { outline:2px solid #2958d2; outline-offset:-2px; }"
     }
   ],
   "narrative": {
-    "northStar": "Le carnet de confiance",
-    "overview": "Parlons Violence prend la forme d’un carnet numérique calme : un espace personnel, lisible et suffisamment chaleureux pour accompagner une action délicate sans dramatiser l’interface. La douceur vient du papier grisé, des surfaces claires, des coins généreux et du dialogue entre une serif éditoriale et une sans-serif très lisible.\n\nLe système privilégie une densité modérée, des parcours explicites et des états visibles. Il inspire la confiance par la précision, la retenue et la continuité entre mobile et ordinateur, jamais par des promesses visuelles de protection absolue. L’ensemble doit rester humain sans adopter les codes d’un service clinique, et vivant sans emprunter la stimulation, la compétition ou la ludification d’un réseau social.",
+    "northStar": "Le dossier civique",
+    "overview": "Parlons Violence emprunte la franchise d’un document public suisse : un champ bleu nuit encadre du papier ivoire non couché, une encre bleue organise les repères et un jaune direct signale l’action. Le monde reste humain grâce au contraste entre titres sans-serif compacts, voix éditoriale en serif et annotations monospace qui évoquent références, folios et tampons.\n\nLe « livret accordéon » est la signature des explications séquentielles, pas un gabarit obligatoire pour chaque écran. Ailleurs, le système conserve ses invariants durables — aplats francs, lignes fines, angles droits, numérotation et hiérarchie typographique — sans transformer la composition de la landing en loi universelle.",
     "keyCharacteristics": [
-      "Calme, chaleureux et respectueux.",
-      "Éditorial dans les titres, fonctionnel dans les actions.",
-      "Surfaces doucement stratifiées et coins enveloppants.",
-      "Couleur rare, sémantique et immédiatement compréhensible.",
-      "États interactifs et statuts perceptibles autrement que par la couleur seule."
+      "Civique, direct et digne, sans froideur administrative.",
+      "Papier ivoire et aplats bleus structurés par des règles fines.",
+      "Signal jaune rare, réservé aux actions et statuts décisifs.",
+      "Typographie très contrastée : Yaldevi, Lora, Plus Jakarta Sans et Roboto Mono.",
+      "Profondeur quasi plate, avec un pli ou une feuille seulement quand le sens le justifie."
     ],
     "rules": [
-      { "name": "The One Signal Rule", "body": "Le Violet de confiance indique une action ou un état important ; il ne devient jamais un remplissage décoratif omniprésent.", "section": "colors" },
-      { "name": "The Meaning Before Hue Rule", "body": "Une couleur de statut est toujours accompagnée d’un libellé, d’un message ou d’une forme qui transmet le même sens.", "section": "colors" },
-      { "name": "The Human Headline Rule", "body": "Lora porte les titres qui orientent ou accueillent ; les commandes, statuts et longues lectures restent en Plus Jakarta Sans.", "section": "typography" },
-      { "name": "The Quiet Code Rule", "body": "Roboto Mono sert uniquement lorsqu’une valeur doit être reconnue et recopiée comme un code.", "section": "typography" },
-      { "name": "The One Calm Column Rule", "body": "Un dépôt, une lecture ou une décision personnelle conserve un axe principal unique ; les colonnes supplémentaires sont réservées à la comparaison de choix ou aux outils d’administration.", "section": "layout" },
-      { "name": "The Layer Before Lift Rule", "body": "Utiliser d’abord le contraste de surface et la bordure ; renforcer l’ombre seulement lorsqu’une interaction ou une superposition l’exige.", "section": "elevation" },
-      { "name": "The Soft Boundary Rule", "body": "Les coins accueillent, mais la forme ne doit jamais faire perdre la distinction entre une action, un champ, une carte et un simple texte.", "section": "shapes" }
+      { "name": "The Yellow Means Act Rule", "body": "Le jaune signale une action, un statut ou un repère bref ; il ne remplit jamais une grande surface sans fonction.", "section": "colors" },
+      { "name": "The Ink Carries Meaning Rule", "body": "Toute information colorée garde un libellé, un numéro, une icône ou une règle qui transmet le même sens.", "section": "colors" },
+      { "name": "The Four Voices Rule", "body": "Yaldevi déclare, Lora raconte, Plus Jakarta Sans explique et Roboto Mono référence ; ne pas échanger leurs rôles pour varier gratuitement.", "section": "typography" },
+      { "name": "The Reading Order Survives Rule", "body": "Une grille peut se replier, mais numéros, titres, preuves et action gardent toujours leur ordre logique.", "section": "layout" },
+      { "name": "The Paper Alone Lifts Rule", "body": "Seul un objet présenté comme une feuille ou une superposition réelle peut quitter le plan.", "section": "elevation" },
+      { "name": "The Straight Edge Rule", "body": "Les composants de ce monde ne deviennent ni pilules ni cartes molles ; l’adoucissement vient du papier, du rythme et de la typographie.", "section": "shapes" }
     ],
     "dos": [
-      "Do utiliser Lora pour donner une voix humaine aux titres et Plus Jakarta Sans pour garder chaque action immédiatement lisible.",
-      "Do maintenir des cibles tactiles d’au moins 44px, un focus visible et un texte pour chaque statut important.",
-      "Do conserver les parcours sensibles dans une colonne calme et limiter les lignes longues à une largeur de lecture confortable.",
-      "Do utiliser le Violet de confiance pour guider l’action, l’Ambre d’attention pour prévenir et le Corail d’alerte pour les erreurs ou destructions.",
-      "Do préserver les thèmes clair et sombre comme deux expressions équivalentes du même système."
+      "Do utiliser les lignes de 1px, les numéros et l’alignement pour créer la hiérarchie avant d’ajouter une surface.",
+      "Do réserver le jaune aux actions, statuts et repères décisifs.",
+      "Do conserver les quatre rôles typographiques et une lecture claire sur mobile comme sur ordinateur.",
+      "Do accompagner chaque état coloré d’un mot, d’une icône ou d’une forme explicite.",
+      "Do employer le pli et la texture seulement lorsqu’ils renforcent l’idée de document ou de parcours."
     ],
     "donts": [
-      "Don't transformer l’interface en environnement clinique, froid ou pseudo-médical.",
-      "Don't introduire de compteurs sociaux, réactions, récompenses, couleurs festives ou mécanismes de compétition.",
-      "Don't employer une couleur seule pour indiquer un statut, une erreur ou une sélection.",
-      "Don't multiplier les ombres fortes, les surfaces flottantes ou les bordures d’accent décoratives.",
-      "Don't présenter l’alias, la modération ou l’avertissement de contenu comme une garantie absolue de protection."
+      "Don't revenir aux grandes cartes pastel arrondies, aux pilules ou aux ombres diffuses omniprésentes.",
+      "Don't généraliser l’accordéon de la landing à tous les parcours ou écrans applicatifs.",
+      "Don't utiliser le jaune comme couleur de fond décorative sans action ni information.",
+      "Don't ajouter de profondeur à un élément qui se comprend déjà par un aplat, un filet ou l’espacement.",
+      "Don't faire suggérer par le graphisme une garantie d’anonymat, d’assistance immédiate ou de disponibilité permanente."
     ]
   }
 }

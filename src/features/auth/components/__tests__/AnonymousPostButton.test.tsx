@@ -62,6 +62,20 @@ describe("AnonymousPostButton", () => {
 			const button = screen.getByRole("button");
 			expect(button.className).toContain("min-w");
 		});
+
+		it("supports a custom visible label and presentation class", () => {
+			render(
+				<AnonymousPostButton
+					label="Entrer avec mon invitation"
+					className="landing-cta"
+				/>,
+			);
+
+			const button = screen.getByRole("button", {
+				name: "Entrer avec mon invitation",
+			});
+			expect(button.className).toContain("landing-cta");
+		});
 	});
 
 	describe("Keyboard Accessibility (WCAG 2.1 AA)", () => {
