@@ -1,132 +1,164 @@
-import { useId } from "react";
-
+import {
+	ClipboardCheck,
+	FileText,
+	KeyRound,
+	MailOpen,
+	Search,
+	UserRound,
+} from "lucide-react";
+import { type ComponentType, type SVGProps, useId } from "react";
 import { AnonymousPostButton } from "@/features/auth/components/AnonymousPostButton";
+import paperTexture from "../../../../assets/plates/paper-texture.webp";
 
-type HeroImage = {
-	src: string;
-	alt: string;
-	width: number;
-	height: number;
+type JourneyStep = {
+	number: string;
+	title: string;
+	copy: string;
+	note: string;
+	Icon: ComponentType<SVGProps<SVGSVGElement>>;
+	stamp?: string;
 };
 
-const HERO_IMAGES: HeroImage[] = [
+const steps: JourneyStep[] = [
 	{
-		src: "/images/hero/community-1.webp",
-		alt: "Groupe d'amis souriants",
-		width: 400,
-		height: 533,
+		number: "01",
+		title: "Invitation",
+		copy: "Un code d’invitation réservé ouvre l’accès à cette bêta privée.",
+		note: "ACCÈS LIMITÉ · BÊTA PRIVÉE",
+		Icon: MailOpen,
 	},
 	{
-		src: "/images/hero/community-2.webp",
-		alt: "Soutien mutuel",
-		width: 400,
-		height: 533,
+		number: "02",
+		title: "Alias",
+		copy: "Vous choisissez un alias. Votre code secret permet ensuite de retrouver la session.",
+		note: "VOTRE PARCOURS · VOS REPÈRES",
+		Icon: UserRound,
 	},
 	{
-		src: "/images/hero/community-3.webp",
-		alt: "Collaboration au travail",
-		width: 400,
-		height: 533,
+		number: "03",
+		title: "Scénario fictif",
+		copy: "Vous testez le dépôt avec une situation inventée, sans nom ni détail identifiant.",
+		note: "RÉFLÉCHIR · DÉCOUVRIR · SE REPÉRER",
+		Icon: FileText,
 	},
 	{
-		src: "/images/hero/community-4.webp",
-		alt: "Discussion en groupe",
-		width: 400,
-		height: 533,
+		number: "04",
+		title: "Examen humain",
+		copy: "Une personne relit chaque message avant toute publication.",
+		note: "EXAMEN HUMAIN AVANT PUBLICATION",
+		Icon: Search,
 	},
 	{
-		src: "/images/hero/community-5.webp",
-		alt: "Amitié et partage",
-		width: 400,
-		height: 533,
-	},
-	{
-		src: "/images/hero/community-6.webp",
-		alt: "Réunion conviviale",
-		width: 400,
-		height: 533,
+		number: "05",
+		title: "Mes publications",
+		copy: "Vous retrouvez la décision et, en cas de refus, son motif dans votre espace.",
+		note: "EN ATTENTE · PUBLIÉE · REFUSÉE",
+		Icon: ClipboardCheck,
+		stamp: "EN ATTENTE",
 	},
 ];
 
-const HeroSection = () => {
-	const id = useId();
+function JourneyPanel({ step, index }: { step: JourneyStep; index: number }) {
+	const { Icon } = step;
 	return (
-		<section
-			id={`hero-section-${id}`}
-			className="flex  flex-1 flex-col justify-between gap-12 overflow-x-hidden pt-8 sm:gap-16 sm:pt-16 lg:gap-16 lg:pt-16"
-		>
-			{/* Hero Content */}
-			<div className="mx-auto flex max-w-7xl flex-col items-center gap-8 px-4 text-center sm:px-6 lg:px-8">
-				<h1 className="text-3xl leading-[1.29167] font-bold font-serif text-balance sm:text-4xl lg:text-5xl">
-					Un espace de
-					<br />
-					<span className="relative">
-						Confiance
-						<svg
-							width="223"
-							height="12"
-							viewBox="0 0 223 12"
-							fill="none"
-							xmlns="http://www.w3.org/2000/svg"
-							className="absolute inset-x-0 bottom-0 w-full translate-y-1/2 max-sm:hidden"
-							aria-hidden="true"
-							focusable="false"
-						>
-							<path
-								d="M1.11716 10.428C39.7835 4.97282 75.9074 2.70494 114.894 1.98894C143.706 1.45983 175.684 0.313587 204.212 3.31596C209.925 3.60546 215.144 4.59884 221.535 5.74551"
-								stroke={`url(#paint0_linear_10365_68643-${id})`}
-								strokeWidth="2"
-								strokeLinecap="round"
-							/>
-							<defs>
-								<linearGradient
-									id={`paint0_linear_10365_68643-${id}`}
-									x1="18.8541"
-									y1="3.72033"
-									x2="42.6487"
-									y2="66.6308"
-									gradientUnits="userSpaceOnUse"
-								>
-									<stop stopColor="var(--primary)" />
-									<stop offset="1" stopColor="var(--primary-foreground)" />
-								</linearGradient>
-							</defs>
-						</svg>
-					</span>{" "}
-					pour partager
-				</h1>
+		<article className="landing-fold" data-fold={index + 1}>
+			<header className="landing-step-heading">
+				<span className="landing-step-number" aria-hidden="true">
+					{step.number}
+				</span>
+				<h2>{step.title}</h2>
+			</header>
+			<div className="landing-step-figure" aria-hidden="true">
+				<Icon strokeWidth={1.35} />
+				{index === 0 && (
+					<div className="landing-code-slip">
+						<KeyRound />
+						<code>••••-••••-••••</code>
+					</div>
+				)}
+				{index === 1 && <span className="landing-alias-line">Mon alias</span>}
+				{step.stamp && (
+					<strong className="landing-status-stamp">{step.stamp}</strong>
+				)}
+			</div>
+			<div className="landing-step-copy">
+				<p>{step.copy}</p>
+				<span>{step.note}</span>
+			</div>
+		</article>
+	);
+}
 
-				<p className="text-muted-foreground">
-					Bêta privée, sur invitation, pour adultes en Suisse romande.
-					<br />
-					Pour ce premier test, utilisez uniquement un scénario fictif.
-				</p>
-
-				<AnonymousPostButton />
+export default function HeroSection() {
+	const titleId = useId();
+	return (
+		<section className="landing-hero" aria-labelledby={titleId}>
+			<div className="landing-sheet">
+				<img className="landing-paper-plate" src={paperTexture} alt="" />
+				<div className="landing-intro landing-fold" data-fold="0">
+					<div className="landing-civic-mark">
+						DES MOTS
+						<br />
+						POUR DEMAIN
+					</div>
+					<div>
+						<h1 id={titleId}>
+							Parlons
+							<br />
+							Violence
+						</h1>
+						<span className="landing-title-rule" aria-hidden="true" />
+						<p className="landing-beta-label">BÊTA PRIVÉE · SUISSE ROMANDE</p>
+					</div>
+					<p className="landing-thesis">
+						Tester un parcours.
+						<br />
+						Garder le contrôle.
+					</p>
+					<div className="landing-primary-action">
+						<AnonymousPostButton
+							className="landing-cta"
+							label="Entrer avec mon invitation"
+						/>
+						<p>Ni service d’urgence, ni permanence d’écoute.</p>
+					</div>
+					<div className="landing-intro-footer">
+						<span>
+							ÉCOUTER
+							<br />
+							COMPRENDRE
+							<br />
+							AGIR AUTREMENT
+						</span>
+						<span>
+							UN PROJET
+							<br />À TAILLE HUMAINE
+						</span>
+					</div>
+				</div>
+				{steps.map((step, index) => (
+					<JourneyPanel key={step.number} step={step} index={index} />
+				))}
 			</div>
 
-			{/* Images Grid */}
-			<div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
-				{HERO_IMAGES.map((image, index) => (
-					<div
-						key={image.alt}
-						className="relative aspect-3/4 overflow-hidden rounded-xl bg-muted"
-					>
-						<img
-							src={image.src}
-							alt={image.alt}
-							width={image.width}
-							height={image.height}
-							loading={index < 2 ? "eager" : "lazy"}
-							fetchPriority={index === 0 ? "high" : "low"}
-							decoding={index < 2 ? "sync" : "async"}
-							className="h-full w-full object-cover outline outline-1 -outline-offset-1 outline-black/10 motion-safe:transition-transform motion-safe:duration-300 motion-safe:hover:scale-105 dark:outline-white/10"
-						/>
-					</div>
-				))}
+			<div className="landing-close">
+				<h2>
+					Un espace pour avancer,
+					<br />
+					ensemble.
+				</h2>
+				<p>
+					Une expérimentation en Suisse romande pour vérifier qu’un parcours
+					sous alias, modéré et sans inscription par email reste compréhensible.
+				</p>
+				<span>
+					DES REPÈRES
+					<br />
+					AUJOURD’HUI
+					<br />
+					POUR DÉCIDER DEMAIN
+				</span>
 			</div>
 		</section>
 	);
-};
-
-export default HeroSection;
+}

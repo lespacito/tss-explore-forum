@@ -11,13 +11,10 @@ export const Route = createFileRoute("/")({
 
 function App() {
 	return (
-		<div className="min-h-screen bg-background text-foreground">
-			<div className="container mx-auto px-4">
-				<HeroSection />
-				<FeaturesSection />
-				<FaqSection />
-			</div>
-
+		<div className="landing-page min-h-screen">
+			<HeroSection />
+			<FeaturesSection />
+			<FaqSection />
 		</div>
 	);
 }

@@ -1,0 +1,10 @@
+{
+	"asset": "paper-texture.webp",
+	"type": "generated-texture",
+	"generator": "OpenAI image generation",
+	"prompt": "Seamless warm uncoated civic-brochure paper texture, matte ivory, with extremely subtle natural fiber and faint fold shading only; no objects, text, ink, borders or shadows.",
+	"license": "Project-owned generated asset",
+	"sourceOriginalSha256": "f99a6a9973f5b43c64f81daceae4fa86603a6f1bb2e0fb489b6874673a7e1d1e",
+	"transformation": "Downscaled from 1589×990 PNG to 1200×748 WebP at quality 0.72",
+	"sha256": "926a2a6112619e3faf6fdd6ab476930dc53fc36c0eb7a5cb89fd6b0e22ebad86"
+}

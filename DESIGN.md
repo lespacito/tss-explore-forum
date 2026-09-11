@@ -1,284 +1,218 @@
 ---
 name: "Parlons Violence"
-description: "Un carnet numérique calme et accueillant pour déposer, comprendre et suivre une publication sous alias."
+description: "Un dossier civique franc et lisible, imprimé sur papier ivoire dans un champ bleu nuit."
 colors:
-  paper-mist: "oklch(0.9232 0.0026 48.7171)"
-  ink-blue: "oklch(0.2795 0.0368 260.031)"
-  warm-card: "oklch(0.9699 0.0013 106.4238)"
-  trust-violet: "oklch(0.5854 0.2041 277.1173)"
-  on-trust-violet: "oklch(1 0 0)"
-  quiet-stone: "oklch(0.8687 0.0043 56.366)"
-  quiet-ink: "oklch(0.4461 0.0263 256.8018)"
-  secondary-ink: "oklch(0.46 0.0234 264.3637)"
-  tender-lilac: "oklch(0.9376 0.026 321.9388)"
-  lilac-ink: "oklch(0.3729 0.0306 259.7328)"
-  alert-coral: "oklch(0.6368 0.2078 25.3313)"
-  attention-amber: "oklch(0.7528 0.1345 81.4633)"
-  night-paper: "oklch(0.2244 0.0074 67.437)"
-  night-ink: "oklch(0.9288 0.0126 255.5078)"
-  night-card: "oklch(0.2801 0.008 59.3379)"
-  night-trust-violet: "oklch(0.6801 0.1583 276.9349)"
-  night-stone: "oklch(0.3359 0.0077 59.4197)"
-  night-secondary-ink: "oklch(0.7137 0.0192 261.3246)"
-  night-lilac: "oklch(0.3896 0.0074 59.4734)"
-  night-attention-amber: "oklch(0.8112 0.1567 88.3421)"
+  civic-night: "#101c3a"
+  civic-blue: "#2958d2"
+  signal-yellow: "#ffcc4d"
+  signal-yellow-hover: "#f3bb2e"
+  uncoated-paper: "#f4f1e8"
+  civic-sky: "#dce2ee"
+  paper-white: "#f8f7f2"
+  quiet-blue: "#40506e"
+  quiet-on-night: "#d8deea"
 typography:
   display:
-    fontFamily: "Lora Variable, serif"
-    fontSize: "clamp(1.875rem, 4vw, 3rem)"
-    fontWeight: 700
-    lineHeight: 1.29167
-    letterSpacing: "-0.025em"
+    fontFamily: "Yaldevi Variable, Plus Jakarta Sans Variable, sans-serif"
+    fontSize: "clamp(2.75rem, 5vw, 5.75rem)"
+    fontWeight: 760
+    lineHeight: 0.9
+    letterSpacing: "-0.035em"
   headline:
     fontFamily: "Lora Variable, serif"
-    fontSize: "1.875rem"
+    fontSize: "clamp(2.2rem, 4vw, 4.25rem)"
     fontWeight: 600
-    lineHeight: 1.2
-    letterSpacing: "normal"
+    lineHeight: 0.95
+    letterSpacing: "-0.035em"
   title:
     fontFamily: "Lora Variable, serif"
-    fontSize: "1.125rem"
+    fontSize: "clamp(1.1rem, 1.55vw, 1.55rem)"
     fontWeight: 700
-    lineHeight: 1.25
-    letterSpacing: "normal"
+    lineHeight: 1
+    letterSpacing: "-0.025em"
   body:
     fontFamily: "Plus Jakarta Sans Variable, sans-serif"
     fontSize: "1rem"
     fontWeight: 400
-    lineHeight: 1.75
+    lineHeight: 1.5
     letterSpacing: "normal"
   label:
-    fontFamily: "Plus Jakarta Sans Variable, sans-serif"
-    fontSize: "0.875rem"
-    fontWeight: 500
-    lineHeight: 1.25
-    letterSpacing: "normal"
-  code:
     fontFamily: "Roboto Mono Variable, monospace"
+    fontSize: "0.875rem"
+    fontWeight: 650
+    lineHeight: 1.45
+    letterSpacing: "0.13em"
 rounded:
-  sm: "1rem"
-  md: "1.125rem"
-  lg: "1.25rem"
-  xl: "1.5rem"
-  pill: "9999px"
+  square: "0"
 spacing:
   compact: "0.5rem"
-  field: "0.75rem"
+  small: "0.75rem"
   control: "1rem"
-  cluster: "1.5rem"
-  section: "2rem"
-  page-inline: "1rem"
-  page-block: "2.5rem"
+  panel: "1.5rem"
+  section: "clamp(5rem, 10vw, 10rem)"
 components:
   button-primary:
-    backgroundColor: "{colors.trust-violet}"
-    textColor: "{colors.on-trust-violet}"
-    typography: "{typography.label}"
-    rounded: "{rounded.md}"
-    padding: "0.5rem 1rem"
-    height: "2.75rem"
-  button-secondary:
-    backgroundColor: "{colors.quiet-stone}"
-    textColor: "{colors.quiet-ink}"
-    typography: "{typography.label}"
-    rounded: "{rounded.md}"
-    padding: "0.5rem 1rem"
-    height: "2.75rem"
-  button-destructive:
-    backgroundColor: "{colors.alert-coral}"
-    textColor: "{colors.on-trust-violet}"
-    typography: "{typography.label}"
-    rounded: "{rounded.md}"
-    padding: "0.5rem 1rem"
-    height: "2.75rem"
-  input:
+    backgroundColor: "{colors.signal-yellow}"
+    textColor: "{colors.civic-night}"
+    rounded: "{rounded.square}"
+    padding: "0 1.5rem"
+    height: "3.75rem"
+  button-primary-hover:
+    backgroundColor: "{colors.signal-yellow-hover}"
+    textColor: "{colors.civic-night}"
+    rounded: "{rounded.square}"
+  session-link:
     backgroundColor: "transparent"
-    textColor: "{colors.ink-blue}"
-    typography: "{typography.body}"
-    rounded: "{rounded.md}"
-    padding: "0.25rem 0.75rem"
-    height: "2.25rem"
-  card:
-    backgroundColor: "{colors.warm-card}"
-    textColor: "{colors.ink-blue}"
-    rounded: "{rounded.xl}"
+    textColor: "{colors.paper-white}"
+    rounded: "{rounded.square}"
+    padding: "0 1rem"
+    height: "2.75rem"
+  paper-panel:
+    backgroundColor: "{colors.uncoated-paper}"
+    textColor: "{colors.civic-night}"
+    rounded: "{rounded.square}"
     padding: "1.5rem"
-  category-chip:
-    backgroundColor: "{colors.quiet-stone}"
-    textColor: "{colors.secondary-ink}"
-    typography: "{typography.label}"
-    rounded: "{rounded.pill}"
-    padding: "0.375rem 0.75rem"
+  status-stamp:
+    backgroundColor: "{colors.signal-yellow}"
+    textColor: "{colors.civic-night}"
+    rounded: "{rounded.square}"
+    padding: "0.55rem 0.35rem"
   navigation-link:
     backgroundColor: "transparent"
-    textColor: "{colors.secondary-ink}"
-    typography: "{typography.label}"
+    textColor: "{colors.quiet-on-night}"
+    rounded: "{rounded.square}"
     padding: "0.5rem 0"
-  safety-notice:
-    backgroundColor: "color-mix(in oklab, {colors.attention-amber} 15%, transparent)"
-    textColor: "{colors.ink-blue}"
-    typography: "{typography.body}"
-    rounded: "{rounded.xl}"
-    padding: "1rem"
 ---
 
 # Design System: Parlons Violence
 
 ## Overview
 
-**Creative North Star: "Le carnet de confiance"**
+**Creative North Star: "Le dossier civique"**
 
-Parlons Violence prend la forme d’un carnet numérique calme : un espace personnel, lisible et suffisamment chaleureux pour accompagner une action délicate sans dramatiser l’interface. La douceur vient du papier grisé, des surfaces claires, des coins généreux et du dialogue entre une serif éditoriale et une sans-serif très lisible.
+Parlons Violence emprunte la franchise d’un document public suisse : un champ bleu nuit encadre du papier ivoire non couché, une encre bleue organise les repères et un jaune direct signale l’action. Le monde reste humain grâce au contraste entre titres sans-serif compacts, voix éditoriale en serif et annotations monospace qui évoquent références, folios et tampons.
 
-Le système privilégie une densité modérée, des parcours explicites et des états visibles. Il inspire la confiance par la précision, la retenue et la continuité entre mobile et ordinateur, jamais par des promesses visuelles de protection absolue. L’ensemble doit rester humain sans adopter les codes d’un service clinique, et vivant sans emprunter la stimulation, la compétition ou la ludification d’un réseau social.
+Le « livret accordéon » est la signature des explications séquentielles, pas un gabarit obligatoire pour chaque écran. Ailleurs, le système conserve ses invariants durables — aplats francs, lignes fines, angles droits, numérotation et hiérarchie typographique — sans transformer la composition de la landing en loi universelle.
 
 **Key Characteristics:**
 
-- Calme, chaleureux et respectueux.
-- Éditorial dans les titres, fonctionnel dans les actions.
-- Surfaces doucement stratifiées et coins enveloppants.
-- Couleur rare, sémantique et immédiatement compréhensible.
-- États interactifs et statuts perceptibles autrement que par la couleur seule.
+- Civique, direct et digne, sans froideur administrative.
+- Papier ivoire et aplats bleus structurés par des règles fines.
+- Signal jaune rare, réservé aux actions et statuts décisifs.
+- Typographie très contrastée : Yaldevi, Lora, Plus Jakarta Sans et Roboto Mono.
+- Profondeur quasi plate, avec un pli ou une feuille seulement quand le sens le justifie.
 
 ## Colors
 
-La palette associe un fond minéral chaud à une encre bleutée, puis réserve le Violet de confiance aux actions, sélections et repères qui demandent une attention nette.
+La palette oppose un socle nocturne à des surfaces imprimées claires ; le bleu trace la structure et le jaune attire l’œil sans devenir décoratif.
 
 ### Primary
 
-- **Violet de confiance** : action principale, sélection active, lien mis en avant, caret, sélection de texte et anneau de focus.
-- **Blanc franc** : texte et icônes posés sur le Violet de confiance en thème clair.
+- **Bleu nuit civique** : champ de marque, navigation et zones de respiration à forte autorité.
+- **Bleu civique accessible** : icônes, folios, liens et règles sur papier ; il porte la logique du document.
 
 ### Secondary
 
-- **Pierre tranquille** : boutons secondaires, navigation latérale et surfaces fonctionnelles qui doivent rester en retrait.
-- **Encre discrète** : contenu secondaire posé sur les surfaces de pierre.
-
-### Tertiary
-
-- **Lilas tendre** : surbrillances légères, états restaurés et interactions de navigation sans urgence.
-- **Ambre d’attention** : informations de prudence et limites importantes qui nécessitent une lecture avant de poursuivre.
-- **Corail d’alerte** : actions destructrices et erreurs confirmées, jamais comme décoration.
+- **Jaune signal** : appel principal, statut estampillé et courts traits de repère. Sa variante plus sombre appartient uniquement au survol.
 
 ### Neutral
 
-- **Papier brumeux** : toile principale claire et surface des champs transparents.
-- **Encre bleutée** : texte principal, titres et contenu à forte priorité.
-- **Carte chaude** : cartes, panneaux et menus superposés.
-- **Encre secondaire** : descriptions, métadonnées et aide contextuelle.
-- **Papier nocturne**, **Encre nocturne**, **Carte nocturne** et **Pierre nocturne** : équivalents du thème sombre, avec un Violet de confiance plus lumineux.
+- **Papier non couché** : surface de lecture principale, chaleureuse et tactile.
+- **Ciel civique** : fond secondaire des questions et zones de compréhension.
+- **Blanc papier** : texte prioritaire sur bleu nuit.
+- **Bleu discret** et **bleu pâle sur nuit** : paragraphes secondaires selon le fond.
 
 ### Named Rules
 
-**The One Signal Rule.** Le Violet de confiance indique une action ou un état important ; il ne devient jamais un remplissage décoratif omniprésent.
+**The Yellow Means Act Rule.** Le jaune signale une action, un statut ou un repère bref ; il ne remplit jamais une grande surface sans fonction.
 
-**The Meaning Before Hue Rule.** Une couleur de statut est toujours accompagnée d’un libellé, d’un message ou d’une forme qui transmet le même sens.
+**The Ink Carries Meaning Rule.** Toute information colorée garde un libellé, un numéro, une icône ou une règle qui transmet le même sens.
 
 ## Typography
 
-**Display Font:** Lora Variable (avec serif en repli)  
-**Body Font:** Plus Jakarta Sans Variable (avec sans-serif en repli)  
-**Label/Mono Font:** Roboto Mono Variable (avec monospace en repli, réservé aux codes et données techniques)
+**Display Font:** Yaldevi Variable (avec Plus Jakarta Sans et sans-serif en repli)
 
-**Character:** Lora donne aux titres une voix éditoriale, posée et humaine. Plus Jakarta Sans conserve aux parcours, formulaires et informations une lecture directe ; Roboto Mono distingue les secrets et valeurs techniques sans contaminer le ton général.
+**Editorial Font:** Lora Variable (avec serif en repli)
+
+**Body Font:** Plus Jakarta Sans Variable (avec sans-serif en repli)
+
+**Label/Mono Font:** Roboto Mono Variable (avec monospace en repli)
+
+**Character:** Yaldevi donne aux grandes déclarations une présence publique, dense et contemporaine. Lora apporte le ton humain des titres de parcours ; Plus Jakarta Sans garde la lecture nette, tandis que Roboto Mono transforme codes, folios et mentions courtes en repères documentaires.
 
 ### Hierarchy
 
-- **Display** (graisse 700, taille fluide, interligne serré) : titre d’accueil, exceptionnel et limité à la première hiérarchie d’une surface persuasive.
-- **Headline** (graisse 600, taille 1.875rem, interligne 1.2) : titre principal des parcours, pages d’information et outils de modération.
-- **Title** (graisse 700, taille 1.125rem, interligne 1.25) : titres de cartes et publications.
-- **Body** (graisse 400, taille 1rem, interligne 1.75) : explications, contenu éditorial et formulaires ; limiter les textes longs à environ 65–72 caractères par ligne.
-- **Label** (graisse 500, taille 0.875rem, interligne 1.25) : boutons, champs, métadonnées et filtres.
+- **Display** (graisse 760, taille fluide, interligne 0.9) : grands titres civiques et déclarations courtes.
+- **Headline** (graisse 600, taille fluide, interligne 0.95) : transitions éditoriales sur champ sombre.
+- **Title** (graisse 700, taille fluide, interligne 1) : étapes, questions et sous-titres de dossier.
+- **Body** (graisse 400, 1rem, interligne 1.5) : explication courante ; les lectures longues peuvent monter à 1.7 et restent autour de 46–64 caractères par ligne.
+- **Label** (graisse 650, 0.875rem, interligne 1.45, capitales espacées) : références, statuts et légendes brèves, jamais un paragraphe.
 
 ### Named Rules
 
-**The Human Headline Rule.** Lora porte les titres qui orientent ou accueillent ; les commandes, statuts et longues lectures restent en Plus Jakarta Sans.
-
-**The Quiet Code Rule.** Roboto Mono sert uniquement lorsqu’une valeur doit être reconnue et recopiée comme un code.
+**The Four Voices Rule.** Yaldevi déclare, Lora raconte, Plus Jakarta Sans explique et Roboto Mono référence ; ne pas échanger leurs rôles pour varier gratuitement.
 
 ## Layout
 
-Les parcours utilisent une colonne centrée et mobile-first. Les lectures et formulaires sensibles restent étroits, généralement entre 42rem et 48rem ; les listes et espaces personnels montent jusqu’à 56rem ; la modération peut s’étendre jusqu’à 72rem. La navigation globale plafonne à 80rem.
+Le système alterne champs pleine largeur et dossiers contenus. Les grands ensembles plafonnent entre 86rem et 96rem, avec une marge latérale minimale de 1.5rem. Les compositions éditoriales utilisent des grilles asymétriques et des séparateurs plutôt qu’une mosaïque de cartes ; l’espacement de section est généreux pour rendre chaque changement de sujet évident.
 
-La marge latérale de base est de 1rem et passe à 1.5rem sur les surfaces larges. Le rythme vertical récurrent s’appuie sur 1rem entre éléments proches, 1.5rem dans les cartes ou formulaires, puis 2 à 2.5rem entre sections. Les groupes deviennent horizontaux à partir du petit écran quand la comparaison le justifie ; les grilles de choix passent à deux colonnes à partir du format moyen.
+À 70rem et moins, les séquences larges se réorganisent en grille de trois colonnes. À 46rem et moins, elles deviennent une lecture verticale continue, les entêtes fixes redeviennent statiques et les sections passent sur un axe unique. Les actions essentielles restent visibles dans le premier écran mobile et les cibles interactives conservent au moins 44px.
 
-**The One Calm Column Rule.** Un dépôt, une lecture ou une décision personnelle conserve un axe principal unique ; les colonnes supplémentaires sont réservées à la comparaison de choix ou aux outils d’administration.
+**The Reading Order Survives Rule.** Une grille peut se replier, mais numéros, titres, preuves et action gardent toujours leur ordre logique.
 
 ## Elevation & Depth
 
-Le système est doucement stratifié. Les différences de ton et les bordures installent d’abord la hiérarchie ; les ombres grises, larges et diffuses donnent ensuite une présence tactile aux cartes et menus. Au repos, une surface ne doit jamais sembler flotter fortement. Le survol d’une carte peut augmenter d’un seul niveau pour confirmer qu’elle est ouvrable.
-
-### Shadow Vocabulary
-
-- **Trace diffuse** : séparation minimale pour champs et petites surfaces.
-- **Carte calme** : profondeur habituelle des cartes, avec deux couches douces et légèrement décalées.
-- **Carte active** : niveau supérieur réservé au survol ou à une surface temporairement mise en avant.
-- **Premier plan** : profondeur forte réservée aux dialogues et menus superposés.
+Le système est quasi plat : aplats, traits de 1px et changements de ton portent la hiérarchie. Une grande ombre ambiante et de légères ombres internes sont réservées au papier physiquement mis en scène ; les listes, panneaux d’information, boutons et questions restent sans ombre. Le mouvement d’ouverture dure 700ms avec une courbe de décélération franche et disparaît lorsque la réduction des mouvements est demandée.
 
 ### Named Rules
 
-**The Layer Before Lift Rule.** Utiliser d’abord le contraste de surface et la bordure ; renforcer l’ombre seulement lorsqu’une interaction ou une superposition l’exige.
+**The Paper Alone Lifts Rule.** Seul un objet présenté comme une feuille ou une superposition réelle peut quitter le plan.
 
 ## Shapes
 
-Les formes sont généreusement arrondies, avec une base de 1.25rem. Les contrôles compacts utilisent des coins légèrement plus resserrés, les cartes et avertissements assument une courbe plus enveloppante, et les filtres prennent une silhouette de pilule. Les bordures restent fines par défaut ; une bordure double n’est justifiée que pour un état sélectionné ou un message de prudence explicite.
+Angles droits, filets fins et aplats rectangulaires forment la grammaire de base. La silhouette pliée est une exception signifiante pour une séquence explicative : ses arêtes restent droites et ses plis sont suggérés par lumière, ombre interne et découpe, jamais par des coins arrondis. Les petites estampilles peuvent pivoter légèrement pour évoquer un geste imprimé.
 
-**The Soft Boundary Rule.** Les coins accueillent, mais la forme ne doit jamais faire perdre la distinction entre une action, un champ, une carte et un simple texte.
+**The Straight Edge Rule.** Les composants de ce monde ne deviennent ni pilules ni cartes molles ; l’adoucissement vient du papier, du rythme et de la typographie.
 
 ## Components
 
 ### Buttons
 
-Les boutons sont accueillants et explicites, avec une cible principale d’au moins 44px de haut.
-
-- **Shape:** coins généreusement courbés ; pilule uniquement pour les filtres.
-- **Primary:** Violet de confiance, texte blanc, graisse moyenne et espace horizontal confortable.
-- **Hover / Focus:** assombrissement léger au survol ; anneau de focus visible à trois couches translucides, renforcé par le contour global décalé.
-- **Secondary / Outline:** surface Pierre tranquille pour le secondaire ; fond de page, bordure et ombre très légère pour l’outline.
-- **Ghost / Link:** sans surface au repos ; le ghost reçoit un Lilas tendre au survol et le lien gagne un soulignement.
-- **Destructive:** Corail d’alerte, réservé aux conséquences irréversibles et associé à un libellé sans ambiguïté.
-
-### Chips
-
-- **Style:** silhouette en pilule, libellé compact et contraste modéré.
-- **State:** la sélection reçoit le Violet de confiance ou la teinte sémantique de sa catégorie ; `aria-pressed` porte l’état fonctionnel.
-
-### Cards / Containers
-
-- **Corner Style:** courbe enveloppante de niveau XL.
-- **Background:** Carte chaude en thème clair et Carte nocturne en thème sombre.
-- **Shadow Strategy:** Carte calme au repos, Carte active uniquement quand toute la carte est interactive.
-- **Border:** trait fin neutre ; accent renforcé pour sélection, avertissement ou contenu guidé.
-- **Internal Padding:** 1rem pour les cartes denses de liste, 1.5rem pour les cartes de formulaire et de lecture.
-
-### Inputs / Fields
-
-- **Style:** fond transparent, bordure neutre, hauteur compacte pour les champs simples et zone plus généreuse pour l’éditeur.
-- **Focus:** bordure Violet de confiance et anneau visible ; le caret reprend le même accent.
-- **Error / Disabled:** Corail d’alerte avec message textuel ; opacité réduite et curseur explicite pour l’état désactivé.
+- **Shape:** rectangle à angles droits, hauteur minimale de 3.75rem pour l’action principale.
+- **Primary:** jaune signal, encre bleu nuit, graisse forte et flèche terminale ; toute la largeur est autorisée dans un panneau étroit.
+- **Hover / Focus:** jaune légèrement assombri au survol ; contour bleu visible avec décalage de 3px au clavier.
+- **Secondary / Session:** lien encadré d’un filet bleu clair sur champ nuit, sans ombre.
 
 ### Navigation
 
-La barre supérieure reste collante, posée sur le Papier brumeux et séparée par une bordure fine. Les liens sont calmes par défaut puis deviennent Violet de confiance au survol et sur la route active. La navigation complète se replie à partir du format XL ; sur mobile, un bouton iconique ouvre un menu large et la barre latérale reste fermée par défaut.
+La barre supérieure est compacte, collante et bleue nuit. La marque Yaldevi reçoit un court filet jaune ; les liens secondaires sont bleu pâle puis deviennent blancs et soulignés de jaune au survol. Sous 64rem, la navigation textuelle disparaît et la récupération de session conserve une icône explicite.
 
-### Safety Notice
+### Paper Panels
 
-Les messages de prudence utilisent une surface Ambre d’attention très diluée, une bordure explicite et un premier énoncé en graisse forte. Ils informent sans simuler une alerte d’urgence et gardent les numéros et ressources directement actionnables.
+Les panneaux de dossier utilisent le papier non couché, une bordure de 1px, une numérotation Lora bleue et des annotations monospace. Ils se regroupent par ligne ou par séquence verticale selon la place disponible. L’ombre n’est permise qu’au conteneur-feuille qui rassemble la séquence.
+
+### Ledgers and Disclosure Rows
+
+Les listes comparatives et FAQ s’organisent comme des registres : filets horizontaux, colonnes de texte, numéros ou pictogrammes minces. L’état ouvert se manifeste par la rotation de l’icône en 180ms et par l’apparition du texte, sans carte flottante.
+
+### Status Stamps
+
+Une estampille jaune, légèrement inclinée, associe toujours la couleur à un libellé en capitales. Elle convient à un statut bref et vérifiable, pas à une information longue ni à une décoration.
 
 ## Do's and Don'ts
 
 ### Do:
 
-- **Do** utiliser Lora pour donner une voix humaine aux titres et Plus Jakarta Sans pour garder chaque action immédiatement lisible.
-- **Do** maintenir des cibles tactiles d’au moins 44px, un focus visible et un texte pour chaque statut important.
-- **Do** conserver les parcours sensibles dans une colonne calme et limiter les lignes longues à une largeur de lecture confortable.
-- **Do** utiliser le Violet de confiance pour guider l’action, l’Ambre d’attention pour prévenir et le Corail d’alerte pour les erreurs ou destructions.
-- **Do** préserver les thèmes clair et sombre comme deux expressions équivalentes du même système.
+- **Do** utiliser les lignes de 1px, les numéros et l’alignement pour créer la hiérarchie avant d’ajouter une surface.
+- **Do** réserver le jaune aux actions, statuts et repères décisifs.
+- **Do** conserver les quatre rôles typographiques et une lecture claire sur mobile comme sur ordinateur.
+- **Do** accompagner chaque état coloré d’un mot, d’une icône ou d’une forme explicite.
+- **Do** employer le pli et la texture seulement lorsqu’ils renforcent l’idée de document ou de parcours.
 
 ### Don't:
 
-- **Don't** transformer l’interface en environnement clinique, froid ou pseudo-médical.
-- **Don't** introduire de compteurs sociaux, réactions, récompenses, couleurs festives ou mécanismes de compétition.
-- **Don't** employer une couleur seule pour indiquer un statut, une erreur ou une sélection.
-- **Don't** multiplier les ombres fortes, les surfaces flottantes ou les bordures d’accent décoratives.
-- **Don't** présenter l’alias, la modération ou l’avertissement de contenu comme une garantie absolue de protection.
+- **Don't** revenir aux grandes cartes pastel arrondies, aux pilules ou aux ombres diffuses omniprésentes.
+- **Don't** généraliser l’accordéon de la landing à tous les parcours ou écrans applicatifs.
+- **Don't** utiliser le jaune comme couleur de fond décorative sans action ni information.
+- **Don't** ajouter de profondeur à un élément qui se comprend déjà par un aplat, un filet ou l’espacement.
+- **Don't** faire suggérer par le graphisme une garantie d’anonymat, d’assistance immédiate ou de disponibilité permanente.
