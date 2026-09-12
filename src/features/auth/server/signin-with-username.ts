@@ -27,7 +27,7 @@ import { logger } from "@/lib/logger/server";
  * @see {@link protectAuthEndpoint} Pour la configuration Arcjet
  */
 export const signinWithUsernameFn = createServerFn({ method: "POST" })
-	.inputValidator(signInSchema)
+	.validator(signInSchema)
 	.handler(async ({ data }) => {
 		const request = getRequest();
 		try {

@@ -11,7 +11,7 @@ const getPostsByThreadSchema = z.object({
  * Pure orchestration - validates input and delegates to DB layer
  */
 export const getPostsByThreadFn = createServerFn({ method: "GET" })
-	.inputValidator((data: unknown) => getPostsByThreadSchema.parse(data))
+	.validator((data: unknown) => getPostsByThreadSchema.parse(data))
 	.handler(async ({ data }) => {
 		return await getPostsByThreadId(data.threadId);
 	});

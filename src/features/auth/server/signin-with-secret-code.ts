@@ -14,7 +14,7 @@ const signInSchema = z.object({
 });
 
 export const signinWithSecretCodeFn = createServerFn({ method: "POST" })
-	.inputValidator(signInSchema)
+	.validator(signInSchema)
 	.handler(async ({ data }) => {
 		const request = getRequest();
 		// Sanitize input

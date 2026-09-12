@@ -8,7 +8,7 @@ import { account, user } from "@/db/schema";
 import { auth } from "@/features/auth/lib/auth";
 
 export const eraseBetaAccount = createServerFn({ method: "POST" })
-	.inputValidator(
+	.validator(
 		z.object({
 			confirmation: z.literal("EFFACER"),
 			password: z.string().max(256).optional(),

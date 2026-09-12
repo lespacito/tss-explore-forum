@@ -25,7 +25,7 @@ import { logger } from "@/lib/logger/server";
  * @see {@link protectAuthEndpoint} Pour la configuration Arcjet
  */
 export const checkSignInRateLimit = createServerFn({ method: "POST" })
-	.inputValidator(
+	.validator(
 		z.object({
 			username: z.string().min(1, "Username requis"),
 		}),

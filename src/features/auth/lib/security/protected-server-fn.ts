@@ -27,7 +27,7 @@ export type ArcjetPolicyConfig = {
  * @example
  * ```typescript
  * export const signUpServerFn = createServerFn({ method: "POST" })
- *   .inputValidator(signUpSchema.parse)
+ *   .validator(signUpSchema.parse)
  *   .handler(async ({ data }) => {
  *     const decision = await checkArcjet({
  *       path: "/auth/sign-up",

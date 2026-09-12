@@ -14,7 +14,7 @@ const sendWelcomeEmailSchema = z.object({
  * Action serveur pour envoyer un email de bienvenue après inscription
  */
 export const sendWelcomeEmailFn = createServerFn({ method: "POST" })
-	.inputValidator(sendWelcomeEmailSchema.parse)
+	.validator(sendWelcomeEmailSchema.parse)
 	.handler(async ({ data }) => {
 		try {
 			const template = welcomeEmail(data.name);

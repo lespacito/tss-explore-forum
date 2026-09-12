@@ -9,44 +9,29 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TestEmailRouteImport } from './routes/test-email'
-import { Route as RulesRouteImport } from './routes/rules'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as HelpRouteImport } from './routes/help'
-import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ThreadsIndexRouteImport } from './routes/threads/index'
-import { Route as SearchIndexRouteImport } from './routes/search/index'
-import { Route as ThreadsConfirmationRouteImport } from './routes/threads/confirmation'
-import { Route as ThreadsThreadSlugRouteImport } from './routes/threads/$threadSlug'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as HelpRouteImport } from './routes/help'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as RulesRouteImport } from './routes/rules'
+import { Route as TestEmailRouteImport } from './routes/test-email'
 import { Route as AuthAnonymousSigninRouteImport } from './routes/auth/anonymous-signin'
-import { Route as ThreadsNewIndexRouteImport } from './routes/threads/new/index'
-import { Route as AuthResetPasswordIndexRouteImport } from './routes/auth/reset-password/index'
-import { Route as AuthLoginIndexRouteImport } from './routes/auth/login/index'
-import { Route as AdminModerationIndexRouteImport } from './routes/admin/moderation/index'
-import { Route as AccountSettingsIndexRouteImport } from './routes/account/settings/index'
+import { Route as SearchIndexRouteImport } from './routes/search/index'
+import { Route as ThreadsIndexRouteImport } from './routes/threads/index'
+import { Route as ThreadsThreadSlugRouteImport } from './routes/threads/$threadSlug'
+import { Route as ThreadsConfirmationRouteImport } from './routes/threads/confirmation'
 import { Route as AccountProfileIndexRouteImport } from './routes/account/profile/index'
-import { Route as ThreadsNewCategoryRouteImport } from './routes/threads/new/$category'
+import { Route as AccountSettingsIndexRouteImport } from './routes/account/settings/index'
+import { Route as AdminModerationIndexRouteImport } from './routes/admin/moderation/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as AuthLoginIndexRouteImport } from './routes/auth/login/index'
+import { Route as AuthResetPasswordIndexRouteImport } from './routes/auth/reset-password/index'
+import { Route as ThreadsNewIndexRouteImport } from './routes/threads/new/index'
+import { Route as ThreadsNewCategoryRouteImport } from './routes/threads/new/$category'
 
-const TestEmailRoute = TestEmailRouteImport.update({
-  id: '/test-email',
-  path: '/test-email',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RulesRoute = RulesRouteImport.update({
-  id: '/rules',
-  path: '/rules',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HelpRoute = HelpRouteImport.update({
-  id: '/help',
-  path: '/help',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -54,29 +39,24 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ThreadsIndexRoute = ThreadsIndexRouteImport.update({
-  id: '/threads/',
-  path: '/threads/',
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SearchIndexRoute = SearchIndexRouteImport.update({
-  id: '/search/',
-  path: '/search/',
+const RulesRoute = RulesRouteImport.update({
+  id: '/rules',
+  path: '/rules',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ThreadsConfirmationRoute = ThreadsConfirmationRouteImport.update({
-  id: '/threads/confirmation',
-  path: '/threads/confirmation',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ThreadsThreadSlugRoute = ThreadsThreadSlugRouteImport.update({
-  id: '/threads/$threadSlug',
-  path: '/threads/$threadSlug',
+const TestEmailRoute = TestEmailRouteImport.update({
+  id: '/test-email',
+  path: '/test-email',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthAnonymousSigninRoute = AuthAnonymousSigninRouteImport.update({
@@ -84,29 +64,24 @@ const AuthAnonymousSigninRoute = AuthAnonymousSigninRouteImport.update({
   path: '/auth/anonymous-signin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ThreadsNewIndexRoute = ThreadsNewIndexRouteImport.update({
-  id: '/threads/new/',
-  path: '/threads/new/',
+const SearchIndexRoute = SearchIndexRouteImport.update({
+  id: '/search/',
+  path: '/search/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthResetPasswordIndexRoute = AuthResetPasswordIndexRouteImport.update({
-  id: '/auth/reset-password/',
-  path: '/auth/reset-password/',
+const ThreadsIndexRoute = ThreadsIndexRouteImport.update({
+  id: '/threads/',
+  path: '/threads/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthLoginIndexRoute = AuthLoginIndexRouteImport.update({
-  id: '/auth/login/',
-  path: '/auth/login/',
+const ThreadsThreadSlugRoute = ThreadsThreadSlugRouteImport.update({
+  id: '/threads/$threadSlug',
+  path: '/threads/$threadSlug',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminModerationIndexRoute = AdminModerationIndexRouteImport.update({
-  id: '/admin/moderation/',
-  path: '/admin/moderation/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AccountSettingsIndexRoute = AccountSettingsIndexRouteImport.update({
-  id: '/account/settings/',
-  path: '/account/settings/',
+const ThreadsConfirmationRoute = ThreadsConfirmationRouteImport.update({
+  id: '/threads/confirmation',
+  path: '/threads/confirmation',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AccountProfileIndexRoute = AccountProfileIndexRouteImport.update({
@@ -114,14 +89,39 @@ const AccountProfileIndexRoute = AccountProfileIndexRouteImport.update({
   path: '/account/profile/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ThreadsNewCategoryRoute = ThreadsNewCategoryRouteImport.update({
-  id: '/threads/new/$category',
-  path: '/threads/new/$category',
+const AccountSettingsIndexRoute = AccountSettingsIndexRouteImport.update({
+  id: '/account/settings/',
+  path: '/account/settings/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminModerationIndexRoute = AdminModerationIndexRouteImport.update({
+  id: '/admin/moderation/',
+  path: '/admin/moderation/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthLoginIndexRoute = AuthLoginIndexRouteImport.update({
+  id: '/auth/login/',
+  path: '/auth/login/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthResetPasswordIndexRoute = AuthResetPasswordIndexRouteImport.update({
+  id: '/auth/reset-password/',
+  path: '/auth/reset-password/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ThreadsNewIndexRoute = ThreadsNewIndexRouteImport.update({
+  id: '/threads/new/',
+  path: '/threads/new/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ThreadsNewCategoryRoute = ThreadsNewCategoryRouteImport.update({
+  id: '/threads/new/$category',
+  path: '/threads/new/$category',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -279,32 +279,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/test-email': {
-      id: '/test-email'
-      path: '/test-email'
-      fullPath: '/test-email'
-      preLoaderRoute: typeof TestEmailRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/rules': {
-      id: '/rules'
-      path: '/rules'
-      fullPath: '/rules'
-      preLoaderRoute: typeof RulesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/help': {
-      id: '/help'
-      path: '/help'
-      fullPath: '/help'
-      preLoaderRoute: typeof HelpRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -314,39 +293,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/threads/': {
-      id: '/threads/'
-      path: '/threads'
-      fullPath: '/threads/'
-      preLoaderRoute: typeof ThreadsIndexRouteImport
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/search/': {
-      id: '/search/'
-      path: '/search'
-      fullPath: '/search/'
-      preLoaderRoute: typeof SearchIndexRouteImport
+    '/rules': {
+      id: '/rules'
+      path: '/rules'
+      fullPath: '/rules'
+      preLoaderRoute: typeof RulesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/threads/confirmation': {
-      id: '/threads/confirmation'
-      path: '/threads/confirmation'
-      fullPath: '/threads/confirmation'
-      preLoaderRoute: typeof ThreadsConfirmationRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/threads/$threadSlug': {
-      id: '/threads/$threadSlug'
-      path: '/threads/$threadSlug'
-      fullPath: '/threads/$threadSlug'
-      preLoaderRoute: typeof ThreadsThreadSlugRouteImport
+    '/test-email': {
+      id: '/test-email'
+      path: '/test-email'
+      fullPath: '/test-email'
+      preLoaderRoute: typeof TestEmailRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/anonymous-signin': {
@@ -356,39 +328,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthAnonymousSigninRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/threads/new/': {
-      id: '/threads/new/'
-      path: '/threads/new'
-      fullPath: '/threads/new/'
-      preLoaderRoute: typeof ThreadsNewIndexRouteImport
+    '/search/': {
+      id: '/search/'
+      path: '/search'
+      fullPath: '/search/'
+      preLoaderRoute: typeof SearchIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth/reset-password/': {
-      id: '/auth/reset-password/'
-      path: '/auth/reset-password'
-      fullPath: '/auth/reset-password/'
-      preLoaderRoute: typeof AuthResetPasswordIndexRouteImport
+    '/threads/': {
+      id: '/threads/'
+      path: '/threads'
+      fullPath: '/threads/'
+      preLoaderRoute: typeof ThreadsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth/login/': {
-      id: '/auth/login/'
-      path: '/auth/login'
-      fullPath: '/auth/login/'
-      preLoaderRoute: typeof AuthLoginIndexRouteImport
+    '/threads/$threadSlug': {
+      id: '/threads/$threadSlug'
+      path: '/threads/$threadSlug'
+      fullPath: '/threads/$threadSlug'
+      preLoaderRoute: typeof ThreadsThreadSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/moderation/': {
-      id: '/admin/moderation/'
-      path: '/admin/moderation'
-      fullPath: '/admin/moderation/'
-      preLoaderRoute: typeof AdminModerationIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/account/settings/': {
-      id: '/account/settings/'
-      path: '/account/settings'
-      fullPath: '/account/settings/'
-      preLoaderRoute: typeof AccountSettingsIndexRouteImport
+    '/threads/confirmation': {
+      id: '/threads/confirmation'
+      path: '/threads/confirmation'
+      fullPath: '/threads/confirmation'
+      preLoaderRoute: typeof ThreadsConfirmationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/account/profile/': {
@@ -398,11 +363,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountProfileIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/threads/new/$category': {
-      id: '/threads/new/$category'
-      path: '/threads/new/$category'
-      fullPath: '/threads/new/$category'
-      preLoaderRoute: typeof ThreadsNewCategoryRouteImport
+    '/account/settings/': {
+      id: '/account/settings/'
+      path: '/account/settings'
+      fullPath: '/account/settings/'
+      preLoaderRoute: typeof AccountSettingsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/moderation/': {
+      id: '/admin/moderation/'
+      path: '/admin/moderation'
+      fullPath: '/admin/moderation/'
+      preLoaderRoute: typeof AdminModerationIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth/$': {
@@ -410,6 +382,34 @@ declare module '@tanstack/react-router' {
       path: '/api/auth/$'
       fullPath: '/api/auth/$'
       preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/login/': {
+      id: '/auth/login/'
+      path: '/auth/login'
+      fullPath: '/auth/login/'
+      preLoaderRoute: typeof AuthLoginIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/reset-password/': {
+      id: '/auth/reset-password/'
+      path: '/auth/reset-password'
+      fullPath: '/auth/reset-password/'
+      preLoaderRoute: typeof AuthResetPasswordIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/threads/new/': {
+      id: '/threads/new/'
+      path: '/threads/new'
+      fullPath: '/threads/new/'
+      preLoaderRoute: typeof ThreadsNewIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/threads/new/$category': {
+      id: '/threads/new/$category'
+      path: '/threads/new/$category'
+      fullPath: '/threads/new/$category'
+      preLoaderRoute: typeof ThreadsNewCategoryRouteImport
       parentRoute: typeof rootRouteImport
     }
   }

@@ -28,7 +28,7 @@ const createThreadSchema = z.object({
 });
 
 export const createThreadFn = createServerFn({ method: "POST" })
-	.inputValidator((data: unknown) => createThreadSchema.parse(data))
+	.validator((data: unknown) => createThreadSchema.parse(data))
 	.handler(async ({ data }) => {
  if (!betaSettings().submissionsOpen) throw new Error("Les dépôts sont suspendus. Consultez les informations de l’organisateur.");
 		const decision = await checkArcjet({

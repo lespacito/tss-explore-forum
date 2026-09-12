@@ -11,7 +11,7 @@ const getThreadBySlugSchema = z.object({
  * Pure orchestration - validates input and delegates to DB layer
  */
 export const getThreadBySlugFn = createServerFn({ method: "GET" })
-	.inputValidator((data: unknown) => getThreadBySlugSchema.parse(data))
+	.validator((data: unknown) => getThreadBySlugSchema.parse(data))
 	.handler(async ({ data }) => {
 		const thread = await getThreadBySlug(data.slug);
 

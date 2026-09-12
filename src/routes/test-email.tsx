@@ -29,7 +29,7 @@ const testConnectionFn = createServerFn({ method: "GET" }).handler(async () => {
 
 // Server function pour envoyer un email de test
 const sendTestEmailFn = createServerFn({ method: "POST" })
-	.inputValidator(testEmailInputSchema.parse)
+	.validator(testEmailInputSchema.parse)
 	.handler(async ({ data }) => {
 		let template: { subject: string; html: string; text: string };
 
