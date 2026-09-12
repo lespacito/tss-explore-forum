@@ -128,7 +128,7 @@ async function logAccountDeletion(
 export const deleteAccountWithOptionsFn = createServerFn({
 	method: "POST",
 })
-	.inputValidator(deleteAccountSchema)
+	.validator(deleteAccountSchema)
 	.handler(async ({ data }) => {
 		try {
 			const request = getRequest();

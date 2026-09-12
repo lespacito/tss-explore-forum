@@ -78,7 +78,7 @@ export const getModerationQueueFn = createServerFn({ method: "GET" }).handler(
 );
 
 export const moderateThreadFn = createServerFn({ method: "POST" })
-	.inputValidator((input: unknown) => moderationActionSchema.parse(input))
+	.validator((input: unknown) => moderationActionSchema.parse(input))
 	.handler(async ({ data }) => {
 		const session = await getAuthSession();
 		assertModerator(session.user);

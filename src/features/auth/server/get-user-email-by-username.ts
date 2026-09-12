@@ -7,7 +7,7 @@ import { logger } from "@/lib/logger/server";
 export const getUserEmailByUsername = createServerFn({
 	method: "GET",
 })
-	.inputValidator((data: { username: string }) => data)
+	.validator((data: { username: string }) => data)
 	.handler(
 		async ({
 			data,

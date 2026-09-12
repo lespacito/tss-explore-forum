@@ -30,7 +30,7 @@ import { logger } from "@/lib/logger/server";
  * Le compte anonyme N'EST PAS supprimé pour préserver le secretCode (AC2).
  */
 export const linkAnonymousAccountFn = createServerFn({ method: "POST" })
-	.inputValidator(
+	.validator(
 		z.object({
 			anonymousUserId: z.string(),
 			newUserId: z.string(),

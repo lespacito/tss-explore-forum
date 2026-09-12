@@ -22,7 +22,7 @@ export const getThreadsFn = createServerFn({ method: "GET" }).handler(
 export { getThreadsFn as getThreadsCached };
 
 export const getThreadsByCategoryFn = createServerFn({ method: "GET" })
-	.inputValidator(z.object({ category: z.enum(threadCategoryIds) }))
+	.validator(z.object({ category: z.enum(threadCategoryIds) }))
 	.handler(async ({ data }) => {
 		return await getPublishedThreadsByCategory(data.category);
 	});

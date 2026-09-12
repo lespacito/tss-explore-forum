@@ -23,7 +23,7 @@ const getUserThreadsSchema = z.object({
 export const getUserThreadsFn = createServerFn({
 	method: "GET",
 })
-	.inputValidator((data: unknown) => getUserThreadsSchema.parse(data))
+	.validator((data: unknown) => getUserThreadsSchema.parse(data))
 	.handler(async ({ data }) => {
 		const session = await getAuthSession();
 
