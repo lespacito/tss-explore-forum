@@ -264,6 +264,7 @@ SERVICE_NAME=parlons-violence
 
 ### Guides Techniques
 
+- [Déploiement staging Dokploy](docs/staging-dokploy.md) - Variables, secrets, migrations et checklist de mise en service
 - [Project Context](project-context.md) - Contexte complet du projet (MUST READ)
 - [Auth Flows](docs/auth-flows.md) - Flux d'authentification détaillés
 - [Architecture Flows](docs/architecture-flux-threads-posts.md) - Flux threads/posts
