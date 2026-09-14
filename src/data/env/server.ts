@@ -1,21 +1,13 @@
 import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod";
+import { buildDatabaseUrl, databaseEnvironment } from "./database";
 
 export const env = createEnv({
 	server: {
 		NODE_ENV: z
 			.enum(["development", "test", "production"])
 			.default("development"),
-		DB_HOST: z.string().min(1),
-		DB_SCHEMA: z
-			.string()
-			.regex(/^[a-z][a-z0-9_]*$/)
-			.default("public"),
-		DB_PORT: z.coerce.number().default(5432),
-		DB_NAME: z.string().min(1),
-		DB_USER: z.string().min(1),
-		DB_PASSWORD: z.string().min(1),
-		DB_SSL: z.enum(["true", "false"]).optional(),
+		...databaseEnvironment,
 
 		// Auth
 		BETTER_AUTH_URL: z.string().url().optional(),
@@ -55,13 +47,17 @@ export const env = createEnv({
 				DB_SSL,
 				...rest
 			} = val;
-			const encodedUser = encodeURIComponent(DB_USER);
-			const encodedPassword = encodeURIComponent(DB_PASSWORD);
 			return {
 				...rest,
-				DATABASE_URL: `postgresql://${encodedUser}:${encodedPassword}@${DB_HOST}:${DB_PORT}/${DB_NAME}${
-					DB_SSL === "true" ? "?sslmode=require" : ""
-				}`,
+				DATABASE_URL: buildDatabaseUrl({
+					DB_HOST,
+					DB_NAME,
+					DB_PASSWORD,
+					DB_PORT,
+					DB_SCHEMA: val.DB_SCHEMA,
+					DB_USER,
+					DB_SSL,
+				}),
 			};
 		});
 	},
