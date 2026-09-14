@@ -49,22 +49,16 @@ export const TipTap = ({
 }: TipTapProps) => {
 	// Security: Configure StarterKit with only safe extensions
 	// Disabled for security: CodeBlock, Code (code injection risk)
-	// Disabled for simplicity: Strike, HorizontalRule (not needed for trauma-informed design)
+	// Private-beta preset: only bold, italic and bullet lists are authorable.
 	const extensions = [
 		StarterKit.configure({
-			// Disable dangerous extensions
-			codeBlock: false, // ❌ Can inject code blocks
-			code: false, // ❌ Can inject inline code
-			// Disable unnecessary extensions
-			strike: false, // Not needed for MVP
-			horizontalRule: false, // Not needed for MVP
-			// Configure heading to allow h2 and h3 (h1 reserved for page titles)
-			heading: {
-				levels: [2, 3], // h2 and h3 allowed (aligned with server whitelist)
-			},
-			// Keep other safe extensions enabled (default behavior)
-			// bold, italic, bulletList, orderedList, listItem, blockquote,
-			// paragraph, hardBreak, history are enabled by default
+			codeBlock: false,
+			code: false,
+			strike: false,
+			horizontalRule: false,
+			heading: false,
+			blockquote: false,
+			orderedList: false,
 		}),
 		Placeholder.configure({
 			placeholder: placeholder || "Commencez à écrire...",

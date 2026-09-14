@@ -46,29 +46,29 @@ export function SecretCodeDisplay({
 		try {
 			await navigator.clipboard.writeText(secretCode);
 			setCopied(true);
-			toast.success("Code copié dans le presse-papier");
+			toast.success("Code de récupération copié");
 
 			// Reset copied state after 3 seconds
 			setTimeout(() => setCopied(false), 3000);
-		} catch (error) {
-			toast.error("Impossible de copier le code");
+		} catch {
+			toast.error("Impossible de copier le code de récupération");
 		}
 	};
 
 	return (
-		<Card className="max-w-2xl mx-auto border-2 border-accent/30">
+		<Card className="max-w-2xl border-accent/30">
 			<CardHeader>
 				<CardTitle className="flex items-center gap-2 text-2xl">
 					<AlertTriangle
 						className="h-6 w-6 text-accent-foreground"
 						aria-hidden="true"
 					/>
-					{isExisting ? "Votre code secret" : "Code secret créé !"}
+					Votre code de récupération
 				</CardTitle>
 				<CardDescription className="text-base">
 					{isExisting
-						? "Voici votre code secret existant"
-						: "Conservez ce code précieusement pour retrouver vos publications"}
+						? "Ce code permet de retrouver votre session anonyme."
+						: "Conservez-le pour retrouver vos scénarios plus tard."}
 				</CardDescription>
 			</CardHeader>
 
@@ -78,7 +78,7 @@ export function SecretCodeDisplay({
 					{/* biome-ignore lint/a11y/useSemanticElements: The value is code first; role=status announces it when rendered. */}
 					<code
 						className="flex-1 text-xl sm:text-2xl md:text-3xl font-mono font-bold tracking-wider text-center select-all break-all"
-						aria-label={`Code secret: ${secretCode}`}
+						aria-label={`Code de récupération : ${secretCode}`}
 						role="status"
 					>
 						{secretCode}
@@ -112,9 +112,9 @@ export function SecretCodeDisplay({
 								gestionnaire de mots de passe)
 							</li>
 							<li>
-								Utilisez-le pour vous reconnecter sur n'importe quel appareil
+								Utilisez-le pour retrouver votre session sur un autre appareil
 							</li>
-							<li>Retrouvez toutes vos publications avec ce code</li>
+							<li>Retrouvez tous vos scénarios avec ce code</li>
 						</ol>
 					</AlertDescription>
 				</Alert>
@@ -144,7 +144,7 @@ export function SecretCodeDisplay({
 							aria-hidden="true"
 						/>
 						<AlertDescription className="text-sm text-muted-foreground">
-							Ce code a été généré lors de votre première publication. Il reste
+							Ce code a été généré lors de votre premier scénario. Il reste
 							valide tant que vous ne supprimez pas votre compte.
 						</AlertDescription>
 					</Alert>

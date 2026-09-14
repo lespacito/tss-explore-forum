@@ -26,21 +26,21 @@ function Confirmation() {
 		<div className="mx-auto max-w-3xl space-y-6 px-4 py-10">
 			<h1 className="font-serif text-3xl font-semibold">
 				{submissionConfirmed
-					? "Publication envoyée pour modération"
-					: "Suivre votre dépôt"}
+					? "Votre scénario a été envoyé"
+					: "Suivre votre scénario"}
 			</h1>
 			{submissionConfirmed ? (
-				<div className="space-y-2" aria-live="polite">
-					<p className="text-lg font-semibold">Statut actuel : en attente</p>
+				<div className="civic-review-block" aria-live="polite">
+					<p className="text-lg font-semibold">Statut : À examiner</p>
 					<p>
-						Votre message n’est pas encore visible par les invités. Il sera
-						examiné par le modérateur avant toute publication.
+						Votre scénario n’est pas encore visible. Une personne va le relire
+						avant de décider s’il peut être publié.
 					</p>
 				</div>
 			) : (
 				<p>
-					Consultez Mes publications pour vérifier le statut de vos dépôts et
-					lire un éventuel motif de refus.
+					Consultez Mes scénarios pour vérifier son statut et lire un éventuel
+					motif de non-publication.
 				</p>
 			)}
 			{submissionConfirmed &&
@@ -50,7 +50,7 @@ function Confirmation() {
 						className="space-y-3 border-y py-5"
 					>
 						<h2 id={nextStepsId} className="font-serif text-xl font-semibold">
-							Pour retrouver votre dépôt
+							Conservez votre code de récupération
 						</h2>
 						<ol className="space-y-3">
 							<li className="flex gap-3">
@@ -62,7 +62,7 @@ function Confirmation() {
 								</span>
 								<span>
 									<strong className="font-semibold">
-										Conservez votre code secret.
+										Conservez ce code dans un endroit privé.
 									</strong>{" "}
 									Il permet de retrouver votre session.
 								</span>
@@ -76,7 +76,7 @@ function Confirmation() {
 								</span>
 								<span>
 									<strong className="font-semibold">
-										Ouvrez Mes publications.
+										Ouvrez Mes scénarios.
 									</strong>{" "}
 									Vous y verrez la décision du modérateur.
 								</span>
@@ -85,7 +85,7 @@ function Confirmation() {
 					</section>
 				) : (
 					<p className="font-medium">
-						Prochaine étape : ouvrez Mes publications pour suivre la décision du
+						Prochaine étape : ouvrez Mes scénarios pour suivre la décision du
 						modérateur.
 					</p>
 				))}
@@ -97,13 +97,13 @@ function Confirmation() {
 			<Button asChild>
 				<Link to="/account/profile">
 					{secretCode
-						? "J’ai conservé mon code — voir mes publications"
-						: "Voir mes publications"}
+						? "J’ai conservé mon code — voir mes scénarios"
+						: "Voir mes scénarios"}
 				</Link>
 			</Button>
 			<p className="text-sm text-muted-foreground">
-				Après un rechargement, votre code reste consultable depuis Mes
-				publications tant que votre session est ouverte.
+				Après un rechargement, votre code reste consultable depuis Mes scénarios
+				tant que votre session est ouverte.
 			</p>
 		</div>
 	);

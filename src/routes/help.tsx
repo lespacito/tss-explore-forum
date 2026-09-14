@@ -24,7 +24,8 @@ function Page() {
 				</a>{" "}
 				ou contactez la personne qui vous a envoyé l’invitation, par le même
 				canal. Indiquez l’étape et ce qui ne fonctionne pas, sans joindre de
-				récit personnel, de code secret ou de capture contenant ce code.
+				récit personnel, de code de récupération ou de capture contenant ce
+				code.
 			</p>
 			<h2>Préparer un appareil partagé</h2>
 			<p>

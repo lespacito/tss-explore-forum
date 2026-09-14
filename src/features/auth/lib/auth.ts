@@ -5,7 +5,7 @@ import { createAuthMiddleware } from "better-auth/api";
 import { admin, anonymous, username } from "better-auth/plugins";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { credentials } from "better-auth-credentials-plugin";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { env } from "@/data/env/server";
 import { db } from "@/db";
@@ -21,7 +21,7 @@ import { logger } from "@/lib/logger/server";
 const secretCodeSchema = z.object({
 	secretCode: z
 		.string()
-		.min(9, { message: "Le code secret est trop court" })
+		.min(9, { message: "Le code de récupération est trop court" })
 		.regex(/^[A-Z2-9]{4}-[A-Z2-9]{4}(-[A-Z2-9]{4})?$/, {
 			message: "Format invalide",
 		}),
@@ -102,9 +102,7 @@ export const auth = betterAuth({
 				const user = await findUserBySecretCode(ctx.body.secretCode);
 
 				if (!user || !user.email) {
-					logger.warn("Secret code not found or no email", {
-
-					});
+					logger.warn("Secret code not found or no email", {});
 					return null;
 				}
 
@@ -115,33 +113,28 @@ export const auth = betterAuth({
 					emailVerified: user.emailVerified,
 				});
 
-				// Fallback: Vérifier que l'account existe, le créer sinon
-				// Normalement créé lors de la génération du secret code, mais on assure la résilience
-				const existingAccount = await db.query.account.findFirst({
-					where: and(
-						eq(accountTable.userId, user.id),
-						eq(accountTable.providerId, "secret-code"),
-					),
-				});
-
-				if (!existingAccount) {
-					try {
-						await db.insert(accountTable).values({
+				// Idempotent fallback: the provider/account pair is database-unique.
+				try {
+					await db
+						.insert(accountTable)
+						.values({
 							id: crypto.randomUUID(),
 							accountId: user.id,
 							providerId: "secret-code",
 							userId: user.id,
+						})
+						.onConflictDoNothing({
+							target: [accountTable.providerId, accountTable.accountId],
 						});
 
-						logger.info("Created secret-code account (fallback during login)", {
-							userId: user.id,
-						});
-					} catch (error) {
-						logger.error("Failed to create secret-code account", {
-							userId: user.id,
-							error: error instanceof Error ? error.message : String(error),
-						});
-					}
+					logger.info("Secret-code account ready during login", {
+						userId: user.id,
+					});
+				} catch (error) {
+					logger.error("Failed to create secret-code account", {
+						userId: user.id,
+						error: error instanceof Error ? error.message : String(error),
+					});
 				}
 
 				// Retourner l'ID et l'email - le plugin credentials gère la session

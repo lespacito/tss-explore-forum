@@ -39,11 +39,11 @@ describe("Publication tracking", () => {
 			</PublicationReceiptProvider>,
 		);
 		expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(
-			"Suivre votre dépôt",
+			"Suivre votre scénario",
 		);
 		expect(
 			screen
-				.getByRole("link", { name: "Voir mes publications" })
+				.getByRole("link", { name: "Voir mes scénarios" })
 				.getAttribute("href"),
 		).toBe("/account/profile");
 		expect(screen.getByText(/Aucune notification par email/)).toBeDefined();
@@ -61,16 +61,20 @@ describe("Publication tracking", () => {
 		fireEvent.click(screen.getByRole("button", { name: "Confirm submission" }));
 
 		expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(
-			"Publication envoyée pour modération",
+			"Votre scénario a été envoyé",
+		);
+		expect(screen.getByText(/Statut : À examiner/).textContent).toContain(
+			"Statut : À examiner",
 		);
 		expect(
-			screen.getByText(/Statut actuel : en attente/).textContent,
-		).toContain("Statut actuel : en attente");
-		expect(
-			screen.getByRole("heading", { name: "Pour retrouver votre dépôt" }),
+			screen.getByRole("heading", {
+				name: "Conservez votre code de récupération",
+			}),
 		).toBeDefined();
-		expect(screen.getByText("Conservez votre code secret.")).toBeDefined();
-		expect(screen.getByText("Ouvrez Mes publications.")).toBeDefined();
+		expect(
+			screen.getByText("Conservez ce code dans un endroit privé."),
+		).toBeDefined();
+		expect(screen.getByText("Ouvrez Mes scénarios.")).toBeDefined();
 	});
 	it("discards legacy URL credentials", () => {
 		const validate = Route.options.validateSearch as (

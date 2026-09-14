@@ -27,7 +27,7 @@ export const threadsColumns = {
 	title: varchar("title").notNull().unique(),
 	body: text("body").notNull(),
 	slug: varchar("slug").notNull().unique(),
-	category: varchar("category").notNull(),
+	category: varchar("category"),
 	// Moderation fields (Story 2.4)
 	status: threadStatusEnum("status").notNull().default("pending"),
 	isSensitive: boolean("is_sensitive").notNull().default(false),

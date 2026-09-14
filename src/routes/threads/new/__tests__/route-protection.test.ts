@@ -9,6 +9,13 @@ import type { AuthContext } from "@/features/auth/server/get-auth-session";
 vi.mock("@/features/auth/components/AnonymousPostButton", () => ({
 	AnonymousPostButton: () => null,
 }));
+vi.mock("@/features/threads/server/actions/create-thread", () => ({
+	createThreadFn: vi.fn(),
+}));
+const mockGetPrimaryAlias = vi.fn();
+vi.mock("@/features/alias/server/actions/get-primary-alias", () => ({
+	getCurrentPrimaryAliasFn: () => mockGetPrimaryAlias(),
+}));
 const mockGetAuthSession = vi.fn();
 vi.mock("@/features/auth/server/get-auth-session", () => ({
 	getAuthSession: () => mockGetAuthSession(),
@@ -17,13 +24,17 @@ vi.mock("@/features/auth/server/get-auth-session", () => ({
 describe("Route Protection: /threads/new/", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		mockGetPrimaryAlias.mockResolvedValue("Érable calme");
 	});
 
 	it("lets invited visitors reach the session creation step", async () => {
 		const session = { user: null, isAuthenticated: false, session: null };
 		mockGetAuthSession.mockResolvedValue(session);
 		const { Route } = await import("../index.tsx");
-		expect(await Route.options.loader?.()).toEqual({ session });
+		expect(await Route.options.loader?.()).toEqual({
+			session,
+			aliasName: null,
+		});
 		expect(mockGetAuthSession).toHaveBeenCalledOnce();
 	});
 
@@ -65,7 +76,11 @@ describe("Route Protection: /threads/new/", () => {
 			const loader = Route.options.loader;
 			const result = await loader?.();
 
-			expect(result).toEqual({ session: anonymousSession });
+			expect(result).toEqual({
+				session: anonymousSession,
+				aliasName: "Érable calme",
+			});
+			expect(mockGetPrimaryAlias).toHaveBeenCalledOnce();
 			expect(mockGetAuthSession).toHaveBeenCalledOnce();
 		});
 	});
@@ -108,7 +123,10 @@ describe("Route Protection: /threads/new/", () => {
 			const loader = Route.options.loader;
 			const result = await loader?.();
 
-			expect(result).toEqual({ session: registeredSession });
+			expect(result).toEqual({
+				session: registeredSession,
+				aliasName: "Érable calme",
+			});
 			expect(mockGetAuthSession).toHaveBeenCalledOnce();
 		});
 	});

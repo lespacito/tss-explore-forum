@@ -32,6 +32,11 @@ vi.mock("@/db", () => ({
 		update: vi.fn().mockReturnThis(),
 		set: vi.fn().mockReturnThis(),
 		delete: vi.fn().mockReturnThis(),
+		query: {
+			account: {
+				findFirst: vi.fn(),
+			},
+		},
 	},
 }));
 
@@ -67,6 +72,7 @@ vi.mock("@/db/schemas/alias", () => ({
 vi.mock("drizzle-orm", () => ({
 	eq: vi.fn(() => "mocked-eq"),
 	and: vi.fn(() => "mocked-and"),
+	isNull: vi.fn(() => "mocked-is-null"),
 	relations: vi.fn(() => ({})),
 }));
 
@@ -106,6 +112,7 @@ describe("Thread Creation - Secret Code Integration (Task 4)", () => {
 		mockDb.update.mockReturnThis();
 		mockDb.set.mockReturnThis();
 		mockDb.delete.mockReturnThis();
+		mockDb.query.account.findFirst.mockResolvedValue(null);
 	});
 
 	describe("Task 4.1: Detect if first publication for anonymous user", () => {
@@ -152,7 +159,7 @@ describe("Thread Creation - Secret Code Integration (Task 4)", () => {
 		});
 	});
 
-	describe("Task 4.2: Call generateSecretCodeFn after successful submission", () => {
+	describe("Task 4.2: Acquire a recovery code before the first submission", () => {
 		it("should generate secret code for anonymous user creating first thread", async () => {
 			// GIVEN: An anonymous user creating their first thread
 			const mockSession = {
@@ -170,17 +177,6 @@ describe("Thread Creation - Secret Code Integration (Task 4)", () => {
 				} as Session,
 			};
 
-			// Mock: Thread creation succeeds
-			const newThread = {
-				id: "test-thread-2",
-				aliasId: "test-alias-3",
-				title: "First Thread Title",
-				body: "First thread body content",
-				slug: "first-thread-slug",
-				category: "general",
-			};
-			mockDb.returning.mockResolvedValue([newThread]);
-
 			// Mock: User query returns anonymous user without code
 			mockDb.limit.mockResolvedValue([
 				{
@@ -193,16 +189,11 @@ describe("Thread Creation - Secret Code Integration (Task 4)", () => {
 
 			// Mock: Secret code generation
 			vi.mocked(ensureUniqueCode).mockResolvedValue("ABC4-DEF5-GHI6");
+			mockDb.returning.mockResolvedValueOnce([
+				{ secretCode: "ABC4-DEF5-GHI6" },
+			]);
 
-			// WHEN: Thread is created (simulate thread creation)
-			const thread = await mockDb
-				.insert({} as any)
-				.values(newThread)
-				.returning();
-
-			expect(thread[0]).toBeDefined();
-
-			// AND: Secret code generation is triggered
+			// WHEN: Recovery code generation is triggered before insertion
 			const result = await generateSecretCodeLogic(mockSession, mockDb as any);
 
 			// THEN: Secret code should be generated successfully
@@ -361,7 +352,7 @@ describe("Thread Creation - Secret Code Integration (Task 4)", () => {
 	});
 
 	describe("Task 4.4: Test integration with thread publication flow", () => {
-		it("should complete full flow: create thread → detect first publication → generate code", async () => {
+		it("should complete full flow: detect first scenario → acquire code → create thread", async () => {
 			// GIVEN: New anonymous user with no threads
 			const userId = "test-anon-user-7";
 			const aliasId = "test-alias-7";
@@ -392,7 +383,33 @@ describe("Thread Creation - Secret Code Integration (Task 4)", () => {
 
 			expect(existingThreads.length).toBe(0); // Confirm first publication
 
-			// Step 2: Create thread
+			// Step 2: Acquire the recovery code before creating the thread
+			mockDb.limit.mockResolvedValueOnce([
+				{
+					id: userId,
+					email: "temp@anonymous.com",
+					isAnonymous: true,
+					secretCode: null,
+				},
+			]);
+
+			vi.mocked(ensureUniqueCode).mockResolvedValue("INTEG-TEST-CODE");
+			mockDb.returning.mockResolvedValueOnce([
+				{ secretCode: "INTEG-TEST-CODE" },
+			]);
+
+			const codeResult = await generateSecretCodeLogic(
+				mockSession,
+				mockDb as any,
+			);
+
+			expect(codeResult.success).toBe(true);
+			if (codeResult.success) {
+				expect(codeResult.secretCode).toBe("INTEG-TEST-CODE");
+				expect(codeResult.isExisting).toBe(false);
+			}
+
+			// Step 3: Create the thread only after the code is ready
 			const newThread = {
 				id: "test-thread-7",
 				aliasId: aliasId,
@@ -411,30 +428,6 @@ describe("Thread Creation - Secret Code Integration (Task 4)", () => {
 
 			expect(threadResult[0]).toBeDefined();
 			expect(threadResult[0].title).toBe("Integration Test Thread");
-
-			// Step 3: Generate secret code after successful thread creation
-			mockDb.limit.mockResolvedValueOnce([
-				{
-					id: userId,
-					email: "temp@anonymous.com",
-					isAnonymous: true,
-					secretCode: null,
-				},
-			]);
-
-			vi.mocked(ensureUniqueCode).mockResolvedValue("INTEG-TEST-CODE");
-
-			const codeResult = await generateSecretCodeLogic(
-				mockSession,
-				mockDb as any,
-			);
-
-			// THEN: Secret code should be generated
-			expect(codeResult.success).toBe(true);
-			if (codeResult.success) {
-				expect(codeResult.secretCode).toBe("INTEG-TEST-CODE");
-				expect(codeResult.isExisting).toBe(false);
-			}
 
 			// AND: Code should be saved to database
 			expect(mockDb.update).toHaveBeenCalled();
@@ -539,8 +532,8 @@ describe("Thread Creation - Secret Code Integration (Task 4)", () => {
 			expect(ensureUniqueCode).not.toHaveBeenCalled();
 		});
 
-		it("should handle secret code generation failure after thread creation", async () => {
-			// GIVEN: Thread created but code generation fails
+		it("should surface recovery code failure before thread creation", async () => {
+			// GIVEN: Recovery code generation fails
 			const mockSession = {
 				isAuthenticated: true,
 				user: {

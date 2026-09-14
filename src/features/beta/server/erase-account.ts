@@ -2,18 +2,13 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import { verifyPassword } from "better-auth/crypto";
 import { and, eq } from "drizzle-orm";
-import { z } from "zod";
 import { db } from "@/db";
 import { account, user } from "@/db/schema";
 import { auth } from "@/features/auth/lib/auth";
+import { eraseBetaAccountSchema } from "@/features/beta/schemas/erase-account";
 
 export const eraseBetaAccount = createServerFn({ method: "POST" })
-	.validator(
-		z.object({
-			confirmation: z.literal("EFFACER"),
-			password: z.string().max(256).optional(),
-		}),
-	)
+	.validator(eraseBetaAccountSchema)
 	.handler(async ({ data }) => {
 		const { eraseAccountRecords } = await import("./erase-account-records");
 		const session = await auth.api.getSession({

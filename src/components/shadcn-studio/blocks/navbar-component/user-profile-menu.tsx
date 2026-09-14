@@ -1,5 +1,5 @@
-import { Link, useRouter } from "@tanstack/react-router";
-import { LogOut, Settings, ShieldCheck, User } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { LogOut, Settings, ShieldCheck } from "lucide-react";
 import { useCallback, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,6 @@ interface UserProfileMenuProps {
 }
 
 export function UserProfileMenu({ user }: UserProfileMenuProps) {
-	const router = useRouter();
 	const [imageLoaded, setImageLoaded] = useState(false);
 
 	const handleSignOut = useCallback(async () => {
@@ -30,7 +29,7 @@ export function UserProfileMenu({ user }: UserProfileMenuProps) {
 				},
 			},
 		});
-	}, [router]);
+	}, []);
 
 	const getUserInitials = useCallback(() => {
 		if (!user?.displayUsername) return "U";
@@ -89,12 +88,6 @@ export function UserProfileMenu({ user }: UserProfileMenuProps) {
 				</DropdownMenuLabel>
 				<DropdownMenuSeparator />
 
-				<DropdownMenuItem asChild>
-					<Link to="/account/profile" className="cursor-pointer">
-						<User className="mr-2 h-4 w-4" />
-						<span>Mes publications</span>
-					</Link>
-				</DropdownMenuItem>
 				<DropdownMenuItem asChild>
 					<Link to="/account/settings" className="cursor-pointer">
 						<Settings className="mr-2 h-4 w-4" />

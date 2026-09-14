@@ -9,24 +9,23 @@ function Page() {
 			</h1>
 			<p>
 				Cette page décrit le fonctionnement de la bêta et ses limites. L’accès
-				aux publications et aux API nécessite une invitation valide.
+				aux scénarios et aux API nécessite une invitation valide.
 			</p>
 			<h2>Alias et identité</h2>
 			<p>
 				Aucun nom réel ni email n’est nécessaire pour une session anonyme. Un
-				alias accompagne vos publications. L’administration technique peut
-				relier une session à ses alias : cette séparation ne constitue pas une
-				garantie d’anonymat absolu. Un récit peut également contenir des détails
+				alias accompagne vos scénarios. L’administration technique peut relier
+				une session à ses alias : cette séparation ne constitue pas une garantie
+				d’anonymat absolu. Un récit peut également contenir des détails
 				identifiants ; utilisez uniquement des scénarios fictifs.
 			</p>
 			<h2>Données conservées</h2>
 			<p>
 				Le service conserve les sessions, leurs données techniques, les alias,
-				les publications, les décisions de modération et le code de
-				récupération. Les données techniques de session peuvent inclure une
-				adresse IP et des informations de navigateur. Le modérateur dispose du
-				contenu et des décisions, sans affichage de l’adresse IP dans sa file de
-				modération.
+				les scénarios, les décisions de modération et le code de récupération.
+				Les données techniques de session peuvent inclure une adresse IP et des
+				informations de navigateur. Le modérateur dispose du contenu et des
+				décisions, sans affichage de l’adresse IP dans sa file de modération.
 			</p>
 			<h2>Sur votre appareil</h2>
 			<p>
@@ -35,16 +34,16 @@ function Page() {
 				enregistré durablement que si vous activez cette option dans l’éditeur.
 				Désactivez-la ou utilisez Effacer le brouillon sur un appareil partagé.
 			</p>
-			<h2>Votre code secret</h2>
+			<h2>Votre code de récupération</h2>
 			<p>
 				Quiconque détient ce code peut retrouver votre session. Conservez-le
 				dans un endroit privé. Il n’est pas placé dans l’URL. Tant que votre
-				session est ouverte, vous pouvez le consulter depuis Mes publications.
+				session est ouverte, vous pouvez le consulter depuis Mes scénarios.
 			</p>
 			<h2>Effacement et limites</h2>
 			<p>
-				Gérer le compte permet de demander la suppression du compte et de ses
-				publications dans la base active. Une copie supprimée peut subsister
+				Gérer mes données permet de demander la suppression du compte et de ses
+				scénarios dans la base active. Une copie supprimée peut subsister
 				jusqu’à sept jours supplémentaires dans une sauvegarde avant son
 				expiration.
 			</p>
@@ -69,8 +68,8 @@ function Page() {
 					contact@parlonsviolence.ch
 				</a>{" "}
 				ou utilisez le canal par lequel vous avez reçu votre invitation.
-				N’envoyez jamais votre code secret, un récit personnel ou une capture
-				contenant ce code.
+				N’envoyez jamais votre code de récupération, un récit personnel ou une
+				capture contenant ce code.
 			</p>
 		</article>
 	);

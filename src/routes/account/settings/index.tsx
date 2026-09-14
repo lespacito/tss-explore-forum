@@ -14,14 +14,15 @@ export const Route = createFileRoute("/account/settings/")({
 function Settings() {
 	const { user } = Route.useLoaderData();
 	return (
-		<main className="mx-auto max-w-2xl space-y-8 px-4 py-10">
+		<div className="mx-auto max-w-2xl space-y-8 px-4 py-10">
 			<Link to="/account/profile" className="underline underline-offset-4">
-				Retour à mes publications
+				Retour à mes scénarios
 			</Link>
 			<h1 className="font-serif text-3xl font-semibold tracking-tight">
-				Effacer mon compte
+				Gérer mes données
 			</h1>
-			<EraseAccountForm anonymous={user.isAnonymous} />
-		</main>
+			<h2 className="font-serif text-2xl font-semibold">Effacer mes données</h2>
+			<EraseAccountForm anonymous={user.isAnonymous} userId={user.id} />
+		</div>
 	);
 }

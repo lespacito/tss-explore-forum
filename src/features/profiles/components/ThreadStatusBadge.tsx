@@ -4,9 +4,9 @@ import { cn } from "@/lib/utils";
 
 const STATUS_CONFIG = {
 	pending: {
-		label: "En attente",
+		label: "À examiner",
 		icon: Clock,
-		className: "bg-muted border-border text-muted-foreground",
+		className: "bg-warning/15 border-warning/50 text-warning-foreground",
 	},
 	published: {
 		label: "Publié",
@@ -14,7 +14,7 @@ const STATUS_CONFIG = {
 		className: "bg-primary/10 border-primary/30 text-primary",
 	},
 	rejected: {
-		label: "Modifications nécessaires",
+		label: "Non publié",
 		icon: AlertCircle,
 		className:
 			"bg-warning/10 border-warning/30 text-warning-foreground dark:text-warning",

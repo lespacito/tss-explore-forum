@@ -25,7 +25,7 @@ interface ThreadCardProps {
 		title: string;
 		body: string;
 		slug: string;
-		category: string;
+		category: string | null;
 		isSensitive?: boolean;
 		createdAt: Date | string;
 		updatedAt: Date | string;
@@ -46,9 +46,9 @@ export const ThreadCard = memo(function ThreadCard({
 		aliasName: thread.aliasName,
 		displayUsername: thread.displayUsername,
 	});
-	const categoryLabel = getCategoryConfig(
-		thread.category as ThreadCategory,
-	)?.label;
+	const categoryLabel = thread.category
+		? getCategoryConfig(thread.category as ThreadCategory)?.label
+		: "Non classé";
 
 	return (
 		<Link
@@ -74,7 +74,7 @@ export const ThreadCard = memo(function ThreadCard({
 								className={`text-xs ${getCategoryColor(thread.category)}`}
 								data-testid="thread-category"
 							>
-								{categoryLabel ?? thread.category}
+								{categoryLabel ?? thread.category ?? "Non classé"}
 							</Badge>
 						</div>
 						<span
@@ -97,7 +97,7 @@ export const ThreadCard = memo(function ThreadCard({
 					</h3>
 					{thread.isSensitive ? (
 						<p className="text-sm text-muted-foreground">
-							Contenu sensible. Ouvrez la publication pour choisir de le lire.
+							Contenu sensible. Ouvrez le scénario pour choisir de le lire.
 						</p>
 					) : (
 						<SafeHtmlDisplay
@@ -109,7 +109,7 @@ export const ThreadCard = memo(function ThreadCard({
 				</CardContent>
 				<CardFooter className="p-4 border-t flex justify-end text-muted-foreground">
 					<span className="text-xs font-medium text-primary">
-						Lire la publication →
+						Lire le scénario →
 					</span>
 				</CardFooter>
 			</Card>

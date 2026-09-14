@@ -22,22 +22,6 @@ describe("TipTap Editor - Accessibility (WCAG 2.1 AA)", () => {
 			expect(italicButton).toHaveAttribute("aria-label", "Italique");
 		});
 
-		it("has aria-label on Heading 2 button", () => {
-			render(<TipTap content="" onChange={() => {}} />);
-
-			const headingButton = screen.getByRole("button", { name: "Titre 2" });
-			expect(headingButton).toBeInTheDocument();
-			expect(headingButton).toHaveAttribute("aria-label", "Titre 2");
-		});
-
-		it("has aria-label on Blockquote button", () => {
-			render(<TipTap content="" onChange={() => {}} />);
-
-			const quoteButton = screen.getByRole("button", { name: /citation/i });
-			expect(quoteButton).toBeInTheDocument();
-			expect(quoteButton).toHaveAttribute("aria-label", "Citation");
-		});
-
 		it("has aria-label on BulletList button", () => {
 			render(<TipTap content="" onChange={() => {}} />);
 
@@ -46,16 +30,6 @@ describe("TipTap Editor - Accessibility (WCAG 2.1 AA)", () => {
 			});
 			expect(bulletButton).toBeInTheDocument();
 			expect(bulletButton).toHaveAttribute("aria-label", "Liste à puces");
-		});
-
-		it("has aria-label on OrderedList button", () => {
-			render(<TipTap content="" onChange={() => {}} />);
-
-			const orderedButton = screen.getByRole("button", {
-				name: /liste numérotée/i,
-			});
-			expect(orderedButton).toBeInTheDocument();
-			expect(orderedButton).toHaveAttribute("aria-label", "Liste numérotée");
 		});
 
 		it("toolbar has role='toolbar' and aria-label", () => {
@@ -98,21 +72,13 @@ describe("TipTap Editor - Accessibility (WCAG 2.1 AA)", () => {
 
 			const boldButton = screen.getByRole("button", { name: /gras/i });
 			const italicButton = screen.getByRole("button", { name: /italique/i });
-			const headingButton = screen.getByRole("button", { name: "Titre 2" });
-			const quoteButton = screen.getByRole("button", { name: /citation/i });
 			const bulletButton = screen.getByRole("button", {
 				name: /liste à puces/i,
-			});
-			const orderedButton = screen.getByRole("button", {
-				name: /liste numérotée/i,
 			});
 
 			expect(boldButton).toHaveAttribute("aria-pressed");
 			expect(italicButton).toHaveAttribute("aria-pressed");
-			expect(headingButton).toHaveAttribute("aria-pressed");
-			expect(quoteButton).toHaveAttribute("aria-pressed");
 			expect(bulletButton).toHaveAttribute("aria-pressed");
-			expect(orderedButton).toHaveAttribute("aria-pressed");
 		});
 	});
 
@@ -129,20 +95,6 @@ describe("TipTap Editor - Accessibility (WCAG 2.1 AA)", () => {
 
 			const italicButton = screen.getByRole("button", { name: /italique/i });
 			expect(italicButton).toHaveAttribute("title", "Italique (Ctrl+I)");
-		});
-
-		it("Heading 2 button shows Ctrl+Alt+2 shortcut in title", () => {
-			render(<TipTap content="" onChange={() => {}} />);
-
-			const headingButton = screen.getByRole("button", { name: "Titre 2" });
-			expect(headingButton).toHaveAttribute("title", "Titre 2 (Ctrl+Alt+2)");
-		});
-
-		it("Blockquote button shows Ctrl+Shift+B shortcut in title", () => {
-			render(<TipTap content="" onChange={() => {}} />);
-
-			const quoteButton = screen.getByRole("button", { name: /citation/i });
-			expect(quoteButton).toHaveAttribute("title", "Citation (Ctrl+Shift+B)");
 		});
 	});
 

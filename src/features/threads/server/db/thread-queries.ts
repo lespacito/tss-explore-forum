@@ -15,7 +15,7 @@ const threadWithAliasSelect = {
 	body: threads.body,
 	slug: threads.slug,
 	category: threads.category,
- isSensitive: threads.isSensitive,
+	isSensitive: threads.isSensitive,
 	createdAt: threads.createdAt,
 	updatedAt: threads.updatedAt,
 	aliasName: alias.alias,
@@ -207,7 +207,7 @@ export async function createThreadRecord(data: {
 	aliasId: string;
 	title: string;
 	body: string;
-	category: ThreadCategory;
+	category: ThreadCategory | null;
 	slug: string;
 	status: "pending" | "published" | "rejected";
 }) {

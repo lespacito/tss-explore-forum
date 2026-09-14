@@ -9,7 +9,7 @@ const SENSITIVE_CATEGORIES = ["VIOLENCE", "ABUS", "DETRESSE"];
  * @param category - La catégorie du thread
  * @returns true si la catégorie est sensible, false sinon
  */
-export function isThreadCategorySensitive(category: string): boolean {
+export function isThreadCategorySensitive(category: string | null): boolean {
 	if (!category) return false;
 	const normalized = category.toUpperCase();
 	return SENSITIVE_CATEGORIES.includes(normalized);
@@ -22,7 +22,7 @@ export function isThreadCategorySensitive(category: string): boolean {
  */
 export function getAuthorDisplayName(options: {
 	isSensitive: boolean;
-	threadCategory: string;
+	threadCategory: string | null;
 	aliasName: string | null;
 	displayUsername: string | null;
 }): string {
@@ -43,7 +43,7 @@ export function getAuthorDisplayName(options: {
  * @param category - La catégorie du thread (VIOLENCE, ABUS, TEMOIN, DETRESSE, AUTRE)
  * @returns Les classes CSS pour bg, text et border
  */
-export function getCategoryColor(category: string): string {
+export function getCategoryColor(category: string | null): string {
 	const colors: Record<string, string> = {
 		VIOLENCE: "bg-destructive/10 text-destructive border-destructive/20",
 		ABUS: "bg-primary/10 text-primary border-primary/20",
@@ -52,7 +52,7 @@ export function getCategoryColor(category: string): string {
 		AUTRE: "bg-muted/10 text-muted-foreground border-muted/20",
 	};
 	return (
-		colors[category.toUpperCase()] ||
+		(category ? colors[category.toUpperCase()] : undefined) ||
 		"bg-muted/10 text-muted-foreground border-muted/20"
 	);
 }

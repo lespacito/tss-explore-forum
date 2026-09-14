@@ -136,8 +136,11 @@ describe("private beta boundary", () => {
 		expect(confirmationResponse?.status).toBe(200);
 		expect(html).toContain('role="status"');
 		expect(html).toContain(
-			"Votre compte et vos publications ont été effacés de la base active.",
+			"Vos données et vos scénarios ont été effacés de la base active.",
 		);
 		expect(html).toContain("sept jours supplémentaires");
+		expect(html).toContain("fermer cette page");
+		expect(html).not.toContain("Code d’invitation");
+		expect(html).not.toContain("Accéder à la bêta");
 	});
 });
