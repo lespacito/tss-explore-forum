@@ -101,6 +101,28 @@ describe("private beta boundary", () => {
 			),
 		).toBeNull();
 	});
+	it("accepts the configured public origin behind a reverse proxy", async () => {
+		vi.stubEnv("APP_URL", "https://stagging.parlonsviolence.ch");
+		vi.stubEnv("BETA_INVITATION_CODES", code);
+		vi.stubEnv("BETTER_AUTH_SECRET", secret);
+		const request = (origin: string) =>
+			new Request("http://app:3000/beta", {
+				method: "POST",
+				headers: {
+					origin,
+					"content-type": "application/x-www-form-urlencoded",
+				},
+				body: new URLSearchParams({ invitation: code }).toString(),
+			});
+
+		expect(
+			(await betaAccessResponse(request("https://attacker.invalid")))?.status,
+		).toBe(403);
+		expect(
+			(await betaAccessResponse(request("https://stagging.parlonsviolence.ch")))
+				?.status,
+		).toBe(303);
+	});
 	it("rejects oversized form bodies", async () => {
 		const response = await betaAccessResponse(
 			new Request("http://localhost/beta", {

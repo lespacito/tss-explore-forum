@@ -19,6 +19,15 @@ function equal(a: string, b: string) {
 		a.length === b.length && timingSafeEqual(Buffer.from(a), Buffer.from(b))
 	);
 }
+function expectedOrigin(requestUrl: string) {
+	const configuredAppUrl = process.env.APP_URL?.trim();
+	if (!configuredAppUrl) return new URL(requestUrl).origin;
+	try {
+		return new URL(configuredAppUrl).origin;
+	} catch {
+		return "";
+	}
+}
 export function signInvitation(code: string, secret: string, now = Date.now()) {
 	const payload = `${digest(code)}.${Math.floor(now / 1000) + lifetime}`;
 	return `${payload}.${createHmac("sha256", secret).update(payload).digest("hex")}`;
@@ -129,7 +138,7 @@ export async function betaAccessResponse(
 		}
 		if (request.method !== "POST")
 			return new Response(null, { status: 405, headers });
-		if (request.headers.get("origin") !== url.origin)
+		if (request.headers.get("origin") !== expectedOrigin(request.url))
 			return entryPage("Rechargez la page avant de réessayer.", 403);
 		if (Date.now() - windowStart > 60_000) {
 			windowStart = Date.now();
