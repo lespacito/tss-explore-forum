@@ -28,23 +28,17 @@ test("landing keeps its primary journey and navigation across viewports", async 
 	).toBeVisible();
 	await expect(
 		page.getByRole("button", {
-			name: /Entrer avec mon invitation|Dépôts suspendus/,
+			name: /Commencer|Dépôts suspendus/,
 		}),
 	).toBeVisible();
-	await expect(page.getByRole("status")).toContainText("Dépôts suspendus");
 	await expect(
-		page.getByRole("navigation", { name: "Navigation de la page d’accueil" }),
+		page.getByText(/Envoi de scénarios (ouvert|suspendu)/),
 	).toBeVisible();
-	await expect(
-		page.getByRole("link", { name: "Comment ça marche" }),
-	).toHaveAttribute("href", "#comment-ca-marche");
-	await expect(
-		page.getByRole("link", { name: "Vos questions" }),
-	).toHaveAttribute("href", "#questions");
+	await expect(page.getByRole("button", { name: "Informations" })).toBeVisible();
 
 	await page.setViewportSize({ width: 390, height: 844 });
 	await expect(
-		page.getByRole("navigation", { name: "Navigation de la page d’accueil" }),
+		page.getByRole("button", { name: "Ouvrir les informations" }),
 	).toBeVisible();
 	await expect(
 		page.getByRole("link", { name: "Retrouver ma session" }),
