@@ -34,7 +34,9 @@ test("landing keeps its primary journey and navigation across viewports", async 
 	await expect(
 		page.getByText(/Envoi de scénarios (ouvert|suspendu)/),
 	).toBeVisible();
-	await expect(page.getByRole("button", { name: "Informations" })).toBeVisible();
+	await expect(
+		page.getByRole("button", { name: "Informations" }),
+	).toBeVisible();
 
 	await page.setViewportSize({ width: 390, height: 844 });
 	await expect(
