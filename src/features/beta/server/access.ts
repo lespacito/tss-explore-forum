@@ -16,7 +16,8 @@ function digest(value: string) {
 }
 function equal(a: string, b: string) {
 	return (
-		a.length === b.length && timingSafeEqual(Buffer.from(a), Buffer.from(b))
+		Buffer.byteLength(a) === Buffer.byteLength(b) &&
+		timingSafeEqual(Buffer.from(a), Buffer.from(b))
 	);
 }
 function expectedOrigin(requestUrl: string) {
@@ -40,7 +41,12 @@ export function verifyInvitation(
 ) {
 	if (!cookie || secret.length < 32 || cookie.length > 200) return false;
 	const [id, expiry, signature, extra] = cookie.split(".");
-	if (extra || !id || !expiry || !signature || !/^\d+$/.test(expiry))
+	if (
+		extra ||
+		!/^[0-9a-f]{64}$/i.test(id ?? "") ||
+		!/^\d+$/.test(expiry ?? "") ||
+		!/^[0-9a-f]{64}$/i.test(signature ?? "")
+	)
 		return false;
 	const seconds = Math.floor(now / 1000);
 	if (
@@ -181,8 +187,8 @@ export async function betaAccessResponse(
 	}
 	// These pages carry no participant content. Server functions are never exempted.
 	if (
-		request.method === "GET" &&
-		["/help", "/privacy", "/rules"].includes(path)
+		["GET", "HEAD"].includes(request.method) &&
+		["/beta-entry.css", "/help", "/privacy", "/rules"].includes(path)
 	)
 		return null;
 	const cookie = request.headers

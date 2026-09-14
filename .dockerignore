@@ -8,9 +8,7 @@ dist
 .vinxi
 
 # Development
-.env.local
-.env.development
-.env*.local
+.env*
 
 # Testing
 coverage

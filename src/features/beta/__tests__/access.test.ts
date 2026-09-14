@@ -38,6 +38,17 @@ describe("private beta boundary", () => {
 			),
 		).toBe(false);
 	});
+	it("rejects malformed non-ASCII cookie signatures without throwing", async () => {
+		vi.stubEnv("BETA_INVITATION_CODES", code);
+		vi.stubEnv("BETTER_AUTH_SECRET", secret);
+		const [id, expiry] = signInvitation(code, secret).split(".");
+		const response = await betaAccessResponse(
+			new Request("http://localhost/threads", {
+				headers: { cookie: `${BETA_COOKIE}=${id}.${expiry}.${"é".repeat(64)}` },
+			}),
+		);
+		expect(response?.status).toBe(401);
+	});
 	it("fails closed without configuration and protects direct APIs", async () => {
 		vi.stubEnv("BETA_INVITATION_CODES", "");
 		expect(
@@ -60,7 +71,7 @@ describe("private beta boundary", () => {
 			).toBe(401);
 	});
 	it("allows help pages without granting API access", async () => {
-		for (const path of ["/help", "/privacy", "/rules"])
+		for (const path of ["/beta-entry.css", "/help", "/privacy", "/rules"])
 			expect(
 				await betaAccessResponse(new Request(`http://localhost${path}`)),
 			).toBeNull();
