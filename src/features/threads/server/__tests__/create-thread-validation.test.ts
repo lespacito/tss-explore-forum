@@ -1,32 +1,25 @@
 import { describe, expect, it } from "vitest";
-import { z } from "zod";
-import type { ThreadCategory } from "@/data/threads-categories";
+import { createThreadSchema } from "../../schemas/create-thread";
 
 /**
  * Test Suite: Category Validation in createThreadSchema
  * Coverage: Task 2 - Zod enum validation for thread categories
  */
 
-// Recreate schema to test independently (same as in create-thread.ts)
-const createThreadSchema = z.object({
-	title: z
-		.string()
-		.min(1, "Le titre ne peut pas être vide")
-		.max(200, "Le titre ne peut pas dépasser 200 caractères"),
-	body: z
-		.string()
-		.min(1, "Le contenu ne peut pas être vide")
-		.max(10000, "Le contenu ne peut pas dépasser 10000 caractères"),
-	category: z.enum([
-		"VIOLENCE",
-		"ABUS",
-		"TEMOIN",
-		"DETRESSE",
-		"AUTRE",
-	]) as z.ZodType<ThreadCategory>,
-});
-
 describe("Task 2: Category Validation", () => {
+	it("trims titles and rejects blank or too-short values", () => {
+		expect(() =>
+			createThreadSchema.parse({ title: "   ", body: "Test body" }),
+		).toThrow();
+		expect(() =>
+			createThreadSchema.parse({ title: "ab", body: "Test body" }),
+		).toThrow();
+		expect(
+			createThreadSchema.parse({ title: "  Titre valide  ", body: "Test body" })
+				.title,
+		).toBe("Titre valide");
+	});
+
 	describe("Subtask 2.4: Validation rejects invalid categories", () => {
 		it("should reject old category value 'support'", () => {
 			const invalidData = {
@@ -81,6 +74,25 @@ describe("Task 2: Category Validation", () => {
 	});
 
 	describe("Subtask 2.5: Validation accepts valid categories", () => {
+		it("accepts an omitted category as an unclassified scenario", () => {
+			const result = createThreadSchema.parse({
+				title: "Scénario sans classement",
+				body: "Un contenu fictif suffisamment détaillé.",
+			});
+
+			expect(result.category).toBeUndefined();
+		});
+
+		it("keeps an explicit Other choice distinct from no category", () => {
+			const result = createThreadSchema.parse({
+				title: "Autre situation",
+				body: "Un contenu fictif suffisamment détaillé.",
+				category: "AUTRE",
+			});
+
+			expect(result.category).toBe("AUTRE");
+		});
+
 		it("should accept 'VIOLENCE' category", () => {
 			const validData = {
 				title: "Test thread",

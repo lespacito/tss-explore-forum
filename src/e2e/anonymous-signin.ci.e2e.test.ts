@@ -17,8 +17,10 @@ test("anonymous sign-in requires a valid beta invitation", async ({ page }) => {
 	await expect(page).toHaveURL(/\/$/);
 	await page.goto("/auth/anonymous-signin");
 
-	await expect(page.getByText(/connexion avec code secret/i)).toBeVisible();
-	await expect(page.getByLabel("Code Secret")).toBeVisible();
+	await expect(
+		page.getByRole("heading", { name: "Retrouver ma session", level: 1 }),
+	).toBeVisible();
+	await expect(page.getByLabel("Code de récupération")).toBeVisible();
 	await expect(
 		page.getByRole("main").getByRole("button", {
 			name: "Se connecter",

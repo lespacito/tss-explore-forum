@@ -2,6 +2,12 @@
 
 **Un forum anonyme et sécurisé pour aborder des sujets sensibles liés à la violence, l'abus et la détresse.**
 
+> La version actuellement testée est une **bêta privée expérimentale**, distincte
+> du service cible. Elle est réservée à une petite cohorte adulte et accepte
+> uniquement des scénarios fictifs. Son parcours canonique est documenté dans le
+> [brief UX de la bêta](docs/ux/private-beta-ux-brief.md) et son vocabulaire dans
+> [CONTEXT.md](CONTEXT.md).
+
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
 [![TanStack Start](https://img.shields.io/badge/TanStack_Start-RC-orange.svg)](https://tanstack.com/start)
 [![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
@@ -24,10 +30,10 @@ Créer un espace sûr où les personnes confrontées à la violence peuvent **pa
 
 ## ✨ Fonctionnalités Principales
 
-### 🎭 Authentification Anonyme avec Code Secret
+### 🎭 Session anonyme avec code de récupération
 
 - Session anonyme immédiate (aucune donnée personnelle requise)
-- Code secret généré après première publication (format: `XXXX-XXXX-XXXX`)
+- Code de récupération sécurisé avant l’envoi du premier scénario (format: `XXXX-XXXX-XXXX`)
 - Récupération de session sur n'importe quel appareil
 - Migration optionnelle vers compte email
 
@@ -258,6 +264,7 @@ SERVICE_NAME=parlons-violence
 
 ### Guides Techniques
 
+- [Déploiement staging Dokploy](docs/staging-dokploy.md) - Variables, secrets, migrations et checklist de mise en service
 - [Project Context](project-context.md) - Contexte complet du projet (MUST READ)
 - [Auth Flows](docs/auth-flows.md) - Flux d'authentification détaillés
 - [Architecture Flows](docs/architecture-flux-threads-posts.md) - Flux threads/posts

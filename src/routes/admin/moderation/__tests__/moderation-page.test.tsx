@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import "@testing-library/jest-dom/vitest";
 import { Route } from "../index";
 
 const mocks = vi.hoisted(() => ({
@@ -49,6 +50,10 @@ vi.mock("@/features/auth/server/get-auth-session", () => ({
 vi.mock("@/features/moderation/server/thread-moderation", () => ({
 	getModerationQueueFn: vi.fn(),
 	moderateThreadFn: mocks.moderateThread,
+	moderationReasonCodes: ["OUT_OF_SCOPE"],
+	moderationReasonLabels: {
+		OUT_OF_SCOPE: "Ce scénario ne correspond pas au périmètre de cette bêta.",
+	},
 }));
 
 vi.mock("sonner", () => ({
@@ -78,7 +83,7 @@ describe("Moderation decisions", () => {
 
 		expect(mocks.moderateThread).not.toHaveBeenCalled();
 		expect(
-			screen.getByText("Cette publication deviendra visible par les invités."),
+			screen.getByText("Ce scénario deviendra visible par les invités."),
 		).toBeDefined();
 
 		fireEvent.click(
@@ -90,11 +95,12 @@ describe("Moderation decisions", () => {
 				data: {
 					threadId: "46cc031d-7a75-4cf0-88c6-6aac14dd80f7",
 					action: "publish",
-					reason: undefined,
+					reasonCode: undefined,
+					details: undefined,
 				},
 			}),
 		);
-		expect(screen.getByText("Publication approuvée")).toBeDefined();
+		expect(screen.getByText("Scénario publié")).toBeDefined();
 		expect(
 			screen.getByRole("button", { name: "Voir dans Publiées" }),
 		).toBeDefined();
@@ -140,13 +146,41 @@ describe("Moderation decisions", () => {
 				data: {
 					threadId: "46cc031d-7a75-4cf0-88c6-6aac14dd80f7",
 					action: "mark_sensitive",
-					reason: undefined,
+					reasonCode: undefined,
+					details: undefined,
 				},
 			}),
 		);
 		expect(
 			screen.getByRole("button", { name: "Voir dans À examiner" }),
 		).toBeDefined();
+	});
+
+	it("requires a predefined reason before confirming non-publication", async () => {
+		render(<ModerationPage />);
+		fireEvent.click(screen.getByRole("button", { name: "Rejeter" }));
+
+		const confirm = screen.getByRole("button", {
+			name: "Confirmer le rejet",
+		});
+		expect(confirm).toBeDisabled();
+
+		fireEvent.change(screen.getByLabelText("Motif de non-publication"), {
+			target: { value: "OUT_OF_SCOPE" },
+		});
+		expect(confirm).toBeEnabled();
+		fireEvent.click(confirm);
+
+		await waitFor(() =>
+			expect(mocks.moderateThread).toHaveBeenCalledWith({
+				data: {
+					threadId: "46cc031d-7a75-4cf0-88c6-6aac14dd80f7",
+					action: "reject",
+					reasonCode: "OUT_OF_SCOPE",
+					details: "",
+				},
+			}),
+		);
 	});
 
 	it("distinguishes a saved decision from a refresh failure", async () => {
@@ -163,6 +197,6 @@ describe("Moderation decisions", () => {
 				"Décision enregistrée, mais la file n’a pas pu être actualisée. Rechargez la page.",
 			),
 		);
-		expect(screen.getByText("Publication approuvée")).toBeDefined();
+		expect(screen.getByText("Scénario publié")).toBeDefined();
 	});
 });

@@ -20,7 +20,10 @@ import { getAuthSession } from "@/features/auth/server/get-auth-session";
 import {
 	getModerationQueueFn,
 	type ModerationQueueItem,
+	type ModerationReasonCode,
 	moderateThreadFn,
+	moderationReasonCodes,
+	moderationReasonLabels,
 } from "@/features/moderation/server/thread-moderation";
 import { cn } from "@/lib/utils";
 
@@ -84,7 +87,7 @@ function ModerationPage() {
 						File de modération
 					</h1>
 					<p className="mt-2 text-sm leading-6 text-muted-foreground sm:text-base">
-						Relisez chaque publication avec calme. L’identité technique et
+						Relisez chaque scénario avec calme. L’identité technique et
 						l’adresse IP des auteurs ne sont jamais affichées ici.
 					</p>
 				</div>
@@ -116,7 +119,7 @@ function ModerationPage() {
 						count={counts.rejected}
 						onClick={() => setFilter("rejected")}
 					>
-						Rejetées
+						Non publiés
 					</FilterButton>
 				</div>
 			</nav>
@@ -196,7 +199,8 @@ function ModerationItem({
 	const router = useRouter();
 	const [isWorking, setIsWorking] = useState(false);
 	const [showReject, setShowReject] = useState(false);
-	const [reason, setReason] = useState(thread.rejectionReason || "");
+	const [reasonCode, setReasonCode] = useState<ModerationReasonCode | "">("");
+	const [details, setDetails] = useState("");
 	const [pendingAction, setPendingAction] = useState<Exclude<
 		ModerationAction,
 		"reject"
@@ -209,14 +213,15 @@ function ModerationItem({
 				data: {
 					threadId: thread.id,
 					action,
-					reason: action === "reject" ? reason : undefined,
+					reasonCode: action === "reject" ? reasonCode || undefined : undefined,
+					details: action === "reject" ? details : undefined,
 				},
 			});
 			toast.success(
 				action === "publish"
-					? "Publication approuvée"
+					? "Scénario publié"
 					: action === "reject"
-						? "Publication rejetée"
+						? "Scénario non publié"
 						: action === "mark_sensitive"
 							? "Contenu marqué sensible"
 							: "Marquage sensible retiré",
@@ -247,7 +252,7 @@ function ModerationItem({
 			<div className="grid gap-6 p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_15rem]">
 				<div className="min-w-0">
 					<div className="mb-4 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-						<Badge variant="outline">{thread.category}</Badge>
+						<Badge variant="outline">{thread.category || "Non classé"}</Badge>
 						<span>{thread.aliasName}</span>
 						<span aria-hidden="true">·</span>
 						<span className="inline-flex items-center gap-1">
@@ -351,26 +356,47 @@ function ModerationItem({
 			{showReject && (
 				<div className="border-t bg-muted/45 p-5 sm:p-6">
 					<label
-						htmlFor={`rejection-${thread.id}`}
+						htmlFor={`rejection-code-${thread.id}`}
 						className="text-sm font-medium"
 					>
-						Motif transmis à l’auteur
+						Motif de non-publication
 					</label>
 					<p className="mt-1 text-sm text-muted-foreground">
-						Décrivez précisément ce qui doit être corrigé, sans jugement sur la
-						personne.
+						Choisissez le motif principal qui sera transmis à l’auteur.
 					</p>
+					<select
+						id={`rejection-code-${thread.id}`}
+						value={reasonCode}
+						onChange={(event) =>
+							setReasonCode(event.target.value as ModerationReasonCode | "")
+						}
+						className="mt-3 flex min-h-11 w-full rounded-lg border bg-background px-3 py-2 text-sm"
+						required
+					>
+						<option value="">Choisir un motif</option>
+						{moderationReasonCodes.map((code) => (
+							<option key={code} value={code}>
+								{moderationReasonLabels[code]}
+							</option>
+						))}
+					</select>
+					<label
+						htmlFor={`rejection-details-${thread.id}`}
+						className="mt-4 block text-sm font-medium"
+					>
+						Précision facultative
+					</label>
 					<Textarea
-						id={`rejection-${thread.id}`}
-						value={reason}
-						onChange={(event) => setReason(event.target.value)}
-						maxLength={500}
-						placeholder="Cette publication ne peut pas être publiée car…"
+						id={`rejection-details-${thread.id}`}
+						value={details}
+						onChange={(event) => setDetails(event.target.value)}
+						maxLength={300}
+						placeholder="Ajoutez seulement une précision utile…"
 						className="mt-3 min-h-24 bg-background"
 					/>
 					<div className="mt-3 flex flex-wrap items-center justify-between gap-3">
 						<span className="text-xs tabular-nums text-muted-foreground">
-							{reason.trim().length}/500 caractères
+							{details.trim().length}/300 caractères
 						</span>
 						<div className="flex gap-2">
 							<Button
@@ -385,7 +411,7 @@ function ModerationItem({
 								type="button"
 								variant="destructive"
 								onClick={() => runAction("reject")}
-								disabled={isWorking || reason.trim().length < 10}
+								disabled={isWorking || !reasonCode}
 							>
 								<ArchiveX />
 								Confirmer le rejet
@@ -400,7 +426,7 @@ function ModerationItem({
 
 function confirmationMessageFor(action: Exclude<ModerationAction, "reject">) {
 	if (action === "publish") {
-		return "Cette publication deviendra visible par les invités.";
+		return "Ce scénario deviendra visible par les invités.";
 	}
 	if (action === "mark_sensitive") {
 		return "Son extrait sera masqué jusqu’à ce que la personne choisisse de l’afficher.";
@@ -421,18 +447,18 @@ function decisionNoticeFor(
 ): DecisionNotice {
 	if (action === "publish") {
 		return {
-			title: "Publication approuvée",
+			title: "Scénario publié",
 			description: `« ${threadTitle} » est maintenant visible par les invités.`,
 			filter: "published",
 		};
 	}
 	if (action === "reject") {
 		return {
-			title: "Publication rejetée",
+			title: "Scénario non publié",
 			description:
 				"« " +
 				threadTitle +
-				" » apparaît maintenant dans les publications rejetées.",
+				" » apparaît maintenant dans les scénarios non publiés.",
 			filter: "rejected",
 		};
 	}
@@ -456,21 +482,21 @@ function decisionNoticeFor(
 function filterLabel(status: QueueStatus) {
 	if (status === "pending") return "À examiner";
 	if (status === "published") return "Publiées";
-	return "Rejetées";
+	return "Non publiés";
 }
 
 function EmptyQueue({ status }: { status: QueueStatus }) {
 	const labels = {
 		pending: {
 			title: "La file est à jour",
-			description: "Aucune publication n’attend actuellement votre examen.",
+			description: "Aucun scénario n’attend actuellement votre examen.",
 		},
 		published: {
-			title: "Aucune publication approuvée",
-			description: "Les publications approuvées apparaîtront ici.",
+			title: "Aucun scénario publié",
+			description: "Les scénarios publiés apparaîtront ici.",
 		},
 		rejected: {
-			title: "Aucune publication rejetée",
+			title: "Aucun scénario non publié",
 			description: "Les décisions de rejet apparaîtront ici avec leur motif.",
 		},
 	};

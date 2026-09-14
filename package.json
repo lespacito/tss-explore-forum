@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "bun --bun vite dev --host 127.0.0.1 --port 3001",
     "dev:local": "dotenv -e .env.local -- bun --bun vite dev --host 127.0.0.1 --port 3001",
-    "build": "bun --bun vite build",
+    "build": "NODE_ENV=production bun --bun vite build",
     "serve": "bun --bun vite preview",
     "start": "bun .output/server/index.mjs",
     "test": "vitest",

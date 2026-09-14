@@ -1,5 +1,5 @@
-import crypto from "crypto";
-import { and, eq } from "drizzle-orm";
+import crypto from "node:crypto";
+import { and, eq, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import { account, user } from "@/db/schemas/user";
 import { ensureUniqueCode } from "@/features/auth/lib/generate-secret-code";
@@ -68,41 +68,50 @@ export async function generateSecretCodeLogic(
 		}
 
 		// Generate new unique secret code
-		const secretCode = await ensureUniqueCode(dbInstance);
+		const candidateCode = await ensureUniqueCode(dbInstance);
 
-		// Save to database with timestamp
-		await dbInstance
+		// Only the first concurrent request may assign a code. Every contender then
+		// reads back the same stable value.
+		const [assignedUser] = await dbInstance
 			.update(user)
 			.set({
-				secretCode,
+				secretCode: candidateCode,
 				secretCodeGeneratedAt: new Date(),
 			})
-			.where(eq(user.id, userId));
+			.where(and(eq(user.id, userId), isNull(user.secretCode)))
+			.returning({ secretCode: user.secretCode });
 
-		// Créer l'account "secret-code" pour permettre la reconnexion via credentials plugin
-		// Ceci est fait ici (lors de la génération) plutôt que lors du login
-		// pour séparer les responsabilités: génération ≠ authentification
-		// Note: Non-bloquant - si ça échoue, l'account sera créé au premier login
+		const secretCode =
+			assignedUser?.secretCode ??
+			(
+				await dbInstance
+					.select({ secretCode: user.secretCode })
+					.from(user)
+					.where(eq(user.id, userId))
+					.limit(1)
+			)[0]?.secretCode;
+
+		if (!secretCode) {
+			return {
+				success: false,
+				error: "Impossible de générer le code de récupération",
+			};
+		}
+
+		// The provider/account pair is unique in the schema. This insert is therefore
+		// idempotent even when two first submissions race.
 		try {
-			const existingAccount = await dbInstance.query.account.findFirst({
-				where: and(
-					eq(account.userId, userId),
-					eq(account.providerId, "secret-code"),
-				),
-			});
-
-			if (!existingAccount) {
-				await dbInstance.insert(account).values({
+			await dbInstance
+				.insert(account)
+				.values({
 					id: crypto.randomUUID(),
 					accountId: userId,
 					providerId: "secret-code",
 					userId: userId,
+				})
+				.onConflictDoNothing({
+					target: [account.providerId, account.accountId],
 				});
-
-				logger.info("Created secret-code account for future authentication", {
-					userId,
-				});
-			}
 		} catch (accountError) {
 			// Ne pas bloquer la génération du secret code si la création d'account échoue
 			// L'account sera créé au premier login (fallback dans auth.ts)
@@ -130,7 +139,7 @@ export async function generateSecretCodeLogic(
 		logger.error("Secret code generation failed", { error });
 		return {
 			success: false,
-			error: "Impossible de générer le code secret",
+			error: "Impossible de générer le code de récupération",
 		};
 	}
 }

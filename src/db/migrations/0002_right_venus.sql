@@ -1,0 +1,1 @@
+ALTER TABLE "threads" ALTER COLUMN "category" DROP NOT NULL;

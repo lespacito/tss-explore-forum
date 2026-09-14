@@ -30,14 +30,14 @@ const steps: JourneyStep[] = [
 	{
 		number: "02",
 		title: "Alias",
-		copy: "Vous choisissez un alias. Votre code secret permet ensuite de retrouver la session.",
+		copy: "Un alias est généré pour cette session. Aucun nom ni e-mail n’est demandé.",
 		note: "VOTRE PARCOURS · VOS REPÈRES",
 		Icon: UserRound,
 	},
 	{
 		number: "03",
 		title: "Scénario fictif",
-		copy: "Vous testez le dépôt avec une situation inventée, sans nom ni détail identifiant.",
+		copy: "Vous rédigez une situation inventée, sans nom ni détail identifiant.",
 		note: "RÉFLÉCHIR · DÉCOUVRIR · SE REPÉRER",
 		Icon: FileText,
 	},
@@ -50,11 +50,11 @@ const steps: JourneyStep[] = [
 	},
 	{
 		number: "05",
-		title: "Mes publications",
+		title: "Mes scénarios",
 		copy: "Vous retrouvez la décision et, en cas de refus, son motif dans votre espace.",
-		note: "EN ATTENTE · PUBLIÉE · REFUSÉE",
+		note: "À EXAMINER · PUBLIÉ · NON PUBLIÉ",
 		Icon: ClipboardCheck,
-		stamp: "EN ATTENTE",
+		stamp: "À EXAMINER",
 	},
 ];
 
@@ -111,16 +111,13 @@ export default function HeroSection() {
 						<p className="landing-beta-label">BÊTA PRIVÉE · SUISSE ROMANDE</p>
 					</div>
 					<p className="landing-thesis">
-						Tester un parcours.
+						Une expérience encadrée.
 						<br />
-						Garder le contrôle.
+						Environ 10 minutes.
 					</p>
 					<div className="landing-primary-action">
-						<AnonymousPostButton
-							className="landing-cta"
-							label="Entrer avec mon invitation"
-						/>
-						<p>Ni service d’urgence, ni permanence d’écoute.</p>
+						<AnonymousPostButton className="landing-cta" label="Commencer" />
+						<p>Utilisez uniquement le scénario fictif fourni.</p>
 					</div>
 					<div className="landing-intro-footer">
 						<span>

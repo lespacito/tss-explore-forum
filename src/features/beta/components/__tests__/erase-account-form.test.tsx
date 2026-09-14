@@ -17,7 +17,7 @@ describe("EraseAccountForm", () => {
 	});
 
 	it("explains active-database deletion and backup retention", () => {
-		render(<EraseAccountForm anonymous />);
+		render(<EraseAccountForm anonymous userId="user-1" />);
 
 		expect(
 			screen.getByText(/supprime.+de la base active/i),
@@ -27,9 +27,9 @@ describe("EraseAccountForm", () => {
 
 	it("requires the exact confirmation before enabling deletion", async () => {
 		const user = userEvent.setup();
-		render(<EraseAccountForm anonymous />);
+		render(<EraseAccountForm anonymous userId="user-1" />);
 		const submit = screen.getByRole("button", {
-			name: /effacer définitivement/i,
+			name: /effacer mes données/i,
 		});
 		const confirmation = screen.getByLabelText(/saisissez effacer/i);
 
@@ -44,11 +44,11 @@ describe("EraseAccountForm", () => {
 		eraseAccount.mockRejectedValueOnce(
 			new Error("Reconnectez-vous puis réessayez."),
 		);
-		render(<EraseAccountForm anonymous />);
+		render(<EraseAccountForm anonymous userId="user-1" />);
 		const confirmation = screen.getByLabelText(/saisissez effacer/i);
 		await user.type(confirmation, "EFFACER");
 		await user.click(
-			screen.getByRole("button", { name: /effacer définitivement/i }),
+			screen.getByRole("button", { name: /effacer mes données/i }),
 		);
 
 		await waitFor(() => {
@@ -59,7 +59,7 @@ describe("EraseAccountForm", () => {
 		expect(confirmation).toHaveValue("EFFACER");
 		expect(confirmation).toHaveAttribute("aria-invalid", "true");
 		expect(
-			screen.getByRole("button", { name: /effacer définitivement/i }),
+			screen.getByRole("button", { name: /effacer mes données/i }),
 		).toBeEnabled();
 	});
 });

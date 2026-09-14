@@ -3,7 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { eraseBetaAccount } from "@/features/beta/server/erase-account";
-export function EraseAccountForm({ anonymous }: { anonymous: boolean }) {
+export function EraseAccountForm({
+	anonymous,
+	userId,
+}: {
+	anonymous: boolean;
+	userId: string;
+}) {
 	const confirmationId = useId();
 	const passwordId = useId();
 	const descriptionId = useId();
@@ -19,7 +25,7 @@ export function EraseAccountForm({ anonymous }: { anonymous: boolean }) {
 			className="space-y-4"
 			onSubmit={async (event) => {
 				event.preventDefault();
-				if (pending || confirmation !== "EFFACER") return;
+				if (pending || confirmation.trim().toUpperCase() !== "EFFACER") return;
 				setPending(true);
 				setError("");
 				try {
@@ -29,8 +35,8 @@ export function EraseAccountForm({ anonymous }: { anonymous: boolean }) {
 					if (!result.success)
 						throw new Error("La suppression n’a pas été confirmée. Réessayez.");
 					try {
-						for (const key of Object.keys(localStorage))
-							if (key.startsWith("draft-thread-")) localStorage.removeItem(key);
+						localStorage.removeItem(`draft-scenario-${userId}-title`);
+						localStorage.removeItem(`draft-scenario-${userId}-body`);
 					} catch {}
 					window.location.assign("/beta?leave=erased");
 				} catch (e) {
@@ -44,9 +50,9 @@ export function EraseAccountForm({ anonymous }: { anonymous: boolean }) {
 			}}
 		>
 			<p id={descriptionId} className="leading-7 text-muted-foreground">
-				Cette action définitive supprime vos publications, alias, code secret et
-				sessions de la base active. Une copie peut subsister sept jours
-				supplémentaires dans une sauvegarde.
+				Cette action définitive supprime vos scénarios, alias, code de
+				récupération et sessions de la base active. Une copie peut subsister
+				sept jours supplémentaires dans une sauvegarde.
 			</p>
 			<Label htmlFor={confirmationId}>Saisissez EFFACER pour confirmer</Label>
 			<Input
@@ -96,7 +102,7 @@ export function EraseAccountForm({ anonymous }: { anonymous: boolean }) {
 					pending || confirmation !== "EFFACER" || (!anonymous && !password)
 				}
 			>
-				{pending ? "Effacement en cours…" : "Effacer définitivement"}
+				{pending ? "Effacement en cours…" : "Effacer mes données"}
 			</Button>
 		</form>
 	);

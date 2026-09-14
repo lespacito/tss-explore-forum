@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { and, desc, eq, isNull } from "drizzle-orm";
+import { and, asc, eq, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import { alias, moderationLogs, threads } from "@/db/schema";
@@ -12,7 +12,7 @@ export type ModerationQueueItem = {
 	id: string;
 	title: string;
 	body: string;
-	category: string;
+	category: string | null;
 	status: "pending" | "published" | "rejected";
 	isSensitive: boolean;
 	rejectionReason: string | null;
@@ -21,18 +21,48 @@ export type ModerationQueueItem = {
 	aliasName: string;
 };
 
+export const moderationReasonCodes = [
+	"IDENTIFYING_DETAIL",
+	"REAL_OR_URGENT",
+	"OUT_OF_SCOPE",
+	"INSUFFICIENT_INFORMATION",
+] as const;
+
+export type ModerationReasonCode = (typeof moderationReasonCodes)[number];
+
+export const moderationReasonLabels: Record<ModerationReasonCode, string> = {
+	IDENTIFYING_DETAIL:
+		"Ce scénario contient un détail qui pourrait permettre d’identifier une personne.",
+	REAL_OR_URGENT:
+		"Ce scénario semble décrire une situation réelle ou urgente, hors du cadre fictif de cette bêta.",
+	OUT_OF_SCOPE: "Ce scénario ne correspond pas au périmètre de cette bêta.",
+	INSUFFICIENT_INFORMATION:
+		"Les informations fournies ne permettent pas d’examiner ce scénario.",
+};
+
+export function formatModerationReason(
+	reasonCode: ModerationReasonCode,
+	details?: string,
+) {
+	const clarification = details?.trim();
+	return clarification
+		? `${moderationReasonLabels[reasonCode]} ${clarification}`
+		: moderationReasonLabels[reasonCode];
+}
+
 export const moderationActionSchema = z
 	.object({
 		threadId: z.string().uuid(),
 		action: z.enum(["publish", "reject", "mark_sensitive", "unmark_sensitive"]),
-		reason: z.string().trim().max(500).optional(),
+		reasonCode: z.enum(moderationReasonCodes).optional(),
+		details: z.string().trim().max(300).optional(),
 	})
 	.superRefine((value, context) => {
-		if (value.action === "reject" && (value.reason?.length ?? 0) < 10) {
+		if (value.action === "reject" && !value.reasonCode) {
 			context.addIssue({
 				code: "custom",
-				path: ["reason"],
-				message: "Le motif de rejet doit contenir au moins 10 caractères.",
+				path: ["reasonCode"],
+				message: "Choisissez un motif de non-publication.",
 			});
 		}
 	});
@@ -66,7 +96,7 @@ export const getModerationQueueFn = createServerFn({ method: "GET" }).handler(
 			.from(threads)
 			.innerJoin(alias, eq(threads.aliasId, alias.id))
 			.where(isNull(threads.deletedAt))
-			.orderBy(desc(threads.createdAt));
+			.orderBy(asc(threads.createdAt));
 
 		return queue.map((thread) => ({
 			...thread,
@@ -100,6 +130,10 @@ export const moderateThreadFn = createServerFn({ method: "POST" })
 			}
 
 			const now = new Date();
+			const rejectionReason =
+				data.action === "reject" && data.reasonCode
+					? formatModerationReason(data.reasonCode, data.details)
+					: null;
 			const update =
 				data.action === "publish"
 					? {
@@ -111,7 +145,7 @@ export const moderateThreadFn = createServerFn({ method: "POST" })
 					: data.action === "reject"
 						? {
 								status: "rejected" as const,
-								rejectionReason: data.reason,
+								rejectionReason,
 								moderatedAt: now,
 								moderatorId: moderator.id,
 							}
@@ -135,7 +169,7 @@ export const moderateThreadFn = createServerFn({ method: "POST" })
 				moderatorId: moderator.id,
 				action: data.action,
 				targetId: data.threadId,
-				reason: data.reason || null,
+				reason: rejectionReason,
 			});
 
 			return updatedThread;

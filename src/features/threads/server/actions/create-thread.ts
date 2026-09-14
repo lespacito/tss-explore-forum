@@ -1,6 +1,4 @@
-import { betaSettings } from "@/features/beta/server/settings";
 import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
 import type { ThreadCategory } from "@/data/threads-categories";
 import { getPrimaryAlias } from "@/features/alias/lib/get-primary-alias";
 import {
@@ -9,28 +7,21 @@ import {
 } from "@/features/auth/lib/security/protected-server-fn";
 import { generateSecretCodeLogic } from "@/features/auth/server/generate-secret-code-logic";
 import { getAuthSession } from "@/features/auth/server/get-auth-session";
+import { betaSettings } from "@/features/beta/server/settings";
+import { createThreadSchema } from "@/features/threads/schemas/create-thread";
 import { getUserById } from "@/features/users/server/db/user-queries";
 import { logger } from "@/lib/logger/server";
 import { validateAndSanitize } from "@/lib/security/sanitize-html";
 import { generateUniqueSlug } from "@/lib/utils/slug-utils";
 import { createThreadRecord, getThreadsByAliasId } from "../db/thread-queries";
 
-const createThreadSchema = z.object({
-	title: z
-		.string()
-		.min(1, "Le titre ne peut pas être vide")
-		.max(200, "Le titre ne peut pas dépasser 200 caractères"),
-	body: z
-		.string()
-		.min(1, "Le contenu ne peut pas être vide")
-		.max(10000, "Le contenu ne peut pas dépasser 10000 caractères"),
-	category: z.enum(["VIOLENCE", "ABUS", "TEMOIN", "DETRESSE", "AUTRE"]),
-});
-
 export const createThreadFn = createServerFn({ method: "POST" })
 	.validator((data: unknown) => createThreadSchema.parse(data))
 	.handler(async ({ data }) => {
- if (!betaSettings().submissionsOpen) throw new Error("Les dépôts sont suspendus. Consultez les informations de l’organisateur.");
+		if (!betaSettings().submissionsOpen)
+			throw new Error(
+				"L’envoi de scénarios est suspendu. Consultez les informations de l’organisateur.",
+			);
 		const decision = await checkArcjet({
 			path: "/threads/create",
 		});
@@ -52,9 +43,9 @@ export const createThreadFn = createServerFn({ method: "POST" })
 			);
 		}
 
-		const title = data.title.trim();
+		const title = data.title;
 		const body = data.body.trim();
-		const category = data.category as ThreadCategory;
+		const category = (data.category ?? null) as ThreadCategory | null;
 
 		const sanitizationResult = validateAndSanitize(body);
 		if (!sanitizationResult.isValid) {
@@ -76,7 +67,24 @@ export const createThreadFn = createServerFn({ method: "POST" })
 			getUserById(session.user.id),
 		]);
 
-		const isFirstPublication = existingThreads.length === 0;
+		const isFirstScenario = existingThreads.length === 0;
+		const needsRecoveryCode =
+			isFirstScenario && currentUser?.isAnonymous === true;
+		const codeResult = needsRecoveryCode
+			? await generateSecretCodeLogic(session)
+			: null;
+
+		if (codeResult && !codeResult.success) {
+			logger.error("Recovery code generation failed before scenario creation", {
+				userId: session.user.id,
+				error: codeResult.error,
+			});
+			return {
+				success: false,
+				error:
+					"Votre scénario n’a pas été envoyé. Réessayez pour obtenir un code de récupération valide.",
+			};
+		}
 
 		const newThread = await createThreadRecord({
 			aliasId: primaryAlias.id,
@@ -87,27 +95,18 @@ export const createThreadFn = createServerFn({ method: "POST" })
 			status: "pending",
 		});
 
-		if (isFirstPublication && currentUser?.isAnonymous === true) {
-			const codeResult = await generateSecretCodeLogic(session);
-
-			if (codeResult.success) {
-				logger.info("Secret code generated for first publication", {
-					userId: session.user.id,
-					isExisting: codeResult.isExisting,
-				});
-
-				return {
-					success: true,
-					thread: newThread,
-					secretCode: codeResult.secretCode,
-					isFirstPublication: true,
-				};
-			}
-
-			logger.error("Secret code generation failed but thread created", {
+		if (codeResult?.success) {
+			logger.info("Recovery code ready for first scenario", {
 				userId: session.user.id,
-				error: codeResult.error,
+				isExisting: codeResult.isExisting,
 			});
+
+			return {
+				success: true,
+				thread: newThread,
+				secretCode: codeResult.secretCode,
+				isFirstPublication: true,
+			};
 		}
 
 		return { success: true, thread: newThread };

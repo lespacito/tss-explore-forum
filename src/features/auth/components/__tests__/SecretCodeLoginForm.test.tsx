@@ -76,7 +76,7 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 		it("should render the form with code input field", () => {
 			render(<SecretCodeLoginForm />);
 
-			expect(screen.getByLabelText("Code Secret")).toBeInTheDocument();
+			expect(screen.getByLabelText("Code de récupération")).toBeInTheDocument();
 			expect(screen.getByPlaceholderText("AB7K-9X2M")).toBeInTheDocument();
 		});
 
@@ -110,11 +110,11 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 			const user = userEvent.setup();
 			mockSigninFn.mockResolvedValue({
 				success: false,
-				error: "Le code secret est trop court",
+				error: "Le code de récupération est trop court",
 			});
 			render(<SecretCodeLoginForm />);
 
-			const input = screen.getByLabelText("Code Secret");
+			const input = screen.getByLabelText("Code de récupération");
 			await user.type(input, "ABC");
 
 			const submitButton = screen.getByRole("button", {
@@ -124,7 +124,7 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 
 			await waitFor(() => {
 				expect(
-					screen.getByText(/le code secret est trop court/i),
+					screen.getByText(/le code de récupération est trop court/i),
 				).toBeInTheDocument();
 			});
 		});
@@ -137,7 +137,7 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 			});
 			render(<SecretCodeLoginForm />);
 
-			const input = screen.getByLabelText("Code Secret");
+			const input = screen.getByLabelText("Code de récupération");
 			await user.type(input, "ABCDEFGHX");
 
 			const submitButton = screen.getByRole("button", {
@@ -155,7 +155,7 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 			mockSigninFn.mockResolvedValue({ success: true, userId: "user_123" });
 			render(<SecretCodeLoginForm />);
 
-			const input = screen.getByLabelText("Code Secret");
+			const input = screen.getByLabelText("Code de récupération");
 			await user.type(input, "K7MN-P8QR");
 
 			// Should not show format error
@@ -167,7 +167,7 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 			mockSigninFn.mockResolvedValue({ success: true, userId: "user_456" });
 			render(<SecretCodeLoginForm />);
 
-			const input = screen.getByLabelText("Code Secret");
+			const input = screen.getByLabelText("Code de récupération");
 			await user.type(input, "X4BT-9C2W-H5JK");
 
 			// Should not show format error
@@ -180,7 +180,9 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 			const user = userEvent.setup();
 			render(<SecretCodeLoginForm />);
 
-			const input = screen.getByLabelText("Code Secret") as HTMLInputElement;
+			const input = screen.getByLabelText(
+				"Code de récupération",
+			) as HTMLInputElement;
 			await user.type(input, "K7MNP8QR");
 
 			expect(input.value).toBe("K7MN-P8QR");
@@ -190,7 +192,9 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 			const user = userEvent.setup();
 			render(<SecretCodeLoginForm />);
 
-			const input = screen.getByLabelText("Code Secret") as HTMLInputElement;
+			const input = screen.getByLabelText(
+				"Code de récupération",
+			) as HTMLInputElement;
 			await user.type(input, "k7mnp8qr");
 
 			expect(input.value).toBe("K7MN-P8QR");
@@ -200,7 +204,9 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 			const user = userEvent.setup();
 			render(<SecretCodeLoginForm />);
 
-			const input = screen.getByLabelText("Code Secret") as HTMLInputElement;
+			const input = screen.getByLabelText(
+				"Code de récupération",
+			) as HTMLInputElement;
 			await user.type(input, "X4BT9C2WH5JK");
 
 			expect(input.value).toBe("X4BT-9C2W-H5JK");
@@ -210,7 +216,9 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 			const user = userEvent.setup();
 			render(<SecretCodeLoginForm />);
 
-			const input = screen.getByLabelText("Code Secret") as HTMLInputElement;
+			const input = screen.getByLabelText(
+				"Code de récupération",
+			) as HTMLInputElement;
 			await user.type(input, "K7M@N#P8$Q%R");
 
 			expect(input.value).toBe("K7MN-P8QR");
@@ -229,7 +237,9 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 			await user.click(pasteButton);
 
 			await waitFor(() => {
-				const input = screen.getByLabelText("Code Secret") as HTMLInputElement;
+				const input = screen.getByLabelText(
+					"Code de récupération",
+				) as HTMLInputElement;
 				expect(input.value).toBe("K7MN-P8QR");
 			});
 		});
@@ -245,7 +255,9 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 			await user.click(pasteButton);
 
 			await waitFor(() => {
-				const input = screen.getByLabelText("Code Secret") as HTMLInputElement;
+				const input = screen.getByLabelText(
+					"Code de récupération",
+				) as HTMLInputElement;
 				expect(input.value).toBe("X4BT-9C2W-H5JK");
 			});
 		});
@@ -261,7 +273,9 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 			await user.click(pasteButton);
 
 			await waitFor(() => {
-				const input = screen.getByLabelText("Code Secret") as HTMLInputElement;
+				const input = screen.getByLabelText(
+					"Code de récupération",
+				) as HTMLInputElement;
 				expect(input.value).toBe("K7MN-P8QR");
 			});
 		});
@@ -303,7 +317,7 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 			);
 			render(<SecretCodeLoginForm />);
 
-			const input = screen.getByLabelText("Code Secret");
+			const input = screen.getByLabelText("Code de récupération");
 			await user.type(input, "K7MN-P8QR");
 
 			const submitButton = screen.getByRole("button", {
@@ -317,12 +331,12 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 			expect(submitButton).toBeDisabled();
 		});
 
-		it("should confirm the recovered session and open personal publications", async () => {
+		it("should confirm the recovered session and open personal scenarios", async () => {
 			const user = userEvent.setup();
 			mockSigninFn.mockResolvedValue({ success: true, userId: "user_123" });
 			render(<SecretCodeLoginForm />);
 
-			const input = screen.getByLabelText("Code Secret");
+			const input = screen.getByLabelText("Code de récupération");
 			await user.type(input, "K7MN-P8QR");
 
 			const submitButton = screen.getByRole("button", {
@@ -332,7 +346,7 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 
 			await waitFor(() => {
 				expect(toast.success).toHaveBeenCalledWith("Session retrouvée", {
-					description: "Voici vos publications.",
+					description: "Voici vos scénarios.",
 				});
 				expect(mockNavigate).toHaveBeenCalledWith({ to: "/account/profile" });
 			});
@@ -346,7 +360,7 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 			});
 			render(<SecretCodeLoginForm />);
 
-			const input = screen.getByLabelText("Code Secret");
+			const input = screen.getByLabelText("Code de récupération");
 			await user.type(input, "XXXX-YYYY");
 
 			const submitButton = screen.getByRole("button", {
@@ -369,7 +383,7 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 			});
 			render(<SecretCodeLoginForm />);
 
-			const input = screen.getByLabelText("Code Secret");
+			const input = screen.getByLabelText("Code de récupération");
 			await user.type(input, "XXXX-YYYY");
 
 			const submitButton = screen.getByRole("button", {
@@ -394,7 +408,7 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 			});
 			render(<SecretCodeLoginForm />);
 
-			const input = screen.getByLabelText("Code Secret");
+			const input = screen.getByLabelText("Code de récupération");
 			await user.type(input, "XXXX-YYYY");
 
 			const submitButton = screen.getByRole("button", {
@@ -418,7 +432,7 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 			});
 			render(<SecretCodeLoginForm />);
 
-			const input = screen.getByLabelText("Code Secret");
+			const input = screen.getByLabelText("Code de récupération");
 			await user.type(input, "XXXX-YYYY");
 
 			const submitButton = screen.getByRole("button", {
@@ -440,7 +454,7 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 		it("should have proper ARIA labels", () => {
 			render(<SecretCodeLoginForm />);
 
-			const input = screen.getByLabelText("Code Secret");
+			const input = screen.getByLabelText("Code de récupération");
 			const descriptionId = input.getAttribute("aria-describedby");
 			expect(descriptionId).toBeTruthy();
 			expect(
@@ -465,7 +479,7 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 			});
 			render(<SecretCodeLoginForm />);
 
-			const input = screen.getByLabelText("Code Secret");
+			const input = screen.getByLabelText("Code de récupération");
 			await user.type(input, "FAKE-CODE");
 
 			const submitButton = screen.getByRole("button", {
@@ -486,7 +500,7 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 		it("should have proper autocomplete attributes", () => {
 			render(<SecretCodeLoginForm />);
 
-			const input = screen.getByLabelText("Code Secret");
+			const input = screen.getByLabelText("Code de récupération");
 			expect(input).toHaveAttribute("autoComplete", "off");
 			expect(input).toHaveAttribute("autoCapitalize", "characters");
 		});
@@ -498,7 +512,7 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 			mockSigninFn.mockResolvedValue({ success: true, userId: "user_123" });
 			render(<SecretCodeLoginForm />);
 
-			const input = screen.getByLabelText("Code Secret");
+			const input = screen.getByLabelText("Code de récupération");
 			await user.type(input, "k7mn-p8qr");
 
 			const submitButton = screen.getByRole("button", {
@@ -518,7 +532,7 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 			mockSigninFn.mockResolvedValue({ success: true, userId: "user_123" });
 			render(<SecretCodeLoginForm />);
 
-			const input = screen.getByLabelText("Code Secret");
+			const input = screen.getByLabelText("Code de récupération");
 			await user.type(input, "K7MN-P8QR{Enter}");
 
 			await waitFor(() => {

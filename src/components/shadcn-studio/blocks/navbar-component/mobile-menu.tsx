@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { mainNavLinks } from "@/data/navigation";
 
-
 export function MobileMenu() {
 	return (
 		<DropdownMenu>

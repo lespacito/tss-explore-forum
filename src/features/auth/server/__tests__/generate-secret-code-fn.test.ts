@@ -29,13 +29,26 @@ vi.mock("@/features/auth/lib/generate-secret-code", () => ({
 
 // Mock Drizzle DB
 vi.mock("@/db", () => {
+	let assignedSecretCode: string | null = null;
 	const mockDbChain = {
 		select: vi.fn().mockReturnThis(),
 		from: vi.fn().mockReturnThis(),
 		where: vi.fn().mockReturnThis(),
 		limit: vi.fn(),
 		update: vi.fn().mockReturnThis(),
-		set: vi.fn().mockReturnThis(),
+		set: vi.fn((value: { secretCode?: string | null }) => {
+			assignedSecretCode = value.secretCode ?? null;
+			return mockDbChain;
+		}),
+		returning: vi.fn(async () => [{ secretCode: assignedSecretCode }]),
+		query: {
+			account: {
+				findFirst: vi.fn(async () => null),
+			},
+		},
+		insert: vi.fn().mockReturnThis(),
+		values: vi.fn().mockReturnThis(),
+		onConflictDoNothing: vi.fn().mockResolvedValue(undefined),
 	};
 	return {
 		db: mockDbChain,
@@ -43,6 +56,10 @@ vi.mock("@/db", () => {
 });
 
 vi.mock("@/db/schemas/user", () => ({
+	account: {
+		accountId: "accountId",
+		providerId: "providerId",
+	},
 	user: {
 		id: "id",
 		email: "email",
@@ -52,7 +69,9 @@ vi.mock("@/db/schemas/user", () => ({
 }));
 
 vi.mock("drizzle-orm", () => ({
+	and: vi.fn(() => "mocked-and"),
 	eq: vi.fn(() => "mocked-eq"),
+	isNull: vi.fn(() => "mocked-is-null"),
 }));
 
 import { db } from "@/db";
@@ -74,6 +93,12 @@ describe("generateSecretCodeLogic - Task 3", () => {
 		mockDb.limit.mockResolvedValue([]);
 		mockDb.update.mockReturnThis();
 		mockDb.set.mockReturnThis();
+		mockDb.returning.mockImplementation(async () => [
+			{ secretCode: mockDb.set.mock.calls.at(-1)?.[0]?.secretCode ?? null },
+		]);
+		mockDb.insert.mockReturnThis();
+		mockDb.values.mockReturnThis();
+		mockDb.onConflictDoNothing.mockResolvedValue(undefined);
 	});
 
 	describe("Authentication Checks", () => {
@@ -387,7 +412,7 @@ describe("generateSecretCodeLogic - Task 3", () => {
 
 			expect(result.success).toBe(false);
 			expect((result as any).error).toBe(
-				"Impossible de générer le code secret",
+				"Impossible de générer le code de récupération",
 			);
 		});
 

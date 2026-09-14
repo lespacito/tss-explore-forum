@@ -56,13 +56,17 @@ describe("SecretCodeDisplay Component", () => {
 		it("should display title for new code", () => {
 			render(<SecretCodeDisplay secretCode={mockSecretCode} />);
 
-			expect(screen.getByText("Code secret créé !")).toBeInTheDocument();
+			expect(
+				screen.getByText("Votre code de récupération"),
+			).toBeInTheDocument();
 		});
 
 		it("should display title for existing code", () => {
 			render(<SecretCodeDisplay secretCode={mockSecretCode} isExisting />);
 
-			expect(screen.getByText("Votre code secret")).toBeInTheDocument();
+			expect(
+				screen.getByText("Votre code de récupération"),
+			).toBeInTheDocument();
 		});
 
 		it("should display clear instructions on how to use the code", () => {
@@ -75,10 +79,10 @@ describe("SecretCodeDisplay Component", () => {
 				screen.getByText(/Notez ce code dans un endroit privé/i),
 			).toBeInTheDocument();
 			expect(
-				screen.getByText(/Utilisez-le pour vous reconnecter/i),
+				screen.getByText(/Utilisez-le pour retrouver votre session/i),
 			).toBeInTheDocument();
 			expect(
-				screen.getByText(/Retrouvez toutes vos publications/i),
+				screen.getByText(/Retrouvez tous vos scénarios/i),
 			).toBeInTheDocument();
 		});
 
@@ -87,7 +91,7 @@ describe("SecretCodeDisplay Component", () => {
 
 			expect(
 				screen.getByText(
-					/Ce code a été généré lors de votre première publication/i,
+					/Ce code a été généré lors de votre premier scénario/i,
 				),
 			).toBeInTheDocument();
 		});
@@ -97,7 +101,7 @@ describe("SecretCodeDisplay Component", () => {
 
 			expect(
 				screen.queryByText(
-					/Ce code a été généré lors de votre première publication/i,
+					/Ce code a été généré lors de votre premier scénario/i,
 				),
 			).not.toBeInTheDocument();
 		});
@@ -137,9 +141,7 @@ describe("SecretCodeDisplay Component", () => {
 			});
 			await user.click(copyButton);
 
-			expect(toast.success).toHaveBeenCalledWith(
-				"Code copié dans le presse-papier",
-			);
+			expect(toast.success).toHaveBeenCalledWith("Code de récupération copié");
 		});
 
 		it("should show visual feedback (check icon) after copying", async () => {
@@ -214,7 +216,7 @@ describe("SecretCodeDisplay Component", () => {
 		it("should have accessible label for secret code", () => {
 			render(<SecretCodeDisplay secretCode={mockSecretCode} />);
 
-			const codeElement = screen.getByLabelText(/code secret/i);
+			const codeElement = screen.getByLabelText(/code de récupération/i);
 			expect(codeElement).toHaveTextContent(mockSecretCode);
 		});
 
@@ -265,7 +267,7 @@ describe("SecretCodeDisplay Component", () => {
 			render(<SecretCodeDisplay secretCode={mockSecretCode} />);
 
 			// Should have a main heading visible to users
-			const heading = screen.getByText(/code secret créé/i);
+			const heading = screen.getByText(/code de récupération/i);
 			expect(heading).toBeInTheDocument();
 		});
 

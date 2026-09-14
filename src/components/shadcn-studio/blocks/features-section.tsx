@@ -5,8 +5,8 @@ import { useId } from "react";
 const commitments = [
 	"Accès réservé aux personnes invitées",
 	"Publication sous alias après examen humain",
-	"Statut et motif de refus visibles dans Mes publications",
-	"Effacement accessible depuis Gérer le compte",
+	"Statut et motif de non-publication visibles dans Mes scénarios",
+	"Effacement accessible depuis Gérer mes données",
 ];
 
 const limits = [

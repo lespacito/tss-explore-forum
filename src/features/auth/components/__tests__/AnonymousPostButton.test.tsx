@@ -42,7 +42,7 @@ describe("AnonymousPostButton", () => {
 			render(<AnonymousPostButton />);
 
 			const button = screen.getByRole("button", {
-				name: "Créer une publication",
+				name: "Créer un scénario",
 			});
 			expect(button).toBeDefined();
 			expect(button.getAttribute("aria-label")).toBeNull();

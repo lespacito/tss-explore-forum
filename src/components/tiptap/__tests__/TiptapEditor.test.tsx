@@ -13,7 +13,7 @@ describe("TipTap Editor - Unit Tests", () => {
 			expect(container.firstChild).toHaveClass("border", "rounded-xl");
 		});
 
-		it("renders the toolbar with all formatting buttons", () => {
+		it("renders only the three beta formatting controls", () => {
 			render(<TipTap content="" onChange={() => {}} />);
 
 			// Check all toolbar buttons are present
@@ -22,17 +22,9 @@ describe("TipTap Editor - Unit Tests", () => {
 				screen.getByRole("button", { name: /italique/i }),
 			).toBeInTheDocument();
 			expect(
-				screen.getByRole("button", { name: "Titre 2" }),
-			).toBeInTheDocument();
-			expect(
-				screen.getByRole("button", { name: /citation/i }),
-			).toBeInTheDocument();
-			expect(
 				screen.getByRole("button", { name: /liste à puces/i }),
 			).toBeInTheDocument();
-			expect(
-				screen.getByRole("button", { name: /liste numérotée/i }),
-			).toBeInTheDocument();
+			expect(screen.getAllByRole("button")).toHaveLength(3);
 		});
 
 		it("renders with initial content", () => {
@@ -134,24 +126,6 @@ describe("TipTap Editor - Unit Tests", () => {
 			expect(italicButton).toHaveAttribute("type", "button");
 		});
 
-		it("heading button has correct initial state", () => {
-			render(<TipTap content="<p>Text</p>" onChange={() => {}} />);
-
-			const headingButton = screen.getByRole("button", { name: "Titre 2" });
-
-			expect(headingButton).toHaveAttribute("aria-pressed", "false");
-			expect(headingButton).toHaveAttribute("type", "button");
-		});
-
-		it("blockquote button has correct initial state", () => {
-			render(<TipTap content="<p>Text</p>" onChange={() => {}} />);
-
-			const quoteButton = screen.getByRole("button", { name: /citation/i });
-
-			expect(quoteButton).toHaveAttribute("aria-pressed", "false");
-			expect(quoteButton).toHaveAttribute("type", "button");
-		});
-
 		it("bullet list button has correct initial state", () => {
 			render(<TipTap content="<p>Text</p>" onChange={() => {}} />);
 
@@ -161,17 +135,6 @@ describe("TipTap Editor - Unit Tests", () => {
 
 			expect(bulletButton).toHaveAttribute("aria-pressed", "false");
 			expect(bulletButton).toHaveAttribute("type", "button");
-		});
-
-		it("ordered list button has correct initial state", () => {
-			render(<TipTap content="<p>Text</p>" onChange={() => {}} />);
-
-			const orderedButton = screen.getByRole("button", {
-				name: /liste numérotée/i,
-			});
-
-			expect(orderedButton).toHaveAttribute("aria-pressed", "false");
-			expect(orderedButton).toHaveAttribute("type", "button");
 		});
 
 		it("bold button reflects active state when content is bold", () => {
@@ -237,7 +200,7 @@ describe("TipTap Editor - Unit Tests", () => {
 			).not.toBeInTheDocument();
 		});
 
-		it("only allows h2 and h3 headings, not h1", () => {
+		it("does not expose heading controls in the beta toolbar", () => {
 			// H1 is reserved for page titles
 			// Tiptap is configured to allow h2 and h3
 			render(<TipTap content="" onChange={() => {}} />);
@@ -246,7 +209,7 @@ describe("TipTap Editor - Unit Tests", () => {
 			const headingButtons = screen.queryAllByRole("button", {
 				name: /titre|heading/i,
 			});
-			expect(headingButtons).toHaveLength(2);
+			expect(headingButtons).toHaveLength(0);
 		});
 	});
 

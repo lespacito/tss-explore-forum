@@ -13,7 +13,7 @@ import { signIn } from "../lib/auth-client";
 const formSchema = z.object({
 	secretCode: z
 		.string()
-		.min(9, { message: "Le code secret est trop court" })
+		.min(9, { message: "Le code de récupération est trop court" })
 		.regex(/^[A-Z2-9]{4}-[A-Z2-9]{4}(-[A-Z2-9]{4})?$/, {
 			message: "Format invalide",
 		}),
@@ -71,7 +71,7 @@ export function SecretCodeLoginForm({
 				}
 
 				toast.success("Session retrouvée", {
-					description: "Voici vos publications.",
+					description: "Voici vos scénarios.",
 				});
 				router.navigate({ to: redirectTo || "/account/profile" });
 			} catch {
@@ -117,7 +117,7 @@ export function SecretCodeLoginForm({
 
 						return (
 							<Field data-invalid={Boolean(validationError || serverError)}>
-								<Label htmlFor={secretCodeId}>Code Secret</Label>
+								<Label htmlFor={secretCodeId}>Code de récupération</Label>
 								<Input
 									id={secretCodeId}
 									type="text"

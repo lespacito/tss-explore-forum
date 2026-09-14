@@ -1,6 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 import type { User } from "@/features/auth/lib/map-auth-user";
-import { assertModerator, moderationActionSchema } from "../thread-moderation";
+import {
+	assertModerator,
+	formatModerationReason,
+	moderationActionSchema,
+} from "../thread-moderation";
 
 vi.mock("@/db", () => ({ db: {} }));
 vi.mock("@/features/auth/server/get-auth-session", () => ({
@@ -54,24 +58,37 @@ describe("moderation action validation", () => {
 		).toMatchObject({ threadId, action: "publish" });
 	});
 
-	it("requires a useful rejection reason", () => {
+	it("requires a predefined non-publication reason", () => {
 		expect(() =>
 			moderationActionSchema.parse({
 				threadId,
 				action: "reject",
-				reason: "Court",
 			}),
-		).toThrow("Le motif de rejet doit contenir au moins 10 caractères.");
+		).toThrow("Choisissez un motif de non-publication.");
 	});
 
-	it("accepts a clear rejection reason", () => {
+	it("accepts a reason code and optional clarification", () => {
 		expect(
 			moderationActionSchema.parse({
 				threadId,
 				action: "reject",
-				reason:
-					"Le contenu révèle une information permettant l’identification.",
+				reasonCode: "IDENTIFYING_DETAIL",
+				details: "Retirez le nom complet indiqué dans la deuxième phrase.",
 			}),
-		).toMatchObject({ action: "reject" });
+		).toMatchObject({
+			action: "reject",
+			reasonCode: "IDENTIFYING_DETAIL",
+		});
+	});
+
+	it("formats a participant-facing reason without exposing an internal code", () => {
+		expect(
+			formatModerationReason(
+				"OUT_OF_SCOPE",
+				"Utilisez uniquement la situation fictive fournie.",
+			),
+		).toBe(
+			"Ce scénario ne correspond pas au périmètre de cette bêta. Utilisez uniquement la situation fictive fournie.",
+		);
 	});
 });

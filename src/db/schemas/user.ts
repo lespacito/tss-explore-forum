@@ -6,6 +6,7 @@ import {
 	pgTable,
 	text,
 	timestamp,
+	uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { createdAt, updatedAt } from "@/db/schemaHelpers";
 
@@ -49,23 +50,32 @@ export const session = pgTable("session", {
 		.references(() => user.id, { onDelete: "cascade" }),
 });
 
-export const account = pgTable("account", {
-	id: text("id").primaryKey(),
-	accountId: text("account_id").notNull(),
-	providerId: text("provider_id").notNull(),
-	userId: text("user_id")
-		.notNull()
-		.references(() => user.id, { onDelete: "cascade" }),
-	accessToken: text("access_token"),
-	refreshToken: text("refresh_token"),
-	idToken: text("id_token"),
-	accessTokenExpiresAt: timestamp("access_token_expires_at"),
-	refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
-	scope: text("scope"),
-	password: text("password"),
-	createdAt: createdAt(),
-	updatedAt: updatedAt(),
-});
+export const account = pgTable(
+	"account",
+	{
+		id: text("id").primaryKey(),
+		accountId: text("account_id").notNull(),
+		providerId: text("provider_id").notNull(),
+		userId: text("user_id")
+			.notNull()
+			.references(() => user.id, { onDelete: "cascade" }),
+		accessToken: text("access_token"),
+		refreshToken: text("refresh_token"),
+		idToken: text("id_token"),
+		accessTokenExpiresAt: timestamp("access_token_expires_at"),
+		refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
+		scope: text("scope"),
+		password: text("password"),
+		createdAt: createdAt(),
+		updatedAt: updatedAt(),
+	},
+	(table) => ({
+		providerAccountUniqueIdx: uniqueIndex("account_provider_account_unique").on(
+			table.providerId,
+			table.accountId,
+		),
+	}),
+);
 
 export const verification = pgTable("verification", {
 	id: text("id").primaryKey(),
