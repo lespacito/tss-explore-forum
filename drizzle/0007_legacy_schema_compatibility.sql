@@ -1,0 +1,61 @@
+ALTER TABLE "alias" RENAME COLUMN "createdAt" TO "created_at";--> statement-breakpoint
+ALTER TABLE "blocked_users" RENAME COLUMN "createdAt" TO "created_at";--> statement-breakpoint
+ALTER TABLE "moderation_logs" RENAME COLUMN "createdAt" TO "created_at";--> statement-breakpoint
+ALTER TABLE "reports" RENAME COLUMN "targetType" TO "target_type";--> statement-breakpoint
+ALTER TABLE "reports" RENAME COLUMN "createdAt" TO "created_at";--> statement-breakpoint
+ALTER TABLE "notifications" RENAME COLUMN "targetType" TO "notifications_type";--> statement-breakpoint
+ALTER TABLE "notifications" RENAME COLUMN "createdAt" TO "created_at";--> statement-breakpoint
+ALTER TABLE "comments" RENAME COLUMN "createdAt" TO "created_at";--> statement-breakpoint
+ALTER TABLE "comments" RENAME COLUMN "updatedAt" TO "updated_at";--> statement-breakpoint
+ALTER TABLE "posts" RENAME COLUMN "createdAt" TO "created_at";--> statement-breakpoint
+ALTER TABLE "posts" RENAME COLUMN "updatedAt" TO "updated_at";--> statement-breakpoint
+ALTER TABLE "threads" RENAME COLUMN "createdAt" TO "created_at";--> statement-breakpoint
+ALTER TABLE "threads" RENAME COLUMN "updatedAt" TO "updated_at";--> statement-breakpoint
+ALTER TABLE "account" RENAME COLUMN "createdAt" TO "created_at";--> statement-breakpoint
+ALTER TABLE "account" RENAME COLUMN "updatedAt" TO "updated_at";--> statement-breakpoint
+ALTER TABLE "session" RENAME COLUMN "createdAt" TO "created_at";--> statement-breakpoint
+ALTER TABLE "session" RENAME COLUMN "updatedAt" TO "updated_at";--> statement-breakpoint
+ALTER TABLE "user" RENAME COLUMN "createdAt" TO "created_at";--> statement-breakpoint
+ALTER TABLE "user" RENAME COLUMN "updatedAt" TO "updated_at";--> statement-breakpoint
+ALTER TABLE "verification" RENAME COLUMN "createdAt" TO "created_at";--> statement-breakpoint
+ALTER TABLE "verification" RENAME COLUMN "updatedAt" TO "updated_at";--> statement-breakpoint
+DROP INDEX "notifications_user_created_idx";--> statement-breakpoint
+DROP INDEX "comments_post_created_idx";--> statement-breakpoint
+DROP INDEX "posts_thread_created_idx";--> statement-breakpoint
+DROP INDEX "threads_category_created_idx";--> statement-breakpoint
+ALTER TABLE "threads" ALTER COLUMN "category" DROP NOT NULL;--> statement-breakpoint
+-- Better Auth identifies an account by the provider/account pair. Refuse to
+-- choose between two different users: that conflict needs manual review rather
+-- than silently transferring credentials from one participant to another.
+DO $$
+BEGIN
+	IF EXISTS (
+		SELECT 1
+		FROM "account"
+		GROUP BY "provider_id", "account_id"
+		HAVING count(DISTINCT "user_id") > 1
+	) THEN
+		RAISE EXCEPTION 'Cannot enforce account_provider_account_unique: a provider/account pair belongs to multiple users';
+	END IF;
+END
+$$;--> statement-breakpoint
+-- Raced account creation can still leave equivalent rows for the same user.
+-- Keep the oldest row, with the primary key as a deterministic tie-breaker.
+WITH "ranked_accounts" AS (
+	SELECT
+		"id",
+		row_number() OVER (
+			PARTITION BY "provider_id", "account_id"
+			ORDER BY "created_at", "id"
+		) AS "duplicate_rank"
+	FROM "account"
+)
+DELETE FROM "account"
+USING "ranked_accounts"
+WHERE "account"."id" = "ranked_accounts"."id"
+	AND "ranked_accounts"."duplicate_rank" > 1;--> statement-breakpoint
+CREATE UNIQUE INDEX "account_provider_account_unique" ON "account" USING btree ("provider_id","account_id");--> statement-breakpoint
+CREATE INDEX "notifications_user_created_idx" ON "notifications" USING btree ("user_id","created_at" DESC NULLS LAST);--> statement-breakpoint
+CREATE INDEX "comments_post_created_idx" ON "comments" USING btree ("post_id","created_at");--> statement-breakpoint
+CREATE INDEX "posts_thread_created_idx" ON "posts" USING btree ("thread_id","created_at");--> statement-breakpoint
+CREATE INDEX "threads_category_created_idx" ON "threads" USING btree ("category","created_at" DESC NULLS LAST);
