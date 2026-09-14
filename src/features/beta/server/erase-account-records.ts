@@ -7,6 +7,7 @@ import {
 	posts,
 	threads,
 	user,
+	verification,
 } from "@/db/schema";
 export async function eraseAccountRecords(
 	userId: string,
@@ -46,6 +47,10 @@ export async function eraseAccountRecords(
 					.delete(moderationLogs)
 					.where(inArray(moderationLogs.targetId, targets));
 		}
+		// Better Auth stores password-reset and account-deletion challenges with
+		// the user id as their value. The table has no FK to user, so these records
+		// must be removed explicitly as part of the same erasure transaction.
+		await tx.delete(verification).where(eq(verification.value, userId));
 		// Versioned FKs cascade to aliases/content and all sessions/accounts.
 		await tx.delete(user).where(eq(user.id, userId));
 	});

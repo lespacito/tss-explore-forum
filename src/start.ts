@@ -1,4 +1,12 @@
-import { createMiddleware, createStart } from "@tanstack/react-start";
+import {
+	createCsrfMiddleware,
+	createMiddleware,
+	createStart,
+} from "@tanstack/react-start";
+
+const csrfMiddleware = createCsrfMiddleware({
+	filter: (context) => context.handlerType === "serverFn",
+});
 
 const privateBeta = createMiddleware().server(async ({ request, next }) => {
 	const { betaAccessResponse } = await import("@/features/beta/server/access");
@@ -11,5 +19,5 @@ const privateBeta = createMiddleware().server(async ({ request, next }) => {
 	return result;
 });
 export const startInstance = createStart(() => ({
-	requestMiddleware: [privateBeta],
+	requestMiddleware: [csrfMiddleware, privateBeta],
 }));
