@@ -1,3 +1,4 @@
+import { env } from "@/data/env/client";
 import { BetterAuthActionButton } from "@/features/auth/components/better-auth-action-button";
 import { signIn } from "@/features/auth/lib/auth-client";
 import {
@@ -11,6 +12,8 @@ export function SocialAuthButtons({
 }: {
 	redirectTo?: string;
 } = {}) {
+	if (env.VITE_ENABLE_OAUTH !== "true") return null;
+
 	const handleOAuthSignIn = async (
 		provider: (typeof SUPPORTED_OAUTH_PROVIDERS)[number],
 	) => {

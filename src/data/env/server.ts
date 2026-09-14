@@ -22,11 +22,11 @@ export const env = createEnv({
 		BETTER_AUTH_SECRET: z.string().min(1),
 
 		// OAuth GitHub
-		GITHUB_CLIENT_ID: z.string().min(1),
-		GITHUB_CLIENT_SECRET: z.string().min(1),
+		GITHUB_CLIENT_ID: z.string().min(1).optional(),
+		GITHUB_CLIENT_SECRET: z.string().min(1).optional(),
 		// OAuth Google
-		GOOGLE_CLIENT_ID: z.string().min(1),
-		GOOGLE_CLIENT_SECRET: z.string().min(1),
+		GOOGLE_CLIENT_ID: z.string().min(1).optional(),
+		GOOGLE_CLIENT_SECRET: z.string().min(1).optional(),
 
 		// Emails - Resend
 		RESEND_API_KEY: z.string().min(1),

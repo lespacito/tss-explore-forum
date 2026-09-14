@@ -1,5 +1,4 @@
-x-app-environment: &app-environment
-  NODE_ENV: production
+x-database-environment: &database-environment
   DB_HOST: postgres
   DB_PORT: "5432"
   DB_NAME: ${DB_NAME:?Configure DB_NAME in Dokploy}
@@ -7,12 +6,12 @@ x-app-environment: &app-environment
   DB_PASSWORD: ${DB_PASSWORD:?Configure DB_PASSWORD in Dokploy}
   DB_SSL: "false"
   DB_SCHEMA: ${DB_SCHEMA:-public}
+
+x-app-environment: &app-environment
+  <<: *database-environment
+  NODE_ENV: production
   BETTER_AUTH_URL: ${BETTER_AUTH_URL:?Configure BETTER_AUTH_URL in Dokploy}
   BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Configure BETTER_AUTH_SECRET in Dokploy}
-  GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:?Configure GITHUB_CLIENT_ID in Dokploy}
-  GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:?Configure GITHUB_CLIENT_SECRET in Dokploy}
-  GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:?Configure GOOGLE_CLIENT_ID in Dokploy}
-  GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:?Configure GOOGLE_CLIENT_SECRET in Dokploy}
   RESEND_API_KEY: ${RESEND_API_KEY:?Configure RESEND_API_KEY in Dokploy}
   EMAIL_FROM: ${EMAIL_FROM:?Configure EMAIL_FROM in Dokploy}
   EMAIL_REPLY_TO: ${EMAIL_REPLY_TO:-}
@@ -31,6 +30,7 @@ x-app-build: &app-build
     VITE_APP_NAME: ${VITE_APP_NAME:-Parlons Violence — Staging}
     VITE_APP_URL: ${VITE_APP_URL:?Configure VITE_APP_URL in Dokploy}
     VITE_BETTER_AUTH_URL: ${VITE_BETTER_AUTH_URL:?Configure VITE_BETTER_AUTH_URL in Dokploy}
+    VITE_ENABLE_OAUTH: ${VITE_ENABLE_OAUTH:-false}
 
 services:
   postgres:
@@ -54,7 +54,7 @@ services:
       <<: *app-build
       target: builder
     restart: "no"
-    environment: *app-environment
+    environment: *database-environment
     command: ["bun", "run", "db:migrate"]
     depends_on:
       postgres:

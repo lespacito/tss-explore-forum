@@ -151,10 +151,14 @@ Documentation : [créer une clé Resend](https://resend.com/docs/api-reference/a
 [créer et vérifier un domaine](https://resend.com/docs/api-reference/domains/create-domain),
 [adresses d’expédition](https://resend.com/docs/knowledge-base/how-do-I-create-an-email-address-or-sender-in-resend).
 
-### OAuth GitHub
+### OAuth GitHub (optionnel)
 
-Créer une OAuth App staging dans GitHub, sous **Settings → Developer settings →
-OAuth Apps → New OAuth App** :
+La bêta privée fonctionne avec les comptes anonymes et les codes secrets. GitHub
+OAuth n’est donc pas requis en staging tant que `VITE_ENABLE_OAUTH=false`.
+
+Pour l’activer plus tard, passer `VITE_ENABLE_OAUTH=true`, puis créer une OAuth
+App staging dans GitHub, sous **Settings → Developer settings → OAuth Apps → New
+OAuth App** :
 
 - Homepage URL : `https://staging.parlonsviolence.ch`
 - Authorization callback URL :
@@ -168,10 +172,11 @@ callback générique ou wildcard.
 Documentation : [créer une OAuth App GitHub](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app),
 [bonnes pratiques OAuth](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/best-practices-for-creating-an-oauth-app).
 
-### OAuth Google
+### OAuth Google (optionnel)
 
-Dans Google Cloud, créer ou sélectionner un projet staging, configurer l’écran de
-consentement, puis créer un client **Web application** :
+Google OAuth est également désactivé lorsque `VITE_ENABLE_OAUTH=false`. Pour
+l’activer plus tard, créer ou sélectionner un projet staging dans Google Cloud,
+configurer l’écran de consentement, puis créer un client **Web application** :
 
 - Authorized JavaScript origin : `https://staging.parlonsviolence.ch`
 - Authorized redirect URI :
@@ -198,9 +203,10 @@ VITE_APP_URL=https://staging.parlonsviolence.ch
 VITE_BETTER_AUTH_URL=https://staging.parlonsviolence.ch
 ```
 
-Les secrets serveur sont `DB_PASSWORD`, `BETTER_AUTH_SECRET`, les quatre valeurs
-OAuth, `RESEND_API_KEY`, `ARCJET_KEY` et `BETA_INVITATION_CODES`. Ne jamais leur
-ajouter un préfixe `VITE_`, car cela les exposerait dans le navigateur.
+Les secrets serveur requis sont `DB_PASSWORD`, `BETTER_AUTH_SECRET`,
+`RESEND_API_KEY`, `ARCJET_KEY` et `BETA_INVITATION_CODES`. Les quatre valeurs
+OAuth ne deviennent nécessaires que si `VITE_ENABLE_OAUTH=true`. Ne jamais
+ajouter un préfixe `VITE_` aux secrets, car cela les exposerait dans le navigateur.
 
 ## 5. Premier déploiement
 
