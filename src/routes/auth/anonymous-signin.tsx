@@ -21,7 +21,7 @@ export const Route = createFileRoute("/auth/anonymous-signin")({
 
 function RouteComponent() {
 	return (
-		<div className="mx-auto w-full max-w-lg space-y-8 px-4 py-12 sm:py-16">
+		<div className="civic-page mx-auto w-full max-w-lg space-y-8 px-4 py-12 sm:py-16">
 			<header className="space-y-3">
 				<h1 className="font-serif text-3xl font-semibold tracking-tight text-balance">
 					Retrouver ma session

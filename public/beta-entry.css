@@ -16,16 +16,19 @@
 
 :root {
   color-scheme: light dark;
-  --bg: oklch(0.9232 0.0026 48.7171);
-  --fg: oklch(0.2795 0.0368 260.031);
-  --muted: oklch(0.46 0.0234 264.3637);
-  --primary: oklch(0.5854 0.2041 277.1173);
-  --on-primary: oklch(1 0 0);
-  --border: oklch(0.8687 0.0043 56.366);
-  --destructive: oklch(0.6368 0.2078 25.3313);
-  --status-surface: oklch(0.9376 0.026 321.9388);
-  --radius-control: 1.125rem;
-  --radius-message: 1.5rem;
+  --action: #ffcc4d;
+  --action-hover: #f3bb2e;
+  --on-action: #101c3a;
+  --bg: #f4f1e8;
+  --fg: #101c3a;
+  --muted: #40506e;
+  --primary: #2958d2;
+  --on-primary: #f8f7f2;
+  --border: #75839b;
+  --destructive: #b42332;
+  --status-surface: #dce2ee;
+  --radius-control: 0;
+  --radius-message: 0;
   scrollbar-color: var(--muted) var(--bg);
 }
 
@@ -54,7 +57,7 @@ body {
 
 main {
   max-width: 42rem;
-  margin: 8vh auto;
+  margin: clamp(2.5rem, 5vw, 4rem) auto;
   padding: 1.5rem;
 }
 
@@ -127,7 +130,7 @@ button {
 }
 
 button:active:not(:disabled) {
-  background: color-mix(in oklab, var(--primary) 82%, var(--fg));
+  background: var(--action-hover);
 }
 
 button:disabled {
@@ -194,13 +197,14 @@ nav a {
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: oklch(0.2244 0.0074 67.437);
-    --fg: oklch(0.9288 0.0126 255.5078);
-    --muted: oklch(0.7137 0.0192 261.3246);
-    --primary: oklch(0.6801 0.1583 276.9349);
-    --on-primary: oklch(0.2244 0.0074 67.437);
-    --border: oklch(0.3359 0.0077 59.4197);
-    --status-surface: oklch(0.3896 0.0074 59.4734);
+    --bg: #101c3a;
+    --fg: #f8f7f2;
+    --muted: #d8deea;
+    --primary: #a8c1ff;
+    --on-primary: #101c3a;
+    --border: #8393ad;
+    --status-surface: #263958;
+    --destructive: #ff9aa3;
   }
 }
 
@@ -210,7 +214,7 @@ nav a {
   }
 
   button:hover:not(:disabled) {
-    background: color-mix(in oklab, var(--primary) 88%, var(--fg));
+    background: var(--action-hover);
   }
 
   a:hover {

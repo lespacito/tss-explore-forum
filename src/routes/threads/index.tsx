@@ -20,7 +20,7 @@ export const Route = createFileRoute("/threads/")({
 function ThreadsPage() {
 	const threads = Route.useLoaderData();
 	return (
-		<div className="mx-auto max-w-4xl space-y-8 px-4 py-8">
+		<div className="civic-page mx-auto max-w-4xl space-y-8 px-4 py-8">
 			<header className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
 				<div className="min-w-0">
 					<h1 className="font-serif text-3xl font-semibold">

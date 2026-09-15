@@ -53,7 +53,7 @@ function Profile() {
 	];
 
 	return (
-		<div className="mx-auto max-w-4xl space-y-10 px-4 py-10 sm:py-14">
+		<div className="civic-page mx-auto max-w-4xl space-y-10 px-4 py-10 sm:py-14">
 			<header className="flex flex-wrap items-end justify-between gap-5 border-b pb-7">
 				<div>
 					<h1 className="font-serif text-4xl font-semibold tracking-tight">

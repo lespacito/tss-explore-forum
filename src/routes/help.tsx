@@ -3,7 +3,7 @@ import { SafetyNotice } from "@/features/beta/components/safety-notice";
 export const Route = createFileRoute("/help")({ component: Page });
 function Page() {
 	return (
-		<article className="mx-auto max-w-3xl space-y-5 px-4 py-10 leading-7 [&_h2]:pt-5 [&_h2]:font-serif [&_h2]:text-xl [&_h2]:font-semibold [&_a]:underline [&_a]:underline-offset-4">
+		<article className="civic-page mx-auto max-w-3xl space-y-5 px-4 py-10 leading-7 [&_h2]:pt-5 [&_h2]:font-serif [&_h2]:text-xl [&_h2]:font-semibold [&_a]:underline [&_a]:underline-offset-4">
 			<h1 className="font-serif text-3xl font-semibold">Aide et contact</h1>
 			<SafetyNotice />
 			<h2>Une écoute extérieure au forum</h2>

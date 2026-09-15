@@ -44,7 +44,7 @@ function NewThreadPage() {
 
 	if (!session?.user) {
 		return (
-			<div className="civic-form-page mx-auto max-w-2xl space-y-6 px-4 py-12">
+			<div className="civic-page civic-form-page mx-auto max-w-2xl space-y-6 px-4 py-12">
 				<h1 className="font-serif text-4xl font-semibold tracking-tight">
 					Créer un scénario fictif
 				</h1>
@@ -174,7 +174,7 @@ export function ScenarioForm({
 		(item) => item.id === category,
 	);
 	return (
-		<div className="civic-form-page mx-auto max-w-3xl px-4 py-10 sm:py-14">
+		<div className="civic-page civic-form-page mx-auto max-w-3xl px-4 py-10 sm:py-14">
 			<header className="mb-10 space-y-4">
 				<h1 className="max-w-2xl font-serif text-4xl font-semibold tracking-tight sm:text-5xl">
 					Rédiger un scénario fictif
