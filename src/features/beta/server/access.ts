@@ -1,4 +1,10 @@
-import { createHash, createHmac, timingSafeEqual } from "node:crypto";
+import {
+	createHash,
+	createHmac,
+	randomBytes,
+	timingSafeEqual,
+} from "node:crypto";
+import { isIP } from "node:net";
 
 export const BETA_COOKIE = "pv-beta-access";
 const lifetime = 14 * 24 * 60 * 60;
@@ -79,9 +85,15 @@ const escapeHtml = (value: string) =>
 	value.replace(
 		/[&<>"']/g,
 		(c) =>
-			({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
-				c
-			]!,
+			(
+				({
+					"&": "&amp;",
+					"<": "&lt;",
+					">": "&gt;",
+					'"': "&quot;",
+					"'": "&#39;",
+				}) as Record<string, string>
+			)[c] ?? c,
 	);
 function entryPage(
 	message = "",
@@ -109,9 +121,80 @@ function entryPage(
 		},
 	);
 }
-// Bounded instance-wide limiter: no IP or invitation is kept in memory.
-let windowStart = 0;
-let attempts = 0;
+interface InvitationRateLimiterOptions {
+	windowMs?: number;
+	perClientLimit?: number;
+	instanceLimit?: number;
+	maxClients?: number;
+	now?: () => number;
+}
+
+function clientIdentifier(request: Request) {
+	const candidates = [
+		request.headers.get("cf-connecting-ip"),
+		request.headers.get("x-real-ip"),
+		request.headers.get("x-forwarded-for")?.split(",")[0],
+	];
+	for (const candidate of candidates) {
+		const address = candidate?.trim();
+		if (address && address.length <= 64 && isIP(address)) return address;
+	}
+	return "unknown";
+}
+
+export function createInvitationRateLimiter({
+	windowMs = 60_000,
+	perClientLimit = 10,
+	instanceLimit = 30,
+	maxClients = 128,
+	now = Date.now,
+}: InvitationRateLimiterOptions = {}) {
+	windowMs = Math.max(1, Math.floor(windowMs));
+	perClientLimit = Math.max(1, Math.floor(perClientLimit));
+	instanceLimit = Math.max(1, Math.floor(instanceLimit));
+	maxClients = Math.max(1, Math.floor(maxClients));
+	const clients = new Map<string, { attempts: number; expiresAt: number }>();
+	const clientKeySecret = randomBytes(32);
+	let instanceAttempts = 0;
+	let instanceExpiresAt = 0;
+
+	return (request: Request) => {
+		const currentTime = now();
+		if (currentTime >= instanceExpiresAt) {
+			instanceAttempts = 0;
+			instanceExpiresAt = currentTime + windowMs;
+		}
+		instanceAttempts += 1;
+		if (instanceAttempts > instanceLimit) return true;
+
+		for (const [key, value] of clients) {
+			if (value.expiresAt <= currentTime) clients.delete(key);
+		}
+
+		const key = createHmac("sha256", clientKeySecret)
+			.update(clientIdentifier(request))
+			.digest("hex");
+		const existing = clients.get(key);
+		const entry = existing ?? {
+			attempts: 0,
+			expiresAt: currentTime + windowMs,
+		};
+		if (!existing) {
+			while (clients.size >= maxClients) {
+				const oldest = clients.keys().next().value;
+				if (oldest === undefined) break;
+				clients.delete(oldest);
+			}
+		}
+		entry.attempts += 1;
+		clients.delete(key);
+		clients.set(key, entry);
+		return entry.attempts > perClientLimit;
+	};
+}
+
+// Raw client addresses and invitation values are never retained in memory.
+const invitationRateLimited = createInvitationRateLimiter();
 export async function betaAccessResponse(
 	request: Request,
 ): Promise<Response | null> {
@@ -126,7 +209,7 @@ export async function betaAccessResponse(
 				const erased = url.searchParams.get("leave") === "erased";
 				return redirect(
 					erased ? "/beta?erased=1" : "/beta",
-					`${BETA_COOKIE}=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0${secure}`,
+					`${BETA_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${secure}`,
 				);
 			}
 			if (url.searchParams.has("erased"))
@@ -146,11 +229,7 @@ export async function betaAccessResponse(
 			return new Response(null, { status: 405, headers });
 		if (request.headers.get("origin") !== expectedOrigin(request.url))
 			return entryPage("Rechargez la page avant de réessayer.", 403);
-		if (Date.now() - windowStart > 60_000) {
-			windowStart = Date.now();
-			attempts = 0;
-		}
-		if (++attempts > 30)
+		if (invitationRateLimited(request))
 			return entryPage("Trop de tentatives. Réessayez dans une minute.", 429);
 		if (
 			!request.headers
@@ -182,7 +261,7 @@ export async function betaAccessResponse(
 			);
 		return redirect(
 			"/",
-			`${BETA_COOKIE}=${signInvitation(code, secret)}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${lifetime}${secure}`,
+			`${BETA_COOKIE}=${signInvitation(code, secret)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${lifetime}${secure}`,
 		);
 	}
 	// These pages carry no participant content. Server functions are never exempted.

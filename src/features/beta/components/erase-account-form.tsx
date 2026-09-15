@@ -73,7 +73,9 @@ export function EraseAccountForm({
 			/>
 			{!anonymous && (
 				<>
-					<Label htmlFor={passwordId}>Mot de passe actuel</Label>
+					<Label htmlFor={passwordId}>
+						Mot de passe actuel (si votre compte en utilise un)
+					</Label>
 					<Input
 						id={passwordId}
 						type="password"
@@ -85,9 +87,13 @@ export function EraseAccountForm({
 						}}
 						aria-invalid={Boolean(error)}
 						aria-describedby={`${descriptionId}${error ? ` ${errorId}` : ""}`}
-						required
 						disabled={pending}
 					/>
+					<p className="text-sm leading-6 text-muted-foreground">
+						Compte Google ou GitHub&nbsp;: laissez ce champ vide. Pour protéger
+						vos données, une connexion datant de moins de dix minutes est
+						exigée.
+					</p>
 				</>
 			)}
 			{error && (
@@ -98,9 +104,7 @@ export function EraseAccountForm({
 			<Button
 				type="submit"
 				variant="destructive"
-				disabled={
-					pending || confirmation !== "EFFACER" || (!anonymous && !password)
-				}
+				disabled={pending || confirmation !== "EFFACER"}
 			>
 				{pending ? "Effacement en cours…" : "Effacer mes données"}
 			</Button>

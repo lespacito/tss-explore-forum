@@ -8,7 +8,7 @@ import {
 const databaseEnv = z.object(databaseEnvironment).parse(process.env);
 
 export default defineConfig({
-	out: "./src/db/migrations",
+	out: "./drizzle",
 	schema: "./src/db/schema.ts",
 	dialect: "postgresql",
 	dbCredentials: {

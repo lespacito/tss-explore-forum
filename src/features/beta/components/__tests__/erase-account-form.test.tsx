@@ -39,6 +39,19 @@ describe("EraseAccountForm", () => {
 		expect(submit).toBeEnabled();
 	});
 
+	it("allows an OAuth account to confirm without a password", async () => {
+		const user = userEvent.setup();
+		render(<EraseAccountForm anonymous={false} userId="oauth-user" />);
+		const submit = screen.getByRole("button", {
+			name: /effacer mes données/i,
+		});
+
+		expect(screen.getByText(/compte Google ou GitHub/i)).toBeInTheDocument();
+		expect(screen.getByLabelText(/mot de passe actuel/i)).not.toBeRequired();
+		await user.type(screen.getByLabelText(/saisissez effacer/i), "EFFACER");
+		expect(submit).toBeEnabled();
+	});
+
 	it("preserves the confirmation and offers recovery after a server error", async () => {
 		const user = userEvent.setup();
 		eraseAccount.mockRejectedValueOnce(

@@ -49,10 +49,10 @@ Load `{installed_path}/steps-b/step-01-welcome.md`
 Ask: "Where is the module brief?" → Load `{installed_path}/steps-c/step-01-load-brief.md`
 
 **IF mode == edit (E):**
-Ask: "What would you like to edit?" → Load `{installed_path}/steps-e/step-01-assess.md`
+Ask: "What would you like to edit?" → Load `{installed_path}/steps-e/step-01-load-target.md`
 
 **IF mode == validate (V):**
-Ask: "What would you like to validate?" → Load `{installed_path}/steps-v/step-01-validate.md`
+Ask: "What would you like to validate?" → Load `{installed_path}/steps-v/step-01-load-target.md`
 
 ---
 
