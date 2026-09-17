@@ -47,6 +47,18 @@ describe("thread moderation authorization", () => {
 			"Accès réservé à la modération",
 		);
 	});
+
+	it("rejects a banned moderator", () => {
+		expect(() =>
+			assertModerator({ ...userWithRole("MODERATOR"), banned: true }),
+		).toThrow("Accès réservé à la modération");
+	});
+
+	it("rejects a banned admin", () => {
+		expect(() =>
+			assertModerator({ ...userWithRole("ADMIN"), banned: true }),
+		).toThrow("Accès réservé à la modération");
+	});
 });
 
 describe("moderation action validation", () => {

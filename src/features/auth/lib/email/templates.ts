@@ -49,7 +49,7 @@ export const welcomeEmail = (name: string): EmailTemplate => ({
             <p>À très bientôt !</p>
           </div>
           <div class="footer">
-            <p>Cet email a été envoyé par TSS Explore Forum</p>
+            <p>Cet email a été envoyé par Parlons Violence</p>
           </div>
         </div>
       </body>
@@ -70,7 +70,7 @@ Visitez ${env.APP_URL || "http://localhost:3000"} pour commencer.
 À très bientôt !
 
 ---
-Cet email a été envoyé par TSS Explore Forum
+Cet email a été envoyé par Parlons Violence
   `,
 });
 
@@ -121,7 +121,7 @@ export const verifyEmailTemplate = (
             </p>
           </div>
           <div class="footer">
-            <p>Cet email a été envoyé par TSS Explore Forum</p>
+            <p>Cet email a été envoyé par Parlons Violence</p>
           </div>
         </div>
       </body>
@@ -139,7 +139,7 @@ ${verificationUrl}
 ⚠️ Important : Ce lien expire dans 24 heures. Si vous n'avez pas demandé cette vérification, vous pouvez ignorer cet email.
 
 ---
-Cet email a été envoyé par TSS Explore Forum
+Cet email a été envoyé par Parlons Violence
   `,
 });
 
@@ -194,7 +194,7 @@ export const resetPasswordEmail = (
             </p>
           </div>
           <div class="footer">
-            <p>Cet email a été envoyé par TSS Explore Forum</p>
+            <p>Cet email a été envoyé par Parlons Violence</p>
           </div>
         </div>
       </body>
@@ -215,7 +215,7 @@ ${resetUrl}
 - Votre mot de passe actuel reste inchangé tant que vous n'en créez pas un nouveau
 
 ---
-Cet email a été envoyé par TSS Explore Forum
+Cet email a été envoyé par Parlons Violence
   `,
 });
 
@@ -253,7 +253,7 @@ export const passwordChangedEmail = (name: string): EmailTemplate => ({
             <p>Date de modification : ${new Date().toLocaleString("fr-FR")}</p>
           </div>
           <div class="footer">
-            <p>Cet email a été envoyé par TSS Explore Forum</p>
+            <p>Cet email a été envoyé par Parlons Violence</p>
           </div>
         </div>
       </body>
@@ -269,7 +269,7 @@ Votre mot de passe a été modifié avec succès.
 Date de modification : ${new Date().toLocaleString("fr-FR")}
 
 ---
-Cet email a été envoyé par TSS Explore Forum
+Cet email a été envoyé par Parlons Violence
   `,
 });
 
@@ -325,7 +325,7 @@ export const deleteAccountTemplate = (
             </p>
           </div>
           <div class="footer">
-            <p>Cet email a été envoyé par TSS Explore Forum</p>
+            <p>Cet email a été envoyé par Parlons Violence</p>
           </div>
         </div>
       </body>
@@ -346,6 +346,6 @@ ${url}
 - Si vous n'êtes pas à l'origine de cette demande, ignorez cet email.
 
 ---
-Cet email a été envoyé par TSS Explore Forum
+Cet email a été envoyé par Parlons Violence
   `,
 });
