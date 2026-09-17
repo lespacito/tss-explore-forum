@@ -1,28 +1,112 @@
-ALTER TABLE "alias" RENAME COLUMN "createdAt" TO "created_at";--> statement-breakpoint
-ALTER TABLE "blocked_users" RENAME COLUMN "createdAt" TO "created_at";--> statement-breakpoint
-ALTER TABLE "moderation_logs" RENAME COLUMN "createdAt" TO "created_at";--> statement-breakpoint
-ALTER TABLE "reports" RENAME COLUMN "targetType" TO "target_type";--> statement-breakpoint
-ALTER TABLE "reports" RENAME COLUMN "createdAt" TO "created_at";--> statement-breakpoint
-ALTER TABLE "notifications" RENAME COLUMN "targetType" TO "notifications_type";--> statement-breakpoint
-ALTER TABLE "notifications" RENAME COLUMN "createdAt" TO "created_at";--> statement-breakpoint
-ALTER TABLE "comments" RENAME COLUMN "createdAt" TO "created_at";--> statement-breakpoint
-ALTER TABLE "comments" RENAME COLUMN "updatedAt" TO "updated_at";--> statement-breakpoint
-ALTER TABLE "posts" RENAME COLUMN "createdAt" TO "created_at";--> statement-breakpoint
-ALTER TABLE "posts" RENAME COLUMN "updatedAt" TO "updated_at";--> statement-breakpoint
-ALTER TABLE "threads" RENAME COLUMN "createdAt" TO "created_at";--> statement-breakpoint
-ALTER TABLE "threads" RENAME COLUMN "updatedAt" TO "updated_at";--> statement-breakpoint
-ALTER TABLE "account" RENAME COLUMN "createdAt" TO "created_at";--> statement-breakpoint
-ALTER TABLE "account" RENAME COLUMN "updatedAt" TO "updated_at";--> statement-breakpoint
-ALTER TABLE "session" RENAME COLUMN "createdAt" TO "created_at";--> statement-breakpoint
-ALTER TABLE "session" RENAME COLUMN "updatedAt" TO "updated_at";--> statement-breakpoint
-ALTER TABLE "user" RENAME COLUMN "createdAt" TO "created_at";--> statement-breakpoint
-ALTER TABLE "user" RENAME COLUMN "updatedAt" TO "updated_at";--> statement-breakpoint
-ALTER TABLE "verification" RENAME COLUMN "createdAt" TO "created_at";--> statement-breakpoint
-ALTER TABLE "verification" RENAME COLUMN "updatedAt" TO "updated_at";--> statement-breakpoint
-DROP INDEX "notifications_user_created_idx";--> statement-breakpoint
-DROP INDEX "comments_post_created_idx";--> statement-breakpoint
-DROP INDEX "posts_thread_created_idx";--> statement-breakpoint
-DROP INDEX "threads_category_created_idx";--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'alias' AND column_name = 'createdAt') THEN
+    ALTER TABLE "alias" RENAME COLUMN "createdAt" TO "created_at";
+  END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'blocked_users' AND column_name = 'createdAt') THEN
+    ALTER TABLE "blocked_users" RENAME COLUMN "createdAt" TO "created_at";
+  END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'moderation_logs' AND column_name = 'createdAt') THEN
+    ALTER TABLE "moderation_logs" RENAME COLUMN "createdAt" TO "created_at";
+  END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'reports' AND column_name = 'targetType') THEN
+    ALTER TABLE "reports" RENAME COLUMN "targetType" TO "target_type";
+  END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'reports' AND column_name = 'createdAt') THEN
+    ALTER TABLE "reports" RENAME COLUMN "createdAt" TO "created_at";
+  END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'notifications' AND column_name = 'targetType') THEN
+    ALTER TABLE "notifications" RENAME COLUMN "targetType" TO "notifications_type";
+  END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'notifications' AND column_name = 'createdAt') THEN
+    ALTER TABLE "notifications" RENAME COLUMN "createdAt" TO "created_at";
+  END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'comments' AND column_name = 'createdAt') THEN
+    ALTER TABLE "comments" RENAME COLUMN "createdAt" TO "created_at";
+  END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'comments' AND column_name = 'updatedAt') THEN
+    ALTER TABLE "comments" RENAME COLUMN "updatedAt" TO "updated_at";
+  END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'posts' AND column_name = 'createdAt') THEN
+    ALTER TABLE "posts" RENAME COLUMN "createdAt" TO "created_at";
+  END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'posts' AND column_name = 'updatedAt') THEN
+    ALTER TABLE "posts" RENAME COLUMN "updatedAt" TO "updated_at";
+  END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'threads' AND column_name = 'createdAt') THEN
+    ALTER TABLE "threads" RENAME COLUMN "createdAt" TO "created_at";
+  END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'threads' AND column_name = 'updatedAt') THEN
+    ALTER TABLE "threads" RENAME COLUMN "updatedAt" TO "updated_at";
+  END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'account' AND column_name = 'createdAt') THEN
+    ALTER TABLE "account" RENAME COLUMN "createdAt" TO "created_at";
+  END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'account' AND column_name = 'updatedAt') THEN
+    ALTER TABLE "account" RENAME COLUMN "updatedAt" TO "updated_at";
+  END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'session' AND column_name = 'createdAt') THEN
+    ALTER TABLE "session" RENAME COLUMN "createdAt" TO "created_at";
+  END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'session' AND column_name = 'updatedAt') THEN
+    ALTER TABLE "session" RENAME COLUMN "updatedAt" TO "updated_at";
+  END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'user' AND column_name = 'createdAt') THEN
+    ALTER TABLE "user" RENAME COLUMN "createdAt" TO "created_at";
+  END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'user' AND column_name = 'updatedAt') THEN
+    ALTER TABLE "user" RENAME COLUMN "updatedAt" TO "updated_at";
+  END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'verification' AND column_name = 'createdAt') THEN
+    ALTER TABLE "verification" RENAME COLUMN "createdAt" TO "created_at";
+  END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'verification' AND column_name = 'updatedAt') THEN
+    ALTER TABLE "verification" RENAME COLUMN "updatedAt" TO "updated_at";
+  END IF;
+END $$;--> statement-breakpoint
+DROP INDEX IF EXISTS "notifications_user_created_idx";--> statement-breakpoint
+DROP INDEX IF EXISTS "comments_post_created_idx";--> statement-breakpoint
+DROP INDEX IF EXISTS "posts_thread_created_idx";--> statement-breakpoint
+DROP INDEX IF EXISTS "threads_category_created_idx";--> statement-breakpoint
 ALTER TABLE "threads" ALTER COLUMN "category" DROP NOT NULL;--> statement-breakpoint
 -- Better Auth identifies an account by the provider/account pair. Refuse to
 -- choose between two different users: that conflict needs manual review rather
@@ -54,8 +138,8 @@ DELETE FROM "account"
 USING "ranked_accounts"
 WHERE "account"."id" = "ranked_accounts"."id"
 	AND "ranked_accounts"."duplicate_rank" > 1;--> statement-breakpoint
-CREATE UNIQUE INDEX "account_provider_account_unique" ON "account" USING btree ("provider_id","account_id");--> statement-breakpoint
-CREATE INDEX "notifications_user_created_idx" ON "notifications" USING btree ("user_id","created_at" DESC NULLS LAST);--> statement-breakpoint
-CREATE INDEX "comments_post_created_idx" ON "comments" USING btree ("post_id","created_at");--> statement-breakpoint
-CREATE INDEX "posts_thread_created_idx" ON "posts" USING btree ("thread_id","created_at");--> statement-breakpoint
-CREATE INDEX "threads_category_created_idx" ON "threads" USING btree ("category","created_at" DESC NULLS LAST);
+CREATE UNIQUE INDEX IF NOT EXISTS "account_provider_account_unique" ON "account" USING btree ("provider_id","account_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "notifications_user_created_idx" ON "notifications" USING btree ("user_id","created_at" DESC NULLS LAST);--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "comments_post_created_idx" ON "comments" USING btree ("post_id","created_at");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "posts_thread_created_idx" ON "posts" USING btree ("thread_id","created_at");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "threads_category_created_idx" ON "threads" USING btree ("category","created_at" DESC NULLS LAST);
