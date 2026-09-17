@@ -16,8 +16,8 @@
  * être invoqué automatiquement par une pipeline CI/CD.
  */
 
-import { getUserByEmail, setUserRole, closeDatabase } from "./db";
 import * as readline from "node:readline/promises";
+import { closeDatabase, getUserByEmail, setUserRole } from "./db";
 
 export const ACCEPTED_ROLES = ["MODERATOR", "ADMIN"] as const;
 export type AcceptedRole = (typeof ACCEPTED_ROLES)[number];
@@ -29,12 +29,12 @@ export const DEFAULT_ROLE = "MODERATOR" as const;
 // ----------------------------------------------------------------------
 
 export function requireInteractiveEnvironment(): void {
-  if (!process.stdin.isTTY) {
-    console.error(
-      "Ce script est réservé à une exécution interactive manuelle (TTY requis).",
-    );
-    process.exit(2);
-  }
+	if (!process.stdin.isTTY) {
+		console.error(
+			"Ce script est réservé à une exécution interactive manuelle (TTY requis).",
+		);
+		process.exit(2);
+	}
 }
 
 // ----------------------------------------------------------------------
@@ -42,13 +42,13 @@ export function requireInteractiveEnvironment(): void {
 // ----------------------------------------------------------------------
 
 export function validateRoleInput(raw: string): AcceptedRole {
-  if (raw !== "MODERATOR" && raw !== "ADMIN") {
-    console.error(
-      `Rôle invalide : ${raw}. Seules les chaînes exactes MODERATOR et ADMIN sont autorisées.`,
-    );
-    process.exit(1);
-  }
-  return raw as AcceptedRole;
+	if (raw !== "MODERATOR" && raw !== "ADMIN") {
+		console.error(
+			`Rôle invalide : ${raw}. Seules les chaînes exactes MODERATOR et ADMIN sont autorisées.`,
+		);
+		process.exit(1);
+	}
+	return raw as AcceptedRole;
 }
 
 // ----------------------------------------------------------------------
@@ -56,64 +56,77 @@ export function validateRoleInput(raw: string): AcceptedRole {
 // ----------------------------------------------------------------------
 
 export async function main(): Promise<void> {
-  requireInteractiveEnvironment();
+	requireInteractiveEnvironment();
 
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
+	const rl = readline.createInterface({
+		input: process.stdin,
+		output: process.stdout,
+	});
 
-  try {
-    // 1. Saisie email
-    const email = (await rl.question("Entrez l'adresse email du compte à provisionner : ")).trim();
-    if (!email) {
-      console.error("Adresse email manquante.");
-      process.exit(1);
-    }
+	try {
+		// 1. Saisie email
+		const email = (
+			await rl.question("Entrez l'adresse email du compte à provisionner : ")
+		).trim();
+		if (!email) {
+			console.error("Adresse email manquante.");
+			process.exit(1);
+		}
 
-    // 2. Saisie rôle (avant confirmation et avant DB)
-    const roleInput = (await rl.question("Rôle à attribuer (MODERATOR ou ADMIN, défaut : MODERATOR) : "));
-    const desiredRole = roleInput === "" ? DEFAULT_ROLE : validateRoleInput(roleInput);
+		// 2. Saisie rôle (avant confirmation et avant DB)
+		const roleInput = await rl.question(
+			"Rôle à attribuer (MODERATOR ou ADMIN, défaut : MODERATOR) : ",
+		);
+		const desiredRole =
+			roleInput === "" ? DEFAULT_ROLE : validateRoleInput(roleInput);
 
-    // 3. Confirmation (avant toute DB)
-    const confirmed = (await rl.question(`Confirmer l'attribution du rôle ${desiredRole} à ${email} ? (yes / no)`)).trim().toLowerCase();
-    if (confirmed !== "yes") {
-      console.error("Confirmation refusée ; aucune mutation appliquée.");
-      process.exit(3);
-    }
+		// 3. Confirmation (avant toute DB)
+		const confirmed = (
+			await rl.question(
+				`Confirmer l'attribution du rôle ${desiredRole} à ${email} ? (yes / no)`,
+			)
+		)
+			.trim()
+			.toLowerCase();
+		if (confirmed !== "yes") {
+			console.error("Confirmation refusée ; aucune mutation appliquée.");
+			process.exit(3);
+		}
 
-    // 4. Lecture DB uniquement après confirmation
-    const existing = await getUserByEmail(email);
-    if (!existing) {
-      console.error(`Aucun compte trouvé pour l'adresse ${email}.`);
-      process.exit(1);
-    }
+		// 4. Lecture DB uniquement après confirmation
+		const existing = await getUserByEmail(email);
+		if (!existing) {
+			console.error(`Aucun compte trouvé pour l'adresse ${email}.`);
+			process.exit(1);
+		}
 
-    // 5. Vérification du rôle actuel
-    const currentRole = existing.role ?? "USER";
-    if (desiredRole === currentRole) {
-      console.error(`Le compte possède déjà le rôle ${currentRole} ; aucune mutation nécessaire.`);
-      process.exit(0);
-    }
+		// 5. Vérification du rôle actuel
+		const currentRole = existing.role ?? "USER";
+		if (desiredRole === currentRole) {
+			console.error(
+				`Le compte possède déjà le rôle ${currentRole} ; aucune mutation nécessaire.`,
+			);
+			process.exit(0);
+		}
 
-    // 6. Mutation uniquement si nécessaire et après tous les guardes-fous
-    await setUserRole(existing.id, desiredRole);
-    console.log(`Rôle ${desiredRole} attribué avec succès au compte ${email}.`);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    console.error(`Échec de la provisioning : ${message}`);
-    process.exit(1);
-  } finally {
-    rl.close();
-    await closeDatabase();
-  }
+		// 6. Mutation uniquement si nécessaire et après tous les guardes-fous
+		await setUserRole(existing.id, desiredRole);
+		console.log(`Rôle ${desiredRole} attribué avec succès au compte ${email}.`);
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error);
+		console.error(`Échec de la provisioning : ${message}`);
+		process.exit(1);
+	} finally {
+		rl.close();
+		await closeDatabase();
+	}
 }
 
 // Lancement CLI uniquement si ce module est exécuté directement (pas importé par les tests)
 if (import.meta.main) {
-  main().catch((error) => {
-    const message = error instanceof Error ? error.message : String(error);
-    console.error(`Erreur inattendue : ${message}`);
-    process.exit(1);
-  });
+	main().catch((error) => {
+		const message = error instanceof Error ? error.message : String(error);
+		console.error(`Erreur inattendue : ${message}`);
+		process.exit(1);
+	});
 }
