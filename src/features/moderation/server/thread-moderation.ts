@@ -70,7 +70,7 @@ export const moderationActionSchema = z
 export function assertModerator(
 	user: User | null | undefined,
 ): asserts user is User {
-	if (!user || !moderatorRoles.has(user.role)) {
+	if (!user || !moderatorRoles.has(user.role) || user.banned) {
 		throw new Error("Accès réservé à la modération");
 	}
 }

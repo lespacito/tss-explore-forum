@@ -3,6 +3,15 @@ import { auth } from "@/features/auth/lib/auth";
 import { runArcjetPolicy } from "@/features/auth/lib/security/arcjet-policies";
 import { handleArcjetDenied } from "@/features/auth/lib/security/protected-server-fn";
 
+/**
+ * Better Auth est servi sous `/api/auth/$` et transparente pour Arcjet.
+ * Les chemins sensibles sont mappés vers les policies Arcjet existantes.
+ *
+ * Credentials-based sign-in (`/sign-in/credentials`) est le point d'entrée
+ * du login par code de récupération. Il est intercepté ici car son pathname
+ * contient `/sign-in`, et la policy appliquée est celle du sign-in classique
+ * (`protectAuthEndpoint`) avec rate-limit + détection de bots.
+ */
 async function handler({ request }: { request: Request }) {
 	const url = new URL(request.url);
 	const path = url.pathname;
@@ -18,7 +27,7 @@ async function handler({ request }: { request: Request }) {
 			const clone = request.clone();
 			const body = await clone.json();
 			email = body.email;
-		} catch (e) {
+		} catch {
 			// Ignore body parsing errors
 		}
 	}
