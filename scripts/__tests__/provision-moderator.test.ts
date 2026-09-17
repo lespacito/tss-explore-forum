@@ -1,8 +1,13 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-vi.mock("@/features/users/server/db/user-queries", () => ({
+// ----------------------------------------------------------------------
+// Mocks — test isolated from réel DB
+// ----------------------------------------------------------------------
+
+vi.mock("../db", () => ({
 	getUserByEmail: vi.fn(),
 	setUserRole: vi.fn(),
+	closeDatabase: vi.fn(),
 }));
 
 vi.mock("node:readline/promises", () => {
@@ -15,14 +20,22 @@ vi.mock("node:readline/promises", () => {
 	};
 });
 
-import { getUserByEmail, setUserRole } from "@/features/users/server/db/user-queries";
 import { createInterface } from "node:readline/promises";
-import { validateRoleInput, requireInteractiveEnvironment, DEFAULT_ROLE, ACCEPTED_ROLES, main } from "../provision-moderator";
+import { getUserByEmail, setUserRole } from "../db";
+import {
+	ACCEPTED_ROLES,
+	DEFAULT_ROLE,
+	main,
+	requireInteractiveEnvironment,
+	validateRoleInput,
+} from "../provision-moderator";
 
 describe("scripts/provision-moderator - validation stricte sans trim", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		vi.spyOn(process, "exit").mockImplementation(() => { throw new Error("exit"); });
+		vi.spyOn(process, "exit").mockImplementation(() => {
+			throw new Error("exit");
+		});
 		process.stdin.isTTY = true;
 	});
 
@@ -101,7 +114,9 @@ describe("scripts/provision-moderator - guards d'exécution", () => {
 		vi.clearAllMocks();
 		process.stdin.isTTY = true;
 
-		vi.spyOn(process, "exit").mockImplementation(() => { throw new Error("exit"); });
+		vi.spyOn(process, "exit").mockImplementation(() => {
+			throw new Error("exit");
+		});
 		consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 	});
 
@@ -140,7 +155,11 @@ describe("scripts/provision-moderator - guards d'exécution", () => {
 	});
 
 	it("confirmation 'yes' → getUserByEmail appelé seulement après confirmation", async () => {
-		const mockUser = { id: "user-123", email: "test@example.com", role: "USER" };
+		const mockUser = {
+			id: "user-123",
+			email: "test@example.com",
+			role: "USER",
+		};
 		const mockRl = createInterface();
 		(mockRl.question as any)
 			.mockResolvedValueOnce("test@example.com")
@@ -171,7 +190,11 @@ describe("scripts/provision-moderator - guards d'exécution", () => {
 	});
 
 	it("rôle déjà identique → aucune écriture (setUserRole non appelé)", async () => {
-		const mockUser = { id: "user-123", email: "test@example.com", role: "MODERATOR" };
+		const mockUser = {
+			id: "user-123",
+			email: "test@example.com",
+			role: "MODERATOR",
+		};
 		const mockRl = createInterface();
 		(mockRl.question as any)
 			.mockResolvedValueOnce("test@example.com")
@@ -186,7 +209,11 @@ describe("scripts/provision-moderator - guards d'exécution", () => {
 	});
 
 	it("rôle différent → exactement un setUserRole (pas plus)", async () => {
-		const mockUser = { id: "user-123", email: "user@example.com", role: "USER" };
+		const mockUser = {
+			id: "user-123",
+			email: "user@example.com",
+			role: "USER",
+		};
 		const mockRl = createInterface();
 		(mockRl.question as any)
 			.mockResolvedValueOnce("user@example.com")
@@ -202,7 +229,11 @@ describe("scripts/provision-moderator - guards d'exécution", () => {
 	});
 
 	it("rôle modifié de MODERATOR à ADMIN → exactement un setUserRole", async () => {
-		const mockUser = { id: "user-456", email: "mod@example.com", role: "MODERATOR" };
+		const mockUser = {
+			id: "user-456",
+			email: "mod@example.com",
+			role: "MODERATOR",
+		};
 		const mockRl = createInterface();
 		(mockRl.question as any)
 			.mockResolvedValueOnce("mod@example.com")
@@ -218,7 +249,11 @@ describe("scripts/provision-moderator - guards d'exécution", () => {
 	});
 
 	it("rôles identiques (ADMIN→ADMIN) → aucune écriture", async () => {
-		const mockUser = { id: "user-789", email: "admin@example.com", role: "ADMIN" };
+		const mockUser = {
+			id: "user-789",
+			email: "admin@example.com",
+			role: "ADMIN",
+		};
 		const mockRl = createInterface();
 		(mockRl.question as any)
 			.mockResolvedValueOnce("admin@example.com")

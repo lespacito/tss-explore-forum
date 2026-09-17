@@ -10,15 +10,14 @@
  * - Rôle absent / entrée vide au prompt → MODERATOR par défaut.
  * - Seules les chaînes exactes MODERATOR et ADMIN sont acceptées ; toute
  *   variante de casse, espace ou valeur différente est rejetée (pas de trim).
- * - Utilise getUserByEmail + setUserRole depuis
- *   src/features/users/server/db/user-queries.ts.
+ * - Utilise getUserByEmail + setUserRole depuis ./db (DB_* uniquement).
  *
  * Ce fichier est un script d'administration à usage manuel ; il ne doit jamais
  * être invoqué automatiquement par une pipeline CI/CD.
  */
 
-import { getUserByEmail, setUserRole } from "@/features/users/server/db/user-queries";
 import * as readline from "node:readline/promises";
+import { closeDatabase, getUserByEmail, setUserRole } from "./db";
 
 export const ACCEPTED_ROLES = ["MODERATOR", "ADMIN"] as const;
 export type AcceptedRole = (typeof ACCEPTED_ROLES)[number];
@@ -66,18 +65,29 @@ export async function main(): Promise<void> {
 
 	try {
 		// 1. Saisie email
-		const email = (await rl.question("Entrez l'adresse email du compte à provisionner : ")).trim();
+		const email = (
+			await rl.question("Entrez l'adresse email du compte à provisionner : ")
+		).trim();
 		if (!email) {
 			console.error("Adresse email manquante.");
 			process.exit(1);
 		}
 
 		// 2. Saisie rôle (avant confirmation et avant DB)
-		const roleInput = (await rl.question(`Rôle à attribuer (MODERATOR ou ADMIN, défaut : MODERATOR) : `));
-		const desiredRole = roleInput === "" ? DEFAULT_ROLE : validateRoleInput(roleInput);
+		const roleInput = await rl.question(
+			"Rôle à attribuer (MODERATOR ou ADMIN, défaut : MODERATOR) : ",
+		);
+		const desiredRole =
+			roleInput === "" ? DEFAULT_ROLE : validateRoleInput(roleInput);
 
 		// 3. Confirmation (avant toute DB)
-		const confirmed = (await rl.question(`Confirmer l'attribution du rôle ${desiredRole} à ${email} ? (yes / no)`)).trim().toLowerCase();
+		const confirmed = (
+			await rl.question(
+				`Confirmer l'attribution du rôle ${desiredRole} à ${email} ? (yes / no)`,
+			)
+		)
+			.trim()
+			.toLowerCase();
 		if (confirmed !== "yes") {
 			console.error("Confirmation refusée ; aucune mutation appliquée.");
 			process.exit(3);
@@ -93,7 +103,9 @@ export async function main(): Promise<void> {
 		// 5. Vérification du rôle actuel
 		const currentRole = existing.role ?? "USER";
 		if (desiredRole === currentRole) {
-			console.error(`Le compte possède déjà le rôle ${currentRole} ; aucune mutation nécessaire.`);
+			console.error(
+				`Le compte possède déjà le rôle ${currentRole} ; aucune mutation nécessaire.`,
+			);
 			process.exit(0);
 		}
 
@@ -106,6 +118,7 @@ export async function main(): Promise<void> {
 		process.exit(1);
 	} finally {
 		rl.close();
+		await closeDatabase();
 	}
 }
 
