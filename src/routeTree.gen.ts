@@ -14,7 +14,6 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RulesRouteImport } from './routes/rules'
-import { Route as TestEmailRouteImport } from './routes/test-email'
 import { Route as AuthAnonymousSigninRouteImport } from './routes/auth/anonymous-signin'
 import { Route as SearchIndexRouteImport } from './routes/search/index'
 import { Route as ThreadsIndexRouteImport } from './routes/threads/index'
@@ -52,11 +51,6 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const RulesRoute = RulesRouteImport.update({
   id: '/rules',
   path: '/rules',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TestEmailRoute = TestEmailRouteImport.update({
-  id: '/test-email',
-  path: '/test-email',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthAnonymousSigninRoute = AuthAnonymousSigninRouteImport.update({
@@ -131,7 +125,6 @@ export interface FileRoutesByFullPath {
   '/help': typeof HelpRoute
   '/privacy': typeof PrivacyRoute
   '/rules': typeof RulesRoute
-  '/test-email': typeof TestEmailRoute
   '/auth/anonymous-signin': typeof AuthAnonymousSigninRoute
   '/threads/$threadSlug': typeof ThreadsThreadSlugRoute
   '/threads/confirmation': typeof ThreadsConfirmationRoute
@@ -152,7 +145,6 @@ export interface FileRoutesByTo {
   '/help': typeof HelpRoute
   '/privacy': typeof PrivacyRoute
   '/rules': typeof RulesRoute
-  '/test-email': typeof TestEmailRoute
   '/auth/anonymous-signin': typeof AuthAnonymousSigninRoute
   '/threads/$threadSlug': typeof ThreadsThreadSlugRoute
   '/threads/confirmation': typeof ThreadsConfirmationRoute
@@ -174,7 +166,6 @@ export interface FileRoutesById {
   '/help': typeof HelpRoute
   '/privacy': typeof PrivacyRoute
   '/rules': typeof RulesRoute
-  '/test-email': typeof TestEmailRoute
   '/auth/anonymous-signin': typeof AuthAnonymousSigninRoute
   '/threads/$threadSlug': typeof ThreadsThreadSlugRoute
   '/threads/confirmation': typeof ThreadsConfirmationRoute
@@ -197,7 +188,6 @@ export interface FileRouteTypes {
     | '/help'
     | '/privacy'
     | '/rules'
-    | '/test-email'
     | '/auth/anonymous-signin'
     | '/threads/$threadSlug'
     | '/threads/confirmation'
@@ -218,7 +208,6 @@ export interface FileRouteTypes {
     | '/help'
     | '/privacy'
     | '/rules'
-    | '/test-email'
     | '/auth/anonymous-signin'
     | '/threads/$threadSlug'
     | '/threads/confirmation'
@@ -239,7 +228,6 @@ export interface FileRouteTypes {
     | '/help'
     | '/privacy'
     | '/rules'
-    | '/test-email'
     | '/auth/anonymous-signin'
     | '/threads/$threadSlug'
     | '/threads/confirmation'
@@ -261,7 +249,6 @@ export interface RootRouteChildren {
   HelpRoute: typeof HelpRoute
   PrivacyRoute: typeof PrivacyRoute
   RulesRoute: typeof RulesRoute
-  TestEmailRoute: typeof TestEmailRoute
   AuthAnonymousSigninRoute: typeof AuthAnonymousSigninRoute
   ThreadsThreadSlugRoute: typeof ThreadsThreadSlugRoute
   ThreadsConfirmationRoute: typeof ThreadsConfirmationRoute
@@ -312,13 +299,6 @@ declare module '@tanstack/react-router' {
       path: '/rules'
       fullPath: '/rules'
       preLoaderRoute: typeof RulesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/test-email': {
-      id: '/test-email'
-      path: '/test-email'
-      fullPath: '/test-email'
-      preLoaderRoute: typeof TestEmailRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/anonymous-signin': {
@@ -421,7 +401,6 @@ const rootRouteChildren: RootRouteChildren = {
   HelpRoute: HelpRoute,
   PrivacyRoute: PrivacyRoute,
   RulesRoute: RulesRoute,
-  TestEmailRoute: TestEmailRoute,
   AuthAnonymousSigninRoute: AuthAnonymousSigninRoute,
   ThreadsThreadSlugRoute: ThreadsThreadSlugRoute,
   ThreadsConfirmationRoute: ThreadsConfirmationRoute,
