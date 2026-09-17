@@ -19,7 +19,10 @@ export default defineConfig({
 		globals: true,
 		environment: "jsdom",
 		setupFiles: ["./src/test/setup.ts"],
-		include: ["src/**/*.test.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
+		include: [
+			"src/**/*.test.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
+			"scripts/**/*.test.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
+		],
 		exclude: [
 			"**/*.e2e.test.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
 			"**/*.manual.test.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
@@ -42,8 +45,10 @@ export default defineConfig({
 				"******localhost:5432/test",
 			ARCJET_KEY: process.env.ARCJET_KEY || "test_arcjet_key",
 			BETTER_AUTH_SECRET:
-				process.env.BETTER_AUTH_SECRET || "test_secret_32_chars_minimum_len",
-			BETTER_AUTH_URL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+				process.env.BETTER_AUTH_SECRET ||
+				"test_secret_32_chars_minimum_len",
+			BETTER_AUTH_URL:
+				process.env.BETTER_AUTH_URL || "http://localhost:3000",
 			NODE_ENV: "test",
 		},
 	},
