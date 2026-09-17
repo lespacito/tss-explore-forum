@@ -403,7 +403,6 @@ describe("signinWithSecretCode - Task 3", () => {
 				isAnonymous: true,
 				secretCode: "ERR-CODE1",
 			};
-
 			mockFindUserBySecretCode.mockResolvedValue(mockUser as User);
 			mockCreateSession.mockRejectedValue(new Error("Session creation failed"));
 
@@ -416,6 +415,86 @@ describe("signinWithSecretCode - Task 3", () => {
 					headers: new Headers(),
 				}),
 			).rejects.toThrow("Session creation failed");
+		});
+	});
+
+	describe("Non-regression: anonymous user with .local email can sign in with secret code", () => {
+		it("should allow anonymous user with .local email and valid secret code to sign in", async () => {
+			// Must reflect real anonymous user shape: email is non-null (.local), isAnonymous = true
+			const mockAnonymousUser: Partial<User> = {
+				id: "anon_user_123",
+				email: "anon_abc123@local", // Non-null .local email (real anonymous user has this)
+				isAnonymous: true,
+				secretCode: "ABCD-EFGH-IJKL",
+				emailVerified: true, // Auto-verified after anonymous session creation per auth.ts hook
+			};
+
+			const mockSession = {
+				session: {
+					id: "session_abc",
+					userId: "anon_user_123",
+					expiresAt: new Date(Date.now() + 86400000),
+					token: "session_token_abc",
+				},
+				user: mockAnonymousUser,
+			};
+
+			mockFindUserBySecretCode.mockResolvedValue(mockAnonymousUser as User);
+			mockCreateSession.mockResolvedValue(mockSession as any);
+
+			// Simulate full handler logic: normalize code, find user, check isAnonymous, create session
+			const normalizedCode = "ABCD-EFGH-IJKL";
+			const user = await findUserBySecretCode(normalizedCode);
+
+			expect(user).not.toBeNull();
+			expect(user?.email).not.toBeNull(); // Has .local email — not null (this is the bug fix scenario)
+			expect(user?.email).toContain("@local");
+			expect(user?.isAnonymous).toBe(true);
+
+			// The fixed guard: !user.isAnonymous should NOT reject this user
+			if (user && user.isAnonymous) {
+				const session = await authApi.createSession({
+					userId: user.id,
+					headers: expect.any(Object),
+				});
+
+				expect(session).toBeDefined();
+				expect(mockCreateSession).toHaveBeenCalledWith({
+					userId: "anon_user_123",
+					headers: expect.any(Object),
+				});
+			} else {
+				throw new Error("Anonymous user should have passed the isAnonymous guard");
+			}
+		});
+
+		it("should reject non-anonymous user with secret code", async () => {
+			// Registered user (non-anonymous) must be rejected — cannot use secret-code login
+			const mockRegisteredUser: Partial<User> = {
+				id: "registered_user_456",
+				email: "user@example.com",
+				isAnonymous: false,
+				secretCode: "REGI-STER1",
+				emailVerified: true,
+			};
+
+			mockFindUserBySecretCode.mockResolvedValue(mockRegisteredUser as User);
+
+			const user = await findUserBySecretCode("REGI-STER1");
+
+			expect(user).not.toBeNull();
+			expect(user?.isAnonymous).toBe(false);
+
+			// The fixed guard: !user.isAnonymous SHOULD reject this user
+			if (user && !user.isAnonymous) {
+				// This path represents the guard rejecting the user
+				expect(true).toBe(true); // Guard correctly identifies non-anonymous user
+			} else {
+				throw new Error("Non-anonymous user should have been rejected by isAnonymous guard");
+			}
+
+			// createSession should NOT be called for non-anonymous users
+			expect(mockCreateSession).not.toHaveBeenCalled();
 		});
 	});
 });

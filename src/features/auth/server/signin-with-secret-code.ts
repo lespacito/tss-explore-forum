@@ -32,7 +32,9 @@ export const signinWithSecretCodeFn = createServerFn({ method: "POST" })
 		}
 
 		// Vérifier que c'est bien un utilisateur anonyme
-		if (user.email !== null) {
+		// Les utilisateurs anonymes possèdent une adresse technique .local non nulle,
+		// donc utiliser isAnonymous plutôt que user.email !== null.
+		if (!user.isAnonymous) {
 			return { success: false, error: "Ce code n'est pas valide." };
 		}
 
