@@ -156,7 +156,6 @@ export const auth = betterAuth({
 		anonymous(),
 		admin({
 			defaultRole: "USER",
-			adminRole: "ADMIN",
 		}),
 		tanstackStartCookies(),
 	],
