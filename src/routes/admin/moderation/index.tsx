@@ -6,7 +6,6 @@ import {
 	Check,
 	Clock3,
 	EyeOff,
-	FileCheck2,
 	ShieldCheck,
 	ShieldOff,
 } from "lucide-react";
@@ -16,6 +15,7 @@ import { SafeHtmlDisplay } from "@/components/tiptap/SafeHtmlDisplay";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { getAuthSession } from "@/features/auth/server/get-auth-session";
 import {
 	getModerationQueueFn,
@@ -488,27 +488,30 @@ function filterLabel(status: QueueStatus) {
 function EmptyQueue({ status }: { status: QueueStatus }) {
 	const labels = {
 		pending: {
-			title: "La file est à jour",
-			description: "Aucun scénario n’attend actuellement votre examen.",
+			title: "Aucun scénario en attente d'examen.",
+			description: "Aucun scénario n'attend actuellement votre examen.",
 		},
 		published: {
-			title: "Aucun scénario publié",
+			title: "Aucun scénario publié.",
 			description: "Les scénarios publiés apparaîtront ici.",
 		},
 		rejected: {
-			title: "Aucun scénario non publié",
+			title: "Aucun scénario non publié.",
 			description: "Les décisions de rejet apparaîtront ici avec leur motif.",
 		},
 	};
 	const current = labels[status];
 
 	return (
-		<div className="rounded-xl bg-card px-6 py-16 text-center shadow-sm">
-			<FileCheck2 className="mx-auto size-8 text-primary" />
-			<h2 className="mt-4 font-serif text-xl font-semibold">{current.title}</h2>
-			<p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-				{current.description}
-			</p>
-		</div>
+		<Empty className="mx-auto max-w-lg">
+			<EmptyHeader className="text-center">
+				<EmptyTitle className="font-serif text-xl font-semibold">
+					{current.title}
+				</EmptyTitle>
+				<EmptyDescription className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+					{current.description}
+				</EmptyDescription>
+			</EmptyHeader>
+		</Empty>
 	);
 }

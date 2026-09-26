@@ -13,6 +13,17 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import {
+	EyeOff,
+} from "lucide-react";
+import {
+	Empty,
+	EmptyContent,
+	EmptyDescription,
+	EmptyHeader,
+	EmptyMedia,
+	EmptyTitle,
+} from "@/components/ui/empty";
+import {
 	getCategoryConfig,
 	type ThreadCategory,
 } from "@/data/threads-categories";
@@ -114,8 +125,8 @@ function Profile() {
 			</Card>
 
 			{user.isAnonymous && (
-						<section className="border-b pb-7">
-							<Button
+				<section className="border-b pb-7">
+					<Button
 						variant="outline"
 						disabled={loading}
 						onClick={async () => {
@@ -130,7 +141,7 @@ function Profile() {
 								if (result.success) setCode(result.secretCode);
 								else setError(result.error);
 							} catch {
-								setError("Le code n’a pas pu être chargé. Réessayez.");
+								setError("Le code n'a pas pu être chargé. Réessayez.");
 							} finally {
 								setLoading(false);
 							}
@@ -152,12 +163,24 @@ function Profile() {
 			)}
 
 			{threads.length === 0 ? (
-				<section className="border-y py-12">
-					<h2 className="font-serif text-2xl font-semibold">Aucun scénario</h2>
-					<p className="mt-2 text-muted-foreground">
-						Votre premier scénario apparaîtra ici après son envoi.
-					</p>
-				</section>
+				<Empty className="mx-auto max-w-xl">
+					<EmptyHeader className="text-center">
+						<EmptyMedia variant="icon">
+							<EyeOff className="size-6 text-muted-foreground" />
+						</EmptyMedia>
+						<EmptyTitle className="font-serif text-xl font-semibold">
+							Aucun scénario
+						</EmptyTitle>
+						<EmptyDescription className="text-sm text-muted-foreground">
+							Votre premier scénario apparaîtra ici après son envoi.
+						</EmptyDescription>
+					</EmptyHeader>
+					<EmptyContent className="pt-4">
+						<Button asChild size="lg">
+							<Link to="/threads/new">Créer un nouveau scénario</Link>
+						</Button>
+					</EmptyContent>
+				</Empty>
 			) : (
 				<div className="space-y-10">
 					{groups.map((group) => {
@@ -192,27 +215,22 @@ function Profile() {
 										))}
 									</div>
 								) : (
-									<p className="py-5 text-sm text-muted-foreground">
-										Aucun scénario dans ce groupe.
+									<p className="py-6 text-sm text-muted-foreground">
+										{group.status === "pending"
+											? "Aucun scénario en attente d'examen."
+											: group.status === "published"
+												? "Aucun scénario publié."
+												: "Aucun scénario rejeté."}
 									</p>
-								)}
+									)}
 							</section>
 						);
 					})}
 				</div>
 			)}
 
-			<div className="flex flex-col gap-3">
-				<p className="text-sm text-muted-foreground">
-					Créez un scénario pour le partager avec les autres
-					participants après examen.
-				</p>
-				<Button asChild size="lg">
-					<Link to="/threads/new">Créer un nouveau scénario</Link>
-				</Button>
 			</div>
-		</div>
-	);
+			);
 }
 
 type UserThread = {
