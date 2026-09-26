@@ -6,12 +6,20 @@ import { SafeHtmlDisplay } from "@/components/tiptap/SafeHtmlDisplay";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
+import {
 	getCategoryConfig,
 	type ThreadCategory,
 } from "@/data/threads-categories";
 import { SecretCodeDisplay } from "@/features/auth/components/SecretCodeDisplay";
 import { generateSecretCodeFn } from "@/features/auth/server/generate-secret-code-fn";
 import { getAuthSessionCached } from "@/features/auth/server/get-auth-session";
+import { getCurrentPrimaryAliasFn } from "@/features/alias/server/actions/get-primary-alias";
 import { RejectionMessage } from "@/features/profiles/components/RejectionMessage";
 import { ThreadStatusBadge } from "@/features/profiles/components/ThreadStatusBadge";
 import { getUserThreadsFn } from "@/features/threads/server/actions/get-user-threads";
@@ -21,15 +29,20 @@ export const Route = createFileRoute("/account/profile/")({
 	loader: async () => {
 		const session = await getAuthSessionCached();
 		if (!session.user) throw redirect({ to: "/auth/anonymous-signin" });
+		const [primaryAlias, threads] = await Promise.all([
+			getCurrentPrimaryAliasFn(),
+			getUserThreadsFn({ data: {} }),
+		]);
 		return {
 			user: session.user,
-			threads: await getUserThreadsFn({ data: {} }),
+			threads,
+			primaryAlias,
 		};
 	},
 });
 
 function Profile() {
-	const { user, threads } = Route.useLoaderData();
+	const { user, threads, primaryAlias } = Route.useLoaderData();
 	const [code, setCode] = useState("");
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
@@ -53,24 +66,56 @@ function Profile() {
 	];
 
 	return (
-		<div className="mx-auto max-w-4xl space-y-10 px-4 py-10 sm:py-14">
-			<header className="flex flex-wrap items-end justify-between gap-5 border-b pb-7">
+		<div className="mx-auto max-w-3xl space-y-8 px-4 py-10 sm:py-14">
+			<header className="border-b pb-7 flex flex-wrap items-end gap-x-4">
 				<div>
 					<h1 className="font-serif text-4xl font-semibold tracking-tight">
-						Mes scénarios
+						Mon espace
 					</h1>
 					<p className="mt-3 max-w-2xl leading-7 text-muted-foreground">
 						Chaque scénario reste ici, avec la décision prise après examen.
 					</p>
 				</div>
-				<Button asChild variant="outline">
-					<Link to="/account/settings">Gérer mes données</Link>
-				</Button>
+				<Link
+					to="/account/settings"
+					className="ml-auto text-sm text-muted-foreground underline-offset-2 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+				>
+					Gérer mes données
+				</Link>
 			</header>
 
+			<Card className="border-muted">
+				<CardHeader className="pb-4">
+					<CardTitle className="font-serif text-xl">Mon identité</CardTitle>
+					<CardDescription className="mt-1">
+						Ce que les autres participants voient lorsqu'ils lisent vos
+						scénarios publiés.
+					</CardDescription>
+				</CardHeader>
+				<CardContent className="space-y-4">
+					<div className="space-y-2 rounded-lg border bg-muted/20 p-4">
+						<dt className="text-sm text-muted-foreground">Alias public</dt>
+						<dd className="text-2xl font-semibold leading-none">
+							{primaryAlias ?? "Aucun alias attribué"}
+						</dd>
+					</div>
+					<div className="flex items-center gap-3">
+						<dt className="text-sm text-muted-foreground">Type de session</dt>
+						<Badge variant={user.isAnonymous ? "outline" : "default"}>
+							{user.isAnonymous ? "Session anonyme" : "Compte"}
+						</Badge>
+					</div>
+					<p className="text-sm text-muted-foreground leading-relaxed">
+						Votre alias est l'identité affichée avec vos scénarios publiés.
+						Il contribue à préserver votre identité, sans garantir un
+						anonymat absolu.
+					</p>
+				</CardContent>
+			</Card>
+
 			{user.isAnonymous && (
-				<section className="space-y-4 border-b pb-8">
-					<Button
+						<section className="border-b pb-7">
+							<Button
 						variant="outline"
 						disabled={loading}
 						onClick={async () => {
@@ -114,7 +159,7 @@ function Profile() {
 					</p>
 				</section>
 			) : (
-				<div className="space-y-12">
+				<div className="space-y-10">
 					{groups.map((group) => {
 						const groupThreads = threads.filter(
 							(thread) => thread.status === group.status,
@@ -124,21 +169,21 @@ function Profile() {
 								key={group.status}
 								aria-labelledby={`group-${group.status}`}
 							>
-								<div className="mb-5 flex items-baseline justify-between gap-4">
-									<div>
+								<div className="mb-5">
+									<div className="flex items-baseline gap-3">
 										<h2
 											id={`group-${group.status}`}
-											className="font-serif text-2xl font-semibold"
+											className="font-serif text-2xl font-semibold tracking-tight"
 										>
 											{group.title}
 										</h2>
-										<p className="mt-1 text-sm text-muted-foreground">
-											{group.description}
-										</p>
+										<span className="text-sm tabular-nums text-muted-foreground">
+											{groupThreads.length}
+										</span>
 									</div>
-									<span className="text-sm tabular-nums text-muted-foreground">
-										{groupThreads.length}
-									</span>
+									<p className="mt-1 text-sm text-muted-foreground">
+										{group.description}
+									</p>
 								</div>
 								{groupThreads.length ? (
 									<div className="divide-y border-y">
@@ -147,7 +192,7 @@ function Profile() {
 										))}
 									</div>
 								) : (
-									<p className="border-y py-5 text-sm text-muted-foreground">
+									<p className="py-5 text-sm text-muted-foreground">
 										Aucun scénario dans ce groupe.
 									</p>
 								)}
@@ -157,9 +202,15 @@ function Profile() {
 				</div>
 			)}
 
-			<Button asChild size="lg">
-				<Link to="/threads/new">Créer un nouveau scénario</Link>
-			</Button>
+			<div className="flex flex-col gap-3">
+				<p className="text-sm text-muted-foreground">
+					Créez un scénario pour le partager avec les autres
+					participants après examen.
+				</p>
+				<Button asChild size="lg">
+					<Link to="/threads/new">Créer un nouveau scénario</Link>
+				</Button>
+			</div>
 		</div>
 	);
 }
