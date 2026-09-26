@@ -27,6 +27,14 @@ function Page() {
 				informations de navigateur. Le modérateur dispose du contenu et des
 				décisions, sans affichage de l’adresse IP dans sa file de modération.
 			</p>
+			<h2>Retours anonymes</h2>
+			<p>
+				Un formulaire de feedback permet de remonter votre expérience. Il est
+				anonyme : aucun nom, email, identifiant de session ou adresse IP n’est
+				lié à vos réponses. Seules les réponses elles-mêmes sont conservées, pour
+				analyse interne par l’organisation de la cohorte. Les champs obligatoires
+				sont limités à trois notes. Les champs libres sont facultatifs.
+			</p>
 			<h2>Sur votre appareil</h2>
 			<p>
 				Des cookies maintiennent l’accès invité et la session. Le thème et les
@@ -45,7 +53,9 @@ function Page() {
 				Gérer mes données permet de demander la suppression du compte et de ses
 				scénarios dans la base active. Une copie supprimée peut subsister
 				jusqu’à sept jours supplémentaires dans une sauvegarde avant son
-				expiration.
+				expiration. Les retours anonymes soumis via le formulaire de feedback
+				sont également conservés avec les réponses elles-mêmes, sans identifiant
+				de participant.
 			</p>
 			<p>
 				Pour cette cohorte, les comptes et les scénarios doivent être supprimés
