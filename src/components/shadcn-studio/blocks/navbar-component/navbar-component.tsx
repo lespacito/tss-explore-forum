@@ -20,7 +20,7 @@ const Navbar = () => {
 	const loaderData = routeApi.useLoaderData();
 	const user = loaderData?.authSession?.user;
 	const routerState = useRouterState();
-	const scenariosActive =
+	const spaceActive =
 		routerState.location.pathname.startsWith("/account/profile");
 
 	return (
@@ -39,9 +39,9 @@ const Navbar = () => {
 						<Link
 							to="/account/profile"
 							className="civic-scenarios-link"
-							aria-current={scenariosActive ? "page" : undefined}
+							aria-current={spaceActive ? "page" : undefined}
 						>
-							Mes scénarios
+							<span>Mon espace</span>
 						</Link>
 					)}
 				</div>
