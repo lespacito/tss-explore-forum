@@ -15,12 +15,14 @@ import { Route as HelpRouteImport } from './routes/help'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RulesRouteImport } from './routes/rules'
 import { Route as AuthAnonymousSigninRouteImport } from './routes/auth/anonymous-signin'
+import { Route as FeedbackIndexRouteImport } from './routes/feedback/index'
 import { Route as SearchIndexRouteImport } from './routes/search/index'
 import { Route as ThreadsIndexRouteImport } from './routes/threads/index'
 import { Route as ThreadsThreadSlugRouteImport } from './routes/threads/$threadSlug'
 import { Route as ThreadsConfirmationRouteImport } from './routes/threads/confirmation'
 import { Route as AccountProfileIndexRouteImport } from './routes/account/profile/index'
 import { Route as AccountSettingsIndexRouteImport } from './routes/account/settings/index'
+import { Route as AdminFeedbackIndexRouteImport } from './routes/admin/feedback/index'
 import { Route as AdminModerationIndexRouteImport } from './routes/admin/moderation/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as AuthLoginIndexRouteImport } from './routes/auth/login/index'
@@ -58,6 +60,11 @@ const AuthAnonymousSigninRoute = AuthAnonymousSigninRouteImport.update({
   path: '/auth/anonymous-signin',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FeedbackIndexRoute = FeedbackIndexRouteImport.update({
+  id: '/feedback/',
+  path: '/feedback/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SearchIndexRoute = SearchIndexRouteImport.update({
   id: '/search/',
   path: '/search/',
@@ -86,6 +93,11 @@ const AccountProfileIndexRoute = AccountProfileIndexRouteImport.update({
 const AccountSettingsIndexRoute = AccountSettingsIndexRouteImport.update({
   id: '/account/settings/',
   path: '/account/settings/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminFeedbackIndexRoute = AdminFeedbackIndexRouteImport.update({
+  id: '/admin/feedback/',
+  path: '/admin/feedback/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminModerationIndexRoute = AdminModerationIndexRouteImport.update({
@@ -128,12 +140,14 @@ export interface FileRoutesByFullPath {
   '/auth/anonymous-signin': typeof AuthAnonymousSigninRoute
   '/threads/$threadSlug': typeof ThreadsThreadSlugRoute
   '/threads/confirmation': typeof ThreadsConfirmationRoute
+  '/feedback/': typeof FeedbackIndexRoute
   '/search/': typeof SearchIndexRoute
   '/threads/': typeof ThreadsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/threads/new/$category': typeof ThreadsNewCategoryRoute
   '/account/profile/': typeof AccountProfileIndexRoute
   '/account/settings/': typeof AccountSettingsIndexRoute
+  '/admin/feedback/': typeof AdminFeedbackIndexRoute
   '/admin/moderation/': typeof AdminModerationIndexRoute
   '/auth/login/': typeof AuthLoginIndexRoute
   '/auth/reset-password/': typeof AuthResetPasswordIndexRoute
@@ -148,12 +162,14 @@ export interface FileRoutesByTo {
   '/auth/anonymous-signin': typeof AuthAnonymousSigninRoute
   '/threads/$threadSlug': typeof ThreadsThreadSlugRoute
   '/threads/confirmation': typeof ThreadsConfirmationRoute
+  '/feedback': typeof FeedbackIndexRoute
   '/search': typeof SearchIndexRoute
   '/threads': typeof ThreadsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/threads/new/$category': typeof ThreadsNewCategoryRoute
   '/account/profile': typeof AccountProfileIndexRoute
   '/account/settings': typeof AccountSettingsIndexRoute
+  '/admin/feedback': typeof AdminFeedbackIndexRoute
   '/admin/moderation': typeof AdminModerationIndexRoute
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/reset-password': typeof AuthResetPasswordIndexRoute
@@ -169,12 +185,14 @@ export interface FileRoutesById {
   '/auth/anonymous-signin': typeof AuthAnonymousSigninRoute
   '/threads/$threadSlug': typeof ThreadsThreadSlugRoute
   '/threads/confirmation': typeof ThreadsConfirmationRoute
+  '/feedback/': typeof FeedbackIndexRoute
   '/search/': typeof SearchIndexRoute
   '/threads/': typeof ThreadsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/threads/new/$category': typeof ThreadsNewCategoryRoute
   '/account/profile/': typeof AccountProfileIndexRoute
   '/account/settings/': typeof AccountSettingsIndexRoute
+  '/admin/feedback/': typeof AdminFeedbackIndexRoute
   '/admin/moderation/': typeof AdminModerationIndexRoute
   '/auth/login/': typeof AuthLoginIndexRoute
   '/auth/reset-password/': typeof AuthResetPasswordIndexRoute
@@ -191,12 +209,14 @@ export interface FileRouteTypes {
     | '/auth/anonymous-signin'
     | '/threads/$threadSlug'
     | '/threads/confirmation'
+    | '/feedback/'
     | '/search/'
     | '/threads/'
     | '/api/auth/$'
     | '/threads/new/$category'
     | '/account/profile/'
     | '/account/settings/'
+    | '/admin/feedback/'
     | '/admin/moderation/'
     | '/auth/login/'
     | '/auth/reset-password/'
@@ -211,12 +231,14 @@ export interface FileRouteTypes {
     | '/auth/anonymous-signin'
     | '/threads/$threadSlug'
     | '/threads/confirmation'
+    | '/feedback'
     | '/search'
     | '/threads'
     | '/api/auth/$'
     | '/threads/new/$category'
     | '/account/profile'
     | '/account/settings'
+    | '/admin/feedback'
     | '/admin/moderation'
     | '/auth/login'
     | '/auth/reset-password'
@@ -231,12 +253,14 @@ export interface FileRouteTypes {
     | '/auth/anonymous-signin'
     | '/threads/$threadSlug'
     | '/threads/confirmation'
+    | '/feedback/'
     | '/search/'
     | '/threads/'
     | '/api/auth/$'
     | '/threads/new/$category'
     | '/account/profile/'
     | '/account/settings/'
+    | '/admin/feedback/'
     | '/admin/moderation/'
     | '/auth/login/'
     | '/auth/reset-password/'
@@ -252,12 +276,14 @@ export interface RootRouteChildren {
   AuthAnonymousSigninRoute: typeof AuthAnonymousSigninRoute
   ThreadsThreadSlugRoute: typeof ThreadsThreadSlugRoute
   ThreadsConfirmationRoute: typeof ThreadsConfirmationRoute
+  FeedbackIndexRoute: typeof FeedbackIndexRoute
   SearchIndexRoute: typeof SearchIndexRoute
   ThreadsIndexRoute: typeof ThreadsIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ThreadsNewCategoryRoute: typeof ThreadsNewCategoryRoute
   AccountProfileIndexRoute: typeof AccountProfileIndexRoute
   AccountSettingsIndexRoute: typeof AccountSettingsIndexRoute
+  AdminFeedbackIndexRoute: typeof AdminFeedbackIndexRoute
   AdminModerationIndexRoute: typeof AdminModerationIndexRoute
   AuthLoginIndexRoute: typeof AuthLoginIndexRoute
   AuthResetPasswordIndexRoute: typeof AuthResetPasswordIndexRoute
@@ -308,6 +334,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthAnonymousSigninRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/feedback/': {
+      id: '/feedback/'
+      path: '/feedback'
+      fullPath: '/feedback/'
+      preLoaderRoute: typeof FeedbackIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/search/': {
       id: '/search/'
       path: '/search'
@@ -348,6 +381,13 @@ declare module '@tanstack/react-router' {
       path: '/account/settings'
       fullPath: '/account/settings/'
       preLoaderRoute: typeof AccountSettingsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/feedback/': {
+      id: '/admin/feedback/'
+      path: '/admin/feedback'
+      fullPath: '/admin/feedback/'
+      preLoaderRoute: typeof AdminFeedbackIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/moderation/': {
@@ -404,12 +444,14 @@ const rootRouteChildren: RootRouteChildren = {
   AuthAnonymousSigninRoute: AuthAnonymousSigninRoute,
   ThreadsThreadSlugRoute: ThreadsThreadSlugRoute,
   ThreadsConfirmationRoute: ThreadsConfirmationRoute,
+  FeedbackIndexRoute: FeedbackIndexRoute,
   SearchIndexRoute: SearchIndexRoute,
   ThreadsIndexRoute: ThreadsIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ThreadsNewCategoryRoute: ThreadsNewCategoryRoute,
   AccountProfileIndexRoute: AccountProfileIndexRoute,
   AccountSettingsIndexRoute: AccountSettingsIndexRoute,
+  AdminFeedbackIndexRoute: AdminFeedbackIndexRoute,
   AdminModerationIndexRoute: AdminModerationIndexRoute,
   AuthLoginIndexRoute: AuthLoginIndexRoute,
   AuthResetPasswordIndexRoute: AuthResetPasswordIndexRoute,
