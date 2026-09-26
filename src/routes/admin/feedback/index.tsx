@@ -5,9 +5,16 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+	Empty,
+	EmptyDescription,
+	EmptyHeader,
+	EmptyMedia,
+	EmptyTitle,
+} from "@/components/ui/empty";
+import { MessageSquare } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
-import { SlidersHorizontal } from "lucide-react";
 import { useState } from "react";
 
 type FeedbackItem = Awaited<ReturnType<typeof getFeedbackList>>[number];
@@ -53,15 +60,20 @@ function AdminFeedbackPage() {
 
 			<div className="space-y-3">
 				{items.length === 0 ? (
-					<Card className="mx-auto max-w-xl">
-						<CardContent className="flex flex-col items-center justify-center py-12 text-center">
-							<SlidersHorizontal className="size-8 text-muted-foreground" />
-							<p className="mt-3 text-sm text-muted-foreground">
-								Aucun retour pour le moment.
-							</p>
-						</CardContent>
-					</Card>
-				) : (
+								<Empty className="mx-auto max-w-xl">
+									<EmptyHeader className="text-center">
+										<EmptyMedia variant="icon">
+											<MessageSquare className="size-6 text-muted-foreground" />
+										</EmptyMedia>
+										<EmptyTitle className="font-serif text-xl font-semibold">
+											Aucun retour
+										</EmptyTitle>
+										<EmptyDescription className="text-sm text-muted-foreground">
+											Aucune note ou commentaire reçu pour l'instant.
+										</EmptyDescription>
+									</EmptyHeader>
+								</Empty>
+							) : (
 					items.map((item) => (
 						<Card key={item.id} className="overflow-hidden">
 							<CardHeader className="flex flex-row items-start gap-4 bg-muted/50 px-5 py-4">
@@ -72,7 +84,12 @@ function AdminFeedbackPage() {
 											<span className="tabular-nums">{item.easeOfUse}</span>/
 											<span className="tabular-nums">{item.trustAnonymity}</span>
 										</Badge>
-										<span>{formatDistanceToNow(new Date(item.createdAt), { addSuffix: true, locale: fr })}</span>
+										<span>
+											{formatDistanceToNow(new Date(item.createdAt), {
+												addSuffix: true,
+												locale: fr,
+											})}
+										</span>
 									</div>
 									<p className="text-sm font-medium">
 										{item.misunderstood ? "Incompris · " : ""}
