@@ -1,6 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { getAuthSession } from "@/features/auth/server/get-auth-session";
-import { getFeedbackList } from "@/features/feedback/server/db/feedback-queries";
+import { getFeedbackListFn } from "@/features/feedback/server/get-feedback-list";
+import type { FeedbackItem } from "@/features/feedback/server/db/feedback-queries";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,8 +18,6 @@ import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useState } from "react";
 
-type FeedbackItem = Awaited<ReturnType<typeof getFeedbackList>>[number];
-
 export const Route = createFileRoute("/admin/feedback/")({
 	loader: async () => {
 		const session = await getAuthSession();
@@ -28,7 +27,7 @@ export const Route = createFileRoute("/admin/feedback/")({
 		if (!["ADMIN", "MODERATOR"].includes(session.user.role)) {
 			throw redirect({ to: "/" });
 		}
-		const items = await getFeedbackList();
+		const items = await getFeedbackListFn();
 		return { items, moderator: session.user };
 	},
 	component: AdminFeedbackPage,
