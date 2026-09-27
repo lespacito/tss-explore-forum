@@ -166,14 +166,8 @@ export const auth = betterAuth({
 			if (!newSession?.user) return;
 
 			const userId = newSession.user.id;
-			const isNewSession =
-				ctx.path === "/sign-up/email" ||
-				ctx.path?.startsWith("/callback/") ||
-				newSession.user.isAnonymous === true;
 
-			if (!isNewSession) return;
-
-			// Auto-vérifier l'email et créer l'alias pour les utilisateurs anonymes
+			// Auto-vérifier l'email pour les utilisateurs anonymes (nouveaux ou existants)
 			if (newSession.user.isAnonymous) {
 				try {
 					await db
@@ -192,7 +186,9 @@ export const auth = betterAuth({
 				}
 			}
 
-			// Créer l'alias principal pour tous les nouveaux utilisateurs
+			// Vérifier et créer l'alias principal si manquant
+			// S'applique à TOUS les cas : nouveaux inscrits, OAuth, anonymes,
+			// ET comptes existants reconnectés (ex: login credentials sans alias)
 			try {
 				const existingAlias = await getPrimaryAlias(userId);
 
