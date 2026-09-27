@@ -13,9 +13,6 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import {
-	EyeOff,
-} from "lucide-react";
-import {
 	Empty,
 	EmptyContent,
 	EmptyDescription,
@@ -23,6 +20,9 @@ import {
 	EmptyMedia,
 	EmptyTitle,
 } from "@/components/ui/empty";
+import {
+	EyeOff,
+} from "lucide-react";
 import {
 	getCategoryConfig,
 	type ThreadCategory,
@@ -57,22 +57,30 @@ function Profile() {
 	const [code, setCode] = useState("");
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
+
+	const totalCount = threads.length;
+	const pendingCount = threads.filter((t) => t.status === "pending").length;
+	const publishedCount = threads.filter((t) => t.status === "published").length;
+	const rejectedCount = threads.filter((t) => t.status === "rejected").length;
+
 	const groups = [
 		{
 			status: "pending" as const,
 			title: "À examiner",
-			description: "Ces scénarios attendent une décision humaine.",
+			description:
+				"Ces scénarios sont en attente de décision par le modérateur.",
 		},
 		{
 			status: "rejected" as const,
 			title: "Non publiés",
 			description:
-				"Le motif de non-publication est indiqué sous chaque scénario.",
+				"Ces scénarios n'ont pas été publiés. Le motif est indiqué sous chaque scénario.",
 		},
 		{
 			status: "published" as const,
 			title: "Publiés",
-			description: "Ces scénarios sont visibles par les personnes invitées.",
+			description:
+				"Ces scénarios sont visibles par les participants invités.",
 		},
 	];
 
@@ -84,7 +92,8 @@ function Profile() {
 						Mon espace
 					</h1>
 					<p className="mt-3 max-w-2xl leading-7 text-muted-foreground">
-						Chaque scénario reste ici, avec la décision prise après examen.
+						Tous vos scénarios sont regroupés ici, avec leur statut de
+						modération.
 					</p>
 				</div>
 				<Link
@@ -94,6 +103,29 @@ function Profile() {
 					Gérer mes données
 				</Link>
 			</header>
+
+			{totalCount > 0 && (
+				<div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+					<span className="text-muted-foreground">
+						{totalCount} scénario{totalCount > 1 ? "s" : ""} au total
+					</span>
+					{pendingCount > 0 && (
+						<Badge variant="outline" className="bg-warning/10 border-warning/50 text-warning-foreground dark:text-warning">
+							{pendingCount} à examiner
+						</Badge>
+					)}
+					{publishedCount > 0 && (
+						<Badge variant="outline" className="bg-primary/10 border-primary/30 text-primary">
+							{publishedCount} publié{publishedCount > 1 ? "s" : ""}
+						</Badge>
+					)}
+					{rejectedCount > 0 && (
+						<Badge variant="outline" className="bg-warning/10 border-warning/30 text-warning-foreground dark:text-warning">
+							{rejectedCount} non publié{rejectedCount > 1 ? "s" : ""}
+						</Badge>
+					)}
+				</div>
+			)}
 
 			<Card className="border-muted">
 				<CardHeader className="pb-4">
@@ -183,7 +215,7 @@ function Profile() {
 				</Empty>
 			) : (
 				<div className="space-y-10">
-					{groups.map((group) => {
+					{groups.map((group, groupIndex) => {
 						const groupThreads = threads.filter(
 							(thread) => thread.status === group.status,
 						);
@@ -222,15 +254,18 @@ function Profile() {
 												? "Aucun scénario publié."
 												: "Aucun scénario rejeté."}
 									</p>
-									)}
+								)}
+								{groupIndex < groups.length - 1 && (
+									<div className="my-8 border-t border-border/50" />
+								)}
 							</section>
 						);
 					})}
 				</div>
 			)}
 
-			</div>
-			);
+		</div>
+	);
 }
 
 type UserThread = {
@@ -252,8 +287,8 @@ function UserThreadRow({ thread }: { thread: UserThread }) {
 				<ThreadStatusBadge status={thread.status} />
 				<Badge variant="outline">
 					{thread.category
-						? (getCategoryConfig(thread.category as ThreadCategory)?.label ??
-							thread.category)
+						? getCategoryConfig(thread.category as ThreadCategory)?.label ??
+							thread.category
 						: "Non classé"}
 				</Badge>
 				<time className="text-xs text-muted-foreground">
