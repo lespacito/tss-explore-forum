@@ -8,7 +8,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { getInitials } from "@/lib/utils/string-utils";
-import { getAuthorDisplayName } from "@/lib/utils/thread-utils";
 
 interface PostCardProps {
 	post: {
@@ -27,15 +26,10 @@ interface PostCardProps {
 	threadCategory?: string;
 }
 
-export function PostCard({ post, threadCategory = "" }: PostCardProps) {
+export function PostCard({ post }: PostCardProps) {
 	const [isBlurred, setIsBlurred] = useState(post.isSensitive);
 
-	const authorName = getAuthorDisplayName({
-		isSensitive: post.isSensitive,
-		threadCategory,
-		aliasName: post.aliasName,
-		displayUsername: post.displayUsername,
-	});
+	const authorName = "Auteur anonyme";
 
 	return (
 		<Card className="w-full">

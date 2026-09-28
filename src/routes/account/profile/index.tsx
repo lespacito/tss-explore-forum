@@ -30,7 +30,6 @@ import {
 import { SecretCodeDisplay } from "@/features/auth/components/SecretCodeDisplay";
 import { generateSecretCodeFn } from "@/features/auth/server/generate-secret-code-fn";
 import { getAuthSessionCached } from "@/features/auth/server/get-auth-session";
-import { getCurrentPrimaryAliasFn } from "@/features/alias/server/actions/get-primary-alias";
 import { RejectionMessage } from "@/features/profiles/components/RejectionMessage";
 import { ThreadStatusBadge } from "@/features/profiles/components/ThreadStatusBadge";
 import { getUserThreadsFn } from "@/features/threads/server/actions/get-user-threads";
@@ -40,20 +39,16 @@ export const Route = createFileRoute("/account/profile/")({
 	loader: async () => {
 		const session = await getAuthSessionCached();
 		if (!session.user) throw redirect({ to: "/auth/anonymous-signin" });
-		const [primaryAlias, threads] = await Promise.all([
-			getCurrentPrimaryAliasFn(),
-			getUserThreadsFn({ data: {} }),
-		]);
+		const threads = await getUserThreadsFn({ data: {} });
 		return {
 			user: session.user,
 			threads,
-			primaryAlias,
 		};
 	},
 });
 
 function Profile() {
-	const { user, threads, primaryAlias } = Route.useLoaderData();
+	const { user, threads } = Route.useLoaderData();
 	const [code, setCode] = useState("");
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
@@ -129,19 +124,13 @@ function Profile() {
 
 			<Card className="border-muted">
 				<CardHeader className="pb-4">
-					<CardTitle className="font-serif text-xl">Mon identité</CardTitle>
+					<CardTitle className="font-serif text-xl">Mon espace</CardTitle>
 					<CardDescription className="mt-1">
-						Ce que les autres participants voient lorsqu'ils lisent vos
-						scénarios publiés.
+						Tous vos scénarios sont regroupés ici, avec leur statut de
+						modération.
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-4">
-					<div className="space-y-2 rounded-lg border bg-muted/20 p-4">
-						<dt className="text-sm text-muted-foreground">Alias public</dt>
-						<dd className="text-2xl font-semibold leading-none">
-							{primaryAlias ?? "Aucun alias attribué"}
-						</dd>
-					</div>
 					<div className="flex items-center gap-3">
 						<dt className="text-sm text-muted-foreground">Type de session</dt>
 						<Badge variant={user.isAnonymous ? "outline" : "default"}>
@@ -149,9 +138,8 @@ function Profile() {
 						</Badge>
 					</div>
 					<p className="text-sm text-muted-foreground leading-relaxed">
-						Votre alias est l'identité affichée avec vos scénarios publiés.
-						Il contribue à préserver votre identité, sans garantir un
-						anonymat absolu.
+						Vos scénarios sont publiés anonymement. Votre identité réelle
+						n'est pas affichée.
 					</p>
 				</CardContent>
 			</Card>

@@ -376,28 +376,20 @@ export function ScenarioForm({
 				</form.Field>
 
 				<section className="civic-review-block">
-					<h2 className="font-serif text-2xl font-semibold">Avant l’envoi</h2>
-					{aliasName ? (
+						<h2 className="font-serif text-2xl font-semibold">Avant l'envoi</h2>
 						<p>
-							S’il est publié, le scénario apparaîtra sous l’alias{" "}
-							<strong>{aliasName}</strong>. Votre identité réelle n’est pas
-							affichée.
+							Si vous continuez, votre scénario sera publié anonymement.
+							Votre identité réelle n'est pas affichée.
 						</p>
-					) : (
-						<p role="alert" className="font-medium text-destructive">
-							Votre alias n’a pas pu être chargé. Rechargez la page avant
-							d’envoyer ce scénario.
+						<p>
+							Une personne l'examinera avant toute publication. Elle pourra le
+							publier ou le garder non publié. Si nécessaire, un contenu publié
+							sera masqué derrière un avertissement de sensibilité.
 						</p>
-					)}
-					<p>
-						Une personne l’examinera avant toute publication. Elle pourra le
-						publier ou le garder non publié. Si nécessaire, un contenu publié
-						sera masqué derrière un avertissement de sensibilité.
-					</p>
-					<p className="font-medium">
-						Après l’envoi, son statut sera « À examiner ».
-					</p>
-				</section>
+						<p className="font-medium">
+							Après l'envoi, son statut sera « À examiner ».
+						</p>
+					</section>
 
 				{errors.submit && (
 					<p

@@ -67,52 +67,11 @@ describe("ThreadCard rendering", () => {
 		expect(badge.textContent).toBe("Violence");
 	});
 
-	it("should render author alias for sensitive categories (VIOLENCE)", () => {
+	it("should render author name as 'Auteur anonyme' for all categories", () => {
 		render(<ThreadCard thread={baseThread} />);
 
-		// VIOLENCE is sensitive → getAuthorDisplayName returns aliasName
 		const author = screen.getByTestId("thread-author");
-		expect(author.textContent).toBe("brave-fox");
-	});
-
-	it("should render displayUsername for non-sensitive categories (AUTRE)", () => {
-		const autreThread = {
-			...baseThread,
-			id: "thread-autre",
-			category: "AUTRE",
-		};
-		render(<ThreadCard thread={autreThread} />);
-
-		// AUTRE is not sensitive → getAuthorDisplayName returns displayUsername
-		const author = screen.getByTestId("thread-author");
-		expect(author.textContent).toBe("TestUser");
-	});
-
-	it("should fallback to alias when displayUsername is null in non-sensitive category", () => {
-		const noUsernameThread = {
-			...baseThread,
-			id: "thread-no-username",
-			category: "AUTRE",
-			displayUsername: null,
-		};
-		render(<ThreadCard thread={noUsernameThread} />);
-
-		const author = screen.getByTestId("thread-author");
-		expect(author.textContent).toBe("brave-fox");
-	});
-
-	it("should fallback to 'Anonyme' when both names are null in sensitive category", () => {
-		const anonymousThread = {
-			...baseThread,
-			id: "thread-anon",
-			category: "ABUS",
-			aliasName: null,
-			displayUsername: null,
-		};
-		render(<ThreadCard thread={anonymousThread} />);
-
-		const author = screen.getByTestId("thread-author");
-		expect(author.textContent).toBe("Anonyme");
+		expect(author.textContent).toBe("Auteur anonyme");
 	});
 
 	it("should render a timestamp", () => {

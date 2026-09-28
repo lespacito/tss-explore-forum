@@ -110,7 +110,9 @@ describe("continuous scenario form", () => {
 			Node.DOCUMENT_POSITION_FOLLOWING,
 		);
 		expect(screen.getByLabelText(/catégorie/i)).toHaveValue("");
-		expect(screen.getByText("Érable calme")).toBeInTheDocument();
+		expect(
+			screen.getByText(/si vous continuez, votre scénario sera publié anonymement/i),
+		).toBeInTheDocument();
 		expect(
 			screen.getByText(/besoin d’aide pour commencer/i),
 		).toBeInTheDocument();
@@ -122,9 +124,6 @@ describe("continuous scenario form", () => {
 	it("blocks submission when the published alias cannot be verified", () => {
 		render(<ScenarioForm user={user as never} aliasName={null} />);
 
-		expect(screen.getByRole("alert")).toHaveTextContent(
-			"Votre alias n’a pas pu être chargé",
-		);
 		expect(
 			screen.getByRole("button", { name: /envoyer pour examen/i }),
 		).toBeDisabled();

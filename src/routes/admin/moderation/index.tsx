@@ -253,7 +253,7 @@ function ModerationItem({
 				<div className="min-w-0">
 					<div className="mb-4 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
 						<Badge variant="outline">{thread.category || "Non classé"}</Badge>
-						<span>{thread.aliasName}</span>
+						<span>Auteur anonyme</span>
 						<span aria-hidden="true">·</span>
 						<span className="inline-flex items-center gap-1">
 							<Clock3 className="size-3.5" />
