@@ -13,7 +13,7 @@ import { getUserById } from "@/features/users/server/db/user-queries";
 import { logger } from "@/lib/logger/server";
 import { validateAndSanitize } from "@/lib/security/sanitize-html";
 import { generateUniqueSlug } from "@/lib/utils/slug-utils";
-import { createThreadRecord, getThreadsByAliasId } from "../db/thread-queries";
+import { createThreadRecord, getUserThreads } from "../db/thread-queries";
 
 export const createThreadFn = createServerFn({ method: "POST" })
 	.validator((data: unknown) => createThreadSchema.parse(data))
@@ -63,7 +63,7 @@ export const createThreadFn = createServerFn({ method: "POST" })
 		const slug = generateUniqueSlug(title);
 
 		const [existingThreads, currentUser] = await Promise.all([
-			getThreadsByAliasId(primaryAlias.id),
+			getUserThreads(session.user.id),
 			getUserById(session.user.id),
 		]);
 
