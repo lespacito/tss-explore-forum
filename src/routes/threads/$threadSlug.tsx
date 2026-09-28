@@ -24,7 +24,7 @@ function ThreadContent({
 				Retour aux scénarios
 			</Link>
 			<p className="text-sm text-muted-foreground">
-				{thread.aliasName || "Anonyme"} · Scénario de bêta
+				Auteur anonyme · Scénario de bêta
 			</p>
 			<h1 className="break-words font-serif text-3xl font-semibold">
 				{thread.title}

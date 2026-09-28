@@ -15,7 +15,6 @@ import {
 	type ThreadCategory,
 } from "@/data/threads-categories";
 import {
-	getAuthorDisplayName,
 	getCategoryColor,
 } from "@/lib/utils/thread-utils";
 
@@ -40,12 +39,6 @@ interface ThreadCardProps {
 export const ThreadCard = memo(function ThreadCard({
 	thread,
 }: ThreadCardProps) {
-	const authorName = getAuthorDisplayName({
-		isSensitive: thread.isSensitive ?? false,
-		threadCategory: thread.category,
-		aliasName: thread.aliasName,
-		displayUsername: thread.displayUsername,
-	});
 	const categoryLabel = thread.category
 		? getCategoryConfig(thread.category as ThreadCategory)?.label
 		: "Non classé";
@@ -67,7 +60,7 @@ export const ThreadCard = memo(function ThreadCard({
 								className="font-semibold text-sm"
 								data-testid="thread-author"
 							>
-								{authorName}
+								Auteur anonyme
 							</span>
 							<Badge
 								variant="outline"
