@@ -202,7 +202,7 @@ function Profile() {
 					</EmptyContent>
 				</Empty>
 			) : (
-				<div className="space-y-10">
+				<div className="space-y-8 sm:space-y-10">
 					{groups.map((group, groupIndex) => {
 						const groupThreads = threads.filter(
 							(thread) => thread.status === group.status,
@@ -229,7 +229,7 @@ function Profile() {
 									</p>
 								</div>
 								{groupThreads.length ? (
-									<div className="divide-y border-y">
+									<div className="divide-y border-y my-6 sm:my-8">
 										{groupThreads.map((thread) => (
 											<UserThreadRow key={thread.id} thread={thread} />
 										))}
