@@ -48,7 +48,7 @@ function NewThreadPage() {
 				<h1 className="font-serif text-4xl font-semibold tracking-tight">
 					Créer un scénario fictif
 				</h1>
-				<p className="max-w-prose leading-7 text-muted-foreground">
+				<p className="max-w-prose leading-relaxed text-muted-foreground">
 					Commencez une session anonyme pour participer à ce test. Aucun email
 					n’est nécessaire.
 				</p>
@@ -175,11 +175,11 @@ export function ScenarioForm({
 	);
 	return (
 		<div className="civic-form-page mx-auto max-w-3xl px-4 py-10 sm:py-14">
-			<header className="mb-10 space-y-4">
+			<header className="mb-6 sm:mb-10 space-y-4">
 				<h1 className="max-w-2xl font-serif text-4xl font-semibold tracking-tight sm:text-5xl">
 					Rédiger un scénario fictif
 				</h1>
-				<p className="max-w-2xl text-base leading-7 text-muted-foreground">
+				<p className="max-w-2xl text-base leading-relaxed text-muted-foreground">
 					Cette bêta teste le parcours, pas une situation réelle. N’indiquez
 					aucun nom, lieu précis ou détail permettant d’identifier quelqu’un.
 				</p>
@@ -222,7 +222,7 @@ export function ScenarioForm({
 					event.stopPropagation();
 					form.handleSubmit();
 				}}
-				className="space-y-9"
+				className="space-y-6 sm:space-y-9"
 			>
 				<form.Field name="body">
 					{(field) => (

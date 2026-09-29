@@ -274,7 +274,7 @@ function ModerationItem({
 					</h2>
 					<SafeHtmlDisplay
 						html={thread.body}
-						className="mt-4 max-w-[72ch] text-sm leading-7 text-foreground/85"
+						className="mt-4 max-w-[72ch] text-sm leading-relaxed text-foreground/85"
 					/>
 					{thread.status === "rejected" && thread.rejectionReason && (
 						<p className="mt-5 rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
