@@ -86,7 +86,7 @@ import { ScenarioForm } from "../index";
 
 const user = {
 	id: "user-1",
-	displayUsername: "Érable calme",
+	displayUsername: "Profil historique",
 	username: "erable-calme",
 };
 
@@ -106,12 +106,17 @@ describe("continuous scenario form", () => {
 
 		const body = screen.getByLabelText(/que se passe-t-il/i);
 		const title = screen.getByLabelText(/titre court/i);
+		expect(screen.queryByText("Profil historique")).not.toBeInTheDocument();
 		expect(body.compareDocumentPosition(title)).toBe(
 			Node.DOCUMENT_POSITION_FOLLOWING,
 		);
 		expect(screen.getByLabelText(/catégorie/i)).toHaveValue("");
+		expect(screen.getByText("Érable calme")).toBeInTheDocument();
+		expect(screen.queryByText(/sera publié anonymement/i)).not.toBeInTheDocument();
+		expect(screen.getByText(/administration technique peut relier/i)).toBeInTheDocument();
+		expect(screen.getByText(/ne constitue pas une aide professionnelle/i)).toBeInTheDocument();
 		expect(
-			screen.getByText(/si vous continuez, votre scénario sera publié anonymement/i),
+			screen.getByText(/si cette situation fictive est publiée/i),
 		).toBeInTheDocument();
 		expect(
 			screen.getByText(/besoin d’aide pour commencer/i),
@@ -123,10 +128,21 @@ describe("continuous scenario form", () => {
 
 	it("blocks submission when the published alias cannot be verified", () => {
 		render(<ScenarioForm user={user as never} aliasName={null} />);
+		expect(screen.getByText(/pseudonyme n’a pas pu être chargé/i)).toBeInTheDocument();
+		expect(screen.queryByText("Érable calme")).not.toBeInTheDocument();
 
 		expect(
 			screen.getByRole("button", { name: /envoyer pour examen/i }),
 		).toBeDisabled();
+	});
+
+	it("keeps the title required and rejects an empty title after a valid narrative", async () => {
+		render(<ScenarioForm user={user as never} aliasName="Érable calme" />);
+		expect(screen.getByLabelText(/titre court/i)).toBeRequired();
+		fireEvent.change(screen.getByLabelText(/que se passe-t-il/i), { target: { value: "Une situation entièrement fictive" } });
+		fireEvent.click(screen.getByRole("button", { name: /envoyer pour examen/i }));
+		expect(await screen.findByText("Donnez un titre d’au moins 3 caractères.")).toBeInTheDocument();
+		expect(mocks.createThread).not.toHaveBeenCalled();
 	});
 
 	it("reveals the on-device draft choice only after writing starts", () => {

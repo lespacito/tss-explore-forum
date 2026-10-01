@@ -46,7 +46,7 @@ function NewThreadPage() {
 		return (
 			<div className="civic-form-page mx-auto max-w-2xl space-y-6 px-4 py-12">
 				<h1 className="font-serif text-4xl font-semibold tracking-tight">
-					Créer un scénario fictif
+					Créer une situation fictive
 				</h1>
 				<p className="max-w-prose leading-relaxed text-muted-foreground">
 					Commencez une session anonyme pour participer à ce test. Aucun email
@@ -76,6 +76,7 @@ export function ScenarioForm({
 	const summaryRef = useRef<HTMLDivElement>(null);
 	const bodyId = useId();
 	const titleId = useId();
+	const bodyLabelId = useId();
 	const bodyErrorId = useId();
 	const titleErrorId = useId();
 
@@ -88,9 +89,9 @@ export function ScenarioForm({
 		onSubmit: async ({ value }) => {
 			const nextErrors: FormErrors = {};
 			if (textLength < 10) {
-				nextErrors.body = "Décrivez le scénario en au moins 10 caractères.";
+				nextErrors.body = "Décrivez la situation fictive en au moins 10 caractères.";
 			} else if (textLength > 10_000) {
-				nextErrors.body = "Raccourcissez le scénario à 10 000 caractères.";
+				nextErrors.body = "Raccourcissez la situation fictive à 10 000 caractères.";
 			} else {
 				const htmlValidation = validateHtmlContent(value.body);
 				if (!htmlValidation.isValid) {
@@ -124,7 +125,7 @@ export function ScenarioForm({
 					throw new Error(
 						"error" in result
 							? result.error
-							: "Votre scénario n’a pas été envoyé. Réessayez.",
+							: "Votre situation fictive n’a pas été envoyée. Réessayez.",
 					);
 				}
 
@@ -139,8 +140,8 @@ export function ScenarioForm({
 				setErrors({
 					submit:
 						error instanceof Error
-							? `Votre scénario n’a pas été envoyé. ${error.message}`
-							: "Votre scénario n’a pas été envoyé. Réessayez.",
+							? `Votre situation fictive n’a pas été envoyée. ${error.message}`
+							: "Votre situation fictive n’a pas été envoyée. Réessayez.",
 				});
 			}
 		},
@@ -177,7 +178,7 @@ export function ScenarioForm({
 		<div className="civic-form-page mx-auto max-w-3xl px-4 py-10 sm:py-14">
 			<header className="mb-6 sm:mb-10 space-y-4">
 				<h1 className="max-w-2xl font-serif text-4xl font-semibold tracking-tight sm:text-5xl">
-					Rédiger un scénario fictif
+					Rédiger une situation fictive
 				</h1>
 				<p className="max-w-2xl text-base leading-relaxed text-muted-foreground">
 					Cette bêta teste le parcours, pas une situation réelle. N’indiquez
@@ -227,11 +228,12 @@ export function ScenarioForm({
 				<form.Field name="body">
 					{(field) => (
 						<section className="space-y-3">
-							<Label htmlFor={bodyId} className="text-base font-semibold">
-								1. Que se passe-t-il dans ce scénario fictif ?
+							<Label id={bodyLabelId} htmlFor={bodyId} className="text-base font-semibold">
+								1. Que se passe-t-il dans cette situation fictive ?
 							</Label>
 							<TipTap
 								id={bodyId}
+								ariaLabelledBy={bodyLabelId}
 								content={field.state.value}
 								placeholder="Décrivez une situation inventée, avec vos propres mots…"
 								ariaInvalid={Boolean(errors.body)}
@@ -304,7 +306,7 @@ export function ScenarioForm({
 					<ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-muted-foreground">
 						<li>Qui intervient dans cette situation inventée ?</li>
 						<li>Quel comportement pose question, concrètement ?</li>
-						<li>Que se passe-t-il ensuite dans le scénario ?</li>
+						<li>Que se passe-t-il ensuite dans la situation fictive ?</li>
 					</ul>
 				</details>
 
@@ -312,7 +314,7 @@ export function ScenarioForm({
 					{(field) => (
 						<div className="space-y-3">
 							<Label htmlFor={titleId} className="text-base font-semibold">
-								2. Donnez-lui un titre court
+								2. Donnez-lui un titre court (obligatoire)
 							</Label>
 							<Input
 								id={titleId}
@@ -324,6 +326,8 @@ export function ScenarioForm({
 										setErrors((current) => ({ ...current, title: undefined }));
 									}
 								}}
+								minLength={3}
+								required
 								maxLength={200}
 								placeholder="Ex. Une relation fictive devient contrôlante"
 								aria-invalid={Boolean(errors.title)}
@@ -369,7 +373,7 @@ export function ScenarioForm({
 							</select>
 							<p className="text-sm leading-6 text-muted-foreground">
 								{selectedCategory?.description ??
-									"Vous pouvez envoyer le scénario sans choisir de catégorie."}
+									"Vous pouvez envoyer la situation fictive sans choisir de catégorie."}
 							</p>
 						</div>
 					)}
@@ -377,13 +381,29 @@ export function ScenarioForm({
 
 				<section className="civic-review-block">
 						<h2 className="font-serif text-2xl font-semibold">Avant l'envoi</h2>
+						{aliasName ? (
+							<p>
+								Si cette situation fictive est publiée, elle apparaîtra sous le
+								pseudonyme <strong>{aliasName}</strong>.
+							</p>
+						) : (
+							<p role="alert">
+								Votre pseudonyme n’a pas pu être chargé. L’envoi est désactivé.
+								Rechargez la page pour réessayer ; conservez votre texte avant de le faire.
+							</p>
+						)}
 						<p>
-							Si vous continuez, votre scénario sera publié anonymement.
-							Votre identité réelle n'est pas affichée.
+							Le pseudonyme ne garantit pas un anonymat absolu :
+							l’administration technique peut relier votre session à ses
+							pseudonymes. Le contenu peut aussi permettre de vous reconnaître.
 						</p>
 						<p>
-							Une personne l'examinera avant toute publication. Elle pourra le
-							publier ou le garder non publié. Si nécessaire, un contenu publié
+							La modération décide de la publication ; elle ne constitue pas une aide professionnelle
+							et ne promet aucune réponse de soutien.
+						</p>
+						<p>
+							Une personne l’examinera avant toute publication. Elle pourra la
+							publier ou la garder non publiée. Si nécessaire, un contenu publié
 							sera masqué derrière un avertissement de sensibilité.
 						</p>
 						<p className="font-medium">

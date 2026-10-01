@@ -105,7 +105,7 @@ function entryPage(
 		? `<form action="/beta" method="post"><label for="invitation">Code d’invitation</label><input id="invitation" name="invitation" type="password" required maxlength="128" autocomplete="off" spellcheck="false"><button type="submit">Accéder à la bêta</button></form><p>Sans invitation, ou si votre code ne fonctionne plus, contactez la personne qui organise votre test.</p>`
 		: "<p>Vous pouvez maintenant fermer cette page.</p>";
 	const introduction = showInvitationForm
-		? "<h1>Bienvenue dans la bêta privée</h1><p>Ce test est réservé aux adultes invités en Suisse romande. Pour cette première cohorte, utilisez uniquement des scénarios fictifs.</p><p>Votre code d’invitation ouvre le test. Après votre premier scénario, un code de récupération distinct vous permettra de retrouver vos scénarios.</p>"
+		? "<h1>Bienvenue dans la bêta privée</h1><p>Ce test est réservé aux adultes invités en Suisse romande. Pour cette première cohorte, utilisez uniquement des situations fictives.</p><p>Votre code d’invitation ouvre le test. Après votre première situation fictive, un code de récupération distinct vous permettra de retrouver vos situations fictives.</p>"
 		: "<h1>Vos données ont été effacées</h1>";
 	return new Response(
 		`<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Accès à la bêta — Parlons Violence</title><link rel="stylesheet" href="/beta-entry.css"></head><body><main>${introduction}${message ? `<p role="${messageRole}">${escapeHtml(message)}</p>` : ""}${invitationForm}<nav><a href="/rules">Règles</a><a href="/privacy">Confidentialité</a><a href="/help">Aide et contact</a></nav></main></body></html>`,
@@ -214,7 +214,7 @@ export async function betaAccessResponse(
 			}
 			if (url.searchParams.has("erased"))
 				return entryPage(
-					"Vos données et vos scénarios ont été effacés de la base active. Une copie peut subsister jusqu’à sept jours supplémentaires dans une sauvegarde avant son expiration.",
+					"Vos données et vos situations fictives ont été effacées de la base active. Une copie peut subsister jusqu’à sept jours supplémentaires dans une sauvegarde avant son expiration.",
 					200,
 					"status",
 					false,

@@ -12,7 +12,7 @@ type AnonymousPostButtonProps = {
 
 export function AnonymousPostButton({
 	className,
-	label = "Créer un scénario",
+	label = "Créer une situation fictive",
 }: AnonymousPostButtonProps = {}) {
 	const router = useRouter();
 	const data = getRouteApi("__root__").useLoaderData();

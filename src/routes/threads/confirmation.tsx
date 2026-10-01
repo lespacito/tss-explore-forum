@@ -26,20 +26,20 @@ function Confirmation() {
 		<div className="mx-auto max-w-3xl space-y-6 px-4 py-10">
 			<h1 className="font-serif text-3xl font-semibold">
 				{submissionConfirmed
-					? "Votre scénario a été envoyé"
-					: "Suivre votre scénario"}
+					? "Votre situation fictive a été envoyée"
+					: "Suivre votre situation fictive"}
 			</h1>
 			{submissionConfirmed ? (
 				<div className="civic-review-block" aria-live="polite">
 					<p className="text-lg font-semibold">Statut : À examiner</p>
 					<p>
-						Votre scénario n’est pas encore visible. Une personne va le relire
-						avant de décider s’il peut être publié.
+						Votre situation fictive n’est pas encore visible. Une personne va la relire
+						avant de décider si elle peut être publiée.
 					</p>
 				</div>
 			) : (
 				<p>
-					Consultez Mes scénarios pour vérifier son statut et lire un éventuel
+					Consultez Mes situations fictives pour vérifier son statut et lire un éventuel
 					motif de non-publication.
 				</p>
 			)}
@@ -76,7 +76,7 @@ function Confirmation() {
 								</span>
 								<span>
 									<strong className="font-semibold">
-										Ouvrez Mes scénarios.
+										Ouvrez Mes situations fictives.
 									</strong>{" "}
 									Vous y verrez la décision du modérateur.
 								</span>
@@ -85,7 +85,7 @@ function Confirmation() {
 					</section>
 				) : (
 					<p className="font-medium">
-						Prochaine étape : ouvrez Mes scénarios pour suivre la décision du
+						Prochaine étape : ouvrez Mes situations fictives pour suivre la décision du
 						modérateur.
 					</p>
 				))}
@@ -96,13 +96,11 @@ function Confirmation() {
 			</p>
 			<Button asChild>
 				<Link to="/account/profile">
-					{secretCode
-						? "J’ai conservé mon code — voir mes scénarios"
-						: "Voir mes scénarios"}
+					Voir mes situations fictives
 				</Link>
 			</Button>
 			<p className="text-sm text-muted-foreground">
-				Après un rechargement, votre code reste consultable depuis Mes scénarios
+				Après un rechargement, votre code de récupération reste consultable depuis Mes situations fictives
 				tant que votre session est ouverte.
 			</p>
 		</div>

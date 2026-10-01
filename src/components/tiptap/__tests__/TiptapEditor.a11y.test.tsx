@@ -155,6 +155,19 @@ describe("TipTap Editor - Accessibility (WCAG 2.1 AA)", () => {
 	});
 
 	describe("Subtask 7.4: Screen reader support", () => {
+		it("uses the visible label as the real editable textbox name", () => {
+			const labelId = "narrative-label";
+			const editorId = "narrative";
+			render(<><label id={labelId} htmlFor={editorId}>Que se passe-t-il dans cette situation fictive ?</label><TipTap id={editorId} ariaLabelledBy={labelId} content="" placeholder="Décrivez une situation inventée…" /></>);
+			const textbox = screen.getByRole("textbox", { name: "Que se passe-t-il dans cette situation fictive ?" });
+			expect(textbox).toHaveAttribute("contenteditable", "true");
+			expect(textbox).toHaveAttribute("id", "narrative");
+		});
+
+		it("supports an explicit accessible label independently of its placeholder", () => {
+			render(<TipTap content="" ariaLabel="Récit fictif" placeholder="Écrivez ici…" />);
+			expect(screen.getByRole("textbox", { name: "Récit fictif" })).toBeInTheDocument();
+		});
 		it("editor has role='textbox' for screen readers", () => {
 			const { container } = render(<TipTap content="" onChange={() => {}} />);
 

@@ -29,14 +29,14 @@ const steps: JourneyStep[] = [
 	},
 	{
 		number: "02",
-		title: "Alias",
-		copy: "Un alias est généré pour cette session. Aucun nom ni e-mail n’est demandé.",
+		title: "Pseudonyme",
+		copy: "Un pseudonyme est généré pour cette session. Aucun nom ni e-mail n’est demandé.",
 		note: "VOTRE PARCOURS · VOS REPÈRES",
 		Icon: UserRound,
 	},
 	{
 		number: "03",
-		title: "Scénario fictif",
+		title: "Situation fictive",
 		copy: "Vous rédigez une situation inventée, sans nom ni détail identifiant.",
 		note: "RÉFLÉCHIR · DÉCOUVRIR · SE REPÉRER",
 		Icon: FileText,
@@ -50,9 +50,9 @@ const steps: JourneyStep[] = [
 	},
 	{
 		number: "05",
-		title: "Mes scénarios",
-		copy: "Vous retrouvez la décision et, en cas de refus, son motif dans votre espace.",
-		note: "À EXAMINER · PUBLIÉ · NON PUBLIÉ",
+		title: "Mes situations fictives",
+		copy: "Vous retrouvez la décision et, en cas de non-publication, son motif dans Mes situations fictives.",
+		note: "À EXAMINER · PUBLIÉE · NON PUBLIÉE",
 		Icon: ClipboardCheck,
 		stamp: "À EXAMINER",
 	},
@@ -76,7 +76,7 @@ function JourneyPanel({ step, index }: { step: JourneyStep; index: number }) {
 						<code>••••-••••-••••</code>
 					</div>
 				)}
-				{index === 1 && <span className="landing-alias-line">Mon alias</span>}
+				{index === 1 && <span className="landing-alias-line">Mon pseudonyme</span>}
 				{step.stamp && (
 					<strong className="landing-status-stamp">{step.stamp}</strong>
 				)}
@@ -110,14 +110,14 @@ export default function HeroSection() {
 						<span className="landing-title-rule" aria-hidden="true" />
 						<p className="landing-beta-label">BÊTA PRIVÉE · SUISSE ROMANDE</p>
 					</div>
-					<p className="landing-thesis">
-						Une expérience encadrée.
-						<br />
-						Environ 10 minutes.
-					</p>
+					<div className="my-6 space-y-3 text-sm leading-6">
+						<p>Le projet vise à permettre aux personnes concernées par la violence de partager leur vécu et de trouver des repères.</p>
+						<p>Aujourd’hui, cette bêta privée sur invitation teste uniquement des situations fictives, en environ 10 minutes.</p>
+						<p>Les commentaires sont fermés. Aucune réponse professionnelle n’est promise.</p>
+					</div>
 					<div className="landing-primary-action">
 						<AnonymousPostButton className="landing-cta" label="Commencer" />
-						<p>Utilisez uniquement le scénario fictif fourni.</p>
+						<p>Utilisez uniquement la situation fictive fournie.</p>
 					</div>
 					<div className="landing-intro-footer">
 						<span>
@@ -146,7 +146,7 @@ export default function HeroSection() {
 				</h2>
 				<p>
 					Une expérimentation en Suisse romande pour vérifier qu’un parcours
-					sous alias, modéré et sans inscription par email reste compréhensible.
+					sous pseudonyme, modéré et sans inscription par email reste compréhensible.
 				</p>
 				<span>
 					DES REPÈRES

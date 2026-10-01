@@ -71,7 +71,7 @@ export function SecretCodeLoginForm({
 				}
 
 				toast.success("Session retrouvée", {
-					description: "Voici vos scénarios.",
+					description: "Voici vos situations fictives.",
 				});
 				router.navigate({ to: redirectTo || "/account/profile" });
 			} catch {

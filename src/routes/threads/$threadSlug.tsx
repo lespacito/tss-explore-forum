@@ -21,10 +21,10 @@ function ThreadContent({
 	return (
 		<article className="mx-auto max-w-3xl space-y-6 px-4 py-10">
 			<Link to="/threads" search={{ openDialog: false }} className="underline">
-				Retour aux scénarios
+				Retour aux situations fictives
 			</Link>
 			<p className="text-sm text-muted-foreground">
-				Auteur anonyme · Scénario de bêta
+				Publication sous pseudonyme · Situation fictive de bêta
 			</p>
 			<h1 className="break-words font-serif text-3xl font-semibold">
 				{thread.title}
@@ -32,11 +32,11 @@ function ThreadContent({
 			{thread.isSensitive && !revealed ? (
 				<section className="space-y-4 rounded-xl border p-5">
 					<h2 className="font-semibold">
-						Ce scénario contient un contenu sensible
+						Cette situation fictive contient un contenu sensible
 					</h2>
-					<p>Vous pouvez revenir à la liste ou choisir de lire ce scénario.</p>
+					<p>Vous pouvez revenir à la liste ou choisir de lire cette situation fictive.</p>
 					<Button onClick={() => setRevealed(true)}>
-						Afficher le scénario
+						Afficher la situation fictive
 					</Button>
 				</section>
 			) : (

@@ -32,7 +32,7 @@ test("landing keeps its primary journey and navigation across viewports", async 
 		}),
 	).toBeVisible();
 	await expect(
-		page.getByText(/Envoi de scénarios (ouvert|suspendu)/),
+		page.getByText(/Envoi de situations fictives (ouvert|suspendu)/),
 	).toBeVisible();
 	await expect(
 		page.getByRole("button", { name: "Informations" }),

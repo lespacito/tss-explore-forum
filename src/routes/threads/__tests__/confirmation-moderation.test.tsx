@@ -39,11 +39,11 @@ describe("Publication tracking", () => {
 			</PublicationReceiptProvider>,
 		);
 		expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(
-			"Suivre votre scénario",
+			"Suivre votre situation fictive",
 		);
 		expect(
 			screen
-				.getByRole("link", { name: "Voir mes scénarios" })
+				.getByRole("link", { name: "Voir mes situations fictives" })
 				.getAttribute("href"),
 		).toBe("/account/profile");
 		expect(screen.getByText(/Aucune notification par email/)).toBeDefined();
@@ -61,7 +61,7 @@ describe("Publication tracking", () => {
 		fireEvent.click(screen.getByRole("button", { name: "Confirm submission" }));
 
 		expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(
-			"Votre scénario a été envoyé",
+			"Votre situation fictive a été envoyée",
 		);
 		expect(screen.getByText(/Statut : À examiner/).textContent).toContain(
 			"Statut : À examiner",
@@ -74,7 +74,7 @@ describe("Publication tracking", () => {
 		expect(
 			screen.getByText("Conservez ce code dans un endroit privé."),
 		).toBeDefined();
-		expect(screen.getByText("Ouvrez Mes scénarios.")).toBeDefined();
+		expect(screen.getByText("Ouvrez Mes situations fictives.")).toBeDefined();
 	});
 	it("discards legacy URL credentials", () => {
 		const validate = Route.options.validateSearch as (

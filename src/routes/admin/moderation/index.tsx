@@ -87,7 +87,7 @@ function ModerationPage() {
 						File de modération
 					</h1>
 					<p className="mt-2 text-sm leading-6 text-muted-foreground sm:text-base">
-						Relisez chaque scénario avec calme. L’identité technique et
+						Relisez chaque situation fictive avec calme. L’identité technique et
 						l’adresse IP des auteurs ne sont jamais affichées ici.
 					</p>
 				</div>
@@ -119,7 +119,7 @@ function ModerationPage() {
 						count={counts.rejected}
 						onClick={() => setFilter("rejected")}
 					>
-						Non publiés
+						Non publiées
 					</FilterButton>
 				</div>
 			</nav>
@@ -219,9 +219,9 @@ function ModerationItem({
 			});
 			toast.success(
 				action === "publish"
-					? "Scénario publié"
+					? "Situation fictive publiée"
 					: action === "reject"
-						? "Scénario non publié"
+						? "Situation fictive non publiée"
 						: action === "mark_sensitive"
 							? "Contenu marqué sensible"
 							: "Marquage sensible retiré",
@@ -426,7 +426,7 @@ function ModerationItem({
 
 function confirmationMessageFor(action: Exclude<ModerationAction, "reject">) {
 	if (action === "publish") {
-		return "Ce scénario deviendra visible par les invités.";
+		return "Cette situation fictive deviendra visible par les invités.";
 	}
 	if (action === "mark_sensitive") {
 		return "Son extrait sera masqué jusqu’à ce que la personne choisisse de l’afficher.";
@@ -447,18 +447,18 @@ function decisionNoticeFor(
 ): DecisionNotice {
 	if (action === "publish") {
 		return {
-			title: "Scénario publié",
+			title: "Situation fictive publiée",
 			description: `« ${threadTitle} » est maintenant visible par les invités.`,
 			filter: "published",
 		};
 	}
 	if (action === "reject") {
 		return {
-			title: "Scénario non publié",
+			title: "Situation fictive non publiée",
 			description:
 				"« " +
 				threadTitle +
-				" » apparaît maintenant dans les scénarios non publiés.",
+				" » apparaît maintenant dans les situations fictives non publiées.",
 			filter: "rejected",
 		};
 	}
@@ -482,21 +482,21 @@ function decisionNoticeFor(
 function filterLabel(status: QueueStatus) {
 	if (status === "pending") return "À examiner";
 	if (status === "published") return "Publiées";
-	return "Non publiés";
+	return "Non publiées";
 }
 
 function EmptyQueue({ status }: { status: QueueStatus }) {
 	const labels = {
 		pending: {
-			title: "Aucun scénario en attente d'examen.",
-			description: "Aucun scénario n'attend actuellement votre examen.",
+			title: "Aucune situation fictive à examiner.",
+			description: "Aucune situation fictive n’attend actuellement votre examen.",
 		},
 		published: {
-			title: "Aucun scénario publié.",
-			description: "Les scénarios publiés apparaîtront ici.",
+			title: "Aucune situation fictive publiée.",
+			description: "Les situations fictives publiées apparaîtront ici.",
 		},
 		rejected: {
-			title: "Aucun scénario non publié.",
+			title: "Aucune situation fictive non publiée.",
 			description: "Les décisions de rejet apparaîtront ici avec leur motif.",
 		},
 	};

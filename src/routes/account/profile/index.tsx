@@ -63,19 +63,19 @@ function Profile() {
 			status: "pending" as const,
 			title: "À examiner",
 			description:
-				"Ces scénarios sont en attente de décision par le modérateur.",
+				"Ces situations fictives sont en attente de décision par le modérateur.",
 		},
 		{
 			status: "rejected" as const,
-			title: "Non publiés",
+			title: "Non publiées",
 			description:
-				"Ces scénarios n'ont pas été publiés. Le motif est indiqué sous chaque scénario.",
+				"Ces situations fictives n'ont pas été publiées. Le motif est indiqué sous chaque situation fictive.",
 		},
 		{
 			status: "published" as const,
-			title: "Publiés",
+			title: "Publiées",
 			description:
-				"Ces scénarios sont visibles par les participants invités.",
+				"Ces situations fictives sont visibles par les participants invités.",
 		},
 	];
 
@@ -84,10 +84,10 @@ function Profile() {
 			<header className="border-b pb-7 flex flex-wrap items-end gap-x-4">
 				<div>
 					<h1 className="font-serif text-4xl font-semibold tracking-tight">
-						Mon espace
+						Mes situations fictives
 					</h1>
 					<p className="mt-3 max-w-2xl leading-7 text-muted-foreground">
-						Tous vos scénarios sont regroupés ici, avec leur statut de
+						Toutes vos situations fictives sont regroupées ici, avec leur statut de
 						modération.
 					</p>
 				</div>
@@ -102,7 +102,7 @@ function Profile() {
 			{totalCount > 0 && (
 				<div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
 					<span className="text-muted-foreground">
-						{totalCount} scénario{totalCount > 1 ? "s" : ""} au total
+						{totalCount} {totalCount > 1 ? "situations fictives" : "situation fictive"} au total
 					</span>
 					{pendingCount > 0 && (
 						<Badge variant="outline" className="bg-warning/10 border-warning/50 text-warning-foreground dark:text-warning">
@@ -111,12 +111,12 @@ function Profile() {
 					)}
 					{publishedCount > 0 && (
 						<Badge variant="outline" className="bg-primary/10 border-primary/30 text-primary">
-							{publishedCount} publié{publishedCount > 1 ? "s" : ""}
+							{publishedCount} publiée{publishedCount > 1 ? "s" : ""}
 						</Badge>
 					)}
 					{rejectedCount > 0 && (
 						<Badge variant="outline" className="bg-warning/10 border-warning/30 text-warning-foreground dark:text-warning">
-							{rejectedCount} non publié{rejectedCount > 1 ? "s" : ""}
+							{rejectedCount} non publiée{rejectedCount > 1 ? "s" : ""}
 						</Badge>
 					)}
 				</div>
@@ -124,9 +124,9 @@ function Profile() {
 
 			<Card className="border-muted">
 				<CardHeader className="pb-4">
-					<CardTitle className="font-serif text-xl">Mon espace</CardTitle>
+					<CardTitle className="font-serif text-xl">Mes situations fictives</CardTitle>
 					<CardDescription className="mt-1">
-						Tous vos scénarios sont regroupés ici, avec leur statut de
+						Toutes vos situations fictives sont regroupées ici, avec leur statut de
 						modération.
 					</CardDescription>
 				</CardHeader>
@@ -134,12 +134,13 @@ function Profile() {
 					<div className="flex items-center gap-3">
 						<dt className="text-sm text-muted-foreground">Type de session</dt>
 						<Badge variant={user.isAnonymous ? "outline" : "default"}>
-							{user.isAnonymous ? "Session anonyme" : "Compte"}
+							{user.isAnonymous ? "Session sous pseudonyme" : "Compte"}
 						</Badge>
 					</div>
 					<p className="text-sm text-muted-foreground leading-relaxed">
-						Vos scénarios sont publiés anonymement. Votre identité réelle
-						n'est pas affichée.
+						Si une situation fictive est publiée, elle apparaît sous votre pseudonyme.
+						L’administration technique peut relier votre session à ses pseudonymes ;
+						le contenu peut aussi permettre de vous reconnaître.
 					</p>
 				</CardContent>
 			</Card>
@@ -161,7 +162,7 @@ function Profile() {
 								if (result.success) setCode(result.secretCode);
 								else setError(result.error);
 							} catch {
-								setError("Le code n'a pas pu être chargé. Réessayez.");
+								setError("Le code de récupération n’a pas pu être chargé. Réessayez.");
 							} finally {
 								setLoading(false);
 							}
@@ -189,15 +190,15 @@ function Profile() {
 							<EyeOff className="size-6 text-muted-foreground" />
 						</EmptyMedia>
 						<EmptyTitle className="font-serif text-xl font-semibold">
-							Aucun scénario
+							Aucune situation fictive
 						</EmptyTitle>
 						<EmptyDescription className="text-sm text-muted-foreground">
-							Votre premier scénario apparaîtra ici après son envoi.
+							Votre première situation fictive apparaîtra ici après son envoi.
 						</EmptyDescription>
 					</EmptyHeader>
 					<EmptyContent className="pt-4">
 						<Button asChild size="lg">
-							<Link to="/threads/new">Créer un nouveau scénario</Link>
+							<Link to="/threads/new">Créer une nouvelle situation fictive</Link>
 						</Button>
 					</EmptyContent>
 				</Empty>
@@ -237,10 +238,10 @@ function Profile() {
 								) : (
 									<p className="py-6 text-sm text-muted-foreground">
 										{group.status === "pending"
-											? "Aucun scénario en attente d'examen."
+											? "Aucune situation fictive à examiner."
 											: group.status === "published"
-												? "Aucun scénario publié."
-												: "Aucun scénario rejeté."}
+												? "Aucune situation fictive publiée."
+												: "Aucune situation fictive non publiée."}
 									</p>
 								)}
 								{groupIndex < groups.length - 1 && (
@@ -311,7 +312,7 @@ function UserThreadRow({ thread }: { thread: UserThread }) {
 				<div className="pb-6">
 					<RejectionMessage reason={thread.rejectionReason} />
 					<Button asChild variant="outline" className="mt-3">
-						<Link to="/threads/new">Créer un nouveau scénario</Link>
+						<Link to="/threads/new">Créer une nouvelle situation fictive</Link>
 					</Button>
 				</div>
 			)}

@@ -133,7 +133,7 @@ export function LinkAnonymousModal({
 		});
 
 		toast.info(
-			"Vos publications anonymes restent séparées. Vous pouvez toujours y accéder avec votre code secret.",
+			"Vos publications anonymes restent séparées. Vous pouvez toujours y accéder avec votre code de récupération.",
 		);
 
 		onLinkDecline?.();
@@ -160,7 +160,7 @@ export function LinkAnonymousModal({
 						<AlertDescription>
 							Vous pouvez choisir de lier ces publications à votre nouveau
 							compte pour les retrouver facilement, ou les garder séparées et
-							continuer à y accéder avec votre code secret.
+							continuer à y accéder avec votre code de récupération.
 						</AlertDescription>
 					</Alert>
 
@@ -175,7 +175,7 @@ export function LinkAnonymousModal({
 								</li>
 								<li>Vous pourrez les gérer depuis votre compte enregistré</li>
 								<li>
-									Votre code secret reste fonctionnel pour la récupération
+									Votre code de récupération reste fonctionnel pour la récupération
 								</li>
 							</ul>
 						</div>

@@ -27,7 +27,7 @@ function RouteComponent() {
 					Retrouver ma session
 				</h1>
 				<p className="text-muted-foreground">
-					Saisissez le code de récupération reçu après votre premier scénario.
+					Saisissez le code de récupération reçu après votre première situation fictive.
 				</p>
 			</header>
 
@@ -35,10 +35,10 @@ function RouteComponent() {
 
 			<details className="border-t pt-5 text-sm">
 				<summary className="cursor-pointer font-medium underline-offset-4 hover:underline">
-					Où trouver mon code ?
+					Où trouver mon code de récupération ?
 				</summary>
 				<p className="mt-3 text-muted-foreground">
-					Il a été affiché après votre premier scénario. Vérifiez vos notes ou
+					Il a été affiché après votre première situation fictive. Vérifiez vos notes ou
 					captures d’écran.
 				</p>
 			</details>
@@ -49,7 +49,7 @@ function RouteComponent() {
 					search={{ openDialog: false }}
 					className="font-medium underline underline-offset-4"
 				>
-					Créer un premier scénario
+					Créer une première situation fictive
 				</Link>
 			</nav>
 		</div>

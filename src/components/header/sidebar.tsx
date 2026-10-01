@@ -13,7 +13,7 @@ import {
 
 const items = [
 	{ title: "Publications", url: "/threads", icon: FileText },
-	{ title: "Mes publications", url: "/account/profile", icon: FileText },
+	{ title: "Mes situations fictives", url: "/account/profile", icon: FileText },
 	{
 		title: "Retrouver ma session",
 		url: "/auth/anonymous-signin",

@@ -16,7 +16,7 @@ function Settings() {
 	return (
 		<div className="mx-auto max-w-2xl space-y-8 px-4 py-10">
 			<Link to="/account/profile" className="underline underline-offset-4">
-				Retour à mes scénarios
+				Retour à mes situations fictives
 			</Link>
 			<h1 className="font-serif text-3xl font-semibold tracking-tight">
 				Gérer mes données
