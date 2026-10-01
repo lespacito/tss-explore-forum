@@ -17,7 +17,7 @@ vi.mock("@tanstack/react-router", () => ({
 			threads: [
 				{
 					id: "46cc031d-7a75-4cf0-88c6-6aac14dd80f7",
-					title: "Scénario fictif à examiner",
+					title: "Situation fictive à examiner",
 					body: "<p>Contenu fictif</p>",
 					category: "AUTRE",
 					status: "pending",
@@ -52,7 +52,7 @@ vi.mock("@/features/moderation/server/thread-moderation", () => ({
 	moderateThreadFn: mocks.moderateThread,
 	moderationReasonCodes: ["OUT_OF_SCOPE"],
 	moderationReasonLabels: {
-		OUT_OF_SCOPE: "Ce scénario ne correspond pas au périmètre de cette bêta.",
+		OUT_OF_SCOPE: "Cette situation fictive ne correspond pas au périmètre de cette bêta.",
 	},
 }));
 
@@ -83,7 +83,7 @@ describe("Moderation decisions", () => {
 
 		expect(mocks.moderateThread).not.toHaveBeenCalled();
 		expect(
-			screen.getByText("Ce scénario deviendra visible par les invités."),
+			screen.getByText("Cette situation fictive deviendra visible par les invités."),
 		).toBeDefined();
 
 		fireEvent.click(
@@ -100,7 +100,7 @@ describe("Moderation decisions", () => {
 				},
 			}),
 		);
-		expect(screen.getByText("Scénario publié")).toBeDefined();
+		expect(screen.getByText("Situation fictive publiée")).toBeDefined();
 		expect(
 			screen.getByRole("button", { name: "Voir dans Publiées" }),
 		).toBeDefined();
@@ -197,6 +197,6 @@ describe("Moderation decisions", () => {
 				"Décision enregistrée, mais la file n’a pas pu être actualisée. Rechargez la page.",
 			),
 		);
-		expect(screen.getByText("Scénario publié")).toBeDefined();
+		expect(screen.getByText("Situation fictive publiée")).toBeDefined();
 	});
 });

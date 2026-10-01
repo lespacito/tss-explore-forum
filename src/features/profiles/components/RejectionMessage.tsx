@@ -19,11 +19,11 @@ export function RejectionMessage({ reason }: RejectionMessageProps) {
 				/>
 				<div className="space-y-2">
 					<h4 className="font-semibold text-warning-foreground dark:text-warning">
-						Pourquoi ce scénario n’a pas été publié
+						Pourquoi cette situation fictive n’a pas été publiée
 					</h4>
 					<p className="text-sm text-foreground/80">{reason}</p>
 					<p className="text-sm text-muted-foreground">
-						Vous pouvez créer un nouveau scénario fictif en tenant compte de ce
+						Vous pouvez créer une nouvelle situation fictive en tenant compte de ce
 						motif.
 					</p>
 					{needsSupportOrientation && (

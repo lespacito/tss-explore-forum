@@ -24,17 +24,17 @@ function ThreadsPage() {
 			<header className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
 				<div className="min-w-0">
 					<h1 className="font-serif text-3xl font-semibold">
-						Scénarios publics
+						Situations fictives publiées
 					</h1>
 					<p className="mt-2 max-w-prose text-muted-foreground">
-						Scénarios fictifs relus par le modérateur. Les réponses et
+						Situations fictives relues par le modérateur. Les réponses et
 						commentaires sont fermés.
 					</p>
 				</div>
 				<AnonymousPostButton />
 			</header>
 			<Button asChild variant="outline">
-				<Link to="/account/profile">Suivre mes scénarios</Link>
+				<Link to="/account/profile">Suivre mes situations fictives</Link>
 			</Button>
 			<div className="space-y-4">
 				{threads.map((thread) => (
@@ -43,10 +43,10 @@ function ThreadsPage() {
 				{threads.length === 0 && (
 					<div className="border-y py-10">
 						<h2 className="font-medium">
-							Aucun scénario publié pour le moment
+							Aucune situation fictive publiée pour le moment
 						</h2>
 						<p className="mt-2 text-muted-foreground">
-							Un scénario envoyé reste dans Mes scénarios jusqu’à la décision du
+							Une situation fictive envoyée reste dans Mes situations fictives jusqu’à la décision du
 							modérateur.
 						</p>
 					</div>

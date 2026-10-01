@@ -346,7 +346,7 @@ describe("SecretCodeLoginForm Component - Task 4", () => {
 
 			await waitFor(() => {
 				expect(toast.success).toHaveBeenCalledWith("Session retrouvée", {
-					description: "Voici vos scénarios.",
+					description: "Voici vos situations fictives.",
 				});
 				expect(mockNavigate).toHaveBeenCalledWith({ to: "/account/profile" });
 			});

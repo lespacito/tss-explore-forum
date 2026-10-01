@@ -9,12 +9,12 @@ const STATUS_CONFIG = {
 		className: "bg-warning/15 border-warning/50 text-warning-foreground",
 	},
 	published: {
-		label: "Publié",
+		label: "Publiée",
 		icon: CheckCircle,
 		className: "bg-primary/10 border-primary/30 text-primary",
 	},
 	rejected: {
-		label: "Non publié",
+		label: "Non publiée",
 		icon: AlertCircle,
 		className:
 			"bg-warning/10 border-warning/30 text-warning-foreground dark:text-warning",

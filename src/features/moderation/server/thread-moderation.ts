@@ -32,12 +32,12 @@ export type ModerationReasonCode = (typeof moderationReasonCodes)[number];
 
 export const moderationReasonLabels: Record<ModerationReasonCode, string> = {
 	IDENTIFYING_DETAIL:
-		"Ce scénario contient un détail qui pourrait permettre d’identifier une personne.",
+		"Cette situation fictive contient un détail qui pourrait permettre d’identifier une personne.",
 	REAL_OR_URGENT:
-		"Ce scénario semble décrire une situation réelle ou urgente, hors du cadre fictif de cette bêta.",
-	OUT_OF_SCOPE: "Ce scénario ne correspond pas au périmètre de cette bêta.",
+		"Cette situation fictive semble décrire une situation réelle ou urgente, hors du cadre fictif de cette bêta.",
+	OUT_OF_SCOPE: "Cette situation fictive ne correspond pas au périmètre de cette bêta.",
 	INSUFFICIENT_INFORMATION:
-		"Les informations fournies ne permettent pas d’examiner ce scénario.",
+		"Les informations fournies ne permettent pas d’examiner cette situation fictive.",
 };
 
 export function formatModerationReason(

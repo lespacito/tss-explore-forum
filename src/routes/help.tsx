@@ -6,7 +6,7 @@ function Page() {
 		<article className="mx-auto max-w-3xl space-y-5 px-4 py-10 leading-7 [&_h2]:pt-5 [&_h2]:font-serif [&_h2]:text-xl [&_h2]:font-semibold [&_a]:underline [&_a]:underline-offset-4">
 			<h1 className="font-serif text-3xl font-semibold">Aide et contact</h1>
 			<SafetyNotice />
-			<h2>Une écoute extérieure au forum</h2>
+			<h2>Une écoute extérieure à la bêta</h2>
 			<p>
 				La Main Tendue propose une écoute téléphonique au{" "}
 				<a href="tel:143">143</a>. Consultez également{" "}
@@ -16,6 +16,8 @@ function Page() {
 				pour ses autres moyens de contact. Ce service est indépendant de la
 				bêta.
 			</p>
+			<h2>Modération et aide professionnelle</h2>
+			<p>La modération décide si une situation fictive peut être publiée. Elle ne fournit pas d’aide professionnelle et ne promet aucune réponse de soutien. Pour une situation réelle, appelez le 142 ou contactez un centre LAVI ; en cas de danger imminent, appelez le 117 ou le 144.</p>
 			<h2>Un problème pendant le test ?</h2>
 			<p>
 				Écrivez à{" "}

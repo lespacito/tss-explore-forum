@@ -9,10 +9,10 @@ function Page() {
 			</h1>
 			<p>
 				Ce test dure deux semaines et réunit 5 à 10 adultes invités en Suisse
-				romande. Il sert à vérifier l’envoi anonyme, le suivi de la modération
+				romande. Il sert à vérifier l’envoi sous pseudonyme, le suivi de la modération
 				et la récupération de session.
 			</p>
-			<h2>Utilisez uniquement des scénarios fictifs</h2>
+			<h2>Utilisez uniquement des situations fictives</h2>
 			<p>
 				Ne publiez pas de noms réels, coordonnées, lieux précis ou détails
 				permettant d’identifier une personne. Aucun récit personnel n’est
@@ -20,15 +20,16 @@ function Page() {
 			</p>
 			<h2>Avant la mise en ligne</h2>
 			<p>
-				Un modérateur examine chaque scénario. Les scénarios acceptés sont
-				lisibles par les invités. En cas de refus, le motif apparaît dans Mes
-				scénarios. Les réponses et commentaires sont désactivés.
+				Un modérateur examine chaque situation fictive. Les situations fictives publiées sont
+				lisibles par les invités. En cas de non-publication, le motif apparaît dans Mes
+				situations fictives. Les réponses et commentaires sont désactivés.
 			</p>
+			<p>La modération décide de la publication ; elle ne constitue pas une aide professionnelle et ne promet aucune réponse de soutien.</p>
 			<h2>Les horaires du test</h2>
 			<p>
 				Les créneaux de modération et les dates sont communiqués par
 				l’organisateur avec votre invitation. La modération n’est pas permanente
-				; l’envoi de scénarios peut être suspendu. Si vous n’avez pas reçu ces
+				; l’envoi de situations fictives peut être suspendu. Si vous n’avez pas reçu ces
 				informations, contactez l’organisateur avant de commencer.
 			</p>
 			<h2>Participer reste facultatif</h2>

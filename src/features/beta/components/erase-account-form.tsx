@@ -50,7 +50,7 @@ export function EraseAccountForm({
 			}}
 		>
 			<p id={descriptionId} className="leading-7 text-muted-foreground">
-				Cette action définitive supprime vos scénarios, alias, code de
+				Cette action définitive supprime vos situations fictives, pseudonymes, code de
 				récupération et sessions de la base active. Une copie peut subsister
 				sept jours supplémentaires dans une sauvegarde.
 			</p>

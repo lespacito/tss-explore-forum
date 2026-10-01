@@ -9,20 +9,20 @@ function Page() {
 			</h1>
 			<p>
 				Cette page décrit le fonctionnement de la bêta et ses limites. L’accès
-				aux scénarios et aux API nécessite une invitation valide.
+				aux situations fictives et aux API nécessite une invitation valide.
 			</p>
-			<h2>Alias et identité</h2>
+			<h2>Pseudonyme et identité</h2>
 			<p>
 				Aucun nom réel ni email n’est nécessaire pour une session anonyme. Un
-				alias accompagne vos scénarios. L’administration technique peut relier
-				une session à ses alias : cette séparation ne constitue pas une garantie
+				pseudonyme accompagne vos situations fictives. L’administration technique peut relier
+				une session à ses pseudonymes : cette séparation ne constitue pas une garantie
 				d’anonymat absolu. Un récit peut également contenir des détails
-				identifiants ; utilisez uniquement des scénarios fictifs.
+				identifiants ; utilisez uniquement des situations fictives.
 			</p>
 			<h2>Données conservées</h2>
 			<p>
-				Le service conserve les sessions, leurs données techniques, les alias,
-				les scénarios, les décisions de modération et le code de récupération.
+				Le service conserve les sessions, leurs données techniques, les pseudonymes,
+				les situations fictives, les décisions de modération et le code de récupération.
 				Les données techniques de session peuvent inclure une adresse IP et des
 				informations de navigateur. Le modérateur dispose du contenu et des
 				décisions, sans affichage de l’adresse IP dans sa file de modération.
@@ -46,19 +46,19 @@ function Page() {
 			<p>
 				Quiconque détient ce code peut retrouver votre session. Conservez-le
 				dans un endroit privé. Il n’est pas placé dans l’URL. Tant que votre
-				session est ouverte, vous pouvez le consulter depuis Mes scénarios.
+				session est ouverte, vous pouvez le consulter depuis Mes situations fictives.
 			</p>
 			<h2>Effacement et limites</h2>
 			<p>
 				Gérer mes données permet de demander la suppression du compte et de ses
-				scénarios dans la base active. Une copie supprimée peut subsister
+				situations fictives dans la base active. Une copie supprimée peut subsister
 				jusqu’à sept jours supplémentaires dans une sauvegarde avant son
 				expiration. Les retours anonymes soumis via le formulaire de feedback
 				sont également conservés avec les réponses elles-mêmes, sans identifiant
 				de participant.
 			</p>
 			<p>
-				Pour cette cohorte, les comptes et les scénarios doivent être supprimés
+				Pour cette cohorte, les comptes et les situations fictives doivent être supprimés
 				sept jours après la fin du test. Seul un bilan sans identifiants sera
 				conservé ensuite. L’automatisation de cette suppression et la
 				restauration d’une sauvegarde doivent encore être vérifiées sur le

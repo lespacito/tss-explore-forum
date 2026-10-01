@@ -90,7 +90,7 @@ export const ThreadCard = memo(function ThreadCard({
 					</h3>
 					{thread.isSensitive ? (
 						<p className="text-sm text-muted-foreground">
-							Contenu sensible. Ouvrez le scénario pour choisir de le lire.
+							Contenu sensible. Ouvrez la situation fictive pour choisir de lire son contenu.
 						</p>
 					) : (
 						<SafeHtmlDisplay
@@ -102,7 +102,7 @@ export const ThreadCard = memo(function ThreadCard({
 				</CardContent>
 				<CardFooter className="p-4 border-t flex justify-end text-muted-foreground">
 					<span className="text-xs font-medium text-primary">
-						Lire le scénario →
+						Lire la situation fictive →
 					</span>
 				</CardFooter>
 			</Card>

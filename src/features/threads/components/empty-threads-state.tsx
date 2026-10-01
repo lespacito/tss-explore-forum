@@ -28,7 +28,7 @@ export function EmptyThreadsState({ activeCategory }: EmptyThreadsStateProps) {
 				Aucune publication validée dans cette catégorie.
 			</p>
 			<p className="text-sm text-muted-foreground">
-				Les scénarios publiés dans « {activeConfig?.label} » apparaîtront ici
+				Les situations fictives publiées dans « {activeConfig?.label} » apparaîtront ici
 				après modération.
 			</p>
 			<div className="flex flex-wrap justify-center gap-2 pt-2">

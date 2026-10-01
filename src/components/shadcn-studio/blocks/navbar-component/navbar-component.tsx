@@ -41,12 +41,13 @@ const Navbar = () => {
 							className="civic-scenarios-link"
 							aria-current={spaceActive ? "page" : undefined}
 						>
-							<span>Mon espace</span>
+							<span>Mes situations fictives</span>
 						</Link>
 					)}
 				</div>
 
 				<div className="civic-nav__actions">
+					<Link to="/help" className="inline-flex min-h-11 items-center gap-2 text-sm underline underline-offset-4"><CircleHelp aria-hidden="true" className="size-4" /> Aide</Link>
 					<div className="hidden sm:flex">
 						<ToggleTheme />
 					</div>
@@ -64,7 +65,7 @@ const Navbar = () => {
 							<DropdownMenuLabel>La bêta privée</DropdownMenuLabel>
 							<DropdownMenuItem asChild>
 								<Link to="/threads">
-									<BookOpen /> Scénarios publics
+									<BookOpen /> Situations fictives publiées
 								</Link>
 							</DropdownMenuItem>
 							<DropdownMenuSeparator />
@@ -107,8 +108,8 @@ const Navbar = () => {
 			<div className="civic-service-status">
 				<p>
 					{loaderData?.beta?.submissionsOpen
-						? "Envoi de scénarios ouvert · "
-						: "Envoi de scénarios suspendu · "}
+						? "Envoi de situations fictives ouvert · "
+						: "Envoi de situations fictives suspendu · "}
 					{loaderData?.beta?.moderationSchedule}
 				</p>
 			</div>

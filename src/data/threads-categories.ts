@@ -34,7 +34,7 @@ export const threadCategories: CategoryConfig[] = [
 		id: "VIOLENCE",
 		label: "Violence",
 		description:
-			"Tester le dépôt d’un scénario fictif de violence physique ou psychologique",
+			"Tester le dépôt d’une situation fictive de violence physique ou psychologique",
 		icon: "🛡️",
 		color: "border-primary bg-primary/10 hover:bg-primary/20",
 		helpText:
@@ -43,7 +43,7 @@ export const threadCategories: CategoryConfig[] = [
 		bodyPlaceholder:
 			"Décrivez la situation fictive sans nom réel ni détail identifiant…",
 		guidingQuestions: [
-			"Que se passe-t-il dans ce scénario ?",
+			"Que se passe-t-il dans cette situation fictive ?",
 			"Comment le personnage pourrait-il décrire la situation ?",
 			"Quelle information devrait être comprise par le modérateur ?",
 		],
@@ -51,7 +51,7 @@ export const threadCategories: CategoryConfig[] = [
 	{
 		id: "ABUS",
 		label: "Abus",
-		description: "Tester un scénario fictif d’abus ou de manipulation",
+		description: "Tester une situation fictive d’abus ou de manipulation",
 		icon: "💔",
 		color: "border-chart-2 bg-chart-2/10 hover:bg-chart-2/20",
 		helpText:
@@ -59,7 +59,7 @@ export const threadCategories: CategoryConfig[] = [
 		titlePlaceholder: "Ex. Une relation fictive devient contrôlante",
 		bodyPlaceholder: "Décrivez la situation inventée et son contexte…",
 		guidingQuestions: [
-			"Quelle forme prend la manipulation dans ce scénario ?",
+			"Quelle forme prend la manipulation dans cette situation fictive ?",
 			"Depuis combien de temps la situation fictive dure-t-elle ?",
 			"Quelle étape le personnage a-t-il déjà envisagée ?",
 		],
@@ -83,15 +83,15 @@ export const threadCategories: CategoryConfig[] = [
 	{
 		id: "DETRESSE",
 		label: "Détresse",
-		description: "Tester un scénario de détresse émotionnelle",
+		description: "Tester une situation fictive de détresse émotionnelle",
 		icon: "🆘",
 		color: "border-warning bg-warning/10 hover:bg-warning/20",
 		helpText:
-			"Ce test ne fournit pas de soutien immédiat. Utilisez un scénario fictif et consultez Aide si nécessaire.",
-		titlePlaceholder: "Ex. Scénario fictif de détresse",
+			"Ce test ne fournit pas de soutien immédiat. Utilisez une situation fictive et consultez Aide si nécessaire.",
+		titlePlaceholder: "Ex. Situation fictive de détresse",
 		bodyPlaceholder: "Décrivez les émotions du personnage fictif…",
 		guidingQuestions: [
-			"Comment le personnage se sent-il dans ce scénario ?",
+			"Comment le personnage se sent-il dans cette situation fictive ?",
 			"Quel événement fictif l’a conduit à cette situation ?",
 			"Quelle information est importante pour comprendre le récit ?",
 		],
@@ -100,15 +100,15 @@ export const threadCategories: CategoryConfig[] = [
 		id: "AUTRE",
 		label: "Autre situation",
 		description:
-			"Tester un autre scénario fictif qui ne correspond pas aux catégories",
+			"Tester une autre situation fictive qui ne correspond pas aux catégories",
 		icon: "💬",
 		color: "border-muted bg-muted/10 hover:bg-muted/20",
 		helpText:
 			"Inventez une situation sans personne réelle ni détail permettant d’identifier quelqu’un.",
 		titlePlaceholder: "Ex. Une autre situation fictive",
-		bodyPlaceholder: "Décrivez le scénario inventé…",
+		bodyPlaceholder: "Décrivez la situation fictive…",
 		guidingQuestions: [
-			"Quel est le sujet du scénario ?",
+			"Quel est le sujet de la situation fictive ?",
 			"Quelle information doit être comprise à la lecture ?",
 		],
 	},

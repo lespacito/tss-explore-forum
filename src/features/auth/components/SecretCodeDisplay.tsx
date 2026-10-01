@@ -68,7 +68,7 @@ export function SecretCodeDisplay({
 				<CardDescription className="text-base">
 					{isExisting
 						? "Ce code permet de retrouver votre session anonyme."
-						: "Conservez-le pour retrouver vos scénarios plus tard."}
+						: "Conservez-le pour retrouver vos situations fictives plus tard."}
 				</CardDescription>
 			</CardHeader>
 
@@ -88,7 +88,7 @@ export function SecretCodeDisplay({
 						variant="outline"
 						size="icon"
 						onClick={handleCopy}
-						aria-label={copied ? "Code copié" : "Copier le code"}
+						aria-label={copied ? "Code de récupération copié" : "Copier le code de récupération"}
 						className="shrink-0 h-12 w-12"
 					>
 						{copied ? (
@@ -104,17 +104,17 @@ export function SecretCodeDisplay({
 					<Info className="h-5 w-5 text-primary" aria-hidden="true" />
 					<AlertDescription className="space-y-3 text-base">
 						<p className="font-semibold text-foreground">
-							Comment utiliser ce code :
+							Comment utiliser ce code de récupération :
 						</p>
 						<ol className="list-decimal list-inside space-y-2 text-foreground/90">
 							<li>
-								Notez ce code dans un endroit privé (carnet personnel,
+								Notez ce code de récupération dans un endroit privé (carnet personnel,
 								gestionnaire de mots de passe)
 							</li>
 							<li>
 								Utilisez-le pour retrouver votre session sur un autre appareil
 							</li>
-							<li>Retrouvez tous vos scénarios avec ce code</li>
+							<li>Retrouvez toutes vos situations fictives avec ce code</li>
 						</ol>
 					</AlertDescription>
 				</Alert>
@@ -144,8 +144,7 @@ export function SecretCodeDisplay({
 							aria-hidden="true"
 						/>
 						<AlertDescription className="text-sm text-muted-foreground">
-							Ce code a été généré lors de votre premier scénario. Il reste
-							valide tant que vous ne supprimez pas votre compte.
+							Votre code de récupération reste valide tant que vous ne supprimez pas votre compte.
 						</AlertDescription>
 					</Alert>
 				)}

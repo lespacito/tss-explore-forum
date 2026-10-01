@@ -100,7 +100,7 @@ describe("moderation action validation", () => {
 				"Utilisez uniquement la situation fictive fournie.",
 			),
 		).toBe(
-			"Ce scénario ne correspond pas au périmètre de cette bêta. Utilisez uniquement la situation fictive fournie.",
+			"Cette situation fictive ne correspond pas au périmètre de cette bêta. Utilisez uniquement la situation fictive fournie.",
 		);
 	});
 });

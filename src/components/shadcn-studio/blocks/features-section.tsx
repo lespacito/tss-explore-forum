@@ -4,16 +4,16 @@ import { useId } from "react";
 
 const commitments = [
 	"Accès réservé aux personnes invitées",
-	"Publication sous alias après examen humain",
-	"Statut et motif de non-publication visibles dans Mes scénarios",
+	"Publication sous pseudonyme après examen humain",
+	"Statut et motif de non-publication visibles dans Mes situations fictives",
 	"Effacement accessible depuis Gérer mes données",
 ];
 
 const limits = [
-	"L’alias ne garantit pas un anonymat absolu",
+	"Le pseudonyme ne garantit pas un anonymat absolu",
 	"La modération n’est ni immédiate ni permanente",
 	"Les réponses et commentaires restent fermés",
-	"Cette cohorte utilise uniquement des scénarios fictifs",
+	"Cette cohorte utilise uniquement des situations fictives",
 ];
 
 export default function FeaturesSection() {

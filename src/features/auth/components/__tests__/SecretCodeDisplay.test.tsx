@@ -73,16 +73,16 @@ describe("SecretCodeDisplay Component", () => {
 			render(<SecretCodeDisplay secretCode={mockSecretCode} />);
 
 			expect(
-				screen.getByText("Comment utiliser ce code :"),
+				screen.getByText("Comment utiliser ce code de récupération :"),
 			).toBeInTheDocument();
 			expect(
-				screen.getByText(/Notez ce code dans un endroit privé/i),
+				screen.getByText(/Notez ce code de récupération dans un endroit privé/i),
 			).toBeInTheDocument();
 			expect(
 				screen.getByText(/Utilisez-le pour retrouver votre session/i),
 			).toBeInTheDocument();
 			expect(
-				screen.getByText(/Retrouvez tous vos scénarios/i),
+				screen.getByText(/Retrouvez toutes vos situations fictives/i),
 			).toBeInTheDocument();
 		});
 
@@ -91,7 +91,7 @@ describe("SecretCodeDisplay Component", () => {
 
 			expect(
 				screen.getByText(
-					/Ce code a été généré lors de votre premier scénario/i,
+					/Votre code de récupération reste valide/i,
 				),
 			).toBeInTheDocument();
 		});
@@ -101,7 +101,7 @@ describe("SecretCodeDisplay Component", () => {
 
 			expect(
 				screen.queryByText(
-					/Ce code a été généré lors de votre premier scénario/i,
+					/Votre code de récupération reste valide/i,
 				),
 			).not.toBeInTheDocument();
 		});
@@ -159,7 +159,7 @@ describe("SecretCodeDisplay Component", () => {
 
 			// After click - should show check icon (button label changes)
 			await waitFor(() => {
-				expect(copyButton).toHaveAccessibleName(/code copié/i);
+				expect(copyButton).toHaveAccessibleName(/code de récupération copié/i);
 			});
 		});
 
@@ -179,7 +179,7 @@ describe("SecretCodeDisplay Component", () => {
 			await user.click(copyButton);
 
 			await waitFor(() => {
-				expect(copyButton).toHaveAccessibleName(/code copié/i);
+				expect(copyButton).toHaveAccessibleName(/code de récupération copié/i);
 			});
 
 			// Feedback exists (timing is implementation detail - tested manually)
@@ -216,7 +216,7 @@ describe("SecretCodeDisplay Component", () => {
 		it("should have accessible label for secret code", () => {
 			render(<SecretCodeDisplay secretCode={mockSecretCode} />);
 
-			const codeElement = screen.getByLabelText(/code de récupération/i);
+			const codeElement = screen.getByRole("status", { name: `Code de récupération : ${mockSecretCode}` });
 			expect(codeElement).toHaveTextContent(mockSecretCode);
 		});
 
@@ -267,7 +267,7 @@ describe("SecretCodeDisplay Component", () => {
 			render(<SecretCodeDisplay secretCode={mockSecretCode} />);
 
 			// Should have a main heading visible to users
-			const heading = screen.getByText(/code de récupération/i);
+			const heading = screen.getByText("Votre code de récupération");
 			expect(heading).toBeInTheDocument();
 		});
 
@@ -382,7 +382,7 @@ describe("SecretCodeDisplay Component", () => {
 
 			// Wait for visual feedback change
 			await waitFor(() => {
-				expect(copyButton).toHaveAccessibleName(/code copié/i);
+				expect(copyButton).toHaveAccessibleName(/code de récupération copié/i);
 			});
 
 			expect(toast.success).toHaveBeenCalled();

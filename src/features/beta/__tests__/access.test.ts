@@ -227,7 +227,7 @@ describe("private beta boundary", () => {
 		expect(confirmationResponse?.status).toBe(200);
 		expect(html).toContain('role="status"');
 		expect(html).toContain(
-			"Vos données et vos scénarios ont été effacés de la base active.",
+			"Vos données et vos situations fictives ont été effacées de la base active.",
 		);
 		expect(html).toContain("sept jours supplémentaires");
 		expect(html).toContain("fermer cette page");

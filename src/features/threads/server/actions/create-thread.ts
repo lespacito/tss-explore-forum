@@ -20,7 +20,7 @@ export const createThreadFn = createServerFn({ method: "POST" })
 	.handler(async ({ data }) => {
 		if (!betaSettings().submissionsOpen)
 			throw new Error(
-				"L’envoi de scénarios est suspendu. Consultez les informations de l’organisateur.",
+				"L’envoi de situations fictives est suspendu. Consultez les informations de l’organisateur.",
 			);
 		const decision = await checkArcjet({
 			path: "/threads/create",
@@ -82,7 +82,7 @@ export const createThreadFn = createServerFn({ method: "POST" })
 			return {
 				success: false,
 				error:
-					"Votre scénario n’a pas été envoyé. Réessayez pour obtenir un code de récupération valide.",
+					"Votre situation fictive n’a pas été envoyée. Réessayez pour obtenir un code de récupération valide.",
 			};
 		}
 

@@ -33,6 +33,8 @@ interface TipTapProps {
 	id?: string;
 	placeholder?: string;
 	ariaDescribedBy?: string;
+	ariaLabelledBy?: string;
+	ariaLabel?: string;
 	ariaInvalid?: boolean;
 	onChange?: (html: string) => void;
 	onTextChange?: (text: string, length: number) => void;
@@ -43,6 +45,8 @@ export const TipTap = ({
 	id,
 	placeholder,
 	ariaDescribedBy,
+	ariaLabelledBy,
+	ariaLabel,
 	ariaInvalid = false,
 	onChange,
 	onTextChange,
@@ -83,7 +87,8 @@ export const TipTap = ({
 						class: editorClasses,
 						...(id ? { id } : {}),
 						role: "textbox",
-						"aria-label": placeholder || "Zone de texte avec formatage",
+						...(ariaLabelledBy ? { "aria-labelledby": ariaLabelledBy } : {}),
+						"aria-label": ariaLabel || placeholder || "Zone de texte avec formatage",
 						...(ariaDescribedBy ? { "aria-describedby": ariaDescribedBy } : {}),
 						"aria-invalid": String(ariaInvalid),
 						"aria-multiline": "true",

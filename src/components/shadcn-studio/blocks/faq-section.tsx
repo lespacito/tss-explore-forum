@@ -3,20 +3,20 @@ import { useId } from "react";
 
 const faqs = [
 	{
-		q: "Qui peut lire mes publications ?",
-		a: "Seules les personnes invitées peuvent consulter cette bêta. Chaque publication est relue avant sa mise en ligne. Pour cette cohorte, utilisez uniquement un scénario fictif.",
+		q: "Qui peut lire mes situations fictives ?",
+		a: "Seules les personnes invitées peuvent consulter cette bêta. Chaque situation fictive est examinée par la modération ; elle devient visible uniquement si sa publication est validée. Aucun récit personnel n’est demandé.",
 	},
 	{
-		q: "Que protège mon alias ?",
-		a: "L’alias remplace votre identité dans les publications. Il ne rend pas un récit impossible à reconnaître : évitez les noms, lieux précis et autres détails identifiants.",
+		q: "Que protège mon pseudonyme ?",
+		a: "Le pseudonyme est affiché si votre situation fictive est publiée. Il ne garantit pas un anonymat absolu. L’administration technique peut relier votre session à ses pseudonymes ; le contenu peut aussi permettre de vous reconnaître. Évitez les noms, lieux précis et autres détails identifiants.",
 	},
 	{
 		q: "À quoi servent les deux codes ?",
-		a: "Le code d’invitation ouvre l’accès à la bêta. Le code secret personnel permet de retrouver votre session et ne doit jamais être partagé ni placé dans une URL.",
+		a: "Le code d’invitation ouvre l’accès à la bêta. Le code de récupération permet de retrouver votre session et ne doit jamais être partagé ni placé dans une URL.",
 	},
 	{
 		q: "Comment connaître la décision ?",
-		a: "La modération n’est pas permanente. Le statut — en attente, publiée ou refusée — apparaît dans Mes publications, avec un motif lorsqu’un dépôt est refusé.",
+		a: "La modération n’est pas permanente et ne constitue pas une aide professionnelle. Le statut — À examiner, Publiée ou Non publiée — apparaît dans Mes situations fictives, avec un motif en cas de non-publication.",
 	},
 ];
 
