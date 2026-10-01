@@ -119,7 +119,7 @@ function ModerationPage() {
 						count={counts.rejected}
 						onClick={() => setFilter("rejected")}
 					>
-						Non publiés
+						Non publiées
 					</FilterButton>
 				</div>
 			</nav>
@@ -482,7 +482,7 @@ function decisionNoticeFor(
 function filterLabel(status: QueueStatus) {
 	if (status === "pending") return "À examiner";
 	if (status === "published") return "Publiées";
-	return "Non publiés";
+	return "Non publiées";
 }
 
 function EmptyQueue({ status }: { status: QueueStatus }) {
