@@ -9,7 +9,7 @@ function Page() {
 			</h1>
 			<p>
 				Ce test dure deux semaines et réunit 5 à 10 adultes invités en Suisse
-				romande. Il sert à vérifier l’envoi sous pseudonyme, le suivi de la modération
+				romande. Il sert à vérifier l’envoi sans identité publique, le suivi de la modération
 				et la récupération de session.
 			</p>
 			<h2>Utilisez uniquement des situations fictives</h2>
@@ -21,7 +21,7 @@ function Page() {
 			<h2>Avant la mise en ligne</h2>
 			<p>
 				Un modérateur examine chaque situation fictive. Les situations fictives publiées sont
-				lisibles par les invités. En cas de non-publication, le motif apparaît dans Mes
+				lisibles par les invités sous « Auteur anonyme », sans affichage du pseudonyme interne. En cas de non-publication, le motif apparaît dans Mes
 				situations fictives. Les réponses et commentaires sont désactivés.
 			</p>
 			<p>La modération décide de la publication ; elle ne constitue pas une aide professionnelle et ne promet aucune réponse de soutien.</p>

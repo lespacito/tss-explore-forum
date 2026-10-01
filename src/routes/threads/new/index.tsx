@@ -383,17 +383,17 @@ export function ScenarioForm({
 						<h2 className="font-serif text-2xl font-semibold">Avant l'envoi</h2>
 						{aliasName ? (
 							<p>
-								Si cette situation fictive est publiée, elle apparaîtra sous le
-								pseudonyme <strong>{aliasName}</strong>.
+								Si cette situation fictive est publiée, elle apparaîtra sous « Auteur anonyme ».
+								Votre pseudonyme reste interne et n’est pas affiché publiquement.
 							</p>
 						) : (
 							<p role="alert">
-								Votre pseudonyme n’a pas pu être chargé. L’envoi est désactivé.
+								Votre session n’a pas pu être vérifiée. L’envoi est désactivé.
 								Rechargez la page pour réessayer ; conservez votre texte avant de le faire.
 							</p>
 						)}
 						<p>
-							Le pseudonyme ne garantit pas un anonymat absolu :
+							Le libellé « Auteur anonyme » ne garantit pas un anonymat absolu :
 							l’administration technique peut relier votre session à ses
 							pseudonymes. Le contenu peut aussi permettre de vous reconnaître.
 						</p>

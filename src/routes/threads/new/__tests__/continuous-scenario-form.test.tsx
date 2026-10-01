@@ -111,7 +111,9 @@ describe("continuous scenario form", () => {
 			Node.DOCUMENT_POSITION_FOLLOWING,
 		);
 		expect(screen.getByLabelText(/catégorie/i)).toHaveValue("");
-		expect(screen.getByText("Érable calme")).toBeInTheDocument();
+		expect(screen.queryByText("Érable calme")).not.toBeInTheDocument();
+		expect(screen.getByText(/apparaîtra sous « Auteur anonyme »/)).toBeInTheDocument();
+		expect(screen.queryByText(/sous le pseudonyme/i)).not.toBeInTheDocument();
 		expect(screen.queryByText(/sera publié anonymement/i)).not.toBeInTheDocument();
 		expect(screen.getByText(/administration technique peut relier/i)).toBeInTheDocument();
 		expect(screen.getByText(/ne constitue pas une aide professionnelle/i)).toBeInTheDocument();
@@ -126,9 +128,9 @@ describe("continuous scenario form", () => {
 		).toBeInTheDocument();
 	});
 
-	it("blocks submission when the published alias cannot be verified", () => {
+	it("blocks submission when the internal alias cannot be verified", () => {
 		render(<ScenarioForm user={user as never} aliasName={null} />);
-		expect(screen.getByText(/pseudonyme n’a pas pu être chargé/i)).toBeInTheDocument();
+		expect(screen.getByText(/session n’a pas pu être vérifiée/i)).toBeInTheDocument();
 		expect(screen.queryByText("Érable calme")).not.toBeInTheDocument();
 
 		expect(

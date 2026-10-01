@@ -11,10 +11,11 @@ function Page() {
 				Cette page décrit le fonctionnement de la bêta et ses limites. L’accès
 				aux situations fictives et aux API nécessite une invitation valide.
 			</p>
-			<h2>Pseudonyme et identité</h2>
+			<h2>Anonymat et identité</h2>
 			<p>
 				Aucun nom réel ni email n’est nécessaire pour une session anonyme. Un
-				pseudonyme accompagne vos situations fictives. L’administration technique peut relier
+				pseudonyme interne relie votre session à vos situations fictives. Si elles sont publiées,
+				elles apparaissent sous « Auteur anonyme », sans pseudonyme public. L’administration technique peut relier
 				une session à ses pseudonymes : cette séparation ne constitue pas une garantie
 				d’anonymat absolu. Un récit peut également contenir des détails
 				identifiants ; utilisez uniquement des situations fictives.

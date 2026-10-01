@@ -24,7 +24,7 @@ function ThreadContent({
 				Retour aux situations fictives
 			</Link>
 			<p className="text-sm text-muted-foreground">
-				Publication sous pseudonyme · Situation fictive de bêta
+				Auteur anonyme · Situation fictive de bêta
 			</p>
 			<h1 className="break-words font-serif text-3xl font-semibold">
 				{thread.title}

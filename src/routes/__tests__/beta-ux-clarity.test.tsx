@@ -42,6 +42,9 @@ describe("Private beta orientation and external help", () => {
 	it("uses the same statuses, recovery code and privacy limits in FAQ", () => {
 		const { container } = render(<FaqSection />);
 		expect(container).toHaveTextContent("À examiner, Publiée ou Non publiée");
+		expect(container).toHaveTextContent("Auteur anonyme");
+		expect(container).toHaveTextContent("reste interne");
+		expect(container).not.toHaveTextContent("Le pseudonyme est affiché si");
 		expect(container).toHaveTextContent("Mes situations fictives");
 		expect(container).toHaveTextContent("code de récupération");
 		expect(container).toHaveTextContent("L’administration technique peut relier votre session à ses pseudonymes");
