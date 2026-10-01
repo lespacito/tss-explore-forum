@@ -7,8 +7,8 @@ const faqs = [
 		a: "Seules les personnes invitées peuvent consulter cette bêta. Chaque situation fictive est examinée par la modération ; elle devient visible uniquement si sa publication est validée. Aucun récit personnel n’est demandé.",
 	},
 	{
-		q: "Que protège mon pseudonyme ?",
-		a: "Le pseudonyme est affiché si votre situation fictive est publiée. Il ne garantit pas un anonymat absolu. L’administration technique peut relier votre session à ses pseudonymes ; le contenu peut aussi permettre de vous reconnaître. Évitez les noms, lieux précis et autres détails identifiants.",
+		q: "Que signifie « Auteur anonyme » ?",
+		a: "Si votre situation fictive est publiée, elle apparaît sous « Auteur anonyme ». Le pseudonyme reste interne et n’est pas affiché publiquement. Ce libellé ne garantit pas un anonymat absolu. L’administration technique peut relier votre session à ses pseudonymes ; le contenu peut aussi permettre de vous reconnaître. Évitez les noms, lieux précis et autres détails identifiants.",
 	},
 	{
 		q: "À quoi servent les deux codes ?",

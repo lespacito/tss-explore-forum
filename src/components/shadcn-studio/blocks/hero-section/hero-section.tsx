@@ -29,8 +29,8 @@ const steps: JourneyStep[] = [
 	},
 	{
 		number: "02",
-		title: "Pseudonyme",
-		copy: "Un pseudonyme est généré pour cette session. Aucun nom ni e-mail n’est demandé.",
+		title: "Session anonyme",
+		copy: "Aucun nom ni e-mail n’est demandé. Une situation publiée apparaît sous « Auteur anonyme ».",
 		note: "VOTRE PARCOURS · VOS REPÈRES",
 		Icon: UserRound,
 	},
@@ -76,7 +76,7 @@ function JourneyPanel({ step, index }: { step: JourneyStep; index: number }) {
 						<code>••••-••••-••••</code>
 					</div>
 				)}
-				{index === 1 && <span className="landing-alias-line">Mon pseudonyme</span>}
+				{index === 1 && <span className="landing-alias-line">Auteur anonyme</span>}
 				{step.stamp && (
 					<strong className="landing-status-stamp">{step.stamp}</strong>
 				)}
@@ -146,7 +146,7 @@ export default function HeroSection() {
 				</h2>
 				<p>
 					Une expérimentation en Suisse romande pour vérifier qu’un parcours
-					sous pseudonyme, modéré et sans inscription par email reste compréhensible.
+					sans identité publique, modéré et sans inscription par email reste compréhensible.
 				</p>
 				<span>
 					DES REPÈRES

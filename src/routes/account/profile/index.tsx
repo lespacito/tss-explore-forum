@@ -134,11 +134,12 @@ function Profile() {
 					<div className="flex items-center gap-3">
 						<dt className="text-sm text-muted-foreground">Type de session</dt>
 						<Badge variant={user.isAnonymous ? "outline" : "default"}>
-							{user.isAnonymous ? "Session sous pseudonyme" : "Compte"}
+							{user.isAnonymous ? "Session anonyme" : "Compte"}
 						</Badge>
 					</div>
 					<p className="text-sm text-muted-foreground leading-relaxed">
-						Si une situation fictive est publiée, elle apparaît sous votre pseudonyme.
+						Si une situation fictive est publiée, elle apparaît sous « Auteur anonyme ».
+						Votre pseudonyme reste interne et n’est pas affiché publiquement.
 						L’administration technique peut relier votre session à ses pseudonymes ;
 						le contenu peut aussi permettre de vous reconnaître.
 					</p>
