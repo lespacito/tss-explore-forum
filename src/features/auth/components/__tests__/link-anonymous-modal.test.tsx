@@ -30,16 +30,16 @@ it.each(["Escape", "outside"])("continues verification on %s dismissal", async (
 	expect(onClose).toHaveBeenCalledTimes(1);
 	expect(linkAnonymousAccountFn).not.toHaveBeenCalled();
 });
-it("completes verification after a committed transfer even if signout fails", async () => {
+it.each([0, 1, 2])("passes the guaranteed success count %i and completes verification even if signout fails", async (count) => {
 	const onSuccess = vi.fn();
 	const onClose = vi.fn();
-	vi.mocked(linkAnonymousAccountFn).mockResolvedValue({ success: true, linkedPostsCount: 1 });
+	vi.mocked(linkAnonymousAccountFn).mockResolvedValue({ success: true, linkedPostsCount: count });
 	vi.mocked(signOut).mockRejectedValueOnce(new Error("offline"));
 	render(<LinkAnonymousModal isOpen onClose={onClose} anonymousUserId="source" newUserId="destination" email="new@example.com" onLinkSuccess={onSuccess} />);
 	const user = userEvent.setup();
 	await user.type(screen.getByLabelText(/mot de passe du nouveau compte/i), "password");
 	await user.click(screen.getByRole("button", { name: /oui, lier/i }));
-	await waitFor(() => expect(onSuccess).toHaveBeenCalledWith(1));
+	await waitFor(() => expect(onSuccess).toHaveBeenCalledWith(count));
 	expect(onClose).toHaveBeenCalledTimes(1);
 });
 beforeEach(() => vi.clearAllMocks());

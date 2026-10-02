@@ -109,7 +109,7 @@ export function LinkAnonymousModal({
 					toast.info("Publications liées. Veuillez vérifier votre email pour vous connecter au compte enregistré.");
 				}
 
-				onLinkSuccess?.(result.linkedPostsCount || 0);
+				onLinkSuccess?.(result.linkedPostsCount);
 				onClose();
 			} else {
 				logger.error("Failed to link anonymous account", {

@@ -11,6 +11,10 @@ import { consumeLinkAttempt } from "@/features/auth/lib/security/link-attempt-li
 import { getAuthSession } from "@/features/auth/server/get-auth-session";
 import { logger } from "@/lib/logger/server";
 
+export type LinkAnonymousAccountResult =
+	| { success: true; linkedPostsCount: number }
+	| { success: false; error: string };
+
 /** Both accounts must be proven: the anonymous session and destination password.
  * This transfers content, not a session; email verification remains required.
  * The source account/code is retained, but cannot recover transferred aliases.
@@ -22,7 +26,7 @@ export const linkAnonymousAccountFn = createServerFn({ method: "POST" })
 			password: z.string().min(1).max(128),
 		}),
 	)
-	.handler(async ({ data }) => {
+	.handler(async ({ data }): Promise<LinkAnonymousAccountResult> => {
 		const session = await getAuthSession();
 		if (!session.isAuthenticated || !session.user?.isAnonymous) {
 			return {
@@ -88,7 +92,7 @@ export const linkAnonymousAccountFn = createServerFn({ method: "POST" })
 			) {
 				return { success: false, error: "Identifiants invalides" };
 			}
-			return await db.transaction(async (tx) => {
+			return await db.transaction(async (tx): Promise<LinkAnonymousAccountResult> => {
 				// Every linkage touching either owner acquires user locks in the same order.
 				const owners = await tx
 					.select()
