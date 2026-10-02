@@ -1,104 +1,172 @@
 import { createServerFn } from "@tanstack/react-start";
-import { eq } from "drizzle-orm";
+import { getRequest, getRequestIP } from "@tanstack/react-start/server";
+import { asc, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import { alias } from "@/db/schemas/alias";
+import { account, session as sessionTable, user } from "@/db/schemas/user";
+import { auth } from "@/features/auth/lib/auth";
+import { protectAuthEndpoint } from "@/features/auth/lib/security/arcjet-policies";
+import { consumeLinkAttempt } from "@/features/auth/lib/security/link-attempt-limiter";
 import { getAuthSession } from "@/features/auth/server/get-auth-session";
 import { logger } from "@/lib/logger/server";
 
-/**
- * Server Function pour lier un compte anonyme à un compte enregistré
- *
- * Story 1.4 - Task 4: Implémenter liaison de compte anonyme
- *
- * Fonctionnalités:
- * - Vérification d'authentification (session active requise)
- * - Validation que le newUserId correspond à la session
- * - Migration des alias anonymes vers compte enregistré
- * - Préservation du compte anonyme et du secretCode (AC2)
- * - Logging pour audit trail
- *
- * Flux:
- * 1. Vérifier l'authentification
- * 2. Migrer tous les alias de l'anonyme vers le nouveau compte
- * 3. Logger la liaison pour audit
- * 4. Retourner le nombre d'alias migrés
- *
- * Note importante:
- * Les threads, posts et comments suivent automatiquement car ils sont liés aux alias
- * via aliasId, pas directement au user.
- * Le compte anonyme N'EST PAS supprimé pour préserver le secretCode (AC2).
+/** Both accounts must be proven: the anonymous session and destination password.
+ * This transfers content, not a session; email verification remains required.
+ * The source account/code is retained, but cannot recover transferred aliases.
  */
 export const linkAnonymousAccountFn = createServerFn({ method: "POST" })
 	.validator(
 		z.object({
-			anonymousUserId: z.string(),
-			newUserId: z.string(),
+			email: z.email().max(254),
+			password: z.string().min(1).max(128),
 		}),
 	)
 	.handler(async ({ data }) => {
-		const { newUserId, anonymousUserId } = data;
-
-		// Vérification d'authentification
-		const authContext = await getAuthSession();
-
-		if (!authContext.isAuthenticated || !authContext.user) {
-			logger.warn("Unauthenticated attempt to link anonymous account", {
-				anonymousUserId,
-				newUserId,
-			});
+		const session = await getAuthSession();
+		if (!session.isAuthenticated || !session.user?.isAnonymous) {
 			return {
 				success: false,
-				error: "Vous devez être connecté pour lier un compte",
+				error: "Une session anonyme est requise pour lier vos publications",
 			};
 		}
-
-		// Vérifier que le newUserId correspond à l'utilisateur authentifié
-		if (authContext.user.id !== newUserId) {
-			logger.warn("User ID mismatch in link anonymous account", {
-				sessionUserId: authContext.user.id,
-				claimedNewUserId: newUserId,
-				anonymousUserId,
-			});
-			return {
-				success: false,
-				error: "Identifiant utilisateur invalide",
-			};
-		}
-
 		try {
-			// Migrer tous les alias de l'utilisateur anonyme vers le nouveau compte
-			// Tous les threads, posts et comments suivent automatiquement car ils sont liés aux alias
-			const updatedAliases = await db
-				.update(alias)
-				.set({ userId: newUserId })
-				.where(eq(alias.userId, anonymousUserId))
-				.returning();
-
-			logger.info("Aliases migrated to new account", {
-				anonymousUserId,
-				newUserId,
-				aliasCount: updatedAliases.length,
+			if (
+				!consumeLinkAttempt(data.email, getRequestIP({ xForwardedFor: false }))
+			) {
+				return {
+					success: false,
+					error:
+						"Liaison temporairement indisponible. Veuillez réessayer plus tard.",
+				};
+			}
+			const decision = await protectAuthEndpoint({
+				request: getRequest(),
+				path: "/auth/link-anonymous",
 			});
-
-			// Le compte anonyme est préservé avec son secretCode (AC2)
-			// L'utilisateur peut toujours récupérer ses données via le code secret
-
-			return {
-				success: true,
-				linkedPostsCount: updatedAliases.length,
-			};
-		} catch (error: any) {
-			logger.error("Failed to link anonymous account", {
-				anonymousUserId,
-				newUserId,
-				error: error.message,
-				stack: error.stack,
+			if (decision.isDenied() || decision.isErrored()) {
+				return {
+					success: false,
+					error:
+						"Liaison temporairement indisponible. Veuillez réessayer plus tard.",
+				};
+			}
+			const context = await auth.$context;
+			// internalAdapter's base-user type omits fields supplied by installed plugins.
+			const source = (await context.internalAdapter.findUserById(
+				session.user.id,
+			)) as {
+				id: string;
+				isAnonymous?: boolean;
+				banned?: boolean;
+				role?: string;
+			} | null;
+			if (!source?.isAnonymous || source.banned || source.role === "BANNED")
+				return { success: false, error: "Identifiants invalides" };
+			const destination = await context.internalAdapter.findUserByEmail(
+				data.email.toLowerCase(),
+				{ includeAccounts: true },
+			);
+			const target = destination?.user as
+				| { id: string; isAnonymous?: boolean; banned?: boolean; role?: string }
+				| undefined;
+			const credential = destination?.accounts.find(
+				(account) => account.providerId === "credential",
+			);
+			if (
+				!destination ||
+				!target ||
+				target.isAnonymous ||
+				target.banned ||
+				target.role === "BANNED" ||
+				target.id === source.id ||
+				!credential?.password ||
+				!(await context.password.verify({
+					hash: credential.password,
+					password: data.password,
+				}))
+			) {
+				return { success: false, error: "Identifiants invalides" };
+			}
+			return await db.transaction(async (tx) => {
+				// Every linkage touching either owner acquires user locks in the same order.
+				const owners = await tx
+					.select()
+					.from(user)
+					.where(inArray(user.id, [source.id, target.id]))
+					.orderBy(asc(user.id))
+					.for("update");
+				const freshSource = owners.find((owner) => owner.id === source.id);
+				const freshTarget = owners.find((owner) => owner.id === target.id);
+				if (
+					!freshSource?.isAnonymous ||
+					freshSource.banned ||
+					freshSource.role === "BANNED" ||
+					!freshTarget ||
+					freshTarget.isAnonymous ||
+					freshTarget.banned ||
+					freshTarget.role === "BANNED" ||
+					freshTarget.email.toLowerCase() !== data.email.toLowerCase()
+				) {
+					return { success: false, error: "Identifiants invalides" };
+				}
+				const [freshCredential] = await tx
+					.select()
+					.from(account)
+					.where(eq(account.id, credential.id))
+					.for("update");
+				if (
+					!freshCredential ||
+					freshCredential.userId !== target.id ||
+					freshCredential.providerId !== "credential" ||
+					freshCredential.password !== credential.password
+				) {
+					return { success: false, error: "Identifiants invalides" };
+				}
+				const [freshSession] = await tx
+					.select()
+					.from(sessionTable)
+					.where(eq(sessionTable.id, session.session?.id || ""))
+					.for("update");
+				if (
+					!freshSession ||
+					freshSession.userId !== source.id ||
+					freshSession.token !== session.session?.token ||
+					freshSession.expiresAt.getTime() <= Date.now()
+				) {
+					return { success: false, error: "Identifiants invalides" };
+				}
+				const ownedAliases = await tx
+					.select()
+					.from(alias)
+					.where(inArray(alias.userId, [source.id, target.id]))
+					.orderBy(asc(alias.id))
+					.for("update");
+				const primary =
+					ownedAliases.find(
+						(row) => row.userId === target.id && row.isPrimary,
+					) ??
+					ownedAliases.find(
+						(row) => row.userId === source.id && row.isPrimary,
+					) ??
+					ownedAliases[0];
+				if (!primary)
+					return { success: false, error: "Aucune publication à lier" };
+				const updatedAliases = await tx
+					.update(alias)
+					.set({ userId: destination.user.id })
+					.where(eq(alias.userId, source.id))
+					.returning();
+				await tx
+					.update(alias)
+					.set({ isPrimary: sql`${alias.id} = ${primary.id}` })
+					.where(eq(alias.userId, target.id))
+					.returning();
+				return { success: true, linkedPostsCount: updatedAliases.length };
 			});
-
-			return {
-				success: false,
-				error: "Erreur lors de la liaison du compte",
-			};
+		} catch {
+			// Never log credentials or provider exceptions that could include them.
+			logger.error("Failed to link anonymous account", {});
+			return { success: false, error: "Erreur lors de la liaison du compte" };
 		}
 	});

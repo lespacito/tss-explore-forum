@@ -19,34 +19,23 @@ import { generateAlias } from "./generate-alias";
  * ```
  */
 export async function createPrimaryAlias(userId: string) {
-	let aliasName = generateAlias();
-	let attempts = 0;
 	const maxAttempts = 10;
-
-	// Boucle pour éviter les doublons
-	while (attempts < maxAttempts) {
-		const existing = await findAliasByName(aliasName);
-
-		if (!existing) {
-			break;
-		}
-
-		aliasName = generateAlias();
-		attempts++;
+	for (let attempts = 0; attempts < maxAttempts; attempts++) {
+		const aliasName = generateAlias();
+		if (await findAliasByName(aliasName)) continue;
+		// The database helper locks/rechecks the owner even if the hook saw absence.
+		// A raced name conflict returns no row; retry in a fresh transaction.
+		const created = await createAliasRecord({
+			userId,
+			alias: aliasName,
+			isPrimary: true,
+			rotationEnabled: false,
+		});
+		if (created) return created;
 	}
-
-	if (attempts >= maxAttempts) {
-		throw new Error(
-			"Impossible de générer un alias unique après plusieurs tentatives",
-		);
-	}
-
-	return await createAliasRecord({
-		userId,
-		alias: aliasName,
-		isPrimary: true,
-		rotationEnabled: false,
-	});
+	throw new Error(
+		"Impossible de générer un alias unique après plusieurs tentatives",
+	);
 }
 
 /**

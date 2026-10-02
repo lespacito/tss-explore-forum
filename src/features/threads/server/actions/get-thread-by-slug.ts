@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { toPublicThread } from "../../schemas/public-thread";
 import { getThreadBySlug } from "../db/thread-queries";
 
 const getThreadBySlugSchema = z.object({
@@ -19,5 +20,5 @@ export const getThreadBySlugFn = createServerFn({ method: "GET" })
 			throw new Error("Thread not found");
 		}
 
-		return thread;
+		return toPublicThread(thread);
 	});

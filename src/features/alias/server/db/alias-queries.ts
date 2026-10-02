@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { alias } from "@/db/schemas/alias";
+import { user } from "@/db/schemas/user";
 
 /**
  * Find alias by name
@@ -122,7 +123,9 @@ export async function getAliasById(aliasId: string) {
 
 /**
  * Create a new alias record
- * Pure database insert - no uniqueness validation (caller's responsibility)
+ * Secondary aliases use a plain insert. Primary aliases lock their owner and
+ * recheck after locking, sharing linkage's transaction protocol.
+ * A primary name conflict returns undefined so the generator can retry.
  *
  * @param data - Alias creation data
  * @param data.userId - The user ID this alias belongs to
@@ -147,6 +150,29 @@ export async function createAliasRecord(data: {
 	isPrimary: boolean;
 	rotationEnabled: boolean;
 }) {
+	if (data.isPrimary) {
+		return await db.transaction(async (tx) => {
+			// Share linkage's owner-row lock; never trust the hook's earlier read.
+			const [owner] = await tx
+				.select({ id: user.id })
+				.from(user)
+				.where(eq(user.id, data.userId))
+				.for("update");
+			if (!owner) throw new Error("Alias owner not found");
+			const [existing] = await tx
+				.select()
+				.from(alias)
+				.where(and(eq(alias.userId, data.userId), eq(alias.isPrimary, true)))
+				.limit(1);
+			if (existing) return existing;
+			const [created] = await tx
+				.insert(alias)
+				.values(data)
+				.onConflictDoNothing({ target: alias.alias })
+				.returning();
+			return created;
+		});
+	}
 	const [newAlias] = await db.insert(alias).values(data).returning();
 
 	return newAlias;

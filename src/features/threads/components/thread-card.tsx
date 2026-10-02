@@ -28,9 +28,6 @@ interface ThreadCardProps {
 		isSensitive?: boolean;
 		createdAt: Date | string;
 		updatedAt: Date | string;
-		aliasName: string | null;
-		aliasId: string | null;
-		displayUsername: string | null;
 	};
 }
 

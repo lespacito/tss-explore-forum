@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { threadCategoryIds } from "@/data/threads-categories";
+import { toPublicThread } from "../../schemas/public-thread";
 import {
 	getAllPublishedThreads,
 	getPublishedThreadsByCategory,
@@ -14,7 +15,7 @@ import {
  */
 export const getThreadsFn = createServerFn({ method: "GET" }).handler(
 	async () => {
-		return await getAllPublishedThreads();
+		return (await getAllPublishedThreads()).map(toPublicThread);
 	},
 );
 
@@ -24,5 +25,5 @@ export { getThreadsFn as getThreadsCached };
 export const getThreadsByCategoryFn = createServerFn({ method: "GET" })
 	.validator(z.object({ category: z.enum(threadCategoryIds) }))
 	.handler(async ({ data }) => {
-		return await getPublishedThreadsByCategory(data.category);
+		return (await getPublishedThreadsByCategory(data.category)).map(toPublicThread);
 	});

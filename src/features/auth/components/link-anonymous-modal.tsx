@@ -1,5 +1,7 @@
 import { AlertCircle, Link2, X } from "lucide-react";
-import { useState } from "react";
+import { useId, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -44,6 +46,7 @@ interface LinkAnonymousModalProps {
 	anonymousUserId: string;
 	/** ID du nouveau compte enregistré (après signup) */
 	newUserId: string | null;
+	email: string;
 	/** Callback après liaison réussie */
 	onLinkSuccess?: (linkedPostsCount: number) => void;
 	/** Callback si refus de liaison */
@@ -55,10 +58,13 @@ export function LinkAnonymousModal({
 	onClose,
 	anonymousUserId,
 	newUserId,
+	email,
 	onLinkSuccess,
 	onLinkDecline,
 }: LinkAnonymousModalProps) {
 	const [isLinking, setIsLinking] = useState(false);
+	const [password, setPassword] = useState("");
+	const passwordId = useId();
 
 	const handleLinkAccount = async () => {
 		setIsLinking(true);
@@ -75,7 +81,7 @@ export function LinkAnonymousModal({
 
 		try {
 			const result = await linkAnonymousAccountFn({
-				data: { anonymousUserId, newUserId },
+				data: { email, password },
 			});
 
 			if (result.success) {
@@ -95,13 +101,13 @@ export function LinkAnonymousModal({
 					newUserId,
 				});
 
-				await signOut({
-					fetchOptions: {
-						onSuccess: () => {
-							logger.info("Anonymous session signed out successfully");
-						},
-					},
-				});
+				try {
+					await signOut();
+				} catch {
+					// The transfer is already committed; do not present a signout
+					// failure as a failed transfer or prevent email verification.
+					toast.info("Publications liées. Veuillez vérifier votre email pour vous connecter au compte enregistré.");
+				}
 
 				onLinkSuccess?.(result.linkedPostsCount || 0);
 				onClose();
@@ -123,11 +129,13 @@ export function LinkAnonymousModal({
 
 			toast.error("Une erreur est survenue lors de la liaison");
 		} finally {
+			setPassword("");
 			setIsLinking(false);
 		}
 	};
 
 	const handleDecline = () => {
+		setPassword("");
 		logger.info("User declined anonymous account linking", {
 			anonymousUserId,
 		});
@@ -141,7 +149,12 @@ export function LinkAnonymousModal({
 	};
 
 	return (
-		<Dialog open={isOpen} onOpenChange={onClose}>
+		<Dialog
+			open={isOpen}
+			onOpenChange={(open) => {
+				if (!open && !isLinking) handleDecline();
+			}}
+		>
 			<DialogContent className="sm:max-w-[500px]">
 				<DialogHeader>
 					<DialogTitle className="flex items-center gap-2">
@@ -175,7 +188,9 @@ export function LinkAnonymousModal({
 								</li>
 								<li>Vous pourrez les gérer depuis votre compte enregistré</li>
 								<li>
-									Votre code de récupération reste fonctionnel pour la récupération
+									Votre code anonyme ne permet plus de récupérer les
+									publications liées. Utilisez la connexion ou la récupération
+									par email du compte enregistré.
 								</li>
 							</ul>
 						</div>
@@ -198,6 +213,18 @@ export function LinkAnonymousModal({
 					</div>
 				</div>
 
+				<div className="space-y-2">
+					<Label htmlFor={passwordId}>Mot de passe du nouveau compte</Label>
+					<Input
+						id={passwordId}
+						type="password"
+						autoComplete="current-password"
+						value={password}
+						onChange={(event) => setPassword(event.target.value)}
+						disabled={isLinking}
+						maxLength={128}
+					/>
+				</div>
 				<DialogFooter className="gap-2 sm:gap-0">
 					<Button
 						type="button"
@@ -212,7 +239,7 @@ export function LinkAnonymousModal({
 					<Button
 						type="button"
 						onClick={handleLinkAccount}
-						disabled={isLinking}
+						disabled={isLinking || !password || !email}
 						className="gap-2"
 					>
 						<Link2 className="h-4 w-4" />

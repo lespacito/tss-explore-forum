@@ -1,4 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getAuthSession } from "@/features/auth/server/get-auth-session";
+import { assertModerator } from "@/features/moderation/server/thread-moderation";
 import { getFeedbackList } from "./db/feedback-queries";
 
 /**
@@ -7,6 +9,8 @@ import { getFeedbackList } from "./db/feedback-queries";
  */
 export const getFeedbackListFn = createServerFn({ method: "GET" }).handler(
 	async () => {
+		const session = await getAuthSession();
+		assertModerator(session.user);
 		return await getFeedbackList();
 	},
 );

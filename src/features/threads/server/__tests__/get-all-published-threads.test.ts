@@ -155,17 +155,20 @@ describe("getAllPublishedThreads", () => {
 				body: "<p>Content</p>",
 				slug: "thread-about-violence",
 				category: "VIOLENCE",
-				aliasName: "brave-fox",
-				aliasId: "alias-1",
-				displayUsername: "BraveFox",
 			});
 		});
 
-		it("should handle null displayUsername without error", async () => {
+		it("does not return author correlation fields even if a row contains them", async () => {
 			const results = await getAllPublishedThreads();
 
-			expect(results[1].displayUsername).toBeNull();
-			expect(results[1].aliasName).toBe("quiet-owl");
+			for (const thread of results) {
+				for (const field of ["aliasName", "aliasId", "displayUsername", "userId", "authorId"]) {
+					expect(thread).not.toHaveProperty(field);
+				}
+			}
+			expect(mockSelect.mock.calls[0][0]).not.toHaveProperty("aliasId");
+			expect(mockSelect.mock.calls[0][0]).not.toHaveProperty("aliasName");
+			expect(mockSelect.mock.calls[0][0]).not.toHaveProperty("displayUsername");
 		});
 
 		it("should not expose userId in results (AR25 anonymity)", async () => {
@@ -207,9 +210,7 @@ describe("getAllPublishedThreads", () => {
 				"category",
 				"createdAt",
 				"updatedAt",
-				"aliasName",
-				"aliasId",
-				"displayUsername",
+				"isSensitive",
 			];
 
 			for (const field of requiredFields) {

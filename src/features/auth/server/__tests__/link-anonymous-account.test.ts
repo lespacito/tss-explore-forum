@@ -1,359 +1,314 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-/**
- * Tests for link-anonymous-account Server Function
- *
- * Story 1.4 - Task 4: Implémenter liaison de compte anonyme
- *
- * Tests the handler logic directly since createServerFn is hard to test.
- * Pattern: Same as signin-with-secret-code.test.ts in this codebase.
- *
- * Test coverage:
- * - Authentication verification (CRITICAL-3 fix)
- * - User ID mismatch detection
- * - Alias migration from anonymous to registered user
- * - SecretCode preservation (AC2 - anonymous user NOT deleted)
- * - Audit logging
- * - Error handling and structured responses
- */
-
-// Mock server-side dependencies BEFORE imports
-vi.mock("@/data/env/server", () => ({
-	env: {
-		NODE_ENV: "test",
-		SERVICE_NAME: "test-service",
-		DATABASE_URL: "postgresql://test",
-		BETTER_AUTH_SECRET: "test-secret",
-		BETTER_AUTH_URL: "http://localhost:3000",
-	},
+const mocks = vi.hoisted(() => ({
+	select: vi.fn(),
+	transaction: vi.fn(),
+	lockedRows: {} as Record<string, Record<string, unknown>[]>,
+	session: vi.fn(),
+	update: vi.fn(),
+	set: vi.fn(),
+	where: vi.fn(),
+	returning: vi.fn(),
+	findUserById: vi.fn(),
+	findUserByEmail: vi.fn(),
+	verify: vi.fn(),
+	hash: vi.fn(),
+	protect: vi.fn(),
+	consume: vi.fn(),
+	ip: vi.fn(),
 }));
-
-vi.mock("@/lib/logger/server", () => ({
-	logger: {
-		info: vi.fn(),
-		warn: vi.fn(),
-		error: vi.fn(),
-		debug: vi.fn(),
-	},
+vi.mock("@tanstack/react-start", () => ({
+	createServerFn: () => ({
+		validator: (schema: { parse: (data: unknown) => unknown }) => ({
+			handler:
+				(handler: (input: { data: unknown }) => unknown) =>
+				(input: { data: unknown }) =>
+					handler({ data: schema.parse(input.data) }),
+		}),
+	}),
 }));
-
-// Mock getAuthSession
+vi.mock("@tanstack/react-start/server", () => ({
+	getRequest: () => new Request("http://localhost/link", { headers: { "x-forwarded-for": "attacker" } }),
+	getRequestIP: mocks.ip,
+}));
+vi.mock("@/features/auth/lib/security/link-attempt-limiter", async (importOriginal) => ({
+	...await importOriginal<typeof import("@/features/auth/lib/security/link-attempt-limiter")>(),
+	consumeLinkAttempt: mocks.consume,
+}));
+vi.mock("@/features/auth/lib/security/arcjet-policies", () => ({
+	protectAuthEndpoint: mocks.protect,
+}));
 vi.mock("@/features/auth/server/get-auth-session", () => ({
-	getAuthSession: vi.fn(),
+	getAuthSession: mocks.session,
 }));
-
-// Mock database - matching the real import path @/db
-const mockReturning = vi.fn();
-const mockWhere = vi.fn(() => ({ returning: mockReturning }));
-const mockSet = vi.fn(() => ({ where: mockWhere }));
-const mockUpdate = vi.fn(() => ({ set: mockSet }));
-
-vi.mock("@/db", () => ({
-	db: {
-		update: mockUpdate,
+vi.mock("@/features/auth/lib/auth", () => ({
+	auth: {
+		$context: Promise.resolve({
+			internalAdapter: {
+				findUserByEmail: mocks.findUserByEmail,
+				findUserById: mocks.findUserById,
+			},
+			password: { verify: mocks.verify, hash: mocks.hash },
+		}),
 	},
 }));
-
-vi.mock("@/db/schemas/alias", () => ({
-	alias: { userId: "userId" },
+vi.mock("@/db", () => ({ db: { update: mocks.update, select: mocks.select, transaction: mocks.transaction } }));
+vi.mock("@/lib/logger/server", () => ({
+	logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
 }));
+import { createLinkAttemptLimiter } from "@/features/auth/lib/security/link-attempt-limiter";
+import { linkAnonymousAccountFn } from "../link-anonymous-account";
+import { findUserBySecretCode } from "@/features/auth/lib/find-user-by-code";
 
-// Import after mocks
-import { getAuthSession } from "@/features/auth/server/get-auth-session";
-import { logger } from "@/lib/logger/server";
+import { getTableName } from "drizzle-orm";
+import { PgDialect } from "drizzle-orm/pg-core";
 
-const mockGetAuthSession = vi.mocked(getAuthSession);
+// The identity-chain mock runs the actual imported handler and its real validator.
+const invoke = async (data: Record<string, unknown>) =>
+	linkAnonymousAccountFn({ data } as never);
+const proof = { email: "new@example.com", password: "destination-password" };
+describe("linkAnonymousAccountFn account ownership", () => {
+	it("real quota stops password attempts across renewable anonymous sessions with Arcjet allowing", async () => {
+		mocks.consume.mockImplementation(createLinkAttemptLimiter());
+		mocks.verify.mockResolvedValue(false);
+		for (let index = 0; index < 6; index++) {
+			mocks.session.mockResolvedValue({ isAuthenticated: true, session: { id: `session-${index}`, token: `token-${index}` }, user: { id: `source-${index}`, isAnonymous: true } });
+			mocks.ip.mockReturnValue(`192.0.2.${index + 1}`);
+			await invoke(proof);
+		}
+		expect(mocks.verify).toHaveBeenCalledTimes(5);
+		expect(mocks.findUserByEmail).toHaveBeenCalledTimes(5);
+	});
+	it("bounds the submitted email before lookup or sensitive-attempt storage", async () => {
+		await expect(invoke({ ...proof, email: `${"a".repeat(250)}@example.com` })).rejects.toThrow();
+		expect(mocks.findUserByEmail).not.toHaveBeenCalled();
+	});
+	it.each(["source", "target"])("rejects banned %s role before password work", async (which) => {
+		mocks.session.mockResolvedValue({ isAuthenticated: true, session: { id: "session", token: "token" }, user: { id: "source", isAnonymous: true } });
+		if (which === "source") mocks.findUserById.mockResolvedValue({ id: "source", isAnonymous: true, role: "BANNED" });
+		else mocks.findUserByEmail.mockResolvedValue({ user: { id: "destination", isAnonymous: false, role: "BANNED" }, accounts: [{ id: "credential", providerId: "credential", password: "hash" }] });
+		expect((await invoke(proof)).success).toBe(false);
+		expect(mocks.verify).not.toHaveBeenCalled();
+	});
+	it("enforces sensitive quota before destination lookup even when Arcjet allows", async () => {
+		mocks.session.mockResolvedValue({ isAuthenticated: true, session: { id: "session", token: "token" }, user: { id: "source", isAnonymous: true } });
+		mocks.consume.mockReturnValue(false);
+		expect((await invoke(proof)).success).toBe(false);
+		expect(mocks.findUserByEmail).not.toHaveBeenCalled();
+		expect(mocks.verify).not.toHaveBeenCalled();
+		expect(mocks.update).not.toHaveBeenCalled();
+	});
+	it.each(["192.0.2.1", undefined])("uses only runtime transport IP (%s), never forwarded headers", async (ip) => {
+		mocks.session.mockResolvedValue({ isAuthenticated: true, session: { id: "session", token: "token" }, user: { id: "source", isAnonymous: true } });
+		mocks.ip.mockReturnValue(ip);
+		await invoke(proof);
+		expect(mocks.ip).toHaveBeenCalledWith({ xForwardedFor: false });
+		expect(mocks.consume).toHaveBeenCalledWith(proof.email, ip);
+	});
+	it.each([
+		["expired session", () => { mocks.lockedRows.session[0].expiresAt = new Date(0); }],
+		["changed session owner", () => { mocks.lockedRows.session[0].userId = "victim"; }],
+		["changed session token", () => { mocks.lockedRows.session[0].token = "replacement"; }],
+		["changed source", () => { mocks.lockedRows.user[0].isAnonymous = false; }],
+		["banned source", () => { mocks.lockedRows.user[0].banned = true; }],
+		["deleted destination", () => { mocks.lockedRows.user.pop(); }],
+		["banned destination", () => { mocks.lockedRows.user[1].banned = true; }],
+		["banned destination role", () => { mocks.lockedRows.user[1].role = "BANNED"; }],
+		["anonymous destination", () => { mocks.lockedRows.user[1].isAnonymous = true; }],
+		["changed destination email", () => { mocks.lockedRows.user[1].email = "different@example.com"; }],
+		["changed password", () => { mocks.lockedRows.account[0].password = "replacement"; }],
+		["changed credential owner", () => { mocks.lockedRows.account[0].userId = "victim"; }],
+		["deleted credential", () => { mocks.lockedRows.account = []; }],
+	] as const)("rejects %s during password proof without alias effects", async (_label, change) => {
+		mocks.session.mockResolvedValue({ isAuthenticated: true, session: { id: "session", token: "token" }, user: { id: "source", isAnonymous: true } });
+		mocks.verify.mockImplementationOnce(async () => { change(); return true; });
+		expect((await invoke(proof)).success).toBe(false);
+		expect(mocks.update).not.toHaveBeenCalled();
+	});
+	it("rejects a source session revoked while destination password is verified", async () => {
+		mocks.session.mockResolvedValue({ isAuthenticated: true, session: { id: "session", token: "token" }, user: { id: "source", isAnonymous: true } });
+		mocks.verify.mockImplementationOnce(async () => { mocks.lockedRows.session = []; return true; });
+		expect((await invoke(proof)).success).toBe(false);
+		expect(mocks.update).not.toHaveBeenCalled();
+	});
 
-describe("linkAnonymousAccountFn handler logic", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-	});
-
-	describe("Authentication verification (CRITICAL-3 fix)", () => {
-		it("should reject unauthenticated requests", async () => {
-			mockGetAuthSession.mockResolvedValueOnce({
-				user: null,
-				isAuthenticated: false,
-				session: null,
-			});
-
-			// Simulate handler logic: check auth first
-			const authContext = await getAuthSession();
-
-			expect(authContext.isAuthenticated).toBe(false);
-			expect(authContext.user).toBeNull();
-
-			// Verify the handler would return an error
-			if (!authContext.isAuthenticated || !authContext.user) {
-				logger.warn("Unauthenticated attempt to link anonymous account", {
-					anonymousUserId: "anon-123",
-					newUserId: "reg-456",
-				});
-
-				const result = {
-					success: false,
-					error: "Vous devez être connecté pour lier un compte",
-				};
-
-				expect(result.success).toBe(false);
-				expect(result.error).toContain("connecté");
-			}
-
-			expect(logger.warn).toHaveBeenCalledWith(
-				"Unauthenticated attempt to link anonymous account",
-				expect.objectContaining({
-					anonymousUserId: "anon-123",
-					newUserId: "reg-456",
-				}),
-			);
-		});
-
-		it("should reject when newUserId does not match session user", async () => {
-			mockGetAuthSession.mockResolvedValueOnce({
-				user: { id: "different-user-789" } as any,
-				isAuthenticated: true,
-				session: { id: "session-1" } as any,
-			});
-
-			const authContext = await getAuthSession();
-			const newUserId = "reg-456";
-
-			// Verify the handler detects the mismatch
-			expect(authContext.user!.id).not.toBe(newUserId);
-
-			logger.warn("User ID mismatch in link anonymous account", {
-				sessionUserId: authContext.user!.id,
-				claimedNewUserId: newUserId,
-				anonymousUserId: "anon-123",
-			});
-
-			expect(logger.warn).toHaveBeenCalledWith(
-				"User ID mismatch in link anonymous account",
-				expect.objectContaining({
-					sessionUserId: "different-user-789",
-					claimedNewUserId: "reg-456",
-				}),
-			);
-		});
-
-		it("should allow when newUserId matches session user", async () => {
-			mockGetAuthSession.mockResolvedValueOnce({
-				user: { id: "reg-456" } as any,
-				isAuthenticated: true,
-				session: { id: "session-1" } as any,
-			});
-
-			const authContext = await getAuthSession();
-
-			expect(authContext.isAuthenticated).toBe(true);
-			expect(authContext.user!.id).toBe("reg-456");
-		});
-	});
-
-	describe("Alias migration (AC2)", () => {
-		it("should migrate aliases from anonymous to registered user", async () => {
-			const mockAliases = [
-				{ id: "alias-1", userId: "reg-456", alias: "anonymous_fox" },
-				{ id: "alias-2", userId: "reg-456", alias: "anonymous_bear" },
-			];
-
-			mockGetAuthSession.mockResolvedValueOnce({
-				user: { id: "reg-456" } as any,
-				isAuthenticated: true,
-				session: { id: "session-1" } as any,
-			});
-			mockReturning.mockResolvedValueOnce(mockAliases);
-
-			// Simulate the handler: auth check passes, then migrate
-			const authContext = await getAuthSession();
-			expect(authContext.user!.id).toBe("reg-456");
-
-			// Execute the DB update (handler logic)
-			const { db } = await import("@/db");
-			const { alias } = await import("@/db/schemas/alias");
-			const { eq } = await import("drizzle-orm");
-
-			const updatedAliases = await db
-				.update(alias)
-				.set({ userId: "reg-456" })
-				.where(eq(alias.userId, "anon-123"))
-				.returning();
-
-			expect(updatedAliases).toHaveLength(2);
-			expect(mockUpdate).toHaveBeenCalled();
-			expect(mockSet).toHaveBeenCalledWith({ userId: "reg-456" });
-
-			logger.info("Aliases migrated to new account", {
-				anonymousUserId: "anon-123",
-				newUserId: "reg-456",
-				aliasCount: updatedAliases.length,
-			});
-
-			expect(logger.info).toHaveBeenCalledWith(
-				"Aliases migrated to new account",
-				{
-					anonymousUserId: "anon-123",
-					newUserId: "reg-456",
-					aliasCount: 2,
-				},
-			);
-		});
-
-		it("should handle case with zero aliases to migrate", async () => {
-			mockGetAuthSession.mockResolvedValueOnce({
-				user: { id: "reg-456" } as any,
-				isAuthenticated: true,
-				session: { id: "session-1" } as any,
-			});
-			mockReturning.mockResolvedValueOnce([]);
-
-			await getAuthSession();
-
-			const { db } = await import("@/db");
-			const { alias } = await import("@/db/schemas/alias");
-			const { eq } = await import("drizzle-orm");
-
-			const updatedAliases = await db
-				.update(alias)
-				.set({ userId: "reg-456" })
-				.where(eq(alias.userId, "anon-123"))
-				.returning();
-
-			expect(updatedAliases).toHaveLength(0);
-
-			const result = {
-				success: true,
-				linkedPostsCount: updatedAliases.length,
+		mocks.consume.mockReturnValue(true);
+		mocks.ip.mockReturnValue("192.0.2.1");
+		mocks.lockedRows = {
+			user: [{ id: "source", isAnonymous: true, banned: false }, { id: "destination", email: proof.email, isAnonymous: false, banned: false }],
+			session: [{ id: "session", token: "token", userId: "source", expiresAt: new Date(Date.now() + 60000) }],
+			account: [{ id: "credential", userId: "destination", providerId: "credential", password: "hash" }],
+			alias: [{ id: "alias", userId: "source", isPrimary: true }],
+		};
+		mocks.transaction.mockImplementation(async (callback) => callback({ select: mocks.select, update: mocks.update }));
+		mocks.select.mockImplementation(() => ({ from: (table: Parameters<typeof getTableName>[0]) => {
+			const query = {
+				where: () => query,
+				orderBy: () => query,
+				for: async () => mocks.lockedRows[getTableName(table)],
 			};
-
-			expect(result.linkedPostsCount).toBe(0);
+			return query;
+		} }));
+		mocks.update.mockReturnValue({ set: mocks.set });
+		mocks.set.mockReturnValue({ where: mocks.where });
+		mocks.where.mockReturnValue({ returning: mocks.returning });
+		mocks.returning.mockResolvedValue([{ id: "alias" }]);
+		mocks.session.mockResolvedValue({
+			isAuthenticated: true,
+			session: { id: "session", token: "token" },
+			user: { id: "destination", isAnonymous: false },
+		});
+		mocks.findUserByEmail.mockResolvedValue({
+			user: { id: "destination", isAnonymous: false, banned: false },
+			accounts: [{ id: "credential", providerId: "credential", password: "hash" }],
+		});
+		mocks.findUserById.mockResolvedValue({
+			id: "source",
+			isAnonymous: true,
+			banned: false,
+		});
+		mocks.verify.mockResolvedValue(true);
+		mocks.protect.mockResolvedValue({
+			isDenied: () => false,
+			isErrored: () => false,
 		});
 	});
-
-	describe("SecretCode preservation (AC2 - CRITICAL-4 fix)", () => {
-		it("should NOT call db.delete on the anonymous user", async () => {
-			// Read the actual source file to verify no db.delete exists
-			// This is a structural test - the handler should never delete the user
-			const { linkAnonymousAccountFn } = await import(
-				"../link-anonymous-account"
-			);
-			const sourceCode = linkAnonymousAccountFn.toString();
-
-			// The function should not contain any delete operation
-			// This verifies CRITICAL-4: anonymous user account is preserved
-			expect(sourceCode).not.toContain("delete");
+	it("rejects a registered session claiming an arbitrary anonymous source", async () => {
+		const result = await invoke({
+			...proof,
+			anonymousUserId: "victim",
+			newUserId: "destination",
 		});
+		expect(result.success).toBe(false);
+		expect(mocks.update).not.toHaveBeenCalled();
 	});
-
-	describe("Error handling", () => {
-		it("should handle database errors gracefully", async () => {
-			mockGetAuthSession.mockResolvedValueOnce({
-				user: { id: "reg-456" } as any,
+	it("links only the session source to the password-proven destination before email verification", async () => {
+		mocks.session.mockResolvedValue({
+			isAuthenticated: true,
+			session: { id: "session", token: "token" },
+			user: { id: "source", isAnonymous: true },
+		});
+		const result = await invoke({
+			...proof,
+			anonymousUserId: "victim",
+			newUserId: "source",
+		});
+		expect(result.success).toBe(true);
+		expect(mocks.verify).toHaveBeenCalledWith({
+			hash: "hash",
+			password: proof.password,
+		});
+		expect(mocks.set).toHaveBeenCalledWith({ userId: "destination" });
+		expect(
+			new PgDialect().sqlToQuery(mocks.where.mock.calls[0][0]).params,
+		).toEqual(["source"]);
+	});
+	it("refuses rate-limited credential checks before looking up a destination", async () => {
+		mocks.session.mockResolvedValue({
+			isAuthenticated: true,
+			session: { id: "session", token: "token" },
+			user: { id: "source", isAnonymous: true },
+		});
+		mocks.protect.mockResolvedValue({
+			isDenied: () => true,
+			isErrored: () => false,
+		});
+		expect((await invoke(proof)).success).toBe(false);
+		expect(mocks.findUserByEmail).not.toHaveBeenCalled();
+		expect(mocks.update).not.toHaveBeenCalled();
+	});
+	it("documents actual recovery after linking: code recovers only source, not transferred aliases", async () => {
+		const source = { id: "source", isAnonymous: true, secretCode: "ABCD-EFGH" };
+		const storedAliases = [{ id: "alias", userId: source.id }];
+		mocks.session.mockResolvedValue({ isAuthenticated: true,
+			session: { id: "session", token: "token" }, user: source });
+		mocks.findUserById.mockResolvedValue(source);
+		mocks.returning.mockImplementation(async () => {
+			const owner = mocks.set.mock.calls[0][0].userId;
+			const sourceId = new PgDialect().sqlToQuery(mocks.where.mock.calls[0][0])
+				.params[0];
+			for (const alias of storedAliases)
+				if (alias.userId === sourceId) alias.userId = owner;
+			return storedAliases;
+		});
+		expect((await invoke(proof)).success).toBe(true);
+		mocks.select.mockReturnValue({
+			from: () => ({ where: () => ({ limit: async () => [source] }) }),
+		});
+		const recovered = await findUserBySecretCode(source.secretCode);
+		expect(recovered?.id).toBe(source.id);
+		expect(
+			storedAliases.filter((alias) => alias.userId === recovered?.id),
+		).toEqual([]);
+		expect(storedAliases).toEqual([{ id: "alias", userId: "destination" }]);
+	});
+	it("rejects a wrong destination password without mutation", async () => {
+		mocks.session.mockResolvedValue({
+			isAuthenticated: true,
+			session: { id: "session", token: "token" },
+			user: { id: "source", isAnonymous: true },
+		});
+		mocks.verify.mockResolvedValue(false);
+		expect((await invoke(proof)).success).toBe(false);
+		expect(mocks.update).not.toHaveBeenCalled();
+	});
+	it("fails closed when the existing auth policy errors", async () => {
+		mocks.session.mockResolvedValue({
+			isAuthenticated: true,
+			session: { id: "session", token: "token" },
+			user: { id: "source", isAnonymous: true },
+		});
+		mocks.protect.mockResolvedValue({
+			isDenied: () => false,
+			isErrored: () => true,
+		});
+		expect((await invoke(proof)).success).toBe(false);
+		expect(mocks.verify).not.toHaveBeenCalled();
+	});
+	it.each([
+		["missing source", null, { id: "destination", isAnonymous: false }],
+		[
+			"changed source",
+			{ id: "source", isAnonymous: false },
+			{ id: "destination", isAnonymous: false },
+		],
+		[
+			"banned source",
+			{ id: "source", isAnonymous: true, banned: true },
+			{ id: "destination", isAnonymous: false },
+		],
+		[
+			"anonymous target",
+			{ id: "source", isAnonymous: true },
+			{ id: "destination", isAnonymous: true },
+		],
+		[
+			"banned target",
+			{ id: "source", isAnonymous: true },
+			{ id: "destination", isAnonymous: false, banned: true },
+		],
+		[
+			"same account",
+			{ id: "source", isAnonymous: true },
+			{ id: "source", isAnonymous: false },
+		],
+	])(
+		"rejects %s using current server account records",
+		async (_label, source, target) => {
+			mocks.session.mockResolvedValue({
 				isAuthenticated: true,
-				session: { id: "session-1" } as any,
+			session: { id: "session", token: "token" },
+				user: { id: "source", isAnonymous: true },
 			});
-			mockReturning.mockRejectedValueOnce(new Error("Connection timeout"));
-
-			await getAuthSession();
-
-			const { db } = await import("@/db");
-			const { alias } = await import("@/db/schemas/alias");
-			const { eq } = await import("drizzle-orm");
-
-			// Simulate error handling in the handler
-			try {
-				await db
-					.update(alias)
-					.set({ userId: "reg-456" })
-					.where(eq(alias.userId, "anon-123"))
-					.returning();
-			} catch (error: any) {
-				logger.error("Failed to link anonymous account", {
-					anonymousUserId: "anon-123",
-					newUserId: "reg-456",
-					error: error.message,
-					stack: error.stack,
-				});
-			}
-
-			expect(logger.error).toHaveBeenCalledWith(
-				"Failed to link anonymous account",
-				expect.objectContaining({
-					anonymousUserId: "anon-123",
-					newUserId: "reg-456",
-					error: "Connection timeout",
-				}),
-			);
-		});
-
-		it("should return structured error response on failure", async () => {
-			mockGetAuthSession.mockResolvedValueOnce({
-				user: { id: "reg-456" } as any,
-				isAuthenticated: true,
-				session: { id: "session-1" } as any,
+			mocks.findUserById.mockResolvedValue(source);
+			mocks.findUserByEmail.mockResolvedValue({
+				user: target,
+				accounts: [{ id: "credential", providerId: "credential", password: "hash" }],
 			});
-			mockReturning.mockRejectedValueOnce(new Error("DB error"));
-
-			await getAuthSession();
-
-			const { db } = await import("@/db");
-			const { alias } = await import("@/db/schemas/alias");
-			const { eq } = await import("drizzle-orm");
-
-			let result: any;
-
-			try {
-				await db
-					.update(alias)
-					.set({ userId: "reg-456" })
-					.where(eq(alias.userId, "anon-123"))
-					.returning();
-			} catch {
-				result = {
-					success: false,
-					error: "Erreur lors de la liaison du compte",
-				};
-			}
-
-			expect(result).toEqual({
-				success: false,
-				error: "Erreur lors de la liaison du compte",
-			});
-		});
-	});
-
-	describe("Return value structure", () => {
-		it("should return success with linkedPostsCount on success", async () => {
-			mockGetAuthSession.mockResolvedValueOnce({
-				user: { id: "reg-456" } as any,
-				isAuthenticated: true,
-				session: { id: "session-1" } as any,
-			});
-			mockReturning.mockResolvedValueOnce([
-				{ id: "alias-1" },
-				{ id: "alias-2" },
-			]);
-
-			await getAuthSession();
-
-			const { db } = await import("@/db");
-			const { alias } = await import("@/db/schemas/alias");
-			const { eq } = await import("drizzle-orm");
-
-			const updatedAliases = await db
-				.update(alias)
-				.set({ userId: "reg-456" })
-				.where(eq(alias.userId, "anon-123"))
-				.returning();
-
-			const result = {
-				success: true as const,
-				linkedPostsCount: updatedAliases.length,
-			};
-
-			expect(result.success).toBe(true);
-			expect(result.linkedPostsCount).toBe(2);
-			expect(result).not.toHaveProperty("error");
-		});
-	});
+			expect((await invoke(proof)).success).toBe(false);
+			expect(mocks.update).not.toHaveBeenCalled();
+		},
+	);
 });

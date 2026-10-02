@@ -1,9 +1,17 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { z } from "zod";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { BetterAuthActionButton } from "@/features/auth/components/better-auth-action-button";
 import { authClient } from "@/features/auth/lib/auth-client";
 
 export function EmailVerification({ email }: { email: string }) {
-	const [timeToNextResend, setTimeToNextResend] = useState<number>(30);
+	const [timeToNextResend, setTimeToNextResend] = useState<number>(
+		email ? 30 : 0,
+	);
+	const [manualEmail, setManualEmail] = useState("");
+	const emailId = useId();
+	const destinationEmail = email || manualEmail;
 	const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
 	const startEmailVerificationCountdown = useCallback((time = 30) => {
@@ -29,7 +37,7 @@ export function EmailVerification({ email }: { email: string }) {
 
 	useEffect(() => {
 		// Démarrer le countdown au montage du composant
-		startEmailVerificationCountdown();
+		if (email) startEmailVerificationCountdown();
 
 		// Cleanup function pour nettoyer l'interval au démontage
 		return () => {
@@ -37,7 +45,7 @@ export function EmailVerification({ email }: { email: string }) {
 				clearInterval(intervalRef.current);
 			}
 		};
-	}, [startEmailVerificationCountdown]);
+	}, [email, startEmailVerificationCountdown]);
 
 	return (
 		<div className="space-y-4">
@@ -46,15 +54,29 @@ export function EmailVerification({ email }: { email: string }) {
 				boîte de réception et cliquer sur le lien de vérification pour activer
 				votre compte.
 			</p>
+			{!email && (
+				<div className="space-y-2">
+					<Label htmlFor={emailId}>Email</Label>
+					<Input
+						id={emailId}
+						type="email"
+						autoComplete="email"
+						value={manualEmail}
+						onChange={(event) => setManualEmail(event.target.value)}
+					/>
+				</div>
+			)}
 			<BetterAuthActionButton
 				variant="outline"
 				className="w-full"
 				successMessage="Email de vérification renvoyé avec succès !"
-				disabled={timeToNextResend > 0}
+				disabled={
+					timeToNextResend > 0 || !z.email().safeParse(destinationEmail).success
+				}
 				action={() => {
 					startEmailVerificationCountdown();
 					return authClient.sendVerificationEmail({
-						email,
+						email: destinationEmail,
 						callbackURL: "/",
 					});
 				}}
