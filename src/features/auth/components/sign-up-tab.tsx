@@ -10,7 +10,6 @@ import {
 	type SignUpInput,
 	signUpSchema,
 } from "@/features/auth/schemas/sign-up-schema";
-import { sendWelcomeEmailFn } from "@/features/auth/server/send-welcome-email";
 import { logger } from "@/lib/logger/client-logger";
 import { LinkAnonymousModal } from "./link-anonymous-modal";
 
@@ -77,12 +76,6 @@ export const SignUpTab = ({
 			}
 
 			if (res.data?.user) {
-				await sendWelcomeEmailFn({
-					data: {
-						email: value.email,
-						name: value.name,
-					},
-				});
 				toast.success("Inscription réussie ! Bienvenue à bord !");
 
 				if (anonymousUserId) {
@@ -228,6 +221,7 @@ export const SignUpTab = ({
 					onClose={() => setShowLinkModal(false)}
 					anonymousUserId={anonymousUserId}
 					newUserId={pendingEmailVerification?.newUserId || null}
+					email={pendingEmailVerification?.email || ""}
 					onLinkSuccess={(count) => {
 						logger.info("Anonymous account linked successfully", {
 							linkedCount: count,

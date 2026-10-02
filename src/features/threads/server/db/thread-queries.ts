@@ -4,12 +4,12 @@ import { db } from "@/db";
 import { alias } from "@/db/schemas/alias";
 import { threads } from "@/db/schemas/thread";
 import { user } from "@/db/schemas/user";
+import { toPublicThread } from "../../schemas/public-thread";
 
 /**
- * Common thread selection pattern with alias and user data
- * Used across multiple queries to ensure consistency
+ * Public publication fields only. Author correlation stays in owner/moderation queries.
  */
-const threadWithAliasSelect = {
+const publicThreadSelect = {
 	id: threads.id,
 	title: threads.title,
 	body: threads.body,
@@ -18,9 +18,6 @@ const threadWithAliasSelect = {
 	isSensitive: threads.isSensitive,
 	createdAt: threads.createdAt,
 	updatedAt: threads.updatedAt,
-	aliasName: alias.alias,
-	aliasId: alias.id,
-	displayUsername: alias.alias,
 } as const;
 
 /**
@@ -37,7 +34,7 @@ const threadWithAliasSelect = {
  */
 export async function getAllPublishedThreads() {
 	const result = await db
-		.select(threadWithAliasSelect)
+		.select(publicThreadSelect)
 		.from(threads)
 		.where(and(eq(threads.status, "published"), isNull(threads.deletedAt)))
 		.leftJoin(alias, eq(threads.aliasId, alias.id))
@@ -45,17 +42,13 @@ export async function getAllPublishedThreads() {
 		.orderBy(desc(threads.createdAt));
 
 	// Serialize dates to ISO strings for client consumption
-	return result.map((thread) => ({
-		...thread,
-		createdAt: thread.createdAt.toISOString(),
-		updatedAt: thread.updatedAt.toISOString(),
-	}));
+	return result.map(toPublicThread);
 }
 
 /** Return published, non-deleted threads for one category. */
 export async function getPublishedThreadsByCategory(category: ThreadCategory) {
 	const result = await db
-		.select(threadWithAliasSelect)
+		.select(publicThreadSelect)
 		.from(threads)
 		.where(
 			and(
@@ -68,11 +61,7 @@ export async function getPublishedThreadsByCategory(category: ThreadCategory) {
 		.leftJoin(user, eq(alias.userId, user.id))
 		.orderBy(desc(threads.createdAt));
 
-	return result.map((thread) => ({
-		...thread,
-		createdAt: thread.createdAt.toISOString(),
-		updatedAt: thread.updatedAt.toISOString(),
-	}));
+	return result.map(toPublicThread);
 }
 
 /**
@@ -92,7 +81,7 @@ export async function getPublishedThreadsByCategory(category: ThreadCategory) {
  */
 export async function getThreadBySlug(slug: string) {
 	const [thread] = await db
-		.select(threadWithAliasSelect)
+		.select(publicThreadSelect)
 		.from(threads)
 		.leftJoin(alias, eq(threads.aliasId, alias.id))
 		.leftJoin(user, eq(alias.userId, user.id))
@@ -105,7 +94,7 @@ export async function getThreadBySlug(slug: string) {
 		)
 		.limit(1);
 
-	return thread ?? null;
+	return thread ? toPublicThread(thread) : null;
 }
 
 /**

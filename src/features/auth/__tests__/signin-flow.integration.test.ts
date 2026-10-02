@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { signIn } from "@/features/auth/lib/auth-client";
-import { getUserEmailByUsername } from "@/features/auth/server/get-user-email-by-username";
 
 // Mock Better-Auth client
 vi.mock("@/features/auth/lib/auth-client", () => ({
@@ -10,10 +9,7 @@ vi.mock("@/features/auth/lib/auth-client", () => ({
 	signOut: vi.fn(),
 }));
 
-// Mock server functions
-vi.mock("@/features/auth/server/get-user-email-by-username", () => ({
-	getUserEmailByUsername: vi.fn(),
-}));
+// Private email recovery is covered by the real SignInTab component tests.
 
 describe("Signin Flow Integration Tests", () => {
 	beforeEach(() => {
@@ -154,40 +150,6 @@ describe("Signin Flow Integration Tests", () => {
 					code: "EMAIL_NOT_VERIFIED",
 				}),
 			});
-		});
-
-		it("should fetch user email when email not verified", async () => {
-			const mockGetUserEmail = getUserEmailByUsername as ReturnType<
-				typeof vi.fn
-			>;
-			mockGetUserEmail.mockResolvedValueOnce({
-				email: "unverified@example.com",
-			});
-
-			const result = await getUserEmailByUsername({
-				data: { username: "unverifieduser" },
-			});
-
-			expect(mockGetUserEmail).toHaveBeenCalledWith({
-				data: { username: "unverifieduser" },
-			});
-
-			expect(result.email).toBe("unverified@example.com");
-		});
-
-		it("should handle missing email gracefully when verification fails", async () => {
-			const mockGetUserEmail = getUserEmailByUsername as ReturnType<
-				typeof vi.fn
-			>;
-			mockGetUserEmail.mockResolvedValueOnce({
-				email: null,
-			});
-
-			const result = await getUserEmailByUsername({
-				data: { username: "nonemailuser" },
-			});
-
-			expect(result.email).toBeNull();
 		});
 	});
 

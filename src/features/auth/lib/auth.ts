@@ -17,6 +17,7 @@ import { sendDeleteAccountVerificationEmail } from "@/features/auth/server/send-
 import { sendPasswordResetEmail } from "@/features/auth/server/send-password-reset-email";
 import { sendEmailVerificationEmail } from "@/features/auth/server/send-verification-email";
 import { logger } from "@/lib/logger/server";
+import { sendWelcomeEmail } from "@/features/auth/server/send-welcome-email";
 
 const secretCodeSchema = z.object({
 	secretCode: z
@@ -88,6 +89,16 @@ export const auth = betterAuth({
 	database: drizzleAdapter(db, {
 		provider: "pg",
 	}),
+	databaseHooks: {
+		user: {
+			create: {
+				after: async (user) => {
+					if ((user as { isAnonymous?: boolean }).isAnonymous) return;
+					await sendWelcomeEmail({ email: user.email, name: user.name });
+				},
+			},
+		},
+	},
 	plugins: [
 		credentials<
 			{
@@ -153,7 +164,7 @@ export const auth = betterAuth({
 			},
 		}),
 		username(),
-		anonymous(),
+		anonymous({ disableDeleteAnonymousUser: true }),
 		admin({
 			defaultRole: "USER",
 		}),

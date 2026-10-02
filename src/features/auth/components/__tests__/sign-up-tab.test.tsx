@@ -256,7 +256,7 @@ describe("SignUpTab Component - Task 8 Subtask 8.4", () => {
 			});
 		});
 
-		it("should send welcome email after successful signup", async () => {
+		it("does not expose welcome email sending to the signup client", async () => {
 			const user = userEvent.setup();
 			const mockSendWelcomeEmail = vi.fn().mockResolvedValue({ success: true });
 			vi.mocked(sendWelcomeEmailFn.sendWelcomeEmailFn).mockImplementation(
@@ -297,14 +297,12 @@ describe("SignUpTab Component - Task 8 Subtask 8.4", () => {
 			await waitFor(() => expect(submitButton).toBeEnabled());
 			await user.click(submitButton);
 
-			await waitFor(() => {
-				expect(mockSendWelcomeEmail).toHaveBeenCalledWith({
-					data: {
-						email: "jean@example.com",
-						name: "Jean Dupont",
-					},
-				});
-			});
+			await waitFor(() =>
+				expect(mockOpenEmailVerificationTab).toHaveBeenCalledWith(
+					"jean@example.com",
+				),
+			);
+			expect(mockSendWelcomeEmail).not.toHaveBeenCalled();
 		});
 
 		it("should open email verification tab when email is not verified", async () => {

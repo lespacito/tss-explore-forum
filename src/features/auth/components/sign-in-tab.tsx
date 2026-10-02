@@ -13,7 +13,6 @@ import {
 	type SignInInput,
 	signInSchema,
 } from "@/features/auth/schemas/sign-in-schema";
-import { getUserEmailByUsername } from "@/features/auth/server/get-user-email-by-username";
 import { logger } from "@/lib/logger";
 
 export const SignInTab = ({
@@ -59,25 +58,12 @@ export const SignInTab = ({
 						const errorCode = (error as { error?: { code?: string } }).error
 							?.code;
 						if (errorCode === "EMAIL_NOT_VERIFIED") {
-							// Récupérer l'email par username
-							try {
-								const emailResult = await getUserEmailByUsername({
-									data: { username: value.username },
-								});
-
-								if (emailResult.email) {
-									openEmailVerificationTab(emailResult.email);
-									toast.info(
-										"Veuillez vérifier votre email avant de vous connecter.",
-									);
-									return;
-								}
-							} catch (err) {
-								logger.error("Impossible de récupérer l'email", { err });
-								toast.error(
-									"Impossible de récuperer l'email. Merci de contacter le support.",
-								);
-							}
+							// No public username-to-email lookup: the user supplies their email.
+							openEmailVerificationTab("");
+							toast.info(
+								"Veuillez saisir votre email pour renvoyer le lien de vérification.",
+							);
+							return;
 						}
 
 						// Afficher le message dans un toast
