@@ -20,12 +20,14 @@ async function enterPrivateBeta(page: Page) {
 
 // The civic navbar uses one accessible trigger at every width. Compact
 // account actions live inside its menu, rather than beside the trigger.
-for (const width of [1440, 390, 320]) {
-	test(`landing reading and navigation journeys at ${width}px`, async ({
-		page,
-	}) => {
+test("landing reading and navigation journeys across viewports", async ({
+	page,
+}) => {
+	// One invited visitor resizes the viewport. Re-entering for every width
+	// would consume the real invitation limiter shared by the CI browsers.
+	await enterPrivateBeta(page);
+	for (const width of [1440, 390, 320]) {
 		await page.setViewportSize({ width, height: 900 });
-		await enterPrivateBeta(page);
 
 		const main = page.getByRole("main");
 		await expect(
@@ -133,5 +135,9 @@ for (const width of [1440, 390, 320]) {
 			"landing-footer",
 		);
 		await expect(page.locator(".landing-hero")).toHaveCount(0);
-	});
-}
+		await navigation
+			.getByRole("link", { name: "Parlons Violence, accueil" })
+			.click();
+		await expect(page).toHaveURL(/\/$/);
+	}
+});
