@@ -24,11 +24,14 @@ test("landing keeps its primary journey and navigation across viewports", async 
 	await enterPrivateBeta(page);
 
 	await expect(
-		page.getByRole("heading", { name: "Parlons Violence", level: 1 }),
+		page.getByRole("heading", {
+			name: "Mieux comprendre les situations de violence.",
+			level: 1,
+		}),
 	).toBeVisible();
 	await expect(
 		page.getByRole("button", {
-			name: /Commencer|Dépôts suspendus/,
+			name: /Proposer une situation fictive|Dépôts suspendus/,
 		}),
 	).toBeVisible();
 	await expect(

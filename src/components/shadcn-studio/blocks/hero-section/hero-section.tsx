@@ -1,160 +1,56 @@
-import {
-	ClipboardCheck,
-	FileText,
-	KeyRound,
-	MailOpen,
-	Search,
-	UserRound,
-} from "lucide-react";
-import { type ComponentType, type SVGProps, useId } from "react";
+import { Link } from "@tanstack/react-router";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { useId } from "react";
 import { AnonymousPostButton } from "@/features/auth/components/AnonymousPostButton";
-import paperTexture from "../../../../assets/plates/paper-texture.webp";
-
-type JourneyStep = {
-	number: string;
-	title: string;
-	copy: string;
-	note: string;
-	Icon: ComponentType<SVGProps<SVGSVGElement>>;
-	stamp?: string;
-};
-
-const steps: JourneyStep[] = [
-	{
-		number: "01",
-		title: "Invitation",
-		copy: "Un code d’invitation réservé ouvre l’accès à cette bêta privée.",
-		note: "ACCÈS LIMITÉ · BÊTA PRIVÉE",
-		Icon: MailOpen,
-	},
-	{
-		number: "02",
-		title: "Session anonyme",
-		copy: "Aucun nom ni e-mail n’est demandé. Une situation publiée apparaît sous « Auteur anonyme ».",
-		note: "VOTRE PARCOURS · VOS REPÈRES",
-		Icon: UserRound,
-	},
-	{
-		number: "03",
-		title: "Situation fictive",
-		copy: "Vous rédigez une situation inventée, sans nom ni détail identifiant.",
-		note: "RÉFLÉCHIR · DÉCOUVRIR · SE REPÉRER",
-		Icon: FileText,
-	},
-	{
-		number: "04",
-		title: "Examen humain",
-		copy: "Une personne relit chaque message avant toute publication.",
-		note: "EXAMEN HUMAIN AVANT PUBLICATION",
-		Icon: Search,
-	},
-	{
-		number: "05",
-		title: "Mes situations fictives",
-		copy: "Vous retrouvez la décision et, en cas de non-publication, son motif dans Mes situations fictives.",
-		note: "À EXAMINER · PUBLIÉE · NON PUBLIÉE",
-		Icon: ClipboardCheck,
-		stamp: "À EXAMINER",
-	},
-];
-
-function JourneyPanel({ step, index }: { step: JourneyStep; index: number }) {
-	const { Icon } = step;
-	return (
-		<article className="landing-fold" data-fold={index + 1}>
-			<header className="landing-step-heading">
-				<span className="landing-step-number" aria-hidden="true">
-					{step.number}
-				</span>
-				<h2>{step.title}</h2>
-			</header>
-			<div className="landing-step-figure" aria-hidden="true">
-				<Icon strokeWidth={1.35} />
-				{index === 0 && (
-					<div className="landing-code-slip">
-						<KeyRound />
-						<code>••••-••••-••••</code>
-					</div>
-				)}
-				{index === 1 && <span className="landing-alias-line">Auteur anonyme</span>}
-				{step.stamp && (
-					<strong className="landing-status-stamp">{step.stamp}</strong>
-				)}
-			</div>
-			<div className="landing-step-copy">
-				<p>{step.copy}</p>
-				<span>{step.note}</span>
-			</div>
-		</article>
-	);
-}
 
 export default function HeroSection() {
 	const titleId = useId();
+	const exampleId = useId();
 	return (
 		<section className="landing-hero" aria-labelledby={titleId}>
 			<div className="landing-sheet">
-				<img className="landing-paper-plate" src={paperTexture} alt="" />
-				<div className="landing-intro landing-fold" data-fold="0">
-					<div className="landing-civic-mark">
-						DES MOTS
-						<br />
-						POUR DEMAIN
+				<div className="landing-intro">
+					<h1 id={titleId}>Mieux comprendre les situations de violence.</h1>
+					<p className="landing-mission">
+						Parlons Violence explore une façon d’aborder ces situations à partir
+						de récits fictifs. Découvrez le parcours et contribuez à son
+						amélioration.
+					</p>
+					<p className="landing-beta-label">
+						Bêta privée pour adultes invités · Situations fictives uniquement
+					</p>
+					<div className="landing-actions">
+						<Link to="/threads" className="landing-cta">
+							Consulter les situations fictives
+							<ArrowRight aria-hidden="true" />
+						</Link>
+						<AnonymousPostButton
+							className="landing-secondary-action"
+							label="Proposer une situation fictive"
+						/>
 					</div>
-					<div>
-						<h1 id={titleId}>
-							Parlons
-							<br />
-							Violence
-						</h1>
-						<span className="landing-title-rule" aria-hidden="true" />
-						<p className="landing-beta-label">BÊTA PRIVÉE · SUISSE ROMANDE</p>
-					</div>
-					<div className="my-6 space-y-3 text-sm leading-6">
-						<p>Le projet vise à permettre aux personnes concernées par la violence de partager leur vécu et de trouver des repères.</p>
-						<p>Aujourd’hui, cette bêta privée sur invitation teste uniquement des situations fictives, en environ 10 minutes.</p>
-						<p>Les commentaires sont fermés. Aucune réponse professionnelle n’est promise.</p>
-					</div>
-					<div className="landing-primary-action">
-						<AnonymousPostButton className="landing-cta" label="Commencer" />
-						<p>Utilisez uniquement la situation fictive fournie.</p>
-					</div>
-					<div className="landing-intro-footer">
-						<span>
-							ÉCOUTER
-							<br />
-							COMPRENDRE
-							<br />
-							AGIR AUTREMENT
-						</span>
-						<span>
-							UN PROJET
-							<br />À TAILLE HUMAINE
-						</span>
-					</div>
+					<p className="landing-contribution-note">
+						Pour contribuer, utilisez uniquement la situation fictive fournie
+						avec votre invitation. Environ 10 minutes.
+					</p>
+					<Link to="/help" className="landing-text-link">
+						Trouver une aide adaptée <ArrowUpRight aria-hidden="true" />
+					</Link>
 				</div>
-				{steps.map((step, index) => (
-					<JourneyPanel key={step.number} step={step} index={index} />
-				))}
-			</div>
-
-			<div className="landing-close">
-				<h2>
-					Un espace pour avancer,
-					<br />
-					ensemble.
-				</h2>
-				<p>
-					Une expérimentation en Suisse romande pour vérifier qu’un parcours
-					sans identité publique, modéré et sans inscription par email reste compréhensible.
-				</p>
-				<span>
-					DES REPÈRES
-					<br />
-					AUJOURD’HUI
-					<br />
-					POUR DÉCIDER DEMAIN
-				</span>
+				<figure className="landing-example" aria-labelledby={exampleId}>
+					<figcaption id={exampleId}>
+						Exemple fictif — illustration, pas une publication
+					</figcaption>
+					<h2>Quand une limite n’est pas respectée</h2>
+					<blockquote>
+						Une personne demande à un proche d’arrêter les remarques sur son
+						apparence. Le proche continue, en disant que c’est pour rire.
+					</blockquote>
+					<p className="landing-example-note">
+						Un récit court pour décrire ce qui se passe, sans nom ni détail
+						identifiant.
+					</p>
+				</figure>
 			</div>
 		</section>
 	);
