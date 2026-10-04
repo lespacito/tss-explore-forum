@@ -20,13 +20,12 @@ import {
 	EmptyMedia,
 	EmptyTitle,
 } from "@/components/ui/empty";
-import {
-	EyeOff,
-} from "lucide-react";
+import { EyeOff } from "lucide-react";
 import {
 	getCategoryConfig,
 	type ThreadCategory,
 } from "@/data/threads-categories";
+import { LinkAnonymousModal } from "@/features/auth/components/link-anonymous-modal";
 import { SecretCodeDisplay } from "@/features/auth/components/SecretCodeDisplay";
 import { generateSecretCodeFn } from "@/features/auth/server/generate-secret-code-fn";
 import { getAuthSessionCached } from "@/features/auth/server/get-auth-session";
@@ -52,6 +51,8 @@ function Profile() {
 	const [code, setCode] = useState("");
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
+	const [linkOpen, setLinkOpen] = useState(false);
+	const [linkedCount, setLinkedCount] = useState<number | null>(null);
 
 	const totalCount = threads.length;
 	const pendingCount = threads.filter((t) => t.status === "pending").length;
@@ -87,8 +88,8 @@ function Profile() {
 						Mes situations fictives
 					</h1>
 					<p className="mt-3 max-w-2xl leading-7 text-muted-foreground">
-						Toutes vos situations fictives sont regroupées ici, avec leur statut de
-						modération.
+						Toutes vos situations fictives sont regroupées ici, avec leur statut
+						de modération.
 					</p>
 				</div>
 				<Link
@@ -102,20 +103,31 @@ function Profile() {
 			{totalCount > 0 && (
 				<div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
 					<span className="text-muted-foreground">
-						{totalCount} {totalCount > 1 ? "situations fictives" : "situation fictive"} au total
+						{totalCount}{" "}
+						{totalCount > 1 ? "situations fictives" : "situation fictive"} au
+						total
 					</span>
 					{pendingCount > 0 && (
-						<Badge variant="outline" className="bg-warning/10 border-warning/50 text-warning-foreground dark:text-warning">
+						<Badge
+							variant="outline"
+							className="bg-warning/10 border-warning/50 text-warning-foreground dark:text-warning"
+						>
 							{pendingCount} à examiner
 						</Badge>
 					)}
 					{publishedCount > 0 && (
-						<Badge variant="outline" className="bg-primary/10 border-primary/30 text-primary">
+						<Badge
+							variant="outline"
+							className="bg-primary/10 border-primary/30 text-primary"
+						>
 							{publishedCount} publiée{publishedCount > 1 ? "s" : ""}
 						</Badge>
 					)}
 					{rejectedCount > 0 && (
-						<Badge variant="outline" className="bg-warning/10 border-warning/30 text-warning-foreground dark:text-warning">
+						<Badge
+							variant="outline"
+							className="bg-warning/10 border-warning/30 text-warning-foreground dark:text-warning"
+						>
 							{rejectedCount} non publiée{rejectedCount > 1 ? "s" : ""}
 						</Badge>
 					)}
@@ -124,10 +136,12 @@ function Profile() {
 
 			<Card className="border-muted">
 				<CardHeader className="pb-4">
-					<CardTitle className="font-serif text-xl">Mes situations fictives</CardTitle>
+					<CardTitle className="font-serif text-xl">
+						Mes situations fictives
+					</CardTitle>
 					<CardDescription className="mt-1">
-						Toutes vos situations fictives sont regroupées ici, avec leur statut de
-						modération.
+						Toutes vos situations fictives sont regroupées ici, avec leur statut
+						de modération.
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-4">
@@ -138,15 +152,56 @@ function Profile() {
 						</Badge>
 					</div>
 					<p className="text-sm text-muted-foreground leading-relaxed">
-						Si une situation fictive est publiée, elle apparaît sous « Auteur anonyme ».
-						Votre pseudonyme reste interne et n’est pas affiché publiquement.
-						L’administration technique peut relier votre session à ses pseudonymes ;
-						le contenu peut aussi permettre de vous reconnaître.
+						Si une situation fictive est publiée, elle apparaît sous « Auteur
+						anonyme ». Votre pseudonyme reste interne et n’est pas affiché
+						publiquement. L’administration technique peut relier votre session à
+						ses pseudonymes ; le contenu peut aussi permettre de vous
+						reconnaître.
 					</p>
 				</CardContent>
 			</Card>
 
-			{user.isAnonymous && (
+			{user.isAnonymous && linkedCount !== null && (
+				<output className="block space-y-3">
+					<span className="block">
+						Liaison effectuée : {linkedCount} publication
+						{linkedCount > 1 ? "s" : ""} liée{linkedCount > 1 ? "s" : ""}. Votre
+						alias est conservé. Cette session ne vous connecte pas au compte
+						vérifié.
+					</span>
+					<span className="block">
+						Le code de récupération anonyme ne donne plus accès aux publications
+						liées.
+					</span>
+					<Link to="/auth/login" className="underline">
+						Se connecter au compte vérifié
+					</Link>
+				</output>
+			)}
+			{user.isAnonymous && linkedCount === null && (
+				<section className="space-y-3">
+					<p className="text-sm text-muted-foreground">
+						Vous avez déjà vérifié votre email ? Liez vos publications depuis
+						cette session anonyme, sans créer un autre compte.
+					</p>
+					<Button variant="outline" onClick={() => setLinkOpen(true)}>
+						Lier à un compte vérifié
+					</Button>
+					{linkOpen && (
+						<LinkAnonymousModal
+							isOpen
+							onClose={() => setLinkOpen(false)}
+							anonymousUserId={user.id}
+							existingAccount
+							onLinkSuccess={(count) => {
+								setLinkedCount(count);
+								setCode("");
+							}}
+						/>
+					)}
+				</section>
+			)}
+			{user.isAnonymous && linkedCount === null && (
 				<section className="border-b pb-7">
 					<Button
 						variant="outline"
@@ -163,7 +218,9 @@ function Profile() {
 								if (result.success) setCode(result.secretCode);
 								else setError(result.error);
 							} catch {
-								setError("Le code de récupération n’a pas pu être chargé. Réessayez.");
+								setError(
+									"Le code de récupération n’a pas pu être chargé. Réessayez.",
+								);
 							} finally {
 								setLoading(false);
 							}
@@ -199,7 +256,9 @@ function Profile() {
 					</EmptyHeader>
 					<EmptyContent className="pt-4">
 						<Button asChild size="lg">
-							<Link to="/threads/new">Créer une nouvelle situation fictive</Link>
+							<Link to="/threads/new">
+								Créer une nouvelle situation fictive
+							</Link>
 						</Button>
 					</EmptyContent>
 				</Empty>
@@ -253,7 +312,6 @@ function Profile() {
 					})}
 				</div>
 			)}
-
 		</div>
 	);
 }
@@ -277,8 +335,8 @@ function UserThreadRow({ thread }: { thread: UserThread }) {
 				<ThreadStatusBadge status={thread.status} />
 				<Badge variant="outline">
 					{thread.category
-						? getCategoryConfig(thread.category as ThreadCategory)?.label ??
-							thread.category
+						? (getCategoryConfig(thread.category as ThreadCategory)?.label ??
+							thread.category)
 						: "Non classé"}
 				</Badge>
 				<time className="text-xs text-muted-foreground">

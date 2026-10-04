@@ -48,7 +48,7 @@ vi.mock("@/features/auth/lib/auth", () => ({ auth: { $context: Promise.resolve({
       const [row] = await sql()`select * from "user" where email = ${email}`;
       if (!row) return null;
       const accounts = await sql()`select * from account where user_id = ${row.id}`;
-      return { user: { ...row, isAnonymous: row.is_anonymous }, accounts: accounts.map((row) => ({ ...row, providerId: row.provider_id, userId: row.user_id })) };
+      return { user: { ...row, isAnonymous: row.is_anonymous, emailVerified: row.email_verified }, accounts: accounts.map((row) => ({ ...row, providerId: row.provider_id, userId: row.user_id })) };
     },
   }, password: { verify: mocks.verify },
 }) } }));
@@ -65,6 +65,15 @@ function sql() {
   return mocks.sql;
 }
 const aliases = () => sql()`select id::text, user_id, is_primary from alias order by id`;
+// Observe an actual PostgreSQL lock wait instead of relying on a timing sleep.
+const waitingFor = async (pattern: string) => {
+  for (let attempt = 0; attempt < 100; attempt++) {
+    const rows = await sql()`select pid from pg_stat_activity where datname = 'pv_link_disposable' and wait_event_type = 'Lock' and query like ${pattern}`;
+    if (rows.length) return;
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+  throw new Error(`No blocked real PostgreSQL query matching ${pattern}`);
+};
 
 describe.skipIf(!enabled)("actual linkage transaction on disposable Postgres", () => {
   beforeAll(async () => {
@@ -83,10 +92,61 @@ describe.skipIf(!enabled)("actual linkage transaction on disposable Postgres", (
     mocks.verify.mockResolvedValue(true);
     await sql()`drop trigger if exists test_fail_alias on alias`;
     await sql()`truncate alias, account, session, "user"`;
-    await sql()`insert into "user" (id,email,is_anonymous) values ('source','source@example.com',true), ('source2','source2@example.com',true), ('destination','destination@example.com',false)`;
+    await sql()`insert into "user" (id,email,is_anonymous,email_verified) values ('source','source@example.com',true,false), ('source2','source2@example.com',true,false), ('destination','destination@example.com',false,true)`;
     await sql()`insert into session (id,token,user_id,expires_at) values ('session-source','token-source','source',now()+interval '1 hour'), ('session-source2','token-source2','source2',now()+interval '1 hour')`;
     await sql()`insert into account (id,account_id,provider_id,user_id,password) values ('credential','destination','credential','destination','hash')`;
     await sql()`insert into alias (id,user_id,alias,is_primary) values (${a},'source','source-alias',true), (${b},'destination','destination-alias',true)`;
+  });
+
+  it("rejects an unverified destination before password work without alias effects", async () => {
+    await sql()`update "user" set email_verified = false where id = 'destination'`;
+    const before = await aliases();
+    expect(await invoke(proof)).toEqual({ success: false, error: "Identifiants invalides" });
+    expect(mocks.verify).not.toHaveBeenCalled();
+    expect(await aliases()).toEqual(before);
+  });
+
+  it("rejects verification revoked after the initial password proof before the transaction", async () => {
+    const before = await aliases();
+    mocks.verify.mockImplementationOnce(async () => {
+      // Initial adapter lookup already returned a verified destination. Commit on
+      // a separate real connection before letting the transaction acquire locks.
+      await sql()`update "user" set email_verified = false where id = 'destination'`;
+      return true;
+    });
+    expect(await invoke(proof)).toEqual({ success: false, error: "Identifiants invalides" });
+    expect(mocks.verify).toHaveBeenCalledOnce();
+    expect(await aliases()).toEqual(before);
+    expect(await sql()`select email_verified from "user" where id = 'destination'`).toEqual([{ email_verified: false }]);
+  });
+
+  it("rechecks verification revoked while linkage waits for the destination owner lock", async () => {
+    const before = await aliases();
+    let locked!: () => void;
+    let release!: () => void;
+    const ready = new Promise<void>((resolve) => { locked = resolve; });
+    const gate = new Promise<void>((resolve) => { release = resolve; });
+    const revoking = sql().begin(async (tx) => {
+      await tx`update "user" set email_verified = false where id = 'destination'`;
+      locked();
+      await gate;
+    });
+    await ready;
+    // MVCC lookup sees the still-committed verified record, then FOR UPDATE must
+    // wait for revocation and revalidate the latest row after the lock releases.
+    const linking = invoke(proof);
+    try {
+      await waitingFor('select %from "user"%for update%');
+      expect(mocks.verify).toHaveBeenCalledOnce();
+      expect(await aliases()).toEqual(before);
+    } finally {
+      release();
+      await revoking;
+      await linking;
+    }
+    expect(await linking).toEqual({ success: false, error: "Identifiants invalides" });
+    expect(await aliases()).toEqual(before);
+    expect(await sql()`select email_verified from "user" where id = 'destination'`).toEqual([{ email_verified: false }]);
   });
 
   it("rechecks the primary after a delayed auth-hook creation races with linkage", async () => {
@@ -129,14 +189,6 @@ describe.skipIf(!enabled)("actual linkage transaction on disposable Postgres", (
     // Pause the real link transaction after it has acquired both owner locks.
     await sql()`create or replace function test_fail_alias() returns trigger language plpgsql as $$ begin if new.user_id <> old.user_id then perform pg_advisory_xact_lock(914731); end if; return new; end $$`;
     await sql()`create trigger test_fail_alias before update on alias for each row execute function test_fail_alias()`;
-    const waitingFor = async (pattern: string) => {
-      for (let attempt = 0; attempt < 100; attempt++) {
-        const rows = await sql()`select pid from pg_stat_activity where datname = 'pv_link_disposable' and wait_event_type = 'Lock' and query like ${pattern}`;
-        if (rows.length) return;
-        await new Promise((resolve) => setTimeout(resolve, 10));
-      }
-      throw new Error(`No blocked real PostgreSQL query matching ${pattern}`);
-    };
     const linking = invoke(proof);
     let creating: ReturnType<typeof createPrimaryAlias> | undefined;
     try {
