@@ -46,26 +46,6 @@ test("landing reading and navigation journeys across viewports", async ({
 		).toBeVisible();
 		await expect(page.getByRole("contentinfo")).toHaveClass("landing-footer");
 
-		// Reading is the primary action and must not create an auth session.
-		await main
-			.getByRole("link", {
-				name: "Consulter les situations fictives",
-				exact: true,
-			})
-			.click();
-		await expect(page).toHaveURL(/\/threads(?:\?|$)/);
-		await expect(
-			main.getByRole("heading", {
-				name: "Situations fictives publiées",
-				level: 1,
-			}),
-		).toBeVisible();
-		const session = await page.request.get("/api/auth/get-session");
-		expect(session.status()).toBe(200);
-		expect(await session.json()).toBeNull();
-		await page.getByRole("link", { name: "Parlons Violence, accueil" }).click();
-		await expect(page).toHaveURL(/\/$/);
-
 		const navigation = page.getByRole("navigation", {
 			name: "Navigation principale",
 			includeHidden: true,
@@ -88,6 +68,29 @@ test("landing reading and navigation journeys across viewports", async ({
 				includeHidden: true,
 			}),
 		).toHaveCount(1);
+
+		// Reading is the primary action and must not create an auth session.
+		await main
+			.getByRole("link", {
+				name: "Consulter les situations fictives",
+				exact: true,
+			})
+			.click();
+		// The dev server compiles this route on its first visit. Complete
+		// navigation within the test budget before asserting its result.
+		await page.waitForURL(/\/threads(?:\?|$)/);
+		await expect(page).toHaveURL(/\/threads(?:\?|$)/);
+		await expect(
+			main.getByRole("heading", {
+				name: "Situations fictives publiées",
+				level: 1,
+			}),
+		).toBeVisible();
+		const session = await page.request.get("/api/auth/get-session");
+		expect(session.status()).toBe(200);
+		expect(await session.json()).toBeNull();
+		await page.getByRole("link", { name: "Parlons Violence, accueil" }).click();
+		await expect(page).toHaveURL(/\/$/);
 
 		// Exercise the actual menu and keyboard interaction, not just its label.
 		await trigger.focus();
