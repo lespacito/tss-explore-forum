@@ -267,10 +267,10 @@ html { scroll-padding-top: 6rem; }
   min-height: 4.5rem;
   max-width: 86rem;
   margin-inline: auto;
-  padding-inline: clamp(1rem, 3vw, 2rem);
+  padding-inline: clamp(.5rem, 2vw, 2rem);
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: .5rem;
 }
 
 .civic-nav__primary,
@@ -284,12 +284,103 @@ html { scroll-padding-top: 6rem; }
   gap: clamp(.75rem, 2vw, 2rem);
 }
 
-.civic-nav__actions {
+.civic-nav__actions,
+.civic-nav__secondary {
+  display: flex;
   flex-shrink: 0;
+  align-items: center;
   gap: .25rem;
 }
 
+.civic-nav .civic-nav__desktop-only,
+.civic-nav-menu .civic-nav__desktop-only {
+  display: none;
+}
+
+.civic-wordmark,
+.civic-nav__help,
+.civic-nav__control,
+.civic-nav .civic-scenarios-link,
+.civic-nav__secondary [data-slot="button"] {
+  min-height: 44px;
+  min-width: 44px;
+  align-items: center;
+  border-radius: 0;
+}
+
+.civic-nav__help {
+  display: inline-flex;
+  gap: .35rem;
+  padding-inline: .5rem;
+  font-size: .875rem;
+  text-decoration: underline;
+  text-underline-offset: .25em;
+}
+
+.civic-nav__control {
+  height: auto;
+  gap: .5rem;
+  padding: .5rem;
+}
+
+.civic-nav :is(a, button):focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+.civic-nav-menu {
+  width: 20rem;
+  max-width: calc(100vw - 1rem);
+  max-height: min(calc(100dvh - 1rem), var(--radix-dropdown-menu-content-available-height));
+  overflow-y: auto;
+  border-radius: 0;
+  overflow-wrap: anywhere;
+}
+
+.civic-nav-menu :is([role="menuitem"], [role="menuitemcheckbox"]) {
+  min-height: 44px;
+  min-width: 44px;
+  border-radius: 0;
+  white-space: normal;
+}
+
+.civic-nav-menu :is([role="menuitem"], [role="menuitemcheckbox"])[data-highlighted] {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+}
+
+@media (min-width: 80rem) {
+  .civic-nav__inner {
+    gap: 2rem;
+  }
+
+  .civic-nav__actions {
+    gap: 1.5rem;
+  }
+
+  .civic-nav__secondary {
+    border-inline-start: 1px solid color-mix(in oklch, var(--foreground) 24%, transparent);
+    padding-inline-start: 1.5rem;
+    gap: .75rem;
+  }
+
+  .civic-nav .civic-nav__desktop-only,
+  .civic-nav-menu .civic-nav__desktop-only {
+    display: inline-flex;
+  }
+
+  .civic-nav__compact-only {
+    display: none;
+  }
+
+  .civic-nav__control {
+    padding-inline: .75rem;
+  }
+}
+
 .civic-wordmark {
+  display: inline-flex;
+  gap: .2em;
   position: relative;
   flex-shrink: 0;
   font-family: "Yaldevi Variable", var(--font-sans);
