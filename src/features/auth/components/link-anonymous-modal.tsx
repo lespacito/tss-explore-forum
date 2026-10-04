@@ -1,7 +1,5 @@
 import { AlertCircle, Link2, X } from "lucide-react";
 import { useId, useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -13,7 +11,9 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { signOut } from "@/features/auth/lib/auth-client";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { getSession } from "@/features/auth/lib/auth-client";
 import { linkAnonymousAccountFn } from "@/features/auth/server/link-anonymous-account";
 import { logger } from "@/lib/logger/client-logger";
 
@@ -45,8 +45,9 @@ interface LinkAnonymousModalProps {
 	/** ID de l'utilisateur anonyme à lier */
 	anonymousUserId: string;
 	/** ID du nouveau compte enregistré (après signup) */
-	newUserId: string | null;
-	email: string;
+	newUserId?: string | null;
+	email?: string;
+	existingAccount?: boolean;
 	/** Callback après liaison réussie */
 	onLinkSuccess?: (linkedPostsCount: number) => void;
 	/** Callback si refus de liaison */
@@ -57,31 +58,40 @@ export function LinkAnonymousModal({
 	isOpen,
 	onClose,
 	anonymousUserId,
-	newUserId,
-	email,
+	email = "",
+	existingAccount = false,
 	onLinkSuccess,
 	onLinkDecline,
 }: LinkAnonymousModalProps) {
 	const [isLinking, setIsLinking] = useState(false);
 	const [password, setPassword] = useState("");
 	const passwordId = useId();
+	const emailId = useId();
+	const [manualDestinationEmail, setDestinationEmail] = useState("");
+	const destinationEmail = existingAccount ? manualDestinationEmail : email;
 
 	const handleLinkAccount = async () => {
 		setIsLinking(true);
 
-		// Vérifier que newUserId est disponible
-		if (!newUserId) {
-			logger.error("Cannot link account: newUserId is missing", {
-				anonymousUserId,
-			});
-			toast.error("Erreur: impossible de lier le compte (ID manquant)");
-			setIsLinking(false);
-			return;
-		}
-
 		try {
+			if (existingAccount) {
+				// UX stale-tab guard only: the server still authorizes its own session.
+				const current = await getSession({
+					query: { disableCookieCache: true },
+				});
+				if (
+					current.error ||
+					current.data?.user.id !== anonymousUserId ||
+					!current.data.user.isAnonymous
+				) {
+					toast.error(
+						"Votre session a changé ou n’a pas pu être vérifiée. Rétablissez votre session anonyme avant de réessayer.",
+					);
+					return;
+				}
+			}
 			const result = await linkAnonymousAccountFn({
-				data: { email, password },
+				data: { email: destinationEmail, password },
 			});
 
 			if (result.success) {
@@ -94,20 +104,11 @@ export function LinkAnonymousModal({
 					`${result.linkedPostsCount} publication${result.linkedPostsCount > 1 ? "s" : ""} liée${result.linkedPostsCount > 1 ? "s" : ""} à votre compte !`,
 				);
 
-				// CRITICAL FIX: Déconnecter la session anonyme pour éviter confusion
-				// L'utilisateur sera reconnecté avec le nouveau compte après vérification email
-				logger.info("Signing out anonymous session after successful link", {
-					anonymousUserId,
-					newUserId,
-				});
-
-				try {
-					await signOut();
-				} catch {
-					// The transfer is already committed; do not present a signout
-					// failure as a failed transfer or prevent email verification.
-					toast.info("Publications liées. Veuillez vérifier votre email pour vous connecter au compte enregistré.");
-				}
+				// Never sign out the ambient cookie here: another tab may already
+				// have replaced it. Transfer success does not imply destination login.
+				toast.info(
+					"Publications liées. Connectez-vous explicitement au compte vérifié pour les retrouver.",
+				);
 
 				onLinkSuccess?.(result.linkedPostsCount);
 				onClose();
@@ -171,9 +172,10 @@ export function LinkAnonymousModal({
 					<Alert>
 						<AlertCircle className="h-4 w-4" />
 						<AlertDescription>
-							Vous pouvez choisir de lier ces publications à votre nouveau
-							compte pour les retrouver facilement, ou les garder séparées et
-							continuer à y accéder avec votre code de récupération.
+							Une liaison nécessite un compte dont l'email est vérifié. Vérifiez
+							d'abord votre email : aucun transfert n'est effectué vers un
+							compte non vérifié. Vos publications restent anonymes et
+							accessibles avec votre code de récupération.
 						</AlertDescription>
 					</Alert>
 
@@ -207,14 +209,36 @@ export function LinkAnonymousModal({
 								<li>
 									Elles ne seront pas visibles dans votre profil enregistré
 								</li>
-								<li>Vous ne pourrez pas les lier ultérieurement</li>
+								<li>
+									Avant toute nouvelle tentative, rétablissez votre session
+									anonyme avec votre code de récupération ; le compte de
+									destination doit d'abord être vérifié.
+								</li>
 							</ul>
 						</div>
 					</div>
 				</div>
 
+				{existingAccount && (
+					<div className="space-y-2">
+						<Label htmlFor={emailId}>Email du compte vérifié</Label>
+						<Input
+							id={emailId}
+							type="email"
+							autoComplete="username"
+							value={destinationEmail}
+							onChange={(event) => setDestinationEmail(event.target.value)}
+							disabled={isLinking}
+							maxLength={254}
+						/>
+					</div>
+				)}
 				<div className="space-y-2">
-					<Label htmlFor={passwordId}>Mot de passe du nouveau compte</Label>
+					<Label htmlFor={passwordId}>
+						{existingAccount
+							? "Mot de passe du compte vérifié"
+							: "Mot de passe du nouveau compte"}
+					</Label>
 					<Input
 						id={passwordId}
 						type="password"
@@ -239,7 +263,7 @@ export function LinkAnonymousModal({
 					<Button
 						type="button"
 						onClick={handleLinkAccount}
-						disabled={isLinking || !password || !email}
+						disabled={isLinking || !password || !destinationEmail}
 						className="gap-2"
 					>
 						<Link2 className="h-4 w-4" />

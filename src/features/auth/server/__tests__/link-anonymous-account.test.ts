@@ -86,7 +86,7 @@ describe("linkAnonymousAccountFn account ownership", () => {
 	it.each(["source", "target"])("rejects banned %s role before password work", async (which) => {
 		mocks.session.mockResolvedValue({ isAuthenticated: true, session: { id: "session", token: "token" }, user: { id: "source", isAnonymous: true } });
 		if (which === "source") mocks.findUserById.mockResolvedValue({ id: "source", isAnonymous: true, role: "BANNED" });
-		else mocks.findUserByEmail.mockResolvedValue({ user: { id: "destination", isAnonymous: false, role: "BANNED" }, accounts: [{ id: "credential", providerId: "credential", password: "hash" }] });
+		else mocks.findUserByEmail.mockResolvedValue({ user: { id: "destination", isAnonymous: false, emailVerified: true, role: "BANNED" }, accounts: [{ id: "credential", providerId: "credential", password: "hash" }] });
 		expect((await invoke(proof)).success).toBe(false);
 		expect(mocks.verify).not.toHaveBeenCalled();
 	});
@@ -125,6 +125,18 @@ describe("linkAnonymousAccountFn account ownership", () => {
 		expect((await invoke(proof)).success).toBe(false);
 		expect(mocks.update).not.toHaveBeenCalled();
 	});
+	it.each([false, undefined, null, "true", 1])("rejects fresh destination emailVerified=%j changed during password proof", async (emailVerified) => {
+		mocks.session.mockResolvedValue({ isAuthenticated: true, session: { id: "session", token: "token" }, user: { id: "source", isAnonymous: true } });
+		mocks.verify.mockImplementationOnce(async () => {
+			mocks.lockedRows.user[1].emailVerified = emailVerified;
+			return true;
+		});
+		expect(await invoke(proof)).toEqual({ success: false, error: "Identifiants invalides" });
+		expect(mocks.verify).toHaveBeenCalledOnce();
+		expect(mocks.transaction).toHaveBeenCalledOnce();
+		expect(mocks.select).toHaveBeenCalledOnce();
+		expect(mocks.update).not.toHaveBeenCalled();
+	});
 	it("rejects a source session revoked while destination password is verified", async () => {
 		mocks.session.mockResolvedValue({ isAuthenticated: true, session: { id: "session", token: "token" }, user: { id: "source", isAnonymous: true } });
 		mocks.verify.mockImplementationOnce(async () => { mocks.lockedRows.session = []; return true; });
@@ -137,7 +149,7 @@ describe("linkAnonymousAccountFn account ownership", () => {
 		mocks.consume.mockReturnValue(true);
 		mocks.ip.mockReturnValue("192.0.2.1");
 		mocks.lockedRows = {
-			user: [{ id: "source", isAnonymous: true, banned: false }, { id: "destination", email: proof.email, isAnonymous: false, banned: false }],
+			user: [{ id: "source", isAnonymous: true, banned: false }, { id: "destination", email: proof.email, isAnonymous: false, emailVerified: true, banned: false }],
 			session: [{ id: "session", token: "token", userId: "source", expiresAt: new Date(Date.now() + 60000) }],
 			account: [{ id: "credential", userId: "destination", providerId: "credential", password: "hash" }],
 			alias: [{ id: "alias", userId: "source", isPrimary: true }],
@@ -158,10 +170,10 @@ describe("linkAnonymousAccountFn account ownership", () => {
 		mocks.session.mockResolvedValue({
 			isAuthenticated: true,
 			session: { id: "session", token: "token" },
-			user: { id: "destination", isAnonymous: false },
+			user: { id: "destination", isAnonymous: false, emailVerified: true },
 		});
 		mocks.findUserByEmail.mockResolvedValue({
-			user: { id: "destination", isAnonymous: false, banned: false },
+			user: { id: "destination", isAnonymous: false, emailVerified: true, banned: false },
 			accounts: [{ id: "credential", providerId: "credential", password: "hash" }],
 		});
 		mocks.findUserById.mockResolvedValue({
@@ -184,7 +196,18 @@ describe("linkAnonymousAccountFn account ownership", () => {
 		expect(result.success).toBe(false);
 		expect(mocks.update).not.toHaveBeenCalled();
 	});
-	it("links only the session source to the password-proven destination before email verification", async () => {
+	it.each([false, undefined, null, "true", 1])("rejects destination emailVerified=%j before password proof or transaction", async (emailVerified) => {
+		mocks.session.mockResolvedValue({ isAuthenticated: true, session: { id: "session", token: "token" }, user: { id: "source", isAnonymous: true } });
+		mocks.findUserByEmail.mockResolvedValue({
+			user: { id: "destination", isAnonymous: false, emailVerified },
+			accounts: [{ id: "credential", providerId: "credential", password: "hash" }],
+		});
+		expect(await invoke(proof)).toEqual({ success: false, error: "Identifiants invalides" });
+		expect(mocks.verify).not.toHaveBeenCalled();
+		expect(mocks.transaction).not.toHaveBeenCalled();
+		expect(mocks.update).not.toHaveBeenCalled();
+	});
+	it("links only the session source to the verified password-proven destination", async () => {
 		mocks.session.mockResolvedValue({
 			isAuthenticated: true,
 			session: { id: "session", token: "token" },
@@ -268,31 +291,31 @@ describe("linkAnonymousAccountFn account ownership", () => {
 		expect(mocks.verify).not.toHaveBeenCalled();
 	});
 	it.each([
-		["missing source", null, { id: "destination", isAnonymous: false }],
+		["missing source", null, { id: "destination", isAnonymous: false, emailVerified: true }],
 		[
 			"changed source",
 			{ id: "source", isAnonymous: false },
-			{ id: "destination", isAnonymous: false },
+			{ id: "destination", isAnonymous: false, emailVerified: true },
 		],
 		[
 			"banned source",
 			{ id: "source", isAnonymous: true, banned: true },
-			{ id: "destination", isAnonymous: false },
+			{ id: "destination", isAnonymous: false, emailVerified: true },
 		],
 		[
 			"anonymous target",
 			{ id: "source", isAnonymous: true },
-			{ id: "destination", isAnonymous: true },
+			{ id: "destination", isAnonymous: true, emailVerified: true },
 		],
 		[
 			"banned target",
 			{ id: "source", isAnonymous: true },
-			{ id: "destination", isAnonymous: false, banned: true },
+			{ id: "destination", isAnonymous: false, emailVerified: true, banned: true },
 		],
 		[
 			"same account",
 			{ id: "source", isAnonymous: true },
-			{ id: "source", isAnonymous: false },
+			{ id: "source", isAnonymous: false, emailVerified: true },
 		],
 	])(
 		"rejects %s using current server account records",

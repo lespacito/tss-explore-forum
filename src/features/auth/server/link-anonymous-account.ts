@@ -16,7 +16,7 @@ export type LinkAnonymousAccountResult =
 	| { success: false; error: string };
 
 /** Both accounts must be proven: the anonymous session and destination password.
- * This transfers content, not a session; email verification remains required.
+ * This transfers content, not a session; the destination must have verified email.
  * The source account/code is retained, but cannot recover transferred aliases.
  */
 export const linkAnonymousAccountFn = createServerFn({ method: "POST" })
@@ -72,7 +72,13 @@ export const linkAnonymousAccountFn = createServerFn({ method: "POST" })
 				{ includeAccounts: true },
 			);
 			const target = destination?.user as
-				| { id: string; isAnonymous?: boolean; banned?: boolean; role?: string }
+				| {
+					id: string;
+					emailVerified?: boolean;
+					isAnonymous?: boolean;
+					banned?: boolean;
+					role?: string;
+				}
 				| undefined;
 			const credential = destination?.accounts.find(
 				(account) => account.providerId === "credential",
@@ -80,6 +86,7 @@ export const linkAnonymousAccountFn = createServerFn({ method: "POST" })
 			if (
 				!destination ||
 				!target ||
+				target.emailVerified !== true ||
 				target.isAnonymous ||
 				target.banned ||
 				target.role === "BANNED" ||
@@ -107,6 +114,7 @@ export const linkAnonymousAccountFn = createServerFn({ method: "POST" })
 					freshSource.banned ||
 					freshSource.role === "BANNED" ||
 					!freshTarget ||
+					freshTarget.emailVerified !== true ||
 					freshTarget.isAnonymous ||
 					freshTarget.banned ||
 					freshTarget.role === "BANNED" ||
