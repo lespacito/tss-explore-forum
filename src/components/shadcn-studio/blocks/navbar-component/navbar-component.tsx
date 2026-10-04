@@ -1,17 +1,18 @@
 import { getRouteApi, Link, useRouterState } from "@tanstack/react-router";
 import { BookOpen, CircleHelp, KeyRound, Menu, Shield } from "lucide-react";
-import ToggleTheme from "@/components/shadcn-studio/switch/toggle-theme";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
+	DropdownMenuGroup,
 	DropdownMenuItem,
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AuthButtons } from "./auth-buttons";
-import { UserProfileMenu } from "./user-profile-menu";
+import { NavbarThemeControl } from "./navbar-theme-control";
+import { UserProfileMenu, UserProfileMenuItems } from "./user-profile-menu";
 import { UserSkeleton } from "./user-skeleton";
 
 const routeApi = getRouteApi("__root__");
@@ -22,10 +23,9 @@ const Navbar = () => {
 	const routerState = useRouterState();
 	const spaceActive =
 		routerState.location.pathname.startsWith("/account/profile");
-
 	return (
 		<header className="civic-nav">
-			<div className="civic-nav__inner">
+			<nav className="civic-nav__inner" aria-label="Navigation principale">
 				<div className="civic-nav__primary">
 					<Link
 						to="/"
@@ -34,77 +34,114 @@ const Navbar = () => {
 					>
 						<span>Parlons</span> Violence
 					</Link>
-					<span className="civic-beta-mark">Bêta privée</span>
+					<span className="civic-beta-mark civic-nav__desktop-only">
+						Bêta privée
+					</span>
 					{user && (
 						<Link
 							to="/account/profile"
-							className="civic-scenarios-link"
+							className="civic-scenarios-link civic-nav__desktop-only"
 							aria-current={spaceActive ? "page" : undefined}
 						>
-							<span>Mes situations fictives</span>
+							Mes situations fictives
 						</Link>
 					)}
 				</div>
-
 				<div className="civic-nav__actions">
-					<Link to="/help" className="inline-flex min-h-11 items-center gap-2 text-sm underline underline-offset-4"><CircleHelp aria-hidden="true" className="size-4" /> Aide</Link>
-					<div className="hidden sm:flex">
-						<ToggleTheme />
-					</div>
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button variant="ghost" className="min-h-11 gap-2">
-								<Menu aria-hidden="true" className="size-4" />
-								<span className="hidden md:inline">Informations</span>
-								<span className="sr-only md:hidden">
-									Ouvrir les informations
-								</span>
-							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end" className="w-64">
-							<DropdownMenuLabel>La bêta privée</DropdownMenuLabel>
-							<DropdownMenuItem asChild>
-								<Link to="/threads">
-									<BookOpen /> Situations fictives publiées
-								</Link>
-							</DropdownMenuItem>
-							<DropdownMenuSeparator />
-							<DropdownMenuItem asChild>
-								<Link to="/rules">
-									<BookOpen /> Règles
-								</Link>
-							</DropdownMenuItem>
-							<DropdownMenuItem asChild>
-								<Link to="/privacy">
-									<Shield /> Confidentialité
-								</Link>
-							</DropdownMenuItem>
-							<DropdownMenuItem asChild>
-								<Link to="/help">
-									<CircleHelp /> Aide et contact
-								</Link>
-							</DropdownMenuItem>
-							{!user && (
-								<>
+					<Link to="/help" className="civic-nav__help">
+						<CircleHelp aria-hidden="true" className="size-4" /> Aide
+					</Link>
+					<div className="civic-nav__secondary">
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<Button
+									variant="ghost"
+									className="civic-nav__control"
+									aria-label="Menu de navigation — Informations"
+								>
+									<Menu aria-hidden="true" className="size-4" />
+									<span className="civic-nav__compact-only">Menu</span>
+									<span className="civic-nav__desktop-only">Informations</span>
+								</Button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align="end" className="civic-nav-menu">
+								<DropdownMenuLabel>Navigation</DropdownMenuLabel>
+								<DropdownMenuItem asChild>
+									<Link to="/threads">
+										<BookOpen /> Situations fictives publiées
+									</Link>
+								</DropdownMenuItem>
+								{user && (
+									<DropdownMenuItem asChild className="civic-nav__compact-only">
+										<Link
+											to="/account/profile"
+											aria-current={spaceActive ? "page" : undefined}
+										>
+											<BookOpen /> Mes situations fictives
+										</Link>
+									</DropdownMenuItem>
+								)}
+								<DropdownMenuSeparator />
+								<DropdownMenuLabel>Informations</DropdownMenuLabel>
+								<DropdownMenuItem asChild>
+									<Link to="/rules">
+										<BookOpen /> Règles
+									</Link>
+								</DropdownMenuItem>
+								<DropdownMenuItem asChild>
+									<Link to="/privacy">
+										<Shield /> Confidentialité
+									</Link>
+								</DropdownMenuItem>
+								<DropdownMenuItem asChild>
+									<Link to="/help">
+										<CircleHelp /> Aide et contact
+									</Link>
+								</DropdownMenuItem>
+								<DropdownMenuGroup className="civic-nav__compact-only">
 									<DropdownMenuSeparator />
-									<DropdownMenuItem asChild>
+									<DropdownMenuLabel>Préférences</DropdownMenuLabel>
+									<NavbarThemeControl inMenu />
+									<DropdownMenuSeparator />
+									<DropdownMenuLabel>Compte et session</DropdownMenuLabel>
+									{routerState.isLoading ? (
+										<output className="block px-2 py-3 text-sm">
+											Chargement de la session…
+										</output>
+									) : user ? (
+										<UserProfileMenuItems user={user} />
+									) : (
+										<DropdownMenuItem asChild>
+											<Link to="/auth/anonymous-signin">
+												<KeyRound /> Retrouver ma session
+											</Link>
+										</DropdownMenuItem>
+									)}
+								</DropdownMenuGroup>
+								{!user && (
+									<DropdownMenuItem asChild className="civic-nav__desktop-only">
 										<Link to="/auth/anonymous-signin">
 											<KeyRound /> Retrouver ma session
 										</Link>
 									</DropdownMenuItem>
-								</>
+								)}
+							</DropdownMenuContent>
+						</DropdownMenu>
+						<div className="civic-nav__desktop-only">
+							<NavbarThemeControl />
+						</div>
+						<div className="civic-nav__desktop-only">
+							{routerState.isLoading ? (
+								<UserSkeleton />
+							) : user ? (
+								<UserProfileMenu user={user} />
+							) : (
+								<AuthButtons />
 							)}
-						</DropdownMenuContent>
-					</DropdownMenu>
-					{routerState.isLoading ? (
-						<UserSkeleton />
-					) : user ? (
-						<UserProfileMenu user={user} />
-					) : (
-						<AuthButtons />
-					)}
+						</div>
+					</div>
 				</div>
-			</div>
+			</nav>
 			<div className="civic-service-status">
 				<p>
 					{loaderData?.beta?.submissionsOpen
@@ -116,5 +153,4 @@ const Navbar = () => {
 		</header>
 	);
 };
-
 export default Navbar;
