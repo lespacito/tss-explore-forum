@@ -491,6 +491,8 @@ html { scroll-padding-top: 6rem; }
   --landing-sky: #dce2ee;
   --landing-muted: #40506e;
   --landing-on-night: #d8deea;
+  --landing-frame: clamp(.75rem, 2vw, 2rem);
+  --landing-inset: clamp(1.25rem, 4vw, 4rem);
   background: var(--landing-navy);
   color: var(--landing-navy);
   font-size: 1rem;
@@ -522,14 +524,14 @@ html { scroll-padding-top: 6rem; }
 }
 
 .landing-hero {
-  padding: clamp(.75rem, 2vw, 2rem);
+  padding: var(--landing-frame);
 }
 
 .landing-sheet {
   display: grid;
   max-width: 90rem;
   margin-inline: auto;
-  padding: clamp(1.25rem, 4vw, 4rem);
+  padding: var(--landing-inset);
   gap: clamp(2.5rem, 5vw, 5rem);
   background: var(--landing-paper);
 }
@@ -592,6 +594,7 @@ html { scroll-padding-top: 6rem; }
 
 .landing-cta {
   justify-content: space-between;
+  text-align: start;
   background: var(--landing-yellow);
   color: var(--landing-navy);
 }
@@ -674,13 +677,14 @@ html { scroll-padding-top: 6rem; }
 .landing-contribution,
 .landing-help,
 .landing-faq {
-  padding: clamp(3rem, 6vw, 6rem) clamp(1.25rem, 4vw, 4rem);
+  padding-block: clamp(3rem, 6vw, 6rem);
+  padding-inline: calc(var(--landing-frame) + var(--landing-inset));
   scroll-margin-block-start: 8rem;
 }
 
 .landing-section-layout {
   display: grid;
-  max-width: 82rem;
+  max-width: calc(90rem - 2 * var(--landing-inset));
   margin-inline: auto;
   gap: 2rem;
 }
@@ -810,6 +814,10 @@ html { scroll-padding-top: 6rem; }
   list-style: none;
 }
 
+.landing-faq-list summary:focus-visible {
+  outline-offset: -2px;
+}
+
 .landing-faq-list summary::-webkit-details-marker {
   display: none;
 }
@@ -863,6 +871,14 @@ html { scroll-padding-top: 6rem; }
 @media (hover: hover) {
   .landing-cta:hover {
     background: var(--landing-yellow-hover);
+  }
+
+  .landing-text-link:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  .landing-faq-list summary:hover {
+    color: var(--landing-blue);
   }
 
   .landing-secondary-action:not(:disabled):hover {
