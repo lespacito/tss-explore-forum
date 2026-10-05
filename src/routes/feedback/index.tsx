@@ -82,13 +82,16 @@ function FieldScale(props: {
         <Field className="space-y-2">
             <div className="space-y-1">
                 <Label className="sr-only">{question}</Label>
-                <p className="text-sm font-medium">{question}</p>
+                <p id={`${name}-question`} className="text-sm font-medium">{question} (obligatoire)</p>
                 <p className="text-xs text-muted-foreground">{helpText}</p>
             </div>
             <RadioGroup
                 onValueChange={(v) => onChange(Number(v))}
                 value={String(value)}
                 aria-invalid={ariaInvalid}
+                aria-required="true"
+                aria-labelledby={`${name}-question`}
+                aria-describedby={ariaInvalid ? `${name}-error` : undefined}
                 className="grid grid-cols-5 gap-2 sm:gap-3"
             >
                 {labels.map((label, idx) => {
@@ -121,6 +124,11 @@ function FieldScale(props: {
                     );
                 })}
             </RadioGroup>
+            {ariaInvalid && (
+                <p id={`${name}-error`} className="text-sm text-destructive">
+                    Veuillez répondre à cette question.
+                </p>
+            )}
         </Field>
     );
 }
@@ -155,6 +163,14 @@ function FeedbackPage() {
         validators: {
             onSubmit: feedbackSchema,
             onBlur: feedbackSchema,
+            onChange: feedbackSchema,
+        },
+        onSubmitInvalid: ({ value }) => {
+            const missingRating = (["overallRating", "easeOfUse", "trustAnonymity"] as const)
+                .find((name) => value[name] < 1);
+            if (missingRating) {
+                document.getElementById(`${missingRating}-1`)?.focus();
+            }
         },
         onSubmit: useCallback(
             async ({ value }: { value: FeedbackFormData }) => {
@@ -256,7 +272,7 @@ function FeedbackPage() {
                                     onChange={(val: number) =>
                                         field.handleChange(() => val)
                                     }
-                                    ariaInvalid={!field.state.meta.isValid}
+                                    ariaInvalid={field.state.meta.isTouched && !field.state.meta.isValid}
                                 />
                             )}
                         </form.AppField>
@@ -272,7 +288,7 @@ function FeedbackPage() {
                                     onChange={(val: number) =>
                                         field.handleChange(() => val)
                                     }
-                                    ariaInvalid={!field.state.meta.isValid}
+                                    ariaInvalid={field.state.meta.isTouched && !field.state.meta.isValid}
                                 />
                             )}
                         </form.AppField>
@@ -290,7 +306,7 @@ function FeedbackPage() {
                                     onChange={(val: number) =>
                                         field.handleChange(() => val)
                                     }
-                                    ariaInvalid={!field.state.meta.isValid}
+                                    ariaInvalid={field.state.meta.isTouched && !field.state.meta.isValid}
                                 />
                             )}
                         </form.AppField>
