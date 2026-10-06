@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	BETA_COOKIE,
 	betaAccessResponse,
@@ -10,6 +10,7 @@ import {
 
 const code = "fixture-invitation-with-32-characters-minimum";
 const secret = "fixture-signing-key-with-32-characters-minimum";
+beforeEach(() => vi.stubEnv("BETA_ACCESS_REQUIRED", "true"));
 afterEach(() => vi.unstubAllEnvs());
 describe("private beta boundary", () => {
 	it("rejects forged, expired and revoked invitations", () => {
@@ -233,5 +234,76 @@ describe("private beta boundary", () => {
 		expect(html).toContain("fermer cette page");
 		expect(html).not.toContain("Code d’invitation");
 		expect(html).not.toContain("Accéder à la bêta");
+	});
+});
+
+describe("explicit public access", () => {
+	it.each([undefined, "", "true", "FALSE", "0", "invalid"])(
+		"keeps the production/staging gate closed for %s",
+		async (value) => {
+			vi.stubEnv("NODE_ENV", "production");
+			vi.stubEnv("BETA_ACCESS_REQUIRED", value);
+			vi.stubEnv("BETA_INVITATION_CODES", "");
+			expect(
+				(
+					await betaAccessResponse(
+						new Request("https://example.com/api/auth/get-session"),
+					)
+				)?.status,
+			).toBe(401);
+		},
+	);
+	it.each([
+		"/",
+		"/threads",
+		"/threads/example",
+		"/auth/login",
+		"/api/auth/get-session",
+		"/_serverFn/any",
+	])(
+		"passes %s to the existing route/auth handlers without an invitation",
+		async (path) => {
+			vi.stubEnv("NODE_ENV", "production");
+			vi.stubEnv("BETA_ACCESS_REQUIRED", "false");
+			vi.stubEnv("BETA_INVITATION_CODES", "");
+			const response = await betaAccessResponse(
+				new Request(`https://example.com${path}`),
+			);
+			expect(response).toBeNull();
+		},
+	);
+	it("does not create a session or invitation cookie for public auth POSTs", async () => {
+		vi.stubEnv("BETA_ACCESS_REQUIRED", "false");
+		expect(
+			await betaAccessResponse(
+				new Request("https://example.com/api/auth/sign-in/anonymous", {
+					method: "POST",
+				}),
+			),
+		).toBeNull();
+	});
+	it("redirects the obsolete entry page while preserving erasure confirmation", async () => {
+		vi.stubEnv("BETA_ACCESS_REQUIRED", "false");
+		expect(
+			(
+				await betaAccessResponse(new Request("https://example.com/beta"))
+			)?.headers.get("location"),
+		).toBe("/");
+		const leave = await betaAccessResponse(
+			new Request("https://example.com/beta?leave=erased"),
+		);
+		expect(leave?.headers.get("set-cookie")).toContain("Max-Age=0");
+		const erased = await betaAccessResponse(
+			new Request("https://example.com/beta?erased=1"),
+		);
+		expect(await erased?.text()).toContain("Vos données ont été effacées");
+	});
+	it("does not accept invitation POSTs in public mode", async () => {
+		vi.stubEnv("BETA_ACCESS_REQUIRED", "false");
+		const response = await betaAccessResponse(
+			new Request("https://example.com/beta", { method: "POST" }),
+		);
+		expect(response?.status).toBe(404);
+		expect(response?.headers.has("set-cookie")).toBe(false);
 	});
 });

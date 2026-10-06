@@ -1,50 +1,93 @@
-# --- Services ---
+x-database-environment: &database-environment
+  DB_HOST: postgres
+  DB_PORT: "5432"
+  DB_NAME: ${DB_NAME:?Configure DB_NAME in Dokploy}
+  DB_USER: ${DB_USER:?Configure DB_USER in Dokploy}
+  DB_PASSWORD: ${DB_PASSWORD:?Configure DB_PASSWORD in Dokploy}
+  DB_SSL: "false"
+  DB_SCHEMA: ${DB_SCHEMA:-public}
+
+x-app-environment: &app-environment
+  <<: *database-environment
+  NODE_ENV: production
+  BETTER_AUTH_URL: ${BETTER_AUTH_URL:?Configure BETTER_AUTH_URL in Dokploy}
+  BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Configure BETTER_AUTH_SECRET in Dokploy}
+  RESEND_API_KEY: ${RESEND_API_KEY:?Configure RESEND_API_KEY in Dokploy}
+  EMAIL_FROM: ${EMAIL_FROM:?Configure EMAIL_FROM in Dokploy}
+  EMAIL_REPLY_TO: ${EMAIL_REPLY_TO:-}
+  ARCJET_KEY: ${ARCJET_KEY:?Configure ARCJET_KEY in Dokploy}
+  APP_URL: ${APP_URL:?Configure APP_URL in Dokploy}
+  SERVICE_NAME: ${SERVICE_NAME:-parlons-violence-prod}
+  GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
+  GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+  GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+  GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+  BETA_ACCESS_REQUIRED: ${BETA_ACCESS_REQUIRED:?Set true for invitations or false for public access}
+  BETA_INVITATION_CODES: ${BETA_INVITATION_CODES:-}
+  BETA_SUBMISSIONS_OPEN: ${BETA_SUBMISSIONS_OPEN:-false}
+  BETA_MODERATION_SCHEDULE: ${BETA_MODERATION_SCHEDULE:?Describe the production moderation schedule}
+
+x-app-build: &app-build
+  context: .
+  dockerfile: Dockerfile
+  args:
+    VITE_APP_NAME: ${VITE_APP_NAME:-Parlons Violence}
+    VITE_APP_URL: ${VITE_APP_URL:?Configure VITE_APP_URL in Dokploy}
+    VITE_BETTER_AUTH_URL: ${VITE_BETTER_AUTH_URL:?Configure VITE_BETTER_AUTH_URL in Dokploy}
+    VITE_ENABLE_OAUTH: ${VITE_ENABLE_OAUTH:-false}
+
 services:
-  # Application principale
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: tanstack-forum-app
+  postgres:
+    image: postgres:17-alpine
     restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:?Configure DB_NAME in Dokploy}
+      POSTGRES_USER: ${DB_USER:?Configure DB_USER in Dokploy}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Configure DB_PASSWORD in Dokploy}
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  migrate:
+    build:
+      <<: *app-build
+      target: builder
+    restart: "no"
+    environment: *database-environment
+    command: ["bun", "run", "db:migrate"]
     depends_on:
       postgres:
         condition: service_healthy
-    env_file:
-      - .env.prod
-      # Fallback to .env for dev/defaults if needed, but .env.prod should take precedence
-    environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-      - ORIGIN=https://${DOMAIN_NAME}
-    ports:
-      - "3001:3000"
-    networks:
-      - app_network
 
-  # Base de données PostgreSQL
-  postgres:
-    image: postgres:17-alpine
-    container_name: tanstack-forum-db-prod
+  app:
+    build: *app-build
     restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    volumes:
-      - postgres_prod_data:/var/lib/postgresql/data
-    networks:
-      - app_network
+    environment: *app-environment
+    expose:
+      - "3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
-      interval: 10s
+      test:
+        [
+          "CMD",
+          "bun",
+          "-e",
+          "fetch('http://127.0.0.1:3000/help').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
       timeout: 5s
       retries: 5
-      start_period: 10s
+      start_period: 30s
 
 volumes:
   postgres_prod_data:
-
-
-networks:
-  app_network:
-    driver: bridge

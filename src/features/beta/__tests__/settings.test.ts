@@ -13,3 +13,17 @@ it("keeps submissions closed unless an explicit opening and schedule are present
 	vi.stubEnv("BETA_SUBMISSIONS_OPEN", "false");
 	expect(betaSettings().submissionsOpen).toBe(false);
 });
+
+it.each(["true", "false"])(
+	"controls contributions independently when BETA_ACCESS_REQUIRED=%s",
+	(gate) => {
+		vi.stubEnv("BETA_ACCESS_REQUIRED", gate);
+		vi.stubEnv("BETA_MODERATION_SCHEDULE", "Lundi 18–19 h");
+		vi.stubEnv("BETA_SUBMISSIONS_OPEN", "false");
+		expect(betaSettings().submissionsOpen).toBe(false);
+		vi.stubEnv("BETA_SUBMISSIONS_OPEN", "true");
+		expect(betaSettings().submissionsOpen).toBe(true);
+		vi.stubEnv("BETA_MODERATION_SCHEDULE", " ");
+		expect(betaSettings().submissionsOpen).toBe(false);
+	},
+);
