@@ -6,6 +6,11 @@ import {
 } from "node:crypto";
 import { isIP } from "node:net";
 
+// Only the explicit string "false" opens access; missing/invalid values fail closed.
+export function betaAccessRequired() {
+	return process.env.BETA_ACCESS_REQUIRED !== "false";
+}
+
 export const BETA_COOKIE = "pv-beta-access";
 const lifetime = 14 * 24 * 60 * 60;
 export function invitationDigests(
@@ -219,6 +224,7 @@ export async function betaAccessResponse(
 					"status",
 					false,
 				);
+			if (!betaAccessRequired()) return redirect("/");
 			return entryPage(
 				digests.length === 0 || secret.length < 32
 					? "Les invitations ne sont pas encore ouvertes."
@@ -227,6 +233,11 @@ export async function betaAccessResponse(
 		}
 		if (request.method !== "POST")
 			return new Response(null, { status: 405, headers });
+		if (!betaAccessRequired())
+			return new Response(null, {
+				status: 404,
+				headers,
+			});
 		if (request.headers.get("origin") !== expectedOrigin(request.url))
 			return entryPage("Rechargez la page avant de réessayer.", 403);
 		if (invitationRateLimited(request))
@@ -264,6 +275,7 @@ export async function betaAccessResponse(
 			`${BETA_COOKIE}=${signInvitation(code, secret)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${lifetime}${secure}`,
 		);
 	}
+	if (!betaAccessRequired()) return null;
 	// These pages carry no participant content. Server functions are never exempted.
 	if (
 		["GET", "HEAD"].includes(request.method) &&
