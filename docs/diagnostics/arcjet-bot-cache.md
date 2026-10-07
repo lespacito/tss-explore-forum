@@ -55,15 +55,12 @@ Le passage RUN → CACHED confirme une reprise de la décision BOT, pas un nouve
 classement Chrome comme bot. Le TTL 60 est démontré dans la version verrouillée
 et le test local, et non mesuré a posteriori dans cette sonde.
 
-Si la sonde importe le SDK/notre singleton directement, son redémarrage supprime ce
-cache. Si elle effectue uniquement des requêtes HTTP vers la préprod, redémarrer
-la sonde ne supprime **pas** le cache de l’application distante : vérifier le temps
-écoulé, le worker/réplica, les cookies/session et l’IP réellement extraite.
-
-Pour confirmer sans changer les protections : comparer `results[].state`, TTL,
-ruleId, empreinte, présence d’un appel distant et identifiant du worker sur les
-deux requêtes. Ne pas journaliser cookies, tokens, clé, IP brute ou ID utilisateur.
-Ne pas attribuer un effet aux logs de la sonde sans identifier où tourne Arcjet.
+Confirmation Hermes : chaque lancement est un nouveau processus Bun qui importe
+le bundle compilé instanciant Arcjet au niveau module. La sonde construit des
+Request synthétiques et appelle directement les policies, sans fetch HTTP.
+BOT puis Chrome partagent donc réellement le cache ; un nouveau lancement le
+recrée. L’attribution SDK/policies est confirmée. Un blocage HTTP d’un véritable
+navigateur reste à vérifier : il n’est pas démontré par cette sonde.
 
 ## Impact
 
@@ -113,3 +110,36 @@ initialisation WASM dispose de 30 secondes ; le temps TTL est contrôlé par Dat
 sans attente réelle ni fake timers du moteur.
 
 Aucun fichier de protection, dépendance ou lockfile modifié. Aucun déploiement.
+
+## Vérification officielle — 7 octobre 2026
+
+La dernière version npm de `@arcjet/node` est **1.14.1**. Le tag officiel
+`v1.14.1` pointe sur `89fe50a07b587de0e565805c5aefb7aeabf218af`.
+Le code publié `arcjet/dist/index.js` conserve, comme beta.15, la consultation
+`context.cache.get(ruleId, fingerprint)` avec le fingerprint global, puis un
+refus BOT `ttl: 60`. Le User-Agent ne participe pas à cette clé.
+
+Sources officielles :
+
+- [Signalement #6292](https://github.com/arcjet/arcjet-js/issues/6292) : même
+  phénomène avec iMessage puis Safari sur 1.12.0 ; fermé le 16 septembre 2026,
+  état `not_planned`. La réponse propose des caractéristiques globales IP + UA,
+  pas une version corrigeant le cache BOT.
+- [Code v1.14.1](https://github.com/arcjet/arcjet-js/blob/v1.14.1/arcjet/src/index.ts#L3000)
+  : clé et TTL toujours identiques dans detectBot.
+- [Versions publiées](https://github.com/arcjet/arcjet-js/releases).
+
+Les cinq tests de caractérisation existants ont été exécutés sans modification
+contre 1.14.1, dans une copie temporaire indépendante du dépôt : **5/5 passent**.
+Cela confirme la persistance du comportement indésirable, pas sa correction :
+BOT RUN/DENY → Chrome CACHED/DENY, TTL 60 puis 59 ; récupération à expiration,
+client neuf, partage entre routes et séparation entre IP.
+Le libellé beta.15 du describe a été conservé pour exécuter exactement les mêmes
+tests ; les paquets installés node/ip/inspect et le cœur arcjet sont bien 1.14.1.
+Le transport reste simulé : aucune requête Arcjet distante ni sonde préprod.
+
+Aucun upgrade ne peut donc être recommandé comme correctif démontré à ce stade.
+Le contournement global proposé officiellement modifierait nos quotas hérités ;
+il ne doit pas être appliqué tel quel. Une éventuelle isolation des caractéristiques
+BOT et rate limit demanderait une conception et des tests séparés. Aucun patch,
+changement de dépendance ou de protection n’a été appliqué au dépôt.
