@@ -39,8 +39,23 @@ Arcjet : le SDK met intentionnellement des refus en cache.
 
 ## Limite d’attribution à la sonde préprod
 
-La sonde et ses sorties détaillées ne sont pas disponibles dans le dépôt inspecté.
-Si elle importe le SDK/notre singleton directement, son redémarrage supprime ce
+La sonde distante indiquée est
+`/home/deploylespacito/.config/parlonsviolence-preprod/probe-arcjet.mjs` ; son résultat
+est `arcjet-validation.json` dans le même répertoire. Le script distant n’a pas été
+lu ni relancé. Les résultats transmis par l’utilisateur confirment précisément :
+
+- BOT initial : `BOT RUN/DENY`, décision `DENY`, raison `BOT` ;
+- contrôle Chrome, même IP et même processus : `BOT CACHED/DENY` ;
+- chemins distincts `/<nonce>/bot` puis `/<nonce>/control`, UA curl puis Chrome ;
+- dans les deux cas, SHIELD et RATE_LIMIT restent `NOT_RUN/ALLOW` ; cela ne
+  signifie pas que ces protections ont évalué et autorisé la requête ;
+- `d.ttl` non sérialisé : aucun TTL historique ne peut être reconstruit avec certitude.
+
+Le passage RUN → CACHED confirme une reprise de la décision BOT, pas un nouveau
+classement Chrome comme bot. Le TTL 60 est démontré dans la version verrouillée
+et le test local, et non mesuré a posteriori dans cette sonde.
+
+Si la sonde importe le SDK/notre singleton directement, son redémarrage supprime ce
 cache. Si elle effectue uniquement des requêtes HTTP vers la préprod, redémarrer
 la sonde ne supprime **pas** le cache de l’application distante : vérifier le temps
 écoulé, le worker/réplica, les cookies/session et l’IP réellement extraite.
@@ -64,6 +79,12 @@ observé est la disponibilité et la justesse de classification. Si l’IP ne pe
 n’est pas prouvé dans les observations préprod fournies.
 
 ## Correction minimale recommandée
+
+Pour la sonde, la modification minimale d’observabilité est de sérialiser `d.ttl`
+et les champs state/ruleId/fingerprint pertinents, sans changer ses identités ni
+relancer la validation sans demande. Conserver les deux requêtes consécutives
+sur le même client pour cette séquence ; un client neuf sert uniquement de témoin.
+
 
 1. Conserver cette séquence en test de caractérisation et distinguer les tests de
    sonde indépendants (client froid) des tests de séquence (client partagé).
