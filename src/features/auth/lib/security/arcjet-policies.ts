@@ -11,6 +11,7 @@ import {
 import { env } from "@/data/env/server";
 import { auth } from "@/features/auth/lib/auth";
 import { ARCJET_MODE, arcjet } from "./arcjet-core";
+import { beginArcjetDiagnostic } from "./arcjet-diagnostics";
 
 /**
  * Context pour l'exécution d'une policy Arcjet
@@ -52,7 +53,10 @@ const emailSettings: EmailOptions = {
  */
 async function getBaseCharacteristics(ctx: ArcjetContext) {
 	const session = await auth.api.getSession({ headers: ctx.request.headers });
-	let userIdOrIp = (session?.user.id ?? findIp(ctx.request)) || "127.0.0.1";
+	const policyIp = session?.user.id == null ? findIp(ctx.request) : undefined;
+	const identity = session?.user.id ?? policyIp;
+	const diagnostic = beginArcjetDiagnostic(ctx.request, policyIp, !identity);
+	let userIdOrIp = identity || "127.0.0.1";
 
 	// En développement, Arcjet a besoin d'une IP publique pour fonctionner correctement
 	// On utilise une IP de test standard (TEST-NET-1) si on est en localhost
@@ -60,7 +64,7 @@ async function getBaseCharacteristics(ctx: ArcjetContext) {
 		userIdOrIp = "192.0.2.1";
 	}
 
-	return { userIdOrIp };
+	return { userIdOrIp, diagnostic };
 }
 
 /**
@@ -69,12 +73,14 @@ async function getBaseCharacteristics(ctx: ArcjetContext) {
  */
 export async function protectDefault(ctx: ArcjetContext) {
 	const { request } = ctx;
-	const { userIdOrIp } = await getBaseCharacteristics(ctx);
+	const { userIdOrIp, diagnostic } = await getBaseCharacteristics(ctx);
 
-	return arcjet
-		.withRule(detectBot(botSettings))
-		.withRule(slidingWindow(laxRateLimit))
-		.protect(request as unknown as ArcjetNodeRequest, { userIdOrIp });
+	return observe(diagnostic, () =>
+		arcjet
+			.withRule(detectBot(botSettings))
+			.withRule(slidingWindow(laxRateLimit))
+			.protect(request as unknown as ArcjetNodeRequest, { userIdOrIp }),
+	);
 }
 
 /**
@@ -85,25 +91,32 @@ export async function protectDefault(ctx: ArcjetContext) {
  */
 export async function protectSignupEndpoint(ctx: ArcjetContext) {
 	const { request, email } = ctx;
-	const { userIdOrIp } = await getBaseCharacteristics(ctx);
+	const { userIdOrIp, diagnostic } = await getBaseCharacteristics(ctx);
 
 	if (email) {
-		return arcjet
-			.withRule(
-				protectSignup({
-					email: emailSettings,
-					bots: botSettings,
-					rateLimit: restrictiveRateLimit,
+		return observe(diagnostic, () =>
+			arcjet
+				.withRule(
+					protectSignup({
+						email: emailSettings,
+						bots: botSettings,
+						rateLimit: restrictiveRateLimit,
+					}),
+				)
+				.protect(request as unknown as ArcjetNodeRequest, {
+					email,
+					userIdOrIp,
 				}),
-			)
-			.protect(request as unknown as ArcjetNodeRequest, { email, userIdOrIp });
+		);
 	}
 
 	// Fallback si email pas encore connu (ne devrait pas arriver dans le flow normal)
-	return arcjet
-		.withRule(detectBot(botSettings))
-		.withRule(slidingWindow(restrictiveRateLimit))
-		.protect(request as unknown as ArcjetNodeRequest, { userIdOrIp });
+	return observe(diagnostic, () =>
+		arcjet
+			.withRule(detectBot(botSettings))
+			.withRule(slidingWindow(restrictiveRateLimit))
+			.protect(request as unknown as ArcjetNodeRequest, { userIdOrIp }),
+	);
 }
 
 /**
@@ -112,12 +125,14 @@ export async function protectSignupEndpoint(ctx: ArcjetContext) {
  */
 export async function protectAuthEndpoint(ctx: ArcjetContext) {
 	const { request } = ctx;
-	const { userIdOrIp } = await getBaseCharacteristics(ctx);
+	const { userIdOrIp, diagnostic } = await getBaseCharacteristics(ctx);
 
-	return arcjet
-		.withRule(detectBot(botSettings))
-		.withRule(slidingWindow(restrictiveRateLimit))
-		.protect(request as unknown as ArcjetNodeRequest, { userIdOrIp });
+	return observe(diagnostic, () =>
+		arcjet
+			.withRule(detectBot(botSettings))
+			.withRule(slidingWindow(restrictiveRateLimit))
+			.protect(request as unknown as ArcjetNodeRequest, { userIdOrIp }),
+	);
 }
 
 /**
@@ -126,12 +141,14 @@ export async function protectAuthEndpoint(ctx: ArcjetContext) {
  */
 export async function protectContentCreationEndpoint(ctx: ArcjetContext) {
 	const { request } = ctx;
-	const { userIdOrIp } = await getBaseCharacteristics(ctx);
+	const { userIdOrIp, diagnostic } = await getBaseCharacteristics(ctx);
 
-	return arcjet
-		.withRule(detectBot(botSettings))
-		.withRule(slidingWindow(restrictiveRateLimit))
-		.protect(request as unknown as ArcjetNodeRequest, { userIdOrIp });
+	return observe(diagnostic, () =>
+		arcjet
+			.withRule(detectBot(botSettings))
+			.withRule(slidingWindow(restrictiveRateLimit))
+			.protect(request as unknown as ArcjetNodeRequest, { userIdOrIp }),
+	);
 }
 
 /**
@@ -150,5 +167,20 @@ export async function runArcjetPolicy(ctx: ArcjetContext) {
 			return protectContentCreationEndpoint(ctx);
 		default:
 			return protectDefault(ctx);
+	}
+}
+
+// TEMPORARY diagnostics wrapper; preserves the decision and thrown error.
+async function observe<T extends import("@arcjet/node").ArcjetDecision>(
+	diagnostic: ReturnType<typeof beginArcjetDiagnostic>,
+	protect: () => Promise<T>,
+): Promise<T> {
+	try {
+		const decision = await protect();
+		diagnostic?.(decision);
+		return decision;
+	} catch (error) {
+		diagnostic?.();
+		throw error;
 	}
 }
