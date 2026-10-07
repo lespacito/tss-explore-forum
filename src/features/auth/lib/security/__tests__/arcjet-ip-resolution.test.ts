@@ -54,7 +54,6 @@ beforeEach(() => {
 });
 afterEach(() => {
 	vi.restoreAllMocks();
-	vi.unstubAllEnvs();
 });
 
 function req(
@@ -171,19 +170,6 @@ describe(
 				"fixture-user",
 			);
 			expect(mocks.decide.mock.calls[0][1].ip).toBe("");
-		});
-		it("diagnostic hooks correlate real policy entry with the unchanged decision", async () => {
-			vi.stubEnv("ARCJET_PREPROD_DIAGNOSTICS", "true");
-			const log = vi.spyOn(console, "info").mockImplementation(() => {});
-			const { runArcjetPolicy } = await import("../arcjet-policies");
-			const result = await runArcjetPolicy(req({ "x-real-ip": "8.8.8.8" }));
-			expect(result).toBe(await mocks.decide.mock.results[0].value);
-			const entries = log.mock.calls.map(([line]) => JSON.parse(String(line)));
-			expect(entries).toHaveLength(2);
-			expect(entries[0].phase).toBe("policy-entry");
-			expect(entries[1].phase).toBe("arcjet-decision");
-			expect(entries[0].correlationId).toBe(entries[1].correlationId);
-			expect(entries[1].conclusion).toBe("ALLOW");
 		});
 	},
 );

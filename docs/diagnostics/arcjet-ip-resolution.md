@@ -1,12 +1,8 @@
-# Résolution IP Arcjet — diagnostic du 8 octobre 2026
+# Caractérisation de la résolution IP Arcjet beta.15
 
-## État observé
-
-L’utilisateur confirme maintenant BOT puis Chrome refusés en HTTP réel sur
-GET /api/auth/get-session sans cookie, avec deux warnings `Client IP address is missing`.
-Le refus HTTP est établi ; la cause exacte de l’absence d’IP nécessite encore un
-relevé côté application des headers et de request.ip. Aucun accès VPS/Dokploy,
-aucune relance réseau et aucun patch de protection dans cette investigation.
+Ce document décrit le comportement des dépendances verrouillées et des policies,
+sans instrumentation runtime. Les cas synthétiques ne permettent pas de déduire
+la configuration effective des proxies ni un défaut global chez les visiteurs.
 
 ## Chaîne constatée dans le dépôt et les dépendances verrouillées
 
@@ -42,15 +38,6 @@ L’adaptateur ajoute une sélection platform via FLY_APP_NAME/VERCEL/RENDER ;
 la policy ne la fait pas. Une variable de plateforme inattendue pourrait créer
 une divergence. Sa présence réelle n’a pas été relevée.
 
-Traefik documente l’ajout automatique X-Forwarded-For et X-Real-Ip :
-https://doc.traefik.io/traefik/reference/routing-configuration/http/middlewares/headers/
-Ses règles de confiance pour les headers entrants sont distinctes du proxies
-Arcjet : https://doc.traefik.io/traefik/reference/install-configuration/entrypoints/
-Le dépôt ne contient pas la configuration effective des entrypoints/middlewares
-préprod. Il est donc impossible d’affirmer où les headers sont perdus, remplacés,
-privés ou mal formés. Un Request Web n’empêche pas Arcjet de lire XFF/X-Real-IP :
-les tests démontrent qu’ils fonctionnent lorsqu’ils contiennent une IP publique.
-
 ## Empreintes et rate limit
 
 characteristics=[userIdOrIp] remplace la caractéristique IP implicite : une ip
@@ -72,7 +59,7 @@ L’IP vide prive les contrôles distants de leur signal IP ; leur comportement
 réel et leurs compteurs ne sont pas reproduits par nos mocks. Les appelants ne
 bloquent que isDenied(), donc une éventuelle ERROR n’est pas équivalente à DENY.
 
-## Tests et correction minimale recommandée
+## Tests
 
 Douze tests avec véritable SDK/adaptateur/résolveur/cache/WASM, session et transport
 simulés : XFF public+proxy privé, X-Real-IP, priorités conflictuelles, chaîne XFF
@@ -81,21 +68,6 @@ par Node, partage BOT via fallback, identité/fingerprint de quota communs et
 session conservée malgré IP vide. Ils prouvent les entrées du rate limit, pas
 l’application de son compteur distant.
 
-Priorité avant de toucher BOT : relever côté application uniquement la forme et
-la présence des headers, request.ip, le résultat de chaque résolveur et
-l’utilisation du fallback (sans cookies/tokens/IP brute dans les logs durables).
-Vérifier les entrypoints/middlewares, les hops de proxy réels et l’inaccessibilité
-directe de l’app ; neutraliser les headers de client pouvant supplanter l’IP canonique.
-
-La correction applicative à préparer est une résolution IP canonique unique,
-issue d’une chaîne de confiance vérifiée, utilisée à la fois pour le champ IP
-Arcjet et l’identité anonyme. Supprimer le fallback localhost silencieux en
-production et définir explicitement le traitement d’une IP introuvable. Le choix
-technique d’adaptateur/API doit être validé pour beta.15 : ne pas recopier une
-option ipSrc récente dans une version qui ne la gère pas. Corriger seulement
-Traefik peut suffire si XFF/X-Real-IP manquent ; le test doit ensuite prouver la
-séparation de deux clients et l’impossibilité de changer de quota par header forgé.
-
-Même avec une IP correcte, le cache BOT reste partagé au sein d’une même identité/IP
-quand l’UA change. Résoudre l’IP réduit l’amplification, mais ne corrige pas ce
-second problème indépendant. Ne pas ajouter l’UA aux quotas globaux.
+Ces tests ne dépendent pas des anciens hooks de diagnostic. Ils servent de
+référence lors d’une évolution du SDK ou des policies ; ils ne prescrivent aucun
+changement des protections actuelles.
