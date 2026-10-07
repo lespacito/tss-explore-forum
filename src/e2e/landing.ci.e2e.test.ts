@@ -2,6 +2,10 @@ import { expect, type Page, test } from "@playwright/test";
 
 async function enterPrivateBeta(page: Page) {
 	await page.goto("/");
+	if (process.env.BETA_ACCESS_REQUIRED === "false") {
+		await expect(page).toHaveURL(/\/$/);
+		return;
+	}
 	await expect(page).toHaveURL(/\/beta$/);
 
 	const invitation = process.env.BETA_INVITATION_CODES?.split(",")[0];
@@ -142,5 +146,41 @@ test("landing reading and navigation journeys across viewports", async ({
 			.getByRole("link", { name: "Parlons Violence, accueil" })
 			.click();
 		await expect(page).toHaveURL(/\/$/);
+	}
+});
+
+test("public wording and suspended contributions need no invitation", async ({
+	page,
+}) => {
+	test.skip(
+		process.env.BETA_ACCESS_REQUIRED !== "false",
+		"Public presentation scenario",
+	);
+	await page.goto("/");
+	await expect(page).toHaveURL(/\/$/);
+	await expect(page).toHaveTitle("Parlons Violence");
+	await expect(
+		page.getByText(
+			"Accès public pour adultes · Situations fictives uniquement",
+		),
+	).toBeVisible();
+	if (process.env.BETA_SUBMISSIONS_OPEN !== "true") {
+		await expect(
+			page.getByRole("button", { name: "Dépôts suspendus" }),
+		).toBeDisabled();
+		await expect(
+			page.getByText(
+				"Le site est accessible publiquement en lecture. Les contributions sont temporairement suspendues.",
+			),
+		).toBeVisible();
+	}
+	for (const path of ["/", "/rules", "/privacy", "/help"]) {
+		await page.goto(path);
+		await expect(page.getByRole("main")).not.toContainText(
+			/bêta privée|adultes invités|votre invitation|nécessite une invitation/i,
+		);
+		await expect(page.getByRole("contentinfo")).not.toContainText(
+			/bêta privée/i,
+		);
 	}
 });

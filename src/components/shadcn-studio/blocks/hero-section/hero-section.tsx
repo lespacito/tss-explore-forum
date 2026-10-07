@@ -2,8 +2,10 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { useId } from "react";
 import { AnonymousPostButton } from "@/features/auth/components/AnonymousPostButton";
+import { useBetaPresentation } from "@/features/beta/components/beta-presentation";
 
 export default function HeroSection() {
+	const { accessRequired, submissionsOpen } = useBetaPresentation();
 	const titleId = useId();
 	const exampleId = useId();
 	return (
@@ -13,11 +15,15 @@ export default function HeroSection() {
 					<h1 id={titleId}>Mieux comprendre les situations de violence.</h1>
 					<p className="landing-mission">
 						Parlons Violence explore une façon d’aborder ces situations à partir
-						de récits fictifs. Découvrez le parcours et contribuez à son
-						amélioration.
+						de récits fictifs.{" "}
+						{accessRequired || submissionsOpen
+							? "Découvrez le parcours et contribuez à son amélioration."
+							: "Découvrez les situations fictives publiées."}
 					</p>
 					<p className="landing-beta-label">
-						Bêta privée pour adultes invités · Situations fictives uniquement
+						{accessRequired
+							? "Bêta privée pour adultes invités · Situations fictives uniquement"
+							: "Accès public pour adultes · Situations fictives uniquement"}
 					</p>
 					<div className="landing-actions">
 						<Link to="/threads" className="landing-cta">
@@ -30,8 +36,11 @@ export default function HeroSection() {
 						/>
 					</div>
 					<p className="landing-contribution-note">
-						Pour contribuer, utilisez uniquement la situation fictive fournie
-						avec votre invitation. Environ 10 minutes.
+						{accessRequired
+							? "Pour contribuer, utilisez uniquement la situation fictive fournie avec votre invitation. Environ 10 minutes."
+							: submissionsOpen
+								? "Pour contribuer, rédigez uniquement une situation fictive, sans récit personnel ni détail identifiant. Environ 10 minutes."
+								: "Le site est accessible publiquement en lecture. Les contributions sont temporairement suspendues."}
 					</p>
 					<Link to="/help" className="landing-text-link">
 						Trouver une aide adaptée <ArrowUpRight aria-hidden="true" />

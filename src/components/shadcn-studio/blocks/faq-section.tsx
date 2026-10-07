@@ -1,7 +1,8 @@
 import { ChevronDown } from "lucide-react";
 import { useId } from "react";
+import { useBetaPresentation } from "@/features/beta/components/beta-presentation";
 
-const faqs = [
+const privateFaqs = [
 	{
 		q: "Peut-on simplement consulter ?",
 		a: "Oui. Les personnes invitées peuvent lire les situations fictives publiées sans envoyer de situation. Chaque publication a été examinée par la modération. Les réponses et commentaires restent fermés.",
@@ -21,6 +22,22 @@ const faqs = [
 ];
 
 export default function FaqSection() {
+	const { accessRequired, submissionsOpen } = useBetaPresentation();
+	const faqs = accessRequired
+		? privateFaqs
+		: privateFaqs.map((item, index) =>
+				index === 0
+					? {
+							...item,
+							a: "Oui. Le site est accessible publiquement en lecture, sans envoyer de situation. Chaque publication a été examinée par la modération. Les réponses et commentaires restent fermés.",
+						}
+					: index === 2
+						? {
+								q: "À quoi sert le code de récupération ?",
+								a: "Le code de récupération permet de retrouver votre session et ne doit jamais être partagé ni placé dans une URL.",
+							}
+						: item,
+			);
 	const titleId = useId();
 	return (
 		// biome-ignore lint/correctness/useUniqueElementIds: Stable landing navigation target.
@@ -29,8 +46,9 @@ export default function FaqSection() {
 				<header>
 					<h2 id={titleId}>Quelques réponses avant de participer</h2>
 					<p>
-						Vous gardez le choix de consulter, de contribuer au test ou de
-						revenir plus tard.
+						{!accessRequired && !submissionsOpen
+							? "Vous pouvez consulter les situations fictives publiées. Les contributions sont temporairement suspendues."
+							: "Vous gardez le choix de consulter, de contribuer au test ou de revenir plus tard."}
 					</p>
 				</header>
 				<div className="landing-faq-list">

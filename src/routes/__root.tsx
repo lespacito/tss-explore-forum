@@ -11,6 +11,7 @@ import Navbar from "@/components/shadcn-studio/blocks/navbar-component/navbar-co
 import ThemeProvider from "@/components/theme";
 import { Toaster } from "@/components/ui/sonner";
 import { getAuthSessionCached } from "@/features/auth/server/get-auth-session";
+import { BetaPresentationProvider } from "@/features/beta/components/beta-presentation";
 import { PublicationReceiptProvider } from "@/features/beta/components/publication-receipt";
 import { getBetaSettings } from "@/features/beta/server/settings";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
@@ -21,7 +22,7 @@ interface MyRouterContext {
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
-	head: () => ({
+	head: ({ loaderData }) => ({
 		meta: [
 			{ name: "robots", content: "noindex, nofollow" },
 			{ name: "referrer", content: "no-referrer" },
@@ -33,7 +34,9 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 				content: "width=device-width, initial-scale=1",
 			},
 			{
-				title: "Parlons Violence — Bêta privée",
+				title: loaderData?.beta.accessRequired
+					? "Parlons Violence — Bêta privée"
+					: "Parlons Violence",
 			},
 		],
 		links: [
@@ -82,6 +85,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+	const data = Route.useLoaderData();
 	return (
 		<html lang="fr" suppressHydrationWarning>
 			<head>
@@ -105,36 +109,42 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 					storageKey="tss-explore-theme"
 					disableTransitionOnChange
 				>
-					<PublicationReceiptProvider>
-						<div className="civic-shell flex min-h-screen w-full flex-col">
-							<Navbar />
-							{/* biome-ignore lint/correctness/useUniqueElementIds: Stable document landmark target for the global skip link. */}
-							<main id="main-content" className="min-w-0 flex-1">
-								{children}
-							</main>
-							<Footer />
-						</div>
-						<Toaster position="top-right" />
-						{/*
+					<BetaPresentationProvider
+						value={
+							data?.beta ?? { accessRequired: true, submissionsOpen: false }
+						}
+					>
+						<PublicationReceiptProvider>
+							<div className="civic-shell flex min-h-screen w-full flex-col">
+								<Navbar />
+								{/* biome-ignore lint/correctness/useUniqueElementIds: Stable document landmark target for the global skip link. */}
+								<main id="main-content" className="min-w-0 flex-1">
+									{children}
+								</main>
+								<Footer />
+							</div>
+							<Toaster position="top-right" />
+							{/*
               OPTIMIZATION: Devtools are only included in development builds.
               Modern bundlers with dead code elimination will remove this entire block
               in production when NODE_ENV !== 'development', saving ~200-300KB.
             */}
-						{process.env.NODE_ENV === "development" && (
-							<TanStackDevtools
-								config={{
-									position: "bottom-right",
-								}}
-								plugins={[
-									{
-										name: "Tanstack Router",
-										render: <TanStackRouterDevtoolsPanel />,
-									},
-									TanStackQueryDevtools,
-								]}
-							/>
-						)}
-					</PublicationReceiptProvider>
+							{process.env.NODE_ENV === "development" && (
+								<TanStackDevtools
+									config={{
+										position: "bottom-right",
+									}}
+									plugins={[
+										{
+											name: "Tanstack Router",
+											render: <TanStackRouterDevtoolsPanel />,
+										},
+										TanStackQueryDevtools,
+									]}
+								/>
+							)}
+						</PublicationReceiptProvider>
+					</BetaPresentationProvider>
 					<Scripts />
 				</ThemeProvider>
 			</body>

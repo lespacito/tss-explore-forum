@@ -10,6 +10,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useBetaPresentation } from "@/features/beta/components/beta-presentation";
 import { AuthButtons } from "./auth-buttons";
 import { NavbarThemeControl } from "./navbar-theme-control";
 import { UserProfileMenu, UserProfileMenuItems } from "./user-profile-menu";
@@ -18,6 +19,7 @@ import { UserSkeleton } from "./user-skeleton";
 const routeApi = getRouteApi("__root__");
 
 const Navbar = () => {
+	const { accessRequired } = useBetaPresentation();
 	const loaderData = routeApi.useLoaderData();
 	const user = loaderData?.authSession?.user;
 	const routerState = useRouterState();
@@ -35,7 +37,7 @@ const Navbar = () => {
 						<span>Parlons</span> Violence
 					</Link>
 					<span className="civic-beta-mark civic-nav__desktop-only">
-						Bêta privée
+						{accessRequired ? "Bêta privée" : "Accès public"}
 					</span>
 					{user && (
 						<Link

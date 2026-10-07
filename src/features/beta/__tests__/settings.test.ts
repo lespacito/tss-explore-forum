@@ -27,3 +27,15 @@ it.each(["true", "false"])(
 		expect(betaSettings().submissionsOpen).toBe(false);
 	},
 );
+
+it.each([undefined, "true", "false", "invalid"])(
+	"exposes the actual gate flag to presentation (%s)",
+	(flag) => {
+		vi.stubEnv("BETA_ACCESS_REQUIRED", flag);
+		vi.stubEnv("BETA_INVITATION_CODES", "never-send-this-to-client");
+		const settings = betaSettings();
+		expect(settings.accessRequired).toBe(flag !== "false");
+		expect(settings).not.toHaveProperty("invitationCodes");
+		expect(JSON.stringify(settings)).not.toContain("never-send-this-to-client");
+	},
+);

@@ -33,12 +33,15 @@ vi.mock("@tanstack/react-router", () => ({
 	getRouteApi: () => ({
 		useLoaderData: () => ({ beta: { submissionsOpen: state.submissionsOpen } }),
 	}),
+	useRouterState: () => ({ location: { pathname: "/" } }),
 	useRouter: () => ({ invalidate: state.invalidate, navigate: state.navigate }),
 }));
 vi.mock("@/features/auth/server/create-anonymous-session", () => ({
 	createAnonymousSessionFn: state.createSession,
 }));
 
+import Footer from "@/components/shadcn-studio/blocks/footer";
+import { BetaPresentationProvider } from "@/features/beta/components/beta-presentation";
 import { Route } from "../index";
 
 const Home = Route.options.component;
@@ -187,4 +190,54 @@ describe("Landing composition B", () => {
 		);
 		expect(state.createSession).toHaveBeenCalledTimes(1);
 	});
+});
+
+describe("Landing access and contribution flags", () => {
+	it.each(
+		[true, false].flatMap((accessRequired) =>
+			[true, false].map((submissionsOpen) => [accessRequired, submissionsOpen]),
+		),
+	)(
+		"accessRequired=%s, submissionsOpen=%s",
+		(accessRequired, submissionsOpen) => {
+			state.submissionsOpen = submissionsOpen;
+			const { container } = render(
+				<BetaPresentationProvider value={{ accessRequired, submissionsOpen }}>
+					<Home />
+					<Footer />
+				</BetaPresentationProvider>,
+			);
+			expect(
+				screen.getByRole("link", { name: "Consulter les situations fictives" }),
+			).toHaveAttribute("href", "/threads");
+			const button = screen.getByRole("button", {
+				name: submissionsOpen
+					? "Proposer une situation fictive"
+					: "Dépôts suspendus",
+			});
+			if (submissionsOpen) expect(button).toBeEnabled();
+			else expect(button).toBeDisabled();
+			if (accessRequired) {
+				expect(container).toHaveTextContent("Bêta privée pour adultes invités");
+				expect(container).toHaveTextContent("fournie avec votre invitation");
+				expect(container).toHaveTextContent("À quoi servent les deux codes ?");
+			} else {
+				expect(container).not.toHaveTextContent(
+					/bêta privée|invités|invitation|deux codes/i,
+				);
+				expect(container).toHaveTextContent("Accès public pour adultes");
+				expect(container).toHaveTextContent(
+					"À quoi sert le code de récupération ?",
+				);
+				if (!submissionsOpen)
+					expect(container).toHaveTextContent(
+						"Les contributions sont temporairement suspendues",
+					);
+				else
+					expect(container).toHaveTextContent(
+						"rédigez uniquement une situation fictive",
+					);
+			}
+		},
+	);
 });

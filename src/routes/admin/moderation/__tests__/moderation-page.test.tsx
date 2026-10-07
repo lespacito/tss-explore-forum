@@ -3,6 +3,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import "@testing-library/jest-dom/vitest";
 import { Route } from "../index";
 
+const flags = vi.hoisted(() => ({
+	accessRequired: true,
+	submissionsOpen: false,
+}));
+vi.mock("@/features/beta/components/beta-presentation", () => ({
+	useBetaPresentation: () => flags,
+}));
+
 const mocks = vi.hoisted(() => ({
 	invalidate: vi.fn(),
 	moderateThread: vi.fn(),
@@ -52,7 +60,8 @@ vi.mock("@/features/moderation/server/thread-moderation", () => ({
 	moderateThreadFn: mocks.moderateThread,
 	moderationReasonCodes: ["OUT_OF_SCOPE"],
 	moderationReasonLabels: {
-		OUT_OF_SCOPE: "Cette situation fictive ne correspond pas au périmètre de cette bêta.",
+		OUT_OF_SCOPE:
+			"Cette situation fictive ne correspond pas au périmètre de cette bêta.",
 	},
 }));
 
@@ -69,6 +78,7 @@ if (!ModerationPage) throw new Error("Moderation route component missing");
 describe("Moderation decisions", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		flags.accessRequired = true;
 		mocks.moderateThread.mockResolvedValue({
 			id: "46cc031d-7a75-4cf0-88c6-6aac14dd80f7",
 			status: "published",
@@ -83,7 +93,9 @@ describe("Moderation decisions", () => {
 
 		expect(mocks.moderateThread).not.toHaveBeenCalled();
 		expect(
-			screen.getByText("Cette situation fictive deviendra visible par les invités."),
+			screen.getByText(
+				"Cette situation fictive deviendra visible par les invités.",
+			),
 		).toBeDefined();
 
 		fireEvent.click(
@@ -199,4 +211,25 @@ describe("Moderation decisions", () => {
 		);
 		expect(screen.getByText("Situation fictive publiée")).toBeDefined();
 	});
+});
+
+it("warns moderators that publishing makes the scenario public when access is public", async () => {
+	flags.accessRequired = false;
+	mocks.moderateThread.mockResolvedValue({ status: "published" });
+	render(<ModerationPage />);
+	fireEvent.click(screen.getByRole("button", { name: "Approuver" }));
+	expect(
+		screen.getByText(
+			"Cette situation fictive deviendra accessible publiquement en lecture.",
+		),
+	).toBeDefined();
+	fireEvent.click(
+		screen.getByRole("button", { name: "Confirmer l’approbation" }),
+	);
+	await waitFor(() =>
+		expect(
+			screen.getByText(/est maintenant accessible publiquement en lecture/),
+		).toBeDefined(),
+	);
+	expect(screen.queryByText(/visible par les invités/)).toBeNull();
 });

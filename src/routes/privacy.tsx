@@ -1,69 +1,79 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useBetaPresentation } from "@/features/beta/components/beta-presentation";
 
 export const Route = createFileRoute("/privacy")({ component: Page });
 function Page() {
+	const { accessRequired } = useBetaPresentation();
 	return (
 		<article className="mx-auto max-w-3xl space-y-5 px-4 py-10 leading-7 [&_h2]:pt-5 [&_h2]:font-serif [&_h2]:text-xl [&_h2]:font-semibold [&_a]:underline [&_a]:underline-offset-4">
 			<h1 className="font-serif text-3xl font-semibold">
-				Confidentialité de la bêta
+				{accessRequired ? "Confidentialité de la bêta" : "Confidentialité"}
 			</h1>
 			<p>
-				Cette page décrit le fonctionnement de la bêta et ses limites. L’accès
-				aux situations fictives et aux API nécessite une invitation valide.
+				{accessRequired
+					? "Cette page décrit le fonctionnement de la bêta et ses limites. L’accès aux situations fictives et aux API nécessite une invitation valide."
+					: "Cette page décrit le fonctionnement du site et ses limites. Les situations fictives publiées sont accessibles en lecture sans invitation ni code d’accès."}
 			</p>
 			<h2>Anonymat et identité</h2>
 			<p>
 				Aucun nom réel ni email n’est nécessaire pour une session anonyme. Un
-				pseudonyme interne relie votre session à vos situations fictives. Si elles sont publiées,
-				elles apparaissent sous « Auteur anonyme », sans pseudonyme public. L’administration technique peut relier
-				une session à ses pseudonymes : cette séparation ne constitue pas une garantie
+				pseudonyme interne relie votre session à vos situations fictives. Si
+				elles sont publiées, elles apparaissent sous « Auteur anonyme », sans
+				pseudonyme public. L’administration technique peut relier une session à
+				ses pseudonymes : cette séparation ne constitue pas une garantie
 				d’anonymat absolu. Un récit peut également contenir des détails
 				identifiants ; utilisez uniquement des situations fictives.
 			</p>
 			<h2>Données conservées</h2>
 			<p>
-				Le service conserve les sessions, leurs données techniques, les pseudonymes,
-				les situations fictives, les décisions de modération et le code de récupération.
-				Les données techniques de session peuvent inclure une adresse IP et des
-				informations de navigateur. Le modérateur dispose du contenu et des
-				décisions, sans affichage de l’adresse IP dans sa file de modération.
+				Le service conserve les sessions, leurs données techniques, les
+				pseudonymes, les situations fictives, les décisions de modération et le
+				code de récupération. Les données techniques de session peuvent inclure
+				une adresse IP et des informations de navigateur. Le modérateur dispose
+				du contenu et des décisions, sans affichage de l’adresse IP dans sa file
+				de modération.
 			</p>
 			<h2>Retours anonymes</h2>
 			<p>
 				Un formulaire de feedback permet de remonter votre expérience. Il est
 				anonyme : aucun nom, email, identifiant de session ou adresse IP n’est
-				lié à vos réponses. Seules les réponses elles-mêmes sont conservées, pour
-				analyse interne par l’organisation de la cohorte. Les champs obligatoires
-				sont limités à trois notes. Les champs libres sont facultatifs.
+				lié à vos réponses. Seules les réponses elles-mêmes sont conservées,
+				pour analyse interne par l’organisation de la cohorte. Les champs
+				obligatoires sont limités à trois notes. Les champs libres sont
+				facultatifs.
 			</p>
 			<h2>Sur votre appareil</h2>
 			<p>
-				Des cookies maintiennent l’accès invité et la session. Le thème et les
-				préférences d’interface peuvent être enregistrés. Un brouillon n’est
-				enregistré durablement que si vous activez cette option dans l’éditeur.
-				Désactivez-la ou utilisez Effacer le brouillon sur un appareil partagé.
+				{accessRequired
+					? "Des cookies maintiennent l’accès invité et la session."
+					: "Des cookies maintiennent la session."}{" "}
+				Le thème et les préférences d’interface peuvent être enregistrés. Un
+				brouillon n’est enregistré durablement que si vous activez cette option
+				dans l’éditeur. Désactivez-la ou utilisez Effacer le brouillon sur un
+				appareil partagé.
 			</p>
 			<h2>Votre code de récupération</h2>
 			<p>
 				Quiconque détient ce code peut retrouver votre session. Conservez-le
 				dans un endroit privé. Il n’est pas placé dans l’URL. Tant que votre
-				session est ouverte, vous pouvez le consulter depuis Mes situations fictives.
+				session est ouverte, vous pouvez le consulter depuis Mes situations
+				fictives.
 			</p>
 			<h2>Effacement et limites</h2>
 			<p>
 				Gérer mes données permet de demander la suppression du compte et de ses
-				situations fictives dans la base active. Une copie supprimée peut subsister
-				jusqu’à sept jours supplémentaires dans une sauvegarde avant son
-				expiration. Les retours anonymes soumis via le formulaire de feedback
-				sont également conservés avec les réponses elles-mêmes, sans identifiant
-				de participant.
+				situations fictives dans la base active. Une copie supprimée peut
+				subsister jusqu’à sept jours supplémentaires dans une sauvegarde avant
+				son expiration. Les retours anonymes soumis via le formulaire de
+				feedback sont également conservés avec les réponses elles-mêmes, sans
+				identifiant de participant.
 			</p>
 			<p>
-				Pour cette cohorte, les comptes et les situations fictives doivent être supprimés
-				sept jours après la fin du test. Seul un bilan sans identifiants sera
-				conservé ensuite. L’automatisation de cette suppression et la
-				restauration d’une sauvegarde doivent encore être vérifiées sur le
-				serveur avant l’ouverture.
+				Pour cette cohorte, les comptes et les situations fictives doivent être
+				supprimés sept jours après la fin du test. Seul un bilan sans
+				identifiants sera conservé ensuite. L’automatisation de cette
+				suppression et la restauration d’une sauvegarde doivent encore être
+				vérifiées sur le serveur avant l’ouverture.
 			</p>
 			<p>
 				Le lieu effectif d’hébergement et la durée de conservation des journaux
@@ -77,8 +87,10 @@ function Page() {
 				relatives aux données. Écrivez à{" "}
 				<a href="mailto:contact@parlonsviolence.ch">
 					contact@parlonsviolence.ch
-				</a>{" "}
-				ou utilisez le canal par lequel vous avez reçu votre invitation.
+				</a>
+				{accessRequired
+					? " ou utilisez le canal par lequel vous avez reçu votre invitation. "
+					: ". "}
 				N’envoyez jamais votre code de récupération, un récit personnel ou une
 				capture contenant ce code.
 			</p>

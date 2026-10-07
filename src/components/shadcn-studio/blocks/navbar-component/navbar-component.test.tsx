@@ -46,6 +46,7 @@ vi.mock("@/components/theme", () => ({
 vi.mock("@/hooks/use-is-client", () => ({ useIsClient: () => true }));
 vi.mock("@/features/auth/lib/auth-client", () => ({ signOut: state.signOut }));
 
+import { BetaPresentationProvider } from "@/features/beta/components/beta-presentation";
 import Navbar from "./navbar-component";
 
 afterEach(cleanup);
@@ -178,3 +179,21 @@ describe("Civic navbar", () => {
 		expect(screen.queryByRole("menuitem", { name: /Déconnexion/ })).toBeNull();
 	});
 });
+
+it.each([true, false])(
+	"labels the navbar from the access flag (%s)",
+	(accessRequired) => {
+		render(
+			<BetaPresentationProvider
+				value={{ accessRequired, submissionsOpen: true }}
+			>
+				<Navbar />
+			</BetaPresentationProvider>,
+		);
+		expect(
+			screen.getByText(accessRequired ? "Bêta privée" : "Accès public"),
+		).toBeInTheDocument();
+		if (!accessRequired)
+			expect(screen.queryByText("Bêta privée")).not.toBeInTheDocument();
+	},
+);

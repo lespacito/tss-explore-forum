@@ -1,6 +1,7 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
+import { EyeOff } from "lucide-react";
 import { useState } from "react";
 import { SafeHtmlDisplay } from "@/components/tiptap/SafeHtmlDisplay";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +21,6 @@ import {
 	EmptyMedia,
 	EmptyTitle,
 } from "@/components/ui/empty";
-import { EyeOff } from "lucide-react";
 import {
 	getCategoryConfig,
 	type ThreadCategory,
@@ -29,6 +29,7 @@ import { LinkAnonymousModal } from "@/features/auth/components/link-anonymous-mo
 import { SecretCodeDisplay } from "@/features/auth/components/SecretCodeDisplay";
 import { generateSecretCodeFn } from "@/features/auth/server/generate-secret-code-fn";
 import { getAuthSessionCached } from "@/features/auth/server/get-auth-session";
+import { useBetaPresentation } from "@/features/beta/components/beta-presentation";
 import { RejectionMessage } from "@/features/profiles/components/RejectionMessage";
 import { ThreadStatusBadge } from "@/features/profiles/components/ThreadStatusBadge";
 import { getUserThreadsFn } from "@/features/threads/server/actions/get-user-threads";
@@ -47,6 +48,7 @@ export const Route = createFileRoute("/account/profile/")({
 });
 
 function Profile() {
+	const { accessRequired } = useBetaPresentation();
 	const { user, threads } = Route.useLoaderData();
 	const [code, setCode] = useState("");
 	const [error, setError] = useState("");
@@ -75,8 +77,9 @@ function Profile() {
 		{
 			status: "published" as const,
 			title: "Publiées",
-			description:
-				"Ces situations fictives sont visibles par les participants invités.",
+			description: accessRequired
+				? "Ces situations fictives sont visibles par les participants invités."
+				: "Ces situations fictives sont accessibles publiquement en lecture.",
 		},
 	];
 

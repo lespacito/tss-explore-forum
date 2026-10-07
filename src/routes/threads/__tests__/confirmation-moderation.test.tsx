@@ -13,6 +13,14 @@ vi.mock("@tanstack/react-router", () => ({
 	),
 }));
 
+const flags = vi.hoisted(() => ({
+	accessRequired: true,
+	submissionsOpen: false,
+}));
+vi.mock("@/features/beta/components/beta-presentation", () => ({
+	useBetaPresentation: () => flags,
+}));
+
 const ConfirmationPage = Route.options.component;
 if (!ConfirmationPage) throw new Error("Confirmation route component missing");
 
@@ -84,4 +92,16 @@ describe("Publication tracking", () => {
 			validate({ secretCode: "OLD-SECRET", threadSlug: "private" }),
 		).toEqual({});
 	});
+});
+
+it("does not refer public readers to an invitation", () => {
+	flags.accessRequired = false;
+	const { container } = render(
+		<PublicationReceiptProvider>
+			<ConfirmationPage />
+		</PublicationReceiptProvider>,
+	);
+	expect(container.textContent).not.toContain("votre invitation");
+	expect(container.textContent).toContain("Aucune notification par email");
+	flags.accessRequired = true;
 });

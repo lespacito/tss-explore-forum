@@ -1,9 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
 import { useId } from "react";
+import { useBetaPresentation } from "@/features/beta/components/beta-presentation";
 import { SafetyNotice } from "@/features/beta/components/safety-notice";
 
 export default function FeaturesSection() {
+	const { accessRequired, submissionsOpen } = useBetaPresentation();
 	const privacyId = useId();
 	const contributionId = useId();
 	const helpId = useId();
@@ -47,19 +49,28 @@ export default function FeaturesSection() {
 					<header>
 						<h2 id={contributionId}>Contribuer, à votre rythme</h2>
 						<p>
-							Consulter ne vous oblige pas à écrire. Si vous participez au test,
-							voici le parcours.
+							{!accessRequired && !submissionsOpen
+								? "La lecture reste accessible à tous les adultes. Les contributions sont temporairement suspendues ; voici le parcours lorsqu’elles sont ouvertes."
+								: "Consulter ne vous oblige pas à écrire. Si vous participez au test, voici le parcours."}
 						</p>
 						<Link to="/rules" className="landing-text-link">
-							Lire les règles de la bêta <ArrowUpRight aria-hidden="true" />
+							{accessRequired
+								? "Lire les règles de la bêta"
+								: "Lire les règles"}{" "}
+							<ArrowUpRight aria-hidden="true" />
 						</Link>
 					</header>
 					<ol className="landing-steps">
 						<li>
-							<h3>Rédiger la situation fournie</h3>
+							<h3>
+								{accessRequired
+									? "Rédiger la situation fournie"
+									: "Rédiger une situation fictive"}
+							</h3>
 							<p>
-								Utilisez uniquement la situation fictive fournie avec votre
-								invitation, sans récit personnel ni détail identifiant.
+								{accessRequired
+									? "Utilisez uniquement la situation fictive fournie avec votre invitation, sans récit personnel ni détail identifiant."
+									: "Utilisez uniquement une situation fictive, sans récit personnel ni détail identifiant."}
 							</p>
 						</li>
 						<li>
@@ -86,8 +97,9 @@ export default function FeaturesSection() {
 							Pour une situation réelle, trouver une aide adaptée
 						</h2>
 						<p>
-							Des ressources extérieures à la bêta sont accessibles sans
-							invitation.
+							{accessRequired
+								? "Des ressources extérieures à la bêta sont accessibles sans invitation."
+								: "Des ressources extérieures sont accessibles pour une situation réelle."}
 						</p>
 						<Link to="/help" className="landing-text-link">
 							Consulter les ressources d’aide{" "}

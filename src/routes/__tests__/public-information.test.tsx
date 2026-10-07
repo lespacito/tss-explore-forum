@@ -1,7 +1,16 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Route as HelpRoute } from "../help";
 import { Route as PrivacyRoute } from "../privacy";
+import { Route as RulesRoute } from "../rules";
+
+const flags = vi.hoisted(() => ({
+	accessRequired: true,
+	submissionsOpen: false,
+}));
+vi.mock("@/features/beta/components/beta-presentation", () => ({
+	useBetaPresentation: () => flags,
+}));
 
 vi.mock("@tanstack/react-router", () => ({
 	createFileRoute: () => (options: unknown) => ({ options }),
@@ -10,12 +19,17 @@ vi.mock("@tanstack/react-router", () => ({
 	),
 }));
 
+const RulesPage = RulesRoute.options.component;
 const HelpPage = HelpRoute.options.component;
 const PrivacyPage = PrivacyRoute.options.component;
-if (!HelpPage || !PrivacyPage)
+if (!HelpPage || !PrivacyPage || !RulesPage)
 	throw new Error("Public route component missing");
 
 describe("Public beta information", () => {
+	beforeEach(() => {
+		flags.accessRequired = true;
+		flags.submissionsOpen = false;
+	});
 	it("offers the confirmed contact without requesting sensitive material", () => {
 		render(<HelpPage />);
 
@@ -47,4 +61,60 @@ describe("Public beta information", () => {
 				.getAttribute("href"),
 		).toBe("mailto:contact@parlonsviolence.ch");
 	});
+});
+
+describe("Access wording on information pages", () => {
+	it.each([false, true])(
+		"keeps private invitation wording with submissionsOpen=%s",
+		(submissionsOpen) => {
+			flags.accessRequired = true;
+			flags.submissionsOpen = submissionsOpen;
+			const { container } = render(
+				<>
+					<RulesPage />
+					<PrivacyPage />
+					<HelpPage />
+				</>,
+			);
+			expect(container.textContent).toContain("Règles de la bêta privée");
+			expect(container.textContent).toContain("adultes invités");
+			expect(container.textContent).toContain(
+				"Aucun récit personnel n’est demandé pendant cette première cohorte.",
+			);
+			expect(container.textContent).toContain("indépendant de la bêta.");
+			expect(container.textContent).toContain(
+				"nécessite une invitation valide",
+			);
+		},
+	);
+	it.each([false, true])(
+		"explains public access independently of submissionsOpen=%s",
+		(submissionsOpen) => {
+			flags.accessRequired = false;
+			flags.submissionsOpen = submissionsOpen;
+			const { container } = render(
+				<>
+					<RulesPage />
+					<PrivacyPage />
+					<HelpPage />
+				</>,
+			);
+			expect(container.textContent).not.toMatch(
+				/bêta privée|adultes invités|votre invitation|envoyé l’invitation|nécessite une invitation/,
+			);
+			expect(container.textContent).toContain(
+				"accessibles publiquement en lecture",
+			);
+			expect(container.textContent).toContain(
+				submissionsOpen
+					? "Les contributions sont ouvertes"
+					: "Les contributions sont temporairement suspendues",
+			);
+			expect(container.textContent).toContain("code de récupération");
+			expect(container.textContent).toContain(
+				"Aucun récit personnel n’est demandé sur ce site.",
+			);
+			expect(container.textContent).toContain("indépendant de la plateforme.");
+		},
+	);
 });

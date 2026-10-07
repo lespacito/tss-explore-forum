@@ -14,9 +14,15 @@ import { toast } from "sonner";
 import { SafeHtmlDisplay } from "@/components/tiptap/SafeHtmlDisplay";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+	Empty,
+	EmptyDescription,
+	EmptyHeader,
+	EmptyTitle,
+} from "@/components/ui/empty";
 import { Textarea } from "@/components/ui/textarea";
-import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { getAuthSession } from "@/features/auth/server/get-auth-session";
+import { useBetaPresentation } from "@/features/beta/components/beta-presentation";
 import {
 	getModerationQueueFn,
 	type ModerationQueueItem,
@@ -197,6 +203,7 @@ function ModerationItem({
 	onDecision: (notice: DecisionNotice) => void;
 }) {
 	const router = useRouter();
+	const { accessRequired } = useBetaPresentation();
 	const [isWorking, setIsWorking] = useState(false);
 	const [showReject, setShowReject] = useState(false);
 	const [reasonCode, setReasonCode] = useState<ModerationReasonCode | "">("");
@@ -228,7 +235,9 @@ function ModerationItem({
 			);
 			setShowReject(false);
 			setPendingAction(null);
-			onDecision(decisionNoticeFor(action, thread.title, thread.status));
+			onDecision(
+				decisionNoticeFor(action, thread.title, thread.status, accessRequired),
+			);
 			try {
 				await router.invalidate();
 			} catch {
@@ -326,7 +335,9 @@ function ModerationItem({
 					{pendingAction && (
 						<fieldset className="mt-4 space-y-3 rounded-lg bg-muted p-3">
 							<legend className="sr-only">Confirmer la décision</legend>
-							<p className="text-sm">{confirmationMessageFor(pendingAction)}</p>
+							<p className="text-sm">
+								{confirmationMessageFor(pendingAction, accessRequired)}
+							</p>
 							<div className="flex flex-wrap justify-end gap-2">
 								<Button
 									type="button"
@@ -424,9 +435,14 @@ function ModerationItem({
 	);
 }
 
-function confirmationMessageFor(action: Exclude<ModerationAction, "reject">) {
+function confirmationMessageFor(
+	action: Exclude<ModerationAction, "reject">,
+	accessRequired: boolean,
+) {
 	if (action === "publish") {
-		return "Cette situation fictive deviendra visible par les invités.";
+		return accessRequired
+			? "Cette situation fictive deviendra visible par les invités."
+			: "Cette situation fictive deviendra accessible publiquement en lecture.";
 	}
 	if (action === "mark_sensitive") {
 		return "Son extrait sera masqué jusqu’à ce que la personne choisisse de l’afficher.";
@@ -444,11 +460,14 @@ function decisionNoticeFor(
 	action: ModerationAction,
 	threadTitle: string,
 	currentStatus: QueueStatus,
+	accessRequired: boolean,
 ): DecisionNotice {
 	if (action === "publish") {
 		return {
 			title: "Situation fictive publiée",
-			description: `« ${threadTitle} » est maintenant visible par les invités.`,
+			description: accessRequired
+				? `« ${threadTitle} » est maintenant visible par les invités.`
+				: `« ${threadTitle} » est maintenant accessible publiquement en lecture.`,
 			filter: "published",
 		};
 	}
@@ -489,7 +508,8 @@ function EmptyQueue({ status }: { status: QueueStatus }) {
 	const labels = {
 		pending: {
 			title: "Aucune situation fictive à examiner.",
-			description: "Aucune situation fictive n’attend actuellement votre examen.",
+			description:
+				"Aucune situation fictive n’attend actuellement votre examen.",
 		},
 		published: {
 			title: "Aucune situation fictive publiée.",

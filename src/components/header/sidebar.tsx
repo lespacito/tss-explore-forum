@@ -10,6 +10,7 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useBetaPresentation } from "@/features/beta/components/beta-presentation";
 
 const items = [
 	{ title: "Publications", url: "/threads", icon: FileText },
@@ -23,11 +24,14 @@ const items = [
 	{ title: "Aide et contact", url: "/help", icon: LifeBuoy },
 ];
 export function AppSidebar() {
+	const { accessRequired } = useBetaPresentation();
 	return (
 		<Sidebar>
 			<SidebarContent>
 				<SidebarGroup>
-					<SidebarGroupLabel>Bêta privée</SidebarGroupLabel>
+					<SidebarGroupLabel>
+						{accessRequired ? "Bêta privée" : "Accès public"}
+					</SidebarGroupLabel>
 					<SidebarGroupContent>
 						<SidebarMenu>
 							{items.map((item) => (
