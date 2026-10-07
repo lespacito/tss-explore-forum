@@ -1,0 +1,195 @@
+name: Build and publish preproduction images
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+# Serializes publishers across branches and retries. Never cancel a push midway.
+concurrency:
+  group: parlons-violence-preprod-ghcr
+  cancel-in-progress: false
+
+env:
+  APP_IMAGE: ghcr.io/lespacito/parlons-violence-preprod-app
+  MIGRATE_IMAGE: ghcr.io/lespacito/parlons-violence-preprod-migrate
+
+jobs:
+  publish:
+    if: github.repository == 'lespacito/tss-explore-forum' && github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout the workflow source commit
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          path: source
+          persist-credentials: false
+
+      - name: Verify source SHA and Dockerfile contract
+        id: source
+        run: |
+          set -euo pipefail
+          actual_sha=$(git -C source rev-parse HEAD)
+          test "$actual_sha" = "$GITHUB_SHA"
+          test "$(sed -n '1p' source/Dockerfile)" = 'FROM oven/bun:1-alpine AS base'
+          grep -qx 'FROM base AS builder' source/Dockerfile
+          grep -qx 'FROM base AS runner' source/Dockerfile
+          test -s source/bun.lock
+          test -s source/drizzle.config.ts
+          test -s source/drizzle/meta/_journal.json
+          echo "actual_sha=$actual_sha" >> "$GITHUB_OUTPUT"
+          echo "SHA_TAG=sha-$actual_sha" >> "$GITHUB_ENV"
+          echo "RUN_TAG=sha-$actual_sha-run-$GITHUB_RUN_ID-attempt-$GITHUB_RUN_ATTEMPT" >> "$GITHUB_ENV"
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+
+      - name: Authenticate to GHCR
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Prepare strict registry collision guard
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/check-preprod-tags.sh" <<'GUARD'
+          set -euo pipefail
+          for image in "$APP_IMAGE" "$MIGRATE_IMAGE"; do
+            repository=${image#ghcr.io/}
+            token=$(curl --fail --silent --show-error \
+              --user "$GITHUB_ACTOR:$GHCR_TOKEN" \
+              "https://ghcr.io/token?service=ghcr.io&scope=repository:$repository:pull" \
+              | jq -er '.token // .access_token')
+            echo "::add-mask::$token"
+            for tag in "$SHA_TAG" "$RUN_TAG"; do
+              status=$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' \
+                --header "Authorization: Bearer $token" \
+                --header 'Accept: application/vnd.oci.image.index.v1+json, application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.docker.distribution.manifest.v2+json' \
+                "https://ghcr.io/v2/$repository/manifests/$tag")
+              case "$status" in
+                404) ;;
+                200) echo "::error::Refusing to overwrite $image:$tag"; exit 1 ;;
+                *) echo "::error::Cannot prove absence of $image:$tag (HTTP $status)"; exit 1 ;;
+              esac
+            done
+          done
+          GUARD
+          bash "$RUNNER_TEMP/check-preprod-tags.sh"
+
+      - name: Resolve the amd64 base image once
+        id: base
+        run: |
+          set -euo pipefail
+          docker buildx imagetools inspect --raw oven/bun:1-alpine > "$RUNNER_TEMP/bun-index.json"
+          digest=$(jq -er '[.manifests[] | select(.platform.os == "linux" and .platform.architecture == "amd64")] | if length == 1 then .[0].digest else error("Expected one linux/amd64 base manifest") end' "$RUNNER_TEMP/bun-index.json")
+          [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+          echo "BASE_DIGEST=$digest" >> "$GITHUB_ENV"
+          echo "BASE_REF=docker.io/oven/bun@$digest" >> "$GITHUB_ENV"
+
+      - name: Build both targets without publishing
+        run: |
+          set -euo pipefail
+          common=(
+            --platform linux/amd64 --load --provenance=false
+            --file source/Dockerfile
+            --build-context "oven/bun:1-alpine=docker-image://$BASE_REF"
+            --build-arg 'VITE_APP_NAME=Parlons Violence — Préproduction'
+            --build-arg 'VITE_APP_URL=https://preprod.parlonsviolence.ch'
+            --build-arg 'VITE_BETTER_AUTH_URL=https://preprod.parlonsviolence.ch'
+            --build-arg 'VITE_ENABLE_OAUTH=false'
+            --label "org.opencontainers.image.revision=$GITHUB_SHA"
+            --label 'org.opencontainers.image.source=https://github.com/lespacito/tss-explore-forum'
+            --label "org.opencontainers.image.base.name=$BASE_REF"
+            --label "org.opencontainers.image.base.digest=$BASE_DIGEST"
+          )
+          docker buildx build "${common[@]}" --target builder \
+            --label 'org.opencontainers.image.title=Parlons Violence — Préproduction migrations' \
+            --tag "$MIGRATE_IMAGE:$RUN_TAG" source
+          docker buildx build "${common[@]}" --target runner \
+            --label 'org.opencontainers.image.title=Parlons Violence — Préproduction application' \
+            --tag "$APP_IMAGE:$RUN_TAG" source
+          for image in "$APP_IMAGE" "$MIGRATE_IMAGE"; do
+            test "$(docker image inspect "$image:$RUN_TAG" --format '{{.Os}}/{{.Architecture}}')" = linux/amd64
+          done
+
+      - name: Verify migration payload offline without executing it
+        run: |
+          set -euo pipefail
+          docker run --rm --network none --read-only --cap-drop ALL \
+            --security-opt no-new-privileges --entrypoint bun "$MIGRATE_IMAGE:$RUN_TAG" -e '
+              const fs = require("node:fs");
+              const assert = require("node:assert/strict");
+              assert(fs.statSync("/app/drizzle.config.ts").size > 0);
+              const journal = JSON.parse(fs.readFileSync("/app/drizzle/meta/_journal.json", "utf8"));
+              assert(journal.entries.length > 0);
+              for (const { tag } of journal.entries) {
+                assert(/^[a-zA-Z0-9_-]+$/.test(tag));
+                assert(fs.statSync(`/app/drizzle/${tag}.sql`).size > 0);
+              }
+              const kit = JSON.parse(fs.readFileSync("/app/node_modules/drizzle-kit/package.json", "utf8"));
+              assert(kit.name === "drizzle-kit" && kit.version);
+              fs.accessSync("/app/node_modules/.bin/drizzle-kit", fs.constants.X_OK);
+              console.log(`Verified ${journal.entries.length} SQL migrations and drizzle-kit ${kit.version}`);
+            '
+
+      - name: Recheck all tags immediately before publication
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash "$RUNNER_TEMP/check-preprod-tags.sh"
+
+      - name: Publish and verify exact registry digests
+        run: |
+          set -euo pipefail
+          for image in "$APP_IMAGE" "$MIGRATE_IMAGE"; do
+            docker push "$image:$RUN_TAG"
+            run_digest=$(docker buildx imagetools inspect "$image:$RUN_TAG" --format '{{.Manifest.Digest}}')
+            [[ "$run_digest" =~ ^sha256:[0-9a-f]{64}$ ]]
+            printf '| `%s` | `%s` | `%s@%s` |\n' \
+              "$image" "$RUN_TAG" "$image" "$run_digest" >> "$RUNNER_TEMP/published-images.md"
+            docker tag "$image:$RUN_TAG" "$image:$SHA_TAG"
+            docker push "$image:$SHA_TAG"
+            sha_digest=$(docker buildx imagetools inspect "$image:$SHA_TAG" --format '{{.Manifest.Digest}}')
+            test "$sha_digest" = "$run_digest"
+            printf '| `%s` | `%s` | `%s@%s` |\n' \
+              "$image" "$SHA_TAG" "$image" "$sha_digest" >> "$RUNNER_TEMP/published-images.md"
+          done
+
+      - name: Publication summary
+        if: always()
+        env:
+          ACTUAL_SHA: ${{ steps.source.outputs.actual_sha }}
+          BASE_DIGEST: ${{ steps.base.outputs.digest }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          set -euo pipefail
+          {
+            echo '## Preproduction image publication'
+            echo "Status: $JOB_STATUS"
+            echo "Source HEAD verified: ${ACTUAL_SHA:-not verified}"
+            echo "Run: $GITHUB_RUN_ID / attempt: $GITHUB_RUN_ATTEMPT"
+            echo "Platform: linux/amd64"
+            echo "Requested tags: ${SHA_TAG:-not prepared}, ${RUN_TAG:-not prepared}"
+            echo "Resolved base: docker.io/oven/bun@${BASE_DIGEST:-not resolved} (from oven/bun:1-alpine)"
+            echo
+            echo '| Image | Tags | Verified registry digest reference |'
+            echo '| --- | --- | --- |'
+            if [[ -f "$RUNNER_TEMP/published-images.md" ]]; then
+              cat "$RUNNER_TEMP/published-images.md"
+            else
+              echo 'No image publication verified. Inspect the failed step before retrying.'
+            fi
+            echo
+            echo 'A failed push can leave a partial publication. Existing tags are never intentionally replaced.'
+          } >> "$GITHUB_STEP_SUMMARY"
