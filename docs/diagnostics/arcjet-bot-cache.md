@@ -1,4 +1,4 @@
-# Diagnostic BOT → navigateur, même identité/IP
+# Caractérisation du cache BOT Arcjet beta.15
 
 ## Conclusion
 
@@ -37,31 +37,6 @@ persistante dans cette reproduction. C’est le cache par instance du SDK, combi
 à notre choix d’empreinte. Cela n’établit pas à lui seul un bug au regard du contrat
 Arcjet : le SDK met intentionnellement des refus en cache.
 
-## Limite d’attribution à la sonde préprod
-
-La sonde distante indiquée est
-`/home/deploylespacito/.config/parlonsviolence-preprod/probe-arcjet.mjs` ; son résultat
-est `arcjet-validation.json` dans le même répertoire. Le script distant n’a pas été
-lu ni relancé. Les résultats transmis par l’utilisateur confirment précisément :
-
-- BOT initial : `BOT RUN/DENY`, décision `DENY`, raison `BOT` ;
-- contrôle Chrome, même IP et même processus : `BOT CACHED/DENY` ;
-- chemins distincts `/<nonce>/bot` puis `/<nonce>/control`, UA curl puis Chrome ;
-- dans les deux cas, SHIELD et RATE_LIMIT restent `NOT_RUN/ALLOW` ; cela ne
-  signifie pas que ces protections ont évalué et autorisé la requête ;
-- `d.ttl` non sérialisé : aucun TTL historique ne peut être reconstruit avec certitude.
-
-Le passage RUN → CACHED confirme une reprise de la décision BOT, pas un nouveau
-classement Chrome comme bot. Le TTL 60 est démontré dans la version verrouillée
-et le test local, et non mesuré a posteriori dans cette sonde.
-
-Confirmation Hermes : chaque lancement est un nouveau processus Bun qui importe
-le bundle compilé instanciant Arcjet au niveau module. La sonde construit des
-Request synthétiques et appelle directement les policies, sans fetch HTTP.
-BOT puis Chrome partagent donc réellement le cache ; un nouveau lancement le
-recrée. L’attribution SDK/policies est confirmée. Un blocage HTTP d’un véritable
-navigateur reste à vérifier : il n’est pas démontré par cette sonde.
-
 ## Impact
 
 Un faux positif temporaire peut toucher un navigateur partageant la même IP
@@ -72,34 +47,8 @@ sur l’API auth, ou une erreur applicative sur les server functions.
 
 La mise en cache ne constitue pas ici un contournement de protection : le risque
 observé est la disponibilité et la justesse de classification. Si l’IP ne peut
-être extraite, notre fallback `127.0.0.1` peut élargir le groupe affecté ; ce cas
-n’est pas prouvé dans les observations préprod fournies.
-
-## Correction minimale recommandée
-
-Pour la sonde, la modification minimale d’observabilité est de sérialiser `d.ttl`
-et les champs state/ruleId/fingerprint pertinents, sans changer ses identités ni
-relancer la validation sans demande. Conserver les deux requêtes consécutives
-sur le même client pour cette séquence ; un client neuf sert uniquement de témoin.
-
-
-1. Conserver cette séquence en test de caractérisation et distinguer les tests de
-   sonde indépendants (client froid) des tests de séquence (client partagé).
-   Un client neuf est un témoin, pas une correction de production.
-2. Si un navigateur doit être réévalué immédiatement après changement de signaux,
-   corriger **la clé du cache BOT seulement** pour inclure les signaux pertinents,
-   au minimum le User-Agent. Préférer une correction SDK vérifiée ; à défaut,
-   envisager un patch SDK versionné et ciblé après revue. Aucune version corrigée
-   n’est affirmée ici sans vérification de son code et de son comportement.
-3. Conserver inchangées les empreintes/quota de rate limiting par identité/IP et
-   les protections Shield. Transformer alors le test principal en attente
-   navigateur ALLOW (BOT initial toujours DENY), et ajouter la preuve que varier
-   l’UA ne réinitialise pas le quota.
-
-Ne pas ajouter l’UA aux caractéristiques **globales**, modifier `userIdOrIp`,
-recréer le client à chaque requête, passer en DRY_RUN, autoriser CURL, vider le
-cache ou ignorer un refus BOT pour rendre le test vert. Ces changements altèrent
-la protection et ne sont pas une correction ciblée de ce diagnostic.
+être extraite, notre fallback `127.0.0.1` peut élargir le groupe affecté ; ce scénario
+est caractérisé par les tests synthétiques de résolution IP.
 
 ## Validation
 
@@ -109,37 +58,6 @@ aucun navigateur piloté ni service Arcjet distant n’est utilisé. La premièr
 initialisation WASM dispose de 30 secondes ; le temps TTL est contrôlé par Date.now
 sans attente réelle ni fake timers du moteur.
 
-Aucun fichier de protection, dépendance ou lockfile modifié. Aucun déploiement.
-
-## Vérification officielle — 7 octobre 2026
-
-La dernière version npm de `@arcjet/node` est **1.14.1**. Le tag officiel
-`v1.14.1` pointe sur `89fe50a07b587de0e565805c5aefb7aeabf218af`.
-Le code publié `arcjet/dist/index.js` conserve, comme beta.15, la consultation
-`context.cache.get(ruleId, fingerprint)` avec le fingerprint global, puis un
-refus BOT `ttl: 60`. Le User-Agent ne participe pas à cette clé.
-
-Sources officielles :
-
-- [Signalement #6292](https://github.com/arcjet/arcjet-js/issues/6292) : même
-  phénomène avec iMessage puis Safari sur 1.12.0 ; fermé le 16 septembre 2026,
-  état `not_planned`. La réponse propose des caractéristiques globales IP + UA,
-  pas une version corrigeant le cache BOT.
-- [Code v1.14.1](https://github.com/arcjet/arcjet-js/blob/v1.14.1/arcjet/src/index.ts#L3000)
-  : clé et TTL toujours identiques dans detectBot.
-- [Versions publiées](https://github.com/arcjet/arcjet-js/releases).
-
-Les cinq tests de caractérisation existants ont été exécutés sans modification
-contre 1.14.1, dans une copie temporaire indépendante du dépôt : **5/5 passent**.
-Cela confirme la persistance du comportement indésirable, pas sa correction :
-BOT RUN/DENY → Chrome CACHED/DENY, TTL 60 puis 59 ; récupération à expiration,
-client neuf, partage entre routes et séparation entre IP.
-Le libellé beta.15 du describe a été conservé pour exécuter exactement les mêmes
-tests ; les paquets installés node/ip/inspect et le cœur arcjet sont bien 1.14.1.
-Le transport reste simulé : aucune requête Arcjet distante ni sonde préprod.
-
-Aucun upgrade ne peut donc être recommandé comme correctif démontré à ce stade.
-Le contournement global proposé officiellement modifierait nos quotas hérités ;
-il ne doit pas être appliqué tel quel. Une éventuelle isolation des caractéristiques
-BOT et rate limit demanderait une conception et des tests séparés. Aucun patch,
-changement de dépendance ou de protection n’a été appliqué au dépôt.
+Ces tests de caractérisation ne dépendent pas des anciens hooks de diagnostic.
+Ils documentent le SDK verrouillé et ne prescrivent aucun changement des règles,
+des caractéristiques globales ou des quotas.
