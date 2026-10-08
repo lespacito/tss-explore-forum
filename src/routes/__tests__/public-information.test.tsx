@@ -43,6 +43,21 @@ describe("Public beta information", () => {
 		expect(screen.getByText(/sans joindre de récit personnel/)).toBeDefined();
 	});
 
+	it("keeps private beta safety wording behind invitation access", () => {
+		flags.accessRequired = true;
+		flags.publicationMode = "test";
+		render(<HelpPage />);
+		expect(screen.getByText(/Cette bêta n’est pas un service d’urgence/)).toBeDefined();
+	});
+
+	it("uses demonstration safety wording for public test access", () => {
+		flags.accessRequired = false;
+		flags.publicationMode = "test";
+		render(<HelpPage />);
+		expect(screen.getByText(/Cet espace de démonstration n’est pas un service d’urgence/)).toBeDefined();
+		expect(screen.queryByText(/Cette bêta n’est pas un service d’urgence/)).toBeNull();
+	});
+
 	it("states the retention policy and distinguishes unverified operations", () => {
 		render(<PrivacyPage />);
 

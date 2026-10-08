@@ -1,13 +1,16 @@
 import { Link } from "@tanstack/react-router";
 import { useBetaPresentation } from "./beta-presentation";
 export function SafetyNotice() {
-	const real = useBetaPresentation().publicationMode === "real";
+	const { publicationMode, accessRequired } = useBetaPresentation();
+	const real = publicationMode === "real";
 	return (
 		<aside className="rounded-xl border border-warning bg-warning/15 p-4 text-sm leading-6">
 			<p className="font-semibold">
 				{real
 					? "Cet espace n’est pas un service d’urgence ni d’aide professionnelle."
-					: "Cette bêta n’est pas un service d’urgence ni d’aide professionnelle."}
+					: accessRequired
+						? "Cette bêta n’est pas un service d’urgence ni d’aide professionnelle."
+						: "Cet espace de démonstration n’est pas un service d’urgence ni d’aide professionnelle."}
 			</p>
 			<p>
 				{real
