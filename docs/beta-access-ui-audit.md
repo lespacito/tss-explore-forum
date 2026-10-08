@@ -64,3 +64,10 @@ Le retour en mode privé conserve les formulations et le gate existants. Tester
 les contributions ouvertes uniquement dans un environnement prévu pour cela,
 avec planning renseigné. Aucun changement d’environnement distant ni déploiement
 n’est effectué dans ce ticket.
+
+## Complément : modes de publication
+
+L’audit ci-dessus décrit la distinction accès privé/public en mode `test`.
+`PUBLICATION_MODE` distingue désormais les consignes fictives des textes réels,
+indépendamment de ces flags. Voir [les conditions d’ouverture réelle](publication-mode-readiness.md)
+pour les surfaces adaptées, validations et écarts fonctionnels/opérationnels.

@@ -35,7 +35,9 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 			},
 			{
 				title: loaderData?.beta.accessRequired
-					? "Parlons Violence — Bêta privée"
+					? loaderData.beta.publicationMode === "real"
+						? "Parlons Violence — Accès sur invitation"
+						: "Parlons Violence — Bêta privée"
 					: "Parlons Violence",
 			},
 		],
@@ -111,7 +113,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				>
 					<BetaPresentationProvider
 						value={
-							data?.beta ?? { accessRequired: true, submissionsOpen: false }
+							data?.beta ?? {
+								publicationMode: "test",
+								accessRequired: true,
+								submissionsOpen: false,
+							}
 						}
 					>
 						<PublicationReceiptProvider>

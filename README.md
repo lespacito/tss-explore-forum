@@ -462,3 +462,16 @@ bunx dotenv -e .env.beta-validation.local -- bun run dev
 Avant toute invitation réelle : confirmer les créneaux, la capacité quotidienne,
 le contact organisateur, l’hébergement et le délai de conservation des sauvegardes.
 Voir `docs/private-beta-interface-audit-2026-09-06.md` pour l’audit initial.
+
+## Textes de publication : test et réel
+
+`PUBLICATION_MODE=test` (défaut, y compris pour une valeur inconnue) conserve les
+situations fictives. Seule la valeur exacte `real` active les textes de témoignage.
+Cette variable serveur à l’exécution est indépendante de `BETA_ACCESS_REQUIRED`
+et de `BETA_SUBMISSIONS_OPEN` ; elle ne change aucune autorisation ni règle de
+modération. Les exemples de configuration et Compose gardent `test`.
+
+Le mode réel prépare l’interface, sans rendre le service prêt à recevoir des récits
+sensibles. La signature nominative n’existe pas actuellement, les motifs de
+modération restent ceux du test et des pratiques de conservation restent à
+confirmer. Voir [les écarts et conditions d’ouverture](docs/publication-mode-readiness.md).

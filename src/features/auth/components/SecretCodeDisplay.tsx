@@ -10,6 +10,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { useBetaPresentation } from "@/features/beta/components/beta-presentation";
 
 interface SecretCodeDisplayProps {
 	secretCode: string;
@@ -40,6 +41,7 @@ export function SecretCodeDisplay({
 	secretCode,
 	isExisting = false,
 }: SecretCodeDisplayProps) {
+	const real = useBetaPresentation().publicationMode === "real";
 	const [copied, setCopied] = useState(false);
 
 	const handleCopy = async () => {
@@ -68,7 +70,9 @@ export function SecretCodeDisplay({
 				<CardDescription className="text-base">
 					{isExisting
 						? "Ce code permet de retrouver votre session anonyme."
-						: "Conservez-le pour retrouver vos situations fictives plus tard."}
+						: real
+							? "Conservez-le pour retrouver vos témoignages plus tard."
+							: "Conservez-le pour retrouver vos situations fictives plus tard."}
 				</CardDescription>
 			</CardHeader>
 
@@ -88,7 +92,11 @@ export function SecretCodeDisplay({
 						variant="outline"
 						size="icon"
 						onClick={handleCopy}
-						aria-label={copied ? "Code de récupération copié" : "Copier le code de récupération"}
+						aria-label={
+							copied
+								? "Code de récupération copié"
+								: "Copier le code de récupération"
+						}
 						className="shrink-0 h-12 w-12"
 					>
 						{copied ? (
@@ -108,13 +116,17 @@ export function SecretCodeDisplay({
 						</p>
 						<ol className="list-decimal list-inside space-y-2 text-foreground/90">
 							<li>
-								Notez ce code de récupération dans un endroit privé (carnet personnel,
-								gestionnaire de mots de passe)
+								Notez ce code de récupération dans un endroit privé (carnet
+								personnel, gestionnaire de mots de passe)
 							</li>
 							<li>
 								Utilisez-le pour retrouver votre session sur un autre appareil
 							</li>
-							<li>Retrouvez toutes vos situations fictives avec ce code</li>
+							<li>
+								{real
+									? "Retrouvez tous vos témoignages avec ce code"
+									: "Retrouvez toutes vos situations fictives avec ce code"}
+							</li>
 						</ol>
 					</AlertDescription>
 				</Alert>
@@ -144,7 +156,8 @@ export function SecretCodeDisplay({
 							aria-hidden="true"
 						/>
 						<AlertDescription className="text-sm text-muted-foreground">
-							Votre code de récupération reste valide tant que vous ne supprimez pas votre compte.
+							Votre code de récupération reste valide tant que vous ne supprimez
+							pas votre compte.
 						</AlertDescription>
 					</Alert>
 				)}

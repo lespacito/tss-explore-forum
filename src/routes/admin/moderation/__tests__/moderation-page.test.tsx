@@ -4,6 +4,7 @@ import "@testing-library/jest-dom/vitest";
 import { Route } from "../index";
 
 const flags = vi.hoisted(() => ({
+	publicationMode: "test" as "test" | "real",
 	accessRequired: true,
 	submissionsOpen: false,
 }));
@@ -79,6 +80,7 @@ describe("Moderation decisions", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		flags.accessRequired = true;
+		flags.publicationMode = "test";
 		mocks.moderateThread.mockResolvedValue({
 			id: "46cc031d-7a75-4cf0-88c6-6aac14dd80f7",
 			status: "published",
@@ -233,3 +235,39 @@ it("warns moderators that publishing makes the scenario public when access is pu
 	);
 	expect(screen.queryByText(/visible par les invités/)).toBeNull();
 });
+
+it.each([true, false])(
+	"real mode keeps explicit moderation with accessRequired=%s",
+	async (accessRequired) => {
+		flags.publicationMode = "real";
+		flags.accessRequired = accessRequired;
+		mocks.moderateThread.mockClear();
+		render(<ModerationPage />);
+		expect(
+			screen.getByText(/Les motifs de non-publication restent ceux du test/),
+		).toBeInTheDocument();
+		fireEvent.click(screen.getByRole("button", { name: "Approuver" }));
+		expect(mocks.moderateThread).not.toHaveBeenCalled();
+		expect(
+			screen.getByText(
+				accessRequired
+					? "Ce témoignage deviendra visible par les invités."
+					: "Ce témoignage deviendra accessible publiquement en lecture.",
+			),
+		).toBeInTheDocument();
+		fireEvent.click(
+			screen.getByRole("button", { name: "Confirmer l’approbation" }),
+		);
+		await waitFor(() =>
+			expect(mocks.moderateThread).toHaveBeenCalledWith({
+				data: {
+					threadId: "46cc031d-7a75-4cf0-88c6-6aac14dd80f7",
+					action: "publish",
+					reasonCode: undefined,
+					details: undefined,
+				},
+			}),
+		);
+		expect(await screen.findByText("Témoignage publié")).toBeInTheDocument();
+	},
+);

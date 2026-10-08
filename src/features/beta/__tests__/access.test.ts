@@ -10,7 +10,10 @@ import {
 
 const code = "fixture-invitation-with-32-characters-minimum";
 const secret = "fixture-signing-key-with-32-characters-minimum";
-beforeEach(() => vi.stubEnv("BETA_ACCESS_REQUIRED", "true"));
+beforeEach(() => {
+	vi.stubEnv("BETA_ACCESS_REQUIRED", "true");
+	vi.stubEnv("PUBLICATION_MODE", "test");
+});
 afterEach(() => vi.unstubAllEnvs());
 describe("private beta boundary", () => {
 	it("rejects forged, expired and revoked invitations", () => {
@@ -307,3 +310,53 @@ describe("explicit public access", () => {
 		expect(response?.headers.has("set-cookie")).toBe(false);
 	});
 });
+
+it.each(["test", "real"])(
+	"entry HTML and public redirect preserve access boundaries in %s mode",
+	async (mode) => {
+		vi.stubEnv("PUBLICATION_MODE", mode);
+		vi.stubEnv("BETA_INVITATION_CODES", code);
+		vi.stubEnv("BETTER_AUTH_SECRET", secret);
+		const entry = await betaAccessResponse(
+			new Request("http://localhost/beta"),
+		);
+		expect(entry?.status).toBe(200);
+		const html = await entry?.text();
+		expect(html).toContain('name="invitation"');
+		expect(html).toContain('action="/beta" method="post"');
+		expect(html).not.toContain(secret);
+		expect(html).not.toContain(code);
+		expect(html).toContain(
+			mode === "real"
+				? "examinées avant toute publication"
+				: "utilisez uniquement des situations fictives",
+		);
+		if (mode === "real") expect(html).not.toContain("situations fictives");
+		const denied = await betaAccessResponse(
+			new Request("http://localhost/threads", {
+				headers: { accept: "text/html" },
+			}),
+		);
+		expect(denied?.status).toBe(303);
+		expect(denied?.headers.get("Location")).toBe("/beta");
+		vi.stubEnv("BETA_ACCESS_REQUIRED", "false");
+		expect(
+			await betaAccessResponse(new Request("http://localhost/threads")),
+		).toBeNull();
+		const publicEntry = await betaAccessResponse(
+			new Request("http://localhost/beta"),
+		);
+		expect(publicEntry?.headers.get("Location")).toBe("/");
+		const erased = await betaAccessResponse(
+			new Request("http://localhost/beta?erased=1"),
+		);
+		const erasedHtml = await erased?.text();
+		expect(erasedHtml).toContain('role="status"');
+		expect(erasedHtml).toContain(
+			mode === "real"
+				? "témoignages ont été effacés"
+				: "situations fictives ont été effacées",
+		);
+		if (mode === "real") expect(erasedHtml).not.toContain("sept jours");
+	},
+);

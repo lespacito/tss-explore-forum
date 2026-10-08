@@ -24,13 +24,17 @@ const items = [
 	{ title: "Aide et contact", url: "/help", icon: LifeBuoy },
 ];
 export function AppSidebar() {
-	const { accessRequired } = useBetaPresentation();
+	const { accessRequired, publicationMode } = useBetaPresentation();
 	return (
 		<Sidebar>
 			<SidebarContent>
 				<SidebarGroup>
 					<SidebarGroupLabel>
-						{accessRequired ? "Bêta privée" : "Accès public"}
+						{accessRequired
+							? publicationMode === "real"
+								? "Sur invitation"
+								: "Bêta privée"
+							: "Accès public"}
 					</SidebarGroupLabel>
 					<SidebarGroupContent>
 						<SidebarMenu>
@@ -39,7 +43,12 @@ export function AppSidebar() {
 									<SidebarMenuButton asChild className="min-h-11">
 										<Link to={item.url}>
 											<item.icon aria-hidden="true" />
-											<span>{item.title}</span>
+											<span>
+												{publicationMode === "real" &&
+												item.url === "/account/profile"
+													? "Mes témoignages"
+													: item.title}
+											</span>
 										</Link>
 									</SidebarMenuButton>
 								</SidebarMenuItem>

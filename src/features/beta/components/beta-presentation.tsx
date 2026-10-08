@@ -2,10 +2,12 @@ import { createContext, type ReactNode, useContext } from "react";
 
 // Presentation only: server authorization remains in the existing beta gate.
 export type BetaPresentation = {
+	publicationMode?: "test" | "real";
 	accessRequired: boolean;
 	submissionsOpen: boolean;
 };
 const BetaPresentationContext = createContext<BetaPresentation>({
+	publicationMode: "test",
 	accessRequired: true,
 	submissionsOpen: false,
 });

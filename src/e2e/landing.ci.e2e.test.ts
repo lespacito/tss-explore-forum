@@ -1,5 +1,7 @@
 import { expect, type Page, test } from "@playwright/test";
 
+const real = process.env.PUBLICATION_MODE === "real";
+
 async function enterPrivateBeta(page: Page) {
 	await page.goto("/");
 	if (process.env.BETA_ACCESS_REQUIRED === "false") {
@@ -17,7 +19,10 @@ async function enterPrivateBeta(page: Page) {
 
 	await page.getByLabel("Code d’invitation").fill(invitation);
 	await page
-		.getByRole("button", { name: "Accéder à la bêta", exact: true })
+		.getByRole("button", {
+			name: real ? "Accéder à l’espace" : "Accéder à la bêta",
+			exact: true,
+		})
 		.click();
 	await expect(page).toHaveURL(/\/$/);
 }
@@ -30,23 +35,38 @@ test("landing reading and navigation journeys across viewports", async ({
 	// One invited visitor resizes the viewport. Re-entering for every width
 	// would consume the real invitation limiter shared by the CI browsers.
 	await enterPrivateBeta(page);
+	await expect(page).toHaveTitle(
+		process.env.BETA_ACCESS_REQUIRED === "false"
+			? "Parlons Violence"
+			: real
+				? "Parlons Violence — Accès sur invitation"
+				: "Parlons Violence — Bêta privée",
+	);
 	for (const width of [1440, 390, 320]) {
 		await page.setViewportSize({ width, height: 900 });
 
 		const main = page.getByRole("main");
 		await expect(
 			main.getByRole("heading", {
-				name: "Mieux comprendre les situations de violence.",
+				name: real
+					? "Un espace de témoignage et d’entraide face aux violences."
+					: "Mieux comprendre les situations de violence.",
 				level: 1,
 			}),
 		).toBeVisible();
 		await expect(
 			main.getByRole("button", {
-				name: /Proposer une situation fictive|Dépôts suspendus/,
+				name: real
+					? /Rédiger un témoignage|Dépôts suspendus/
+					: /Proposer une situation fictive|Dépôts suspendus/,
 			}),
 		).toBeVisible();
 		await expect(
-			page.getByText(/Envoi de situations fictives (ouvert|suspendu)/),
+			page.getByText(
+				real
+					? /Envoi de témoignages (ouvert|suspendu)/
+					: /Envoi de situations fictives (ouvert|suspendu)/,
+			),
 		).toBeVisible();
 		await expect(page.getByRole("contentinfo")).toHaveClass("landing-footer");
 
@@ -76,7 +96,9 @@ test("landing reading and navigation journeys across viewports", async ({
 		// Reading is the primary action and must not create an auth session.
 		await main
 			.getByRole("link", {
-				name: "Consulter les situations fictives",
+				name: real
+					? "Lire les témoignages"
+					: "Consulter les situations fictives",
 				exact: true,
 			})
 			.click();
@@ -86,7 +108,7 @@ test("landing reading and navigation journeys across viewports", async ({
 		await expect(page).toHaveURL(/\/threads(?:\?|$)/);
 		await expect(
 			main.getByRole("heading", {
-				name: "Situations fictives publiées",
+				name: real ? "Témoignages publiés" : "Situations fictives publiées",
 				level: 1,
 			}),
 		).toBeVisible();
@@ -103,7 +125,10 @@ test("landing reading and navigation journeys across viewports", async ({
 		await expect(menu).toBeVisible();
 		await expect(trigger).toHaveAttribute("aria-expanded", "true");
 		for (const [name, href] of [
-			["Situations fictives publiées", "/threads"],
+			[
+				real ? "Témoignages publiés" : "Situations fictives publiées",
+				"/threads",
+			],
 			["Règles", "/rules"],
 			["Confidentialité", "/privacy"],
 			["Aide et contact", "/help"],
@@ -161,7 +186,9 @@ test("public wording and suspended contributions need no invitation", async ({
 	await expect(page).toHaveTitle("Parlons Violence");
 	await expect(
 		page.getByText(
-			"Accès public pour adultes · Situations fictives uniquement",
+			real
+				? "Accès public pour adultes · Témoignages réels"
+				: "Accès public pour adultes · Situations fictives uniquement",
 		),
 	).toBeVisible();
 	if (process.env.BETA_SUBMISSIONS_OPEN !== "true") {
@@ -181,6 +208,47 @@ test("public wording and suspended contributions need no invitation", async ({
 		);
 		await expect(page.getByRole("contentinfo")).not.toContainText(
 			/bêta privée/i,
+		);
+	}
+});
+
+test("real presentation agrees between server HTML and hydrated public pages", async ({
+	page,
+}) => {
+	test.skip(!real, "Real presentation scenario");
+	await enterPrivateBeta(page);
+	const server = await page.request.get("/");
+	expect(server.status()).toBe(200);
+	const html = await server.text();
+	expect(html).toContain(
+		"Un espace de témoignage et d’entraide face aux violences.",
+	);
+	expect(html).not.toContain("Situations fictives uniquement");
+	for (const path of ["/", "/threads", "/rules", "/privacy", "/help"]) {
+		await page.goto(path);
+		const main = page.getByRole("main");
+		await expect(main).not.toContainText(
+			/situations fictives uniquement|première cohorte|utilisez uniquement.+ficti/i,
+		);
+	}
+	await page.goto("/privacy");
+	await expect(page.getByRole("main")).toContainText(
+		"Aucun parcours de publication nominative n’est proposé actuellement.",
+	);
+	await expect(page.getByRole("main")).toContainText(
+		"Aucun anonymat absolu n’est garanti.",
+	);
+	await page.goto("/threads/new");
+	if (process.env.BETA_SUBMISSIONS_OPEN !== "true") {
+		// Server submission suspension may redirect the writing route; either way
+		// the visible contribution entry remains unavailable without creating a session.
+		await page.goto("/");
+		await expect(
+			page.getByRole("button", { name: "Dépôts suspendus" }),
+		).toBeDisabled();
+	} else {
+		await expect(page.getByRole("main")).toContainText(
+			"Commencer un témoignage",
 		);
 	}
 });

@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import "@testing-library/jest-dom/vitest";
 import { eraseBetaAccount } from "@/features/beta/server/erase-account";
+import { BetaPresentationProvider } from "../beta-presentation";
 import { EraseAccountForm } from "../erase-account-form";
 
 vi.mock("@/features/beta/server/erase-account", () => ({
@@ -75,4 +76,26 @@ describe("EraseAccountForm", () => {
 			screen.getByRole("button", { name: /effacer mes données/i }),
 		).toBeEnabled();
 	});
+});
+
+it("real copy does not turn unverified backup retention into a guarantee", () => {
+	render(
+		<BetaPresentationProvider
+			value={{
+				publicationMode: "real",
+				accessRequired: false,
+				submissionsOpen: false,
+			}}
+		>
+			<EraseAccountForm anonymous userId="test-user" />
+		</BetaPresentationProvider>,
+	);
+	expect(screen.getByText(/supprime vos témoignages/)).toBeInTheDocument();
+	expect(
+		screen.getByText(/durée effective.+reste à confirmer/),
+	).toBeInTheDocument();
+	expect(screen.queryByText(/sept jours supplémentaires/)).toBeNull();
+	expect(
+		screen.getByRole("button", { name: "Effacer mes données" }),
+	).toBeDisabled();
 });

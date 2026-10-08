@@ -7,6 +7,7 @@ import { Route as RulesRoute } from "../rules";
 const flags = vi.hoisted(() => ({
 	accessRequired: true,
 	submissionsOpen: false,
+	publicationMode: "test" as "test" | "real",
 }));
 vi.mock("@/features/beta/components/beta-presentation", () => ({
 	useBetaPresentation: () => flags,
@@ -27,6 +28,7 @@ if (!HelpPage || !PrivacyPage || !RulesPage)
 
 describe("Public beta information", () => {
 	beforeEach(() => {
+		flags.publicationMode = "test";
 		flags.accessRequired = true;
 		flags.submissionsOpen = false;
 	});
@@ -115,6 +117,60 @@ describe("Access wording on information pages", () => {
 				"Aucun récit personnel n’est demandé sur ce site.",
 			);
 			expect(container.textContent).toContain("indépendant de la plateforme.");
+		},
+	);
+});
+
+describe("Real testimony information", () => {
+	it.each([
+		[true, true],
+		[true, false],
+		[false, true],
+		[false, false],
+	])(
+		"keeps access=%s independent from contributions=%s",
+		(accessRequired, submissionsOpen) => {
+			flags.publicationMode = "real";
+			flags.accessRequired = accessRequired;
+			flags.submissionsOpen = submissionsOpen;
+			const { container } = render(
+				<>
+					<RulesPage />
+					<PrivacyPage />
+					<HelpPage />
+				</>,
+			);
+			expect(container.textContent).toContain("Victime ou témoin de violence");
+			expect(container.textContent).not.toMatch(
+				/situations fictives|première cohorte|Ce test dure deux semaines|Aucun récit personnel n’est demandé/,
+			);
+			expect(container.textContent).toContain(
+				"Aucun anonymat absolu n’est garanti",
+			);
+			expect(container.textContent).toContain(
+				"Aucun parcours de publication nominative n’est proposé actuellement",
+			);
+			expect(container.textContent).toContain(
+				"avant l’ouverture aux témoignages réels",
+			);
+			expect(container.textContent).toContain(
+				submissionsOpen
+					? "Les contributions sont ouvertes"
+					: "Les contributions sont temporairement suspendues",
+			);
+			if (accessRequired)
+				expect(container.textContent).toContain(
+					"nécessite une invitation valide",
+				);
+			else {
+				expect(container.textContent).toContain(
+					"accessibles publiquement en lecture",
+				);
+				expect(container.textContent).not.toMatch(
+					/bêta privée|adultes invités|votre invitation|nécessite une invitation/,
+				);
+			}
+			flags.publicationMode = "test";
 		},
 	);
 });

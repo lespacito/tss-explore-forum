@@ -3,7 +3,9 @@ import { useBetaPresentation } from "@/features/beta/components/beta-presentatio
 
 export const Route = createFileRoute("/privacy")({ component: Page });
 function Page() {
-	const { accessRequired } = useBetaPresentation();
+	const { accessRequired, publicationMode } = useBetaPresentation();
+	if (publicationMode === "real")
+		return <RealPrivacy accessRequired={accessRequired} />;
 	return (
 		<article className="mx-auto max-w-3xl space-y-5 px-4 py-10 leading-7 [&_h2]:pt-5 [&_h2]:font-serif [&_h2]:text-xl [&_h2]:font-semibold [&_a]:underline [&_a]:underline-offset-4">
 			<h1 className="font-serif text-3xl font-semibold">
@@ -93,6 +95,84 @@ function Page() {
 					: ". "}
 				N’envoyez jamais votre code de récupération, un récit personnel ou une
 				capture contenant ce code.
+			</p>
+		</article>
+	);
+}
+
+function RealPrivacy({ accessRequired }: { accessRequired: boolean }) {
+	return (
+		<article className="mx-auto max-w-3xl space-y-5 px-4 py-10 leading-7 [&_h2]:pt-5 [&_h2]:font-serif [&_h2]:text-xl [&_h2]:font-semibold [&_a]:underline [&_a]:underline-offset-4">
+			<h1 className="font-serif text-3xl font-semibold">Confidentialité</h1>
+			<p>
+				{accessRequired
+					? "L’accès aux témoignages nécessite une invitation valide. Une invitation ne garantit pas la confidentialité du contenu publié."
+					: "Les témoignages publiés sont accessibles publiquement en lecture. Ils peuvent être copiés ou partagés par les lecteurs."}
+			</p>
+			<h2>Identité et limites de l’anonymat</h2>
+			<p>
+				Une session anonyme ne nécessite ni nom réel ni email. Les publications
+				apparaissent sous « Auteur anonyme » ; leur pseudonyme reste interne. Un
+				compte avec email ne change pas cette présentation. Aucun parcours de
+				publication nominative n’est proposé actuellement.
+			</p>
+			<p>
+				L’administration technique peut relier une session à ses pseudonymes. Le
+				contenu d’un récit et les données techniques peuvent permettre de
+				reconnaître une personne. Aucun anonymat absolu n’est garanti. Évitez
+				les noms, coordonnées, lieux précis et autres détails identifiants.
+			</p>
+			<h2>Données conservées</h2>
+			<p>
+				Le service conserve les sessions et leurs données techniques, les
+				pseudonymes, les témoignages, les décisions de modération et les codes
+				de récupération. Les données de session peuvent inclure une adresse IP
+				et des informations de navigateur. Les modérateurs disposent du contenu
+				et des décisions, sans affichage de l’adresse IP dans leur file.
+			</p>
+			<h2>Sur votre appareil</h2>
+			<p>
+				{accessRequired
+					? "Des cookies maintiennent l’accès invité et la session."
+					: "Des cookies maintiennent la session."}{" "}
+				Le thème et les préférences d’interface peuvent être enregistrés. Une
+				copie de brouillon n’est conservée durablement sur l’appareil que si
+				vous activez cette option. Sur un appareil partagé, laissez-la
+				désactivée et fermez la session après utilisation.
+			</p>
+			<h2>Code de récupération</h2>
+			<p>
+				Quiconque détient le code de récupération peut retrouver votre session.
+				Conservez-le dans un endroit privé ; ne le partagez pas et ne le placez
+				pas dans une URL.
+			</p>
+			<h2>Effacement et conservation</h2>
+			<p>
+				Gérer mes données permet de demander l’effacement du compte et de ses
+				publications dans la base active. Cela n’efface pas les copies déjà
+				conservées par des lecteurs. La durée effective des sauvegardes, la
+				conservation des journaux techniques et les conditions d’hébergement
+				restent à confirmer avant l’ouverture aux témoignages réels. Aucune
+				durée de suppression automatique de témoignages réels n’est annoncée
+				ici.
+			</p>
+			<h2>Retours sur le site</h2>
+			<p>
+				Le formulaire de feedback conserve les réponses sans leur associer de
+				nom, email, identifiant de session ou adresse IP. Les textes libres
+				peuvent néanmoins contenir des informations identifiantes : n’y joignez
+				pas de témoignage ni de donnée sensible.
+			</p>
+			<h2>Contact</h2>
+			<p>
+				Pour une demande relative aux données, écrivez à{" "}
+				<a href="mailto:contact@parlonsviolence.ch">
+					contact@parlonsviolence.ch
+				</a>
+				. N’envoyez pas de code de récupération, de témoignage ou de capture
+				contenant des données sensibles. L’identité du responsable et les
+				informations de conservation doivent être précisées avant l’ouverture
+				aux témoignages réels.
 			</p>
 		</article>
 	);

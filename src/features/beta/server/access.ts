@@ -5,6 +5,7 @@ import {
 	timingSafeEqual,
 } from "node:crypto";
 import { isIP } from "node:net";
+import { publicationMode } from "../lib/publication-mode";
 
 // Only the explicit string "false" opens access; missing/invalid values fail closed.
 export function betaAccessRequired() {
@@ -106,14 +107,17 @@ function entryPage(
 	messageRole: "alert" | "status" = "alert",
 	showInvitationForm = true,
 ) {
+	const real = publicationMode(process.env.PUBLICATION_MODE) === "real";
 	const invitationForm = showInvitationForm
-		? `<form action="/beta" method="post"><label for="invitation">Code d’invitation</label><input id="invitation" name="invitation" type="password" required maxlength="128" autocomplete="off" spellcheck="false"><button type="submit">Accéder à la bêta</button></form><p>Sans invitation, ou si votre code ne fonctionne plus, contactez la personne qui organise votre test.</p>`
+		? `<form action="/beta" method="post"><label for="invitation">Code d’invitation</label><input id="invitation" name="invitation" type="password" required maxlength="128" autocomplete="off" spellcheck="false"><button type="submit">${real ? "Accéder à l’espace" : "Accéder à la bêta"}</button></form><p>Sans invitation, ou si votre code ne fonctionne plus, contactez ${real ? "la personne qui vous a invité" : "la personne qui organise votre test"}.</p>`
 		: "<p>Vous pouvez maintenant fermer cette page.</p>";
 	const introduction = showInvitationForm
-		? "<h1>Bienvenue dans la bêta privée</h1><p>Ce test est réservé aux adultes invités en Suisse romande. Pour cette première cohorte, utilisez uniquement des situations fictives.</p><p>Votre code d’invitation ouvre le test. Après votre première situation fictive, un code de récupération distinct vous permettra de retrouver vos situations fictives.</p>"
+		? real
+			? "<h1>Bienvenue sur Parlons Violence</h1><p>Cet espace de témoignage et d’entraide est réservé aux adultes invités en Suisse romande. Vous pouvez lire sans témoigner. Les contributions, lorsqu’elles sont ouvertes, sont examinées avant toute publication. Ce site ne fournit pas d’aide professionnelle ni d’intervention d’urgence.</p><p>Votre code d’invitation ouvre l’accès. Le code de récupération est distinct : il permet de retrouver votre session. Consultez les règles et les limites de confidentialité avant de contribuer.</p>"
+			: "<h1>Bienvenue dans la bêta privée</h1><p>Ce test est réservé aux adultes invités en Suisse romande. Pour cette première cohorte, utilisez uniquement des situations fictives.</p><p>Votre code d’invitation ouvre le test. Après votre première situation fictive, un code de récupération distinct vous permettra de retrouver vos situations fictives.</p>"
 		: "<h1>Vos données ont été effacées</h1>";
 	return new Response(
-		`<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Accès à la bêta — Parlons Violence</title><link rel="stylesheet" href="/beta-entry.css"></head><body><main>${introduction}${message ? `<p role="${messageRole}">${escapeHtml(message)}</p>` : ""}${invitationForm}<nav><a href="/rules">Règles</a><a href="/privacy">Confidentialité</a><a href="/help">Aide et contact</a></nav></main></body></html>`,
+		`<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${real ? "Accès sur invitation — Parlons Violence" : "Accès à la bêta — Parlons Violence"}</title><link rel="stylesheet" href="/beta-entry.css"></head><body><main>${introduction}${message ? `<p role="${messageRole}">${escapeHtml(message)}</p>` : ""}${invitationForm}<nav><a href="/rules">Règles</a><a href="/privacy">Confidentialité</a><a href="/help">Aide et contact</a></nav></main></body></html>`,
 		{
 			status,
 			headers: {
@@ -219,7 +223,9 @@ export async function betaAccessResponse(
 			}
 			if (url.searchParams.has("erased"))
 				return entryPage(
-					"Vos données et vos situations fictives ont été effacées de la base active. Une copie peut subsister jusqu’à sept jours supplémentaires dans une sauvegarde avant son expiration.",
+					publicationMode(process.env.PUBLICATION_MODE) === "real"
+						? "Vos données et vos témoignages ont été effacés de la base active. Des copies peuvent subsister dans des sauvegardes ou avoir été conservées par des tiers. La durée effective de conservation des sauvegardes reste à confirmer avant l’ouverture aux témoignages réels."
+						: "Vos données et vos situations fictives ont été effacées de la base active. Une copie peut subsister jusqu’à sept jours supplémentaires dans une sauvegarde avant son expiration.",
 					200,
 					"status",
 					false,

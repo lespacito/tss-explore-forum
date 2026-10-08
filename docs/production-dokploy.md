@@ -58,6 +58,15 @@ les nouveaux scénarios restent `pending` et le code de récupération anonyme e
 préparé avant écriture. L’ouverture publique ne modifie ni l’auth ni CSRF.
 Les en-têtes existants `private, no-store` et `noindex, nofollow` sont conservés.
 
+## Mode de présentation avant ouverture réelle
+
+`PUBLICATION_MODE=test` reste le défaut sûr à l’exécution dans Compose. Seule la
+valeur exacte `real` adapte les textes aux témoignages réels. Aucun build client
+spécifique ni secret supplémentaire n’est nécessaire. Ce mode ne change ni
+l’accès invité/public, ni l’ouverture des contributions, ni la prémodération.
+Consulter [les blocages avant récits réels](publication-mode-readiness.md) :
+la préparation de ces textes ne constitue pas un GO pour ouvrir la production.
+
 ## Migrations et lancement ultérieur
 
 L’ordre est PostgreSQL sain → `migrate` (`bun run db:migrate`, migrations

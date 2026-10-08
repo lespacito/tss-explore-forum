@@ -22,8 +22,10 @@ const privateFaqs = [
 ];
 
 export default function FaqSection() {
-	const { accessRequired, submissionsOpen } = useBetaPresentation();
-	const faqs = accessRequired
+	const { accessRequired, submissionsOpen, publicationMode } =
+		useBetaPresentation();
+	const real = publicationMode === "real";
+	const testFaqs = accessRequired
 		? privateFaqs
 		: privateFaqs.map((item, index) =>
 				index === 0
@@ -38,6 +40,28 @@ export default function FaqSection() {
 							}
 						: item,
 			);
+	const faqs = real
+		? testFaqs.map((item, index) =>
+				index === 0
+					? {
+							...item,
+							a: accessRequired
+								? "Oui. Les adultes invités peuvent lire les témoignages publiés sans témoigner. Chaque publication a été examinée par la modération. Les réponses et commentaires restent fermés."
+								: "Oui. Les adultes peuvent lire les témoignages publiés sans code d’accès et sans témoigner. Chaque publication a été examinée par la modération. Les réponses et commentaires restent fermés.",
+						}
+					: index === 2 && accessRequired
+						? {
+								...item,
+								a: "Le code d’invitation ouvre l’accès à cet espace. Le code de récupération permet de retrouver votre session et ne doit jamais être partagé ni placé dans une URL.",
+							}
+						: index === 3
+							? {
+									...item,
+									a: "Le statut — À examiner, Publié ou Non publié — apparaît dans Mes témoignages, avec un motif en cas de non-publication. La modération n’est ni immédiate ni permanente et ne constitue pas une aide professionnelle.",
+								}
+							: item,
+			)
+		: testFaqs;
 	const titleId = useId();
 	return (
 		// biome-ignore lint/correctness/useUniqueElementIds: Stable landing navigation target.
@@ -46,9 +70,13 @@ export default function FaqSection() {
 				<header>
 					<h2 id={titleId}>Quelques réponses avant de participer</h2>
 					<p>
-						{!accessRequired && !submissionsOpen
-							? "Vous pouvez consulter les situations fictives publiées. Les contributions sont temporairement suspendues."
-							: "Vous gardez le choix de consulter, de contribuer au test ou de revenir plus tard."}
+						{real
+							? submissionsOpen
+								? "Vous pouvez lire, témoigner à votre rythme ou revenir plus tard."
+								: "Vous pouvez lire les témoignages publiés. Les contributions sont temporairement suspendues."
+							: !accessRequired && !submissionsOpen
+								? "Vous pouvez consulter les situations fictives publiées. Les contributions sont temporairement suspendues."
+								: "Vous gardez le choix de consulter, de contribuer au test ou de revenir plus tard."}
 					</p>
 				</header>
 				<div className="landing-faq-list">

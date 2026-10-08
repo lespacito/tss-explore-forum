@@ -68,57 +68,61 @@ beforeEach(() => {
 });
 afterEach(() => vi.unstubAllEnvs());
 
-describe("public launch contribution boundaries", () => {
-	it.each(["false", "", "TRUE"])(
-		"refuses writes when submissions flag is %s",
-		async (flag) => {
-			vi.stubEnv("BETA_SUBMISSIONS_OPEN", flag);
+describe.each(["test", "real"])(
+	"contribution boundaries in %s publication mode",
+	(mode) => {
+		beforeEach(() => vi.stubEnv("PUBLICATION_MODE", mode));
+		it.each(["false", "", "TRUE"])(
+			"refuses writes when submissions flag is %s",
+			async (flag) => {
+				vi.stubEnv("BETA_SUBMISSIONS_OPEN", flag);
+				await expect(createThreadFn({ data })).rejects.toThrow("suspendu");
+				expect(mocks.arcjet).not.toHaveBeenCalled();
+				expect(mocks.create).not.toHaveBeenCalled();
+			},
+		);
+		it("refuses writes without a moderation schedule", async () => {
+			vi.stubEnv("BETA_MODERATION_SCHEDULE", " ");
 			await expect(createThreadFn({ data })).rejects.toThrow("suspendu");
-			expect(mocks.arcjet).not.toHaveBeenCalled();
 			expect(mocks.create).not.toHaveBeenCalled();
-		},
-	);
-	it("refuses writes without a moderation schedule", async () => {
-		vi.stubEnv("BETA_MODERATION_SCHEDULE", " ");
-		await expect(createThreadFn({ data })).rejects.toThrow("suspendu");
-		expect(mocks.create).not.toHaveBeenCalled();
-	});
-	it("still requires an authenticated session", async () => {
-		mocks.session.mockResolvedValue(null);
-		await expect(createThreadFn({ data })).rejects.toThrow("Unauthorized");
-		expect(mocks.create).not.toHaveBeenCalled();
-	});
-	it("still respects Arcjet denial", async () => {
-		mocks.arcjet.mockResolvedValue({ isDenied: () => true });
-		await expect(createThreadFn({ data })).resolves.toEqual({
-			success: false,
-			error: "blocked",
 		});
-		expect(mocks.session).not.toHaveBeenCalled();
-		expect(mocks.create).not.toHaveBeenCalled();
-	});
-	it("keeps anonymous submissions pending and linked only to their alias", async () => {
-		await expect(createThreadFn({ data })).resolves.toMatchObject({
-			success: true,
-			secretCode: "ABCD-EFGH-JKLM",
+		it("still requires an authenticated session", async () => {
+			mocks.session.mockResolvedValue(null);
+			await expect(createThreadFn({ data })).rejects.toThrow("Unauthorized");
+			expect(mocks.create).not.toHaveBeenCalled();
 		});
-		expect(mocks.code).toHaveBeenCalled();
-		expect(mocks.create).toHaveBeenCalledWith(
-			expect.objectContaining({
-				aliasId: "public-alias-id",
-				status: "pending",
-			}),
-		);
-		expect(mocks.create.mock.calls[0][0]).not.toHaveProperty("userId");
-		expect(mocks.code.mock.invocationCallOrder[0]).toBeLessThan(
-			mocks.create.mock.invocationCallOrder[0],
-		);
-	});
-	it("does not write if the anonymous recovery code cannot be prepared", async () => {
-		mocks.code.mockResolvedValue({ success: false, error: "unavailable" });
-		await expect(createThreadFn({ data })).resolves.toMatchObject({
-			success: false,
+		it("still respects Arcjet denial", async () => {
+			mocks.arcjet.mockResolvedValue({ isDenied: () => true });
+			await expect(createThreadFn({ data })).resolves.toEqual({
+				success: false,
+				error: "blocked",
+			});
+			expect(mocks.session).not.toHaveBeenCalled();
+			expect(mocks.create).not.toHaveBeenCalled();
 		});
-		expect(mocks.create).not.toHaveBeenCalled();
-	});
-});
+		it("keeps anonymous submissions pending and linked only to their alias", async () => {
+			await expect(createThreadFn({ data })).resolves.toMatchObject({
+				success: true,
+				secretCode: "ABCD-EFGH-JKLM",
+			});
+			expect(mocks.code).toHaveBeenCalled();
+			expect(mocks.create).toHaveBeenCalledWith(
+				expect.objectContaining({
+					aliasId: "public-alias-id",
+					status: "pending",
+				}),
+			);
+			expect(mocks.create.mock.calls[0][0]).not.toHaveProperty("userId");
+			expect(mocks.code.mock.invocationCallOrder[0]).toBeLessThan(
+				mocks.create.mock.invocationCallOrder[0],
+			);
+		});
+		it("does not write if the anonymous recovery code cannot be prepared", async () => {
+			mocks.code.mockResolvedValue({ success: false, error: "unavailable" });
+			await expect(createThreadFn({ data })).resolves.toMatchObject({
+				success: false,
+			});
+			expect(mocks.create).not.toHaveBeenCalled();
+		});
+	},
+);

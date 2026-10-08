@@ -1,5 +1,6 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { getAuthSessionCached } from "@/features/auth/server/get-auth-session";
+import { useBetaPresentation } from "@/features/beta/components/beta-presentation";
 import { EraseAccountForm } from "@/features/beta/components/erase-account-form";
 
 export const Route = createFileRoute("/account/settings/")({
@@ -12,11 +13,12 @@ export const Route = createFileRoute("/account/settings/")({
 });
 
 function Settings() {
+	const real = useBetaPresentation().publicationMode === "real";
 	const { user } = Route.useLoaderData();
 	return (
 		<div className="mx-auto max-w-2xl space-y-8 px-4 py-10">
 			<Link to="/account/profile" className="underline underline-offset-4">
-				Retour à mes situations fictives
+				{real ? "Retour à mes témoignages" : "Retour à mes situations fictives"}
 			</Link>
 			<h1 className="font-serif text-3xl font-semibold tracking-tight">
 				Gérer mes données
