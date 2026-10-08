@@ -53,7 +53,7 @@ type FormErrors = {
 };
 
 function NewThreadPage() {
-	const { publicationMode, submissionsOpen } = useBetaPresentation();
+	const { publicationMode, accessRequired, submissionsOpen } = useBetaPresentation();
 	const real = publicationMode === "real";
 	const contributionsSuspended = real && !submissionsOpen;
 	const { session, aliasName } = Route.useLoaderData();
@@ -244,6 +244,8 @@ export function ScenarioForm({
 						? "La lecture reste accessible. L’envoi de nouveaux témoignages est temporairement suspendu. Si vous avez commencé un texte, il reste dans ce formulaire tant que cette page est ouverte."
 						: real
 							? "Vous pouvez raconter une situation de violence ou de harcèlement que vous avez vécue ou dont vous avez été témoin, à votre rythme et avec vos propres mots. Partagez seulement ce que vous souhaitez rendre public ; évitez les noms de tiers, lieux précis et détails permettant de reconnaître quelqu’un."
+							: accessRequired
+							? "Cette bêta teste le parcours, pas une situation réelle. N’indiquez aucun nom, lieu précis ou détail permettant d’identifier quelqu’un."
 							: "Cette version de démonstration permet uniquement de tester le parcours avec une situation fictive. N’indiquez aucun nom, lieu précis ou détail permettant d’identifier quelqu’un."}
 				</p>
 			</header>
