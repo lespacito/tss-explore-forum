@@ -53,7 +53,7 @@ type FormErrors = {
 };
 
 function NewThreadPage() {
-	const { publicationMode, accessRequired, submissionsOpen } = useBetaPresentation();
+	const { publicationMode, submissionsOpen } = useBetaPresentation();
 	const real = publicationMode === "real";
 	const contributionsSuspended = real && !submissionsOpen;
 	const { session, aliasName } = Route.useLoaderData();
@@ -90,7 +90,7 @@ export function ScenarioForm({
 	user: NonNullable<Awaited<ReturnType<typeof getAuthSession>>["user"]>;
 	aliasName: string | null;
 }) {
-	const { publicationMode, submissionsOpen } = useBetaPresentation();
+	const { publicationMode, accessRequired, submissionsOpen } = useBetaPresentation();
 	const real = publicationMode === "real";
 	const contributionsSuspended = real && !submissionsOpen;
 	const navigate = useNavigate();
