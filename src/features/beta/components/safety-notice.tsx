@@ -7,7 +7,7 @@ export function SafetyNotice() {
 			<p className="font-semibold">
 				{real
 					? "Cet espace n’est pas un service d’urgence ni d’aide professionnelle."
-					: "Cette bêta n’est pas un service d’urgence ni d’aide professionnelle."}
+					: "Cet espace de démonstration n’est pas un service d’urgence ni d’aide professionnelle."}
 			</p>
 			<p>
 				{real
