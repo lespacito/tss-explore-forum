@@ -14,9 +14,15 @@ import { toast } from "sonner";
 import { SafeHtmlDisplay } from "@/components/tiptap/SafeHtmlDisplay";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+	Empty,
+	EmptyDescription,
+	EmptyHeader,
+	EmptyTitle,
+} from "@/components/ui/empty";
 import { Textarea } from "@/components/ui/textarea";
-import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { getAuthSession } from "@/features/auth/server/get-auth-session";
+import { useBetaPresentation } from "@/features/beta/components/beta-presentation";
 import {
 	getModerationQueueFn,
 	type ModerationQueueItem,
@@ -60,6 +66,7 @@ export const Route = createFileRoute("/admin/moderation/")({
 });
 
 function ModerationPage() {
+	const real = useBetaPresentation().publicationMode === "real";
 	const { threads, moderator } = Route.useLoaderData();
 	const moderationThreads = threads as ModerationQueueItem[];
 	const [filter, setFilter] = useState<QueueStatus>("pending");
@@ -87,8 +94,9 @@ function ModerationPage() {
 						File de modération
 					</h1>
 					<p className="mt-2 text-sm leading-6 text-muted-foreground sm:text-base">
-						Relisez chaque situation fictive avec calme. L’identité technique et
-						l’adresse IP des auteurs ne sont jamais affichées ici.
+						{real
+							? "Relisez chaque témoignage avec calme. L’identité technique et l’adresse IP des auteurs ne sont jamais affichées ici."
+							: "Relisez chaque situation fictive avec calme. L’identité technique et l’adresse IP des auteurs ne sont jamais affichées ici."}
 					</p>
 				</div>
 				<div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -98,6 +106,14 @@ function ModerationPage() {
 				</div>
 			</header>
 
+			{real && (
+				<p className="mb-6 border-y py-4 text-sm" role="note">
+					Le mode réel adapte les textes uniquement. Les motifs de
+					non-publication restent ceux du test et doivent être revus dans un
+					ticket distinct avant l’ouverture aux témoignages réels. Chaque
+					publication reste soumise à votre examen.
+				</p>
+			)}
 			<nav aria-label="Filtrer la file de modération" className="mb-7">
 				<div className="inline-flex max-w-full gap-1 overflow-x-auto rounded-lg bg-secondary p-1">
 					<FilterButton
@@ -112,14 +128,14 @@ function ModerationPage() {
 						count={counts.published}
 						onClick={() => setFilter("published")}
 					>
-						Publiées
+						{real ? "Publiés" : "Publiées"}
 					</FilterButton>
 					<FilterButton
 						active={filter === "rejected"}
 						count={counts.rejected}
 						onClick={() => setFilter("rejected")}
 					>
-						Non publiées
+						{real ? "Non publiés" : "Non publiées"}
 					</FilterButton>
 				</div>
 			</nav>
@@ -138,7 +154,7 @@ function ModerationPage() {
 						className="shrink-0"
 						onClick={() => setFilter(lastDecision.filter)}
 					>
-						Voir dans {filterLabel(lastDecision.filter)}
+						Voir dans {filterLabel(lastDecision.filter, real)}
 					</Button>
 				</div>
 			)}
@@ -197,6 +213,8 @@ function ModerationItem({
 	onDecision: (notice: DecisionNotice) => void;
 }) {
 	const router = useRouter();
+	const { accessRequired, publicationMode } = useBetaPresentation();
+	const real = publicationMode === "real";
 	const [isWorking, setIsWorking] = useState(false);
 	const [showReject, setShowReject] = useState(false);
 	const [reasonCode, setReasonCode] = useState<ModerationReasonCode | "">("");
@@ -219,16 +237,28 @@ function ModerationItem({
 			});
 			toast.success(
 				action === "publish"
-					? "Situation fictive publiée"
+					? real
+						? "Témoignage publié"
+						: "Situation fictive publiée"
 					: action === "reject"
-						? "Situation fictive non publiée"
+						? real
+							? "Témoignage non publié"
+							: "Situation fictive non publiée"
 						: action === "mark_sensitive"
 							? "Contenu marqué sensible"
 							: "Marquage sensible retiré",
 			);
 			setShowReject(false);
 			setPendingAction(null);
-			onDecision(decisionNoticeFor(action, thread.title, thread.status));
+			onDecision(
+				decisionNoticeFor(
+					action,
+					thread.title,
+					thread.status,
+					accessRequired,
+					real,
+				),
+			);
 			try {
 				await router.invalidate();
 			} catch {
@@ -326,7 +356,9 @@ function ModerationItem({
 					{pendingAction && (
 						<fieldset className="mt-4 space-y-3 rounded-lg bg-muted p-3">
 							<legend className="sr-only">Confirmer la décision</legend>
-							<p className="text-sm">{confirmationMessageFor(pendingAction)}</p>
+							<p className="text-sm">
+								{confirmationMessageFor(pendingAction, accessRequired, real)}
+							</p>
 							<div className="flex flex-wrap justify-end gap-2">
 								<Button
 									type="button"
@@ -424,9 +456,19 @@ function ModerationItem({
 	);
 }
 
-function confirmationMessageFor(action: Exclude<ModerationAction, "reject">) {
+function confirmationMessageFor(
+	action: Exclude<ModerationAction, "reject">,
+	accessRequired: boolean,
+	real = false,
+) {
 	if (action === "publish") {
-		return "Cette situation fictive deviendra visible par les invités.";
+		return accessRequired
+			? real
+				? "Ce témoignage deviendra visible par les invités."
+				: "Cette situation fictive deviendra visible par les invités."
+			: real
+				? "Ce témoignage deviendra accessible publiquement en lecture."
+				: "Cette situation fictive deviendra accessible publiquement en lecture.";
 	}
 	if (action === "mark_sensitive") {
 		return "Son extrait sera masqué jusqu’à ce que la personne choisisse de l’afficher.";
@@ -444,21 +486,27 @@ function decisionNoticeFor(
 	action: ModerationAction,
 	threadTitle: string,
 	currentStatus: QueueStatus,
+	accessRequired: boolean,
+	real = false,
 ): DecisionNotice {
 	if (action === "publish") {
 		return {
-			title: "Situation fictive publiée",
-			description: `« ${threadTitle} » est maintenant visible par les invités.`,
+			title: real ? "Témoignage publié" : "Situation fictive publiée",
+			description: accessRequired
+				? `« ${threadTitle} » est maintenant visible par les invités.`
+				: `« ${threadTitle} » est maintenant accessible publiquement en lecture.`,
 			filter: "published",
 		};
 	}
 	if (action === "reject") {
 		return {
-			title: "Situation fictive non publiée",
+			title: real ? "Témoignage non publié" : "Situation fictive non publiée",
 			description:
 				"« " +
 				threadTitle +
-				" » apparaît maintenant dans les situations fictives non publiées.",
+				(real
+					? " » apparaît maintenant dans les témoignages non publiés."
+					: " » apparaît maintenant dans les situations fictives non publiées."),
 			filter: "rejected",
 		};
 	}
@@ -479,24 +527,35 @@ function decisionNoticeFor(
 	};
 }
 
-function filterLabel(status: QueueStatus) {
+function filterLabel(status: QueueStatus, real = false) {
 	if (status === "pending") return "À examiner";
-	if (status === "published") return "Publiées";
-	return "Non publiées";
+	if (status === "published") return real ? "Publiés" : "Publiées";
+	return real ? "Non publiés" : "Non publiées";
 }
 
 function EmptyQueue({ status }: { status: QueueStatus }) {
+	const real = useBetaPresentation().publicationMode === "real";
 	const labels = {
 		pending: {
-			title: "Aucune situation fictive à examiner.",
-			description: "Aucune situation fictive n’attend actuellement votre examen.",
+			title: real
+				? "Aucun témoignage à examiner."
+				: "Aucune situation fictive à examiner.",
+			description: real
+				? "Aucun témoignage n’attend actuellement votre examen."
+				: "Aucune situation fictive n’attend actuellement votre examen.",
 		},
 		published: {
-			title: "Aucune situation fictive publiée.",
-			description: "Les situations fictives publiées apparaîtront ici.",
+			title: real
+				? "Aucun témoignage publié."
+				: "Aucune situation fictive publiée.",
+			description: real
+				? "Les témoignages publiés apparaîtront ici."
+				: "Les situations fictives publiées apparaîtront ici.",
 		},
 		rejected: {
-			title: "Aucune situation fictive non publiée.",
+			title: real
+				? "Aucun témoignage non publié."
+				: "Aucune situation fictive non publiée.",
 			description: "Les décisions de rejet apparaîtront ici avec leur motif.",
 		},
 	};

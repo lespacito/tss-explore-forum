@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { SafeHtmlDisplay } from "@/components/tiptap/SafeHtmlDisplay";
 import { Button } from "@/components/ui/button";
+import { useBetaPresentation } from "@/features/beta/components/beta-presentation";
 import { getThreadBySlugFn } from "@/features/threads/server/actions/get-thread-by-slug";
 export const Route = createFileRoute("/threads/$threadSlug")({
 	component: Thread,
@@ -17,14 +18,17 @@ function ThreadContent({
 }: {
 	thread: Awaited<ReturnType<typeof getThreadBySlugFn>>;
 }) {
+	const real = useBetaPresentation().publicationMode === "real";
 	const [revealed, setRevealed] = useState(false);
 	return (
 		<article className="mx-auto max-w-3xl space-y-6 px-4 py-10">
 			<Link to="/threads" search={{ openDialog: false }} className="underline">
-				Retour aux situations fictives
+				{real ? "Retour aux témoignages" : "Retour aux situations fictives"}
 			</Link>
 			<p className="text-sm text-muted-foreground">
-				Auteur anonyme · Situation fictive de bêta
+				{real
+					? "Auteur anonyme · Témoignage examiné avant publication"
+					: "Auteur anonyme · Situation fictive de bêta"}
 			</p>
 			<h1 className="break-words font-serif text-3xl font-semibold">
 				{thread.title}
@@ -32,11 +36,17 @@ function ThreadContent({
 			{thread.isSensitive && !revealed ? (
 				<section className="space-y-4 rounded-xl border p-5">
 					<h2 className="font-semibold">
-						Cette situation fictive contient un contenu sensible
+						{real
+							? "Ce témoignage contient un contenu sensible"
+							: "Cette situation fictive contient un contenu sensible"}
 					</h2>
-					<p>Vous pouvez revenir à la liste ou choisir de lire cette situation fictive.</p>
+					<p>
+						{real
+							? "Vous pouvez revenir à la liste ou choisir de lire ce témoignage."
+							: "Vous pouvez revenir à la liste ou choisir de lire cette situation fictive."}
+					</p>
 					<Button onClick={() => setRevealed(true)}>
-						Afficher la situation fictive
+						{real ? "Afficher le témoignage" : "Afficher la situation fictive"}
 					</Button>
 				</section>
 			) : (
@@ -50,7 +60,9 @@ function ThreadContent({
 				</>
 			)}
 			<p className="border-t pt-5 text-sm text-muted-foreground">
-				Les réponses et commentaires sont fermés pendant cette bêta.
+				{real
+					? "Les réponses et commentaires sont fermés."
+					: "Les réponses et commentaires sont fermés pendant cette bêta."}
 			</p>
 		</article>
 	);

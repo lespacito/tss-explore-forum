@@ -2,12 +2,14 @@ import { useRouter } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import type { ThreadCategory } from "@/data/threads-categories";
 import { threadCategories } from "@/data/threads-categories";
+import { useBetaPresentation } from "@/features/beta/components/beta-presentation";
 
 interface EmptyThreadsStateProps {
 	activeCategory?: ThreadCategory;
 }
 
 export function EmptyThreadsState({ activeCategory }: EmptyThreadsStateProps) {
+	const real = useBetaPresentation().publicationMode === "real";
 	const router = useRouter();
 
 	if (!activeCategory) {
@@ -28,8 +30,9 @@ export function EmptyThreadsState({ activeCategory }: EmptyThreadsStateProps) {
 				Aucune publication validée dans cette catégorie.
 			</p>
 			<p className="text-sm text-muted-foreground">
-				Les situations fictives publiées dans « {activeConfig?.label} » apparaîtront ici
-				après modération.
+				{real
+					? `Les témoignages publiés dans « ${activeConfig?.label} » apparaîtront ici après modération.`
+					: `Les situations fictives publiées dans « ${activeConfig?.label} » apparaîtront ici après modération.`}
 			</p>
 			<div className="flex flex-wrap justify-center gap-2 pt-2">
 				{threadCategories

@@ -1,6 +1,7 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
+import { EyeOff } from "lucide-react";
 import { useState } from "react";
 import { SafeHtmlDisplay } from "@/components/tiptap/SafeHtmlDisplay";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +21,6 @@ import {
 	EmptyMedia,
 	EmptyTitle,
 } from "@/components/ui/empty";
-import { EyeOff } from "lucide-react";
 import {
 	getCategoryConfig,
 	type ThreadCategory,
@@ -29,6 +29,7 @@ import { LinkAnonymousModal } from "@/features/auth/components/link-anonymous-mo
 import { SecretCodeDisplay } from "@/features/auth/components/SecretCodeDisplay";
 import { generateSecretCodeFn } from "@/features/auth/server/generate-secret-code-fn";
 import { getAuthSessionCached } from "@/features/auth/server/get-auth-session";
+import { useBetaPresentation } from "@/features/beta/components/beta-presentation";
 import { RejectionMessage } from "@/features/profiles/components/RejectionMessage";
 import { ThreadStatusBadge } from "@/features/profiles/components/ThreadStatusBadge";
 import { getUserThreadsFn } from "@/features/threads/server/actions/get-user-threads";
@@ -47,6 +48,9 @@ export const Route = createFileRoute("/account/profile/")({
 });
 
 function Profile() {
+	const { accessRequired, publicationMode, submissionsOpen } =
+		useBetaPresentation();
+	const real = publicationMode === "real";
 	const { user, threads } = Route.useLoaderData();
 	const [code, setCode] = useState("");
 	const [error, setError] = useState("");
@@ -63,20 +67,27 @@ function Profile() {
 		{
 			status: "pending" as const,
 			title: "À examiner",
-			description:
-				"Ces situations fictives sont en attente de décision par le modérateur.",
+			description: real
+				? "Ces témoignages sont en attente de décision par la modération."
+				: "Ces situations fictives sont en attente de décision par le modérateur.",
 		},
 		{
 			status: "rejected" as const,
-			title: "Non publiées",
-			description:
-				"Ces situations fictives n'ont pas été publiées. Le motif est indiqué sous chaque situation fictive.",
+			title: real ? "Non publiés" : "Non publiées",
+			description: real
+				? "Ces témoignages n’ont pas été publiés. Le motif est indiqué sous chaque témoignage."
+				: "Ces situations fictives n'ont pas été publiées. Le motif est indiqué sous chaque situation fictive.",
 		},
 		{
 			status: "published" as const,
-			title: "Publiées",
-			description:
-				"Ces situations fictives sont visibles par les participants invités.",
+			title: real ? "Publiés" : "Publiées",
+			description: accessRequired
+				? real
+					? "Ces témoignages sont visibles par les participants invités."
+					: "Ces situations fictives sont visibles par les participants invités."
+				: real
+					? "Ces témoignages sont accessibles publiquement en lecture."
+					: "Ces situations fictives sont accessibles publiquement en lecture.",
 		},
 	];
 
@@ -85,11 +96,12 @@ function Profile() {
 			<header className="border-b pb-7 flex flex-wrap items-end gap-x-4">
 				<div>
 					<h1 className="font-serif text-4xl font-semibold tracking-tight">
-						Mes situations fictives
+						{real ? "Mes témoignages" : "Mes situations fictives"}
 					</h1>
 					<p className="mt-3 max-w-2xl leading-7 text-muted-foreground">
-						Toutes vos situations fictives sont regroupées ici, avec leur statut
-						de modération.
+						{real
+							? "Tous vos témoignages sont regroupés ici, avec leur statut de modération."
+							: "Toutes vos situations fictives sont regroupées ici, avec leur statut de modération."}
 					</p>
 				</div>
 				<Link
@@ -100,12 +112,24 @@ function Profile() {
 				</Link>
 			</header>
 
+			{real && !submissionsOpen && (
+				<p className="border-b pb-4">
+					Les contributions sont temporairement suspendues. Vous pouvez
+					consulter vos témoignages et suivre les décisions de modération.
+				</p>
+			)}
 			{totalCount > 0 && (
 				<div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
 					<span className="text-muted-foreground">
 						{totalCount}{" "}
-						{totalCount > 1 ? "situations fictives" : "situation fictive"} au
-						total
+						{real
+							? totalCount > 1
+								? "témoignages"
+								: "témoignage"
+							: totalCount > 1
+								? "situations fictives"
+								: "situation fictive"}{" "}
+						au total
 					</span>
 					{pendingCount > 0 && (
 						<Badge
@@ -120,7 +144,8 @@ function Profile() {
 							variant="outline"
 							className="bg-primary/10 border-primary/30 text-primary"
 						>
-							{publishedCount} publiée{publishedCount > 1 ? "s" : ""}
+							{publishedCount} {real ? "publié" : "publiée"}
+							{publishedCount > 1 ? "s" : ""}
 						</Badge>
 					)}
 					{rejectedCount > 0 && (
@@ -128,7 +153,8 @@ function Profile() {
 							variant="outline"
 							className="bg-warning/10 border-warning/30 text-warning-foreground dark:text-warning"
 						>
-							{rejectedCount} non publiée{rejectedCount > 1 ? "s" : ""}
+							{rejectedCount} non {real ? "publié" : "publiée"}
+							{rejectedCount > 1 ? "s" : ""}
 						</Badge>
 					)}
 				</div>
@@ -137,11 +163,12 @@ function Profile() {
 			<Card className="border-muted">
 				<CardHeader className="pb-4">
 					<CardTitle className="font-serif text-xl">
-						Mes situations fictives
+						{real ? "Mes témoignages" : "Mes situations fictives"}
 					</CardTitle>
 					<CardDescription className="mt-1">
-						Toutes vos situations fictives sont regroupées ici, avec leur statut
-						de modération.
+						{real
+							? "Tous vos témoignages sont regroupés ici, avec leur statut de modération."
+							: "Toutes vos situations fictives sont regroupées ici, avec leur statut de modération."}
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-4">
@@ -152,11 +179,9 @@ function Profile() {
 						</Badge>
 					</div>
 					<p className="text-sm text-muted-foreground leading-relaxed">
-						Si une situation fictive est publiée, elle apparaît sous « Auteur
-						anonyme ». Votre pseudonyme reste interne et n’est pas affiché
-						publiquement. L’administration technique peut relier votre session à
-						ses pseudonymes ; le contenu peut aussi permettre de vous
-						reconnaître.
+						{real
+							? "Si un témoignage est publié, il apparaît sous « Auteur anonyme ». Votre pseudonyme reste interne et n’est pas affiché publiquement. L’administration technique peut relier votre session à ses pseudonymes ; le contenu peut aussi permettre de vous reconnaître."
+							: "Si une situation fictive est publiée, elle apparaît sous « Auteur anonyme ». Votre pseudonyme reste interne et n’est pas affiché publiquement. L’administration technique peut relier votre session à ses pseudonymes ; le contenu peut aussi permettre de vous reconnaître."}
 					</p>
 				</CardContent>
 			</Card>
@@ -248,17 +273,29 @@ function Profile() {
 							<EyeOff className="size-6 text-muted-foreground" />
 						</EmptyMedia>
 						<EmptyTitle className="font-serif text-xl font-semibold">
-							Aucune situation fictive
+							{real ? "Aucun témoignage" : "Aucune situation fictive"}
 						</EmptyTitle>
 						<EmptyDescription className="text-sm text-muted-foreground">
-							Votre première situation fictive apparaîtra ici après son envoi.
+							{real
+								? "Votre premier témoignage apparaîtra ici après son envoi."
+								: "Votre première situation fictive apparaîtra ici après son envoi."}
 						</EmptyDescription>
 					</EmptyHeader>
 					<EmptyContent className="pt-4">
-						<Button asChild size="lg">
-							<Link to="/threads/new">
-								Créer une nouvelle situation fictive
-							</Link>
+						<Button
+							asChild={!(real && !submissionsOpen)}
+							disabled={real && !submissionsOpen}
+							size="lg"
+						>
+							{real && !submissionsOpen ? (
+								"Contributions suspendues"
+							) : (
+								<Link to="/threads/new">
+									{real
+										? "Rédiger un nouveau témoignage"
+										: "Créer une nouvelle situation fictive"}
+								</Link>
+							)}
 						</Button>
 					</EmptyContent>
 				</Empty>
@@ -298,10 +335,16 @@ function Profile() {
 								) : (
 									<p className="py-6 text-sm text-muted-foreground">
 										{group.status === "pending"
-											? "Aucune situation fictive à examiner."
+											? real
+												? "Aucun témoignage à examiner."
+												: "Aucune situation fictive à examiner."
 											: group.status === "published"
-												? "Aucune situation fictive publiée."
-												: "Aucune situation fictive non publiée."}
+												? real
+													? "Aucun témoignage publié."
+													: "Aucune situation fictive publiée."
+												: real
+													? "Aucun témoignage non publié."
+													: "Aucune situation fictive non publiée."}
 									</p>
 								)}
 								{groupIndex < groups.length - 1 && (
@@ -329,6 +372,8 @@ type UserThread = {
 };
 
 function UserThreadRow({ thread }: { thread: UserThread }) {
+	const { publicationMode, submissionsOpen } = useBetaPresentation();
+	const real = publicationMode === "real";
 	const content = (
 		<article className="py-6">
 			<div className="flex flex-wrap items-center gap-2">
@@ -370,8 +415,21 @@ function UserThreadRow({ thread }: { thread: UserThread }) {
 			{thread.status === "rejected" && thread.rejectionReason && (
 				<div className="pb-6">
 					<RejectionMessage reason={thread.rejectionReason} />
-					<Button asChild variant="outline" className="mt-3">
-						<Link to="/threads/new">Créer une nouvelle situation fictive</Link>
+					<Button
+						asChild={!(real && !submissionsOpen)}
+						disabled={real && !submissionsOpen}
+						variant="outline"
+						className="mt-3"
+					>
+						{real && !submissionsOpen ? (
+							"Contributions suspendues"
+						) : (
+							<Link to="/threads/new">
+								{real
+									? "Rédiger un nouveau témoignage"
+									: "Créer une nouvelle situation fictive"}
+							</Link>
+						)}
 					</Button>
 				</div>
 			)}

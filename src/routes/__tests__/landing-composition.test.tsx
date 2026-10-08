@@ -33,12 +33,15 @@ vi.mock("@tanstack/react-router", () => ({
 	getRouteApi: () => ({
 		useLoaderData: () => ({ beta: { submissionsOpen: state.submissionsOpen } }),
 	}),
+	useRouterState: () => ({ location: { pathname: "/" } }),
 	useRouter: () => ({ invalidate: state.invalidate, navigate: state.navigate }),
 }));
 vi.mock("@/features/auth/server/create-anonymous-session", () => ({
 	createAnonymousSessionFn: state.createSession,
 }));
 
+import Footer from "@/components/shadcn-studio/blocks/footer";
+import { BetaPresentationProvider } from "@/features/beta/components/beta-presentation";
 import { Route } from "../index";
 
 const Home = Route.options.component;
@@ -187,4 +190,129 @@ describe("Landing composition B", () => {
 		);
 		expect(state.createSession).toHaveBeenCalledTimes(1);
 	});
+});
+
+describe("Landing access and contribution flags", () => {
+	it.each(
+		[true, false].flatMap((accessRequired) =>
+			[true, false].map((submissionsOpen) => [accessRequired, submissionsOpen]),
+		),
+	)(
+		"accessRequired=%s, submissionsOpen=%s",
+		(accessRequired, submissionsOpen) => {
+			state.submissionsOpen = submissionsOpen;
+			const { container } = render(
+				<BetaPresentationProvider value={{ accessRequired, submissionsOpen }}>
+					<Home />
+					<Footer />
+				</BetaPresentationProvider>,
+			);
+			expect(
+				screen.getByRole("link", { name: "Consulter les situations fictives" }),
+			).toHaveAttribute("href", "/threads");
+			const button = screen.getByRole("button", {
+				name: submissionsOpen
+					? "Proposer une situation fictive"
+					: "Dépôts suspendus",
+			});
+			if (submissionsOpen) expect(button).toBeEnabled();
+			else expect(button).toBeDisabled();
+			if (accessRequired) {
+				expect(container).toHaveTextContent("Bêta privée pour adultes invités");
+				expect(container).toHaveTextContent("fournie avec votre invitation");
+				expect(container).toHaveTextContent("À quoi servent les deux codes ?");
+			} else {
+				expect(container).not.toHaveTextContent(
+					/bêta privée|invités|invitation|deux codes/i,
+				);
+				expect(container).toHaveTextContent("Accès public pour adultes");
+				expect(container).toHaveTextContent(
+					"À quoi sert le code de récupération ?",
+				);
+				if (!submissionsOpen)
+					expect(container).toHaveTextContent(
+						"Les contributions sont temporairement suspendues",
+					);
+				else
+					expect(container).toHaveTextContent(
+						"rédigez uniquement une situation fictive",
+					);
+			}
+		},
+	);
+});
+
+describe("Landing publication modes and flags", () => {
+	it.each(
+		(["test", "real"] as const).flatMap((publicationMode) =>
+			[true, false].flatMap((accessRequired) =>
+				[true, false].map((submissionsOpen) => ({
+					publicationMode,
+					accessRequired,
+					submissionsOpen,
+				})),
+			),
+		),
+	)(
+		"$publicationMode, accessRequired=$accessRequired, submissionsOpen=$submissionsOpen",
+		({ publicationMode, accessRequired, submissionsOpen }) => {
+			state.submissionsOpen = submissionsOpen;
+			const { container } = render(
+				<BetaPresentationProvider
+					value={{ publicationMode, accessRequired, submissionsOpen }}
+				>
+					<Home />
+					<Footer />
+				</BetaPresentationProvider>,
+			);
+			const real = publicationMode === "real";
+			expect(
+				screen.getByRole("link", {
+					name: real
+						? "Lire les témoignages"
+						: "Consulter les situations fictives",
+				}),
+			).toHaveAttribute("href", "/threads");
+			const button = screen.getByRole("button", {
+				name: submissionsOpen
+					? real
+						? "Rédiger un témoignage"
+						: "Proposer une situation fictive"
+					: "Dépôts suspendus",
+			});
+			if (submissionsOpen) expect(button).toBeEnabled();
+			else {
+				expect(button).toBeDisabled();
+				if (real || !accessRequired)
+					expect(container).toHaveTextContent(
+						"Les contributions sont temporairement suspendues",
+					);
+			}
+			expect(container).toHaveTextContent("examen humain");
+			if (real) {
+				expect(container).toHaveTextContent(
+					"victimes ou témoins de violences et de harcèlement",
+				);
+				expect(container).toHaveTextContent("Mes témoignages");
+				expect(container).toHaveTextContent(
+					"ne remplace ni un service d’urgence ni un accompagnement professionnel",
+				);
+				expect(container).not.toHaveTextContent(
+					/situations fictives uniquement|modération examine les situations fictives|Cette bêta|contribuer au test|sans récit personnel|fournie avec votre invitation/i,
+				);
+				expect(container).toHaveTextContent(
+					"Exemple fictif — illustration, pas une publication",
+				);
+				expect(container).toHaveTextContent(
+					"Cela ne garantit pas un anonymat absolu",
+				);
+			} else
+				expect(container).toHaveTextContent("Situations fictives uniquement");
+			if (!accessRequired)
+				expect(container).not.toHaveTextContent(
+					/bêta privée|adultes invités|code d’invitation/i,
+				);
+			expect(state.createSession).not.toHaveBeenCalled();
+		},
+	);
 });

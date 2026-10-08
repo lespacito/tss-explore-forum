@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useBetaPresentation } from "@/features/beta/components/beta-presentation";
 import { logger } from "@/lib/logger/client-logger";
 import { signIn } from "../lib/auth-client";
 
@@ -40,6 +41,7 @@ export function SecretCodeLoginForm({
 }: {
 	redirectTo?: string;
 } = {}) {
+	const real = useBetaPresentation().publicationMode === "real";
 	const router = useRouter();
 	const secretCodeId = useId();
 	const codeHelpId = useId();
@@ -71,7 +73,9 @@ export function SecretCodeLoginForm({
 				}
 
 				toast.success("Session retrouvée", {
-					description: "Voici vos situations fictives.",
+					description: real
+						? "Voici vos témoignages."
+						: "Voici vos situations fictives.",
 				});
 				router.navigate({ to: redirectTo || "/account/profile" });
 			} catch {

@@ -37,6 +37,7 @@ vi.mock("@/lib/security/sanitize-html", () => ({
 	sanitizeHtml: (html: string) => html,
 }));
 
+import { BetaPresentationProvider } from "@/features/beta/components/beta-presentation";
 import { ThreadCard } from "@/features/threads/components/thread-card";
 
 const baseThread = {
@@ -161,5 +162,33 @@ describe("Empty state logic", () => {
 
 		expect(screen.getByTestId("thread-card")).toBeTruthy();
 		expect(screen.queryByTestId("empty-state")).toBeNull();
+	});
+});
+
+describe("publication mode card wording", () => {
+	it.each(
+		[true, false].flatMap((accessRequired) =>
+			[true, false].map((submissionsOpen) => ({
+				accessRequired,
+				submissionsOpen,
+			})),
+		),
+	)("keeps the sensitive excerpt masked in real mode with %j", (flags) => {
+		const { container } = render(
+			<BetaPresentationProvider value={{ ...flags, publicationMode: "real" }}>
+				<ThreadCard thread={{ ...baseThread, isSensitive: true }} />
+			</BetaPresentationProvider>,
+		);
+		expect(screen.getByTestId("thread-author").textContent).toBe(
+			"Auteur anonyme",
+		);
+		expect(screen.queryByTestId("thread-excerpt")).toBeNull();
+		expect(container.textContent).toContain("Lire le témoignage");
+		expect(container.textContent).not.toContain("situation fictive");
+	});
+	it("retains fictional wording when no publication mode is configured", () => {
+		render(<ThreadCard thread={{ ...baseThread, isSensitive: true }} />);
+		expect(screen.getByText(/Lire la situation fictive/)).toBeDefined();
+		expect(screen.queryByTestId("thread-excerpt")).toBeNull();
 	});
 });

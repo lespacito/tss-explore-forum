@@ -17,12 +17,25 @@ import {
 import { getCurrentPrimaryAliasFn } from "@/features/alias/server/actions/get-primary-alias";
 import { AnonymousPostButton } from "@/features/auth/components/AnonymousPostButton";
 import { getAuthSession } from "@/features/auth/server/get-auth-session";
+import { useBetaPresentation } from "@/features/beta/components/beta-presentation";
 import { usePublicationReceipt } from "@/features/beta/components/publication-receipt";
 import { SafetyNotice } from "@/features/beta/components/safety-notice";
 import { createThreadFn } from "@/features/threads/server/actions/create-thread";
 import { useAutoSaveDraft } from "@/hooks/useAutoSaveDraft";
 import { logger } from "@/lib/logger/client-logger";
 import { validateHtmlContent } from "@/lib/security/validate-html-content";
+
+const realCategoryDescriptions: Record<ThreadCategory, string> = {
+	VIOLENCE:
+		"Un témoignage concernant des violences physiques ou psychologiques.",
+	ABUS: "Un témoignage concernant un abus, une emprise ou une manipulation.",
+	TEMOIN:
+		"Un témoignage sur une situation de violence ou de harcèlement que vous avez observée.",
+	DETRESSE:
+		"Un témoignage sur une détresse émotionnelle. Cet espace ne propose pas d’intervention d’urgence ni d’accompagnement professionnel.",
+	AUTRE:
+		"Un témoignage qui ne correspond pas aux autres catégories. Vous pouvez aussi ne pas choisir de catégorie.",
+};
 
 export const Route = createFileRoute("/threads/new/")({
 	component: NewThreadPage,
@@ -40,17 +53,27 @@ type FormErrors = {
 };
 
 function NewThreadPage() {
+	const { publicationMode, submissionsOpen } = useBetaPresentation();
+	const real = publicationMode === "real";
+	const contributionsSuspended = real && !submissionsOpen;
 	const { session, aliasName } = Route.useLoaderData();
 
 	if (!session?.user) {
 		return (
 			<div className="civic-form-page mx-auto max-w-2xl space-y-6 px-4 py-12">
 				<h1 className="font-serif text-4xl font-semibold tracking-tight">
-					Créer une situation fictive
+					{contributionsSuspended
+						? "Contributions temporairement suspendues"
+						: real
+							? "Commencer un témoignage"
+							: "Créer une situation fictive"}
 				</h1>
 				<p className="max-w-prose leading-relaxed text-muted-foreground">
-					Commencez une session anonyme pour participer à ce test. Aucun email
-					n’est nécessaire.
+					{contributionsSuspended
+						? "La lecture reste accessible. L’envoi de nouveaux témoignages est temporairement suspendu."
+						: real
+							? "Commencez une session sans nom ni adresse email pour rédiger un témoignage."
+							: "Commencez une session anonyme pour participer à ce test. Aucun email n’est nécessaire."}
 				</p>
 				<AnonymousPostButton />
 			</div>
@@ -67,6 +90,9 @@ export function ScenarioForm({
 	user: NonNullable<Awaited<ReturnType<typeof getAuthSession>>["user"]>;
 	aliasName: string | null;
 }) {
+	const { publicationMode, submissionsOpen } = useBetaPresentation();
+	const real = publicationMode === "real";
+	const contributionsSuspended = real && !submissionsOpen;
 	const navigate = useNavigate();
 	const router = useRouter();
 	const { setSecretCode, setSubmissionConfirmed } = usePublicationReceipt();
@@ -89,9 +115,13 @@ export function ScenarioForm({
 		onSubmit: async ({ value }) => {
 			const nextErrors: FormErrors = {};
 			if (textLength < 10) {
-				nextErrors.body = "Décrivez la situation fictive en au moins 10 caractères.";
+				nextErrors.body = real
+					? "Rédigez au moins 10 caractères pour votre témoignage."
+					: "Décrivez la situation fictive en au moins 10 caractères.";
 			} else if (textLength > 10_000) {
-				nextErrors.body = "Raccourcissez la situation fictive à 10 000 caractères.";
+				nextErrors.body = real
+					? "Raccourcissez votre témoignage à 10 000 caractères."
+					: "Raccourcissez la situation fictive à 10 000 caractères.";
 			} else {
 				const htmlValidation = validateHtmlContent(value.body);
 				if (!htmlValidation.isValid) {
@@ -125,7 +155,9 @@ export function ScenarioForm({
 					throw new Error(
 						"error" in result
 							? result.error
-							: "Votre situation fictive n’a pas été envoyée. Réessayez.",
+							: real
+								? "Votre témoignage n’a pas été envoyé. Réessayez."
+								: "Votre situation fictive n’a pas été envoyée. Réessayez.",
 					);
 				}
 
@@ -137,11 +169,34 @@ export function ScenarioForm({
 				await navigate({ to: "/threads/confirmation" });
 			} catch (error) {
 				logger.error("Failed to create scenario:", error);
+				const realSubmissionErrors = new Map([
+					[
+						"L’envoi de situations fictives est suspendu. Consultez les informations de l’organisateur.",
+						"L’envoi de témoignages est suspendu. Consultez les informations de l’organisateur.",
+					],
+					[
+						"Votre situation fictive n’a pas été envoyée. Réessayez pour obtenir un code de récupération valide.",
+						"Votre témoignage n’a pas été envoyé. Réessayez pour obtenir un code de récupération valide.",
+					],
+				]);
+				const realFailureMessage =
+					error instanceof Error
+						? (realSubmissionErrors.get(error.message) ?? error.message)
+						: "Réessayez.";
+				const realFailure = realFailureMessage.startsWith(
+					"Votre témoignage n’a pas été envoyé.",
+				)
+					? realFailureMessage
+					: `Votre témoignage n’a pas été envoyé. ${realFailureMessage}`;
 				setErrors({
 					submit:
 						error instanceof Error
-							? `Votre situation fictive n’a pas été envoyée. ${error.message}`
-							: "Votre situation fictive n’a pas été envoyée. Réessayez.",
+							? real
+								? realFailure
+								: `Votre situation fictive n’a pas été envoyée. ${error.message}`
+							: real
+								? "Votre témoignage n’a pas été envoyé. Réessayez."
+								: "Votre situation fictive n’a pas été envoyée. Réessayez.",
 				});
 			}
 		},
@@ -178,11 +233,18 @@ export function ScenarioForm({
 		<div className="civic-form-page mx-auto max-w-3xl px-4 py-10 sm:py-14">
 			<header className="mb-6 sm:mb-10 space-y-4">
 				<h1 className="max-w-2xl font-serif text-4xl font-semibold tracking-tight sm:text-5xl">
-					Rédiger une situation fictive
+					{contributionsSuspended
+						? "Contributions temporairement suspendues"
+						: real
+							? "Rédiger un témoignage"
+							: "Rédiger une situation fictive"}
 				</h1>
 				<p className="max-w-2xl text-base leading-relaxed text-muted-foreground">
-					Cette bêta teste le parcours, pas une situation réelle. N’indiquez
-					aucun nom, lieu précis ou détail permettant d’identifier quelqu’un.
+					{contributionsSuspended
+						? "La lecture reste accessible. L’envoi de nouveaux témoignages est temporairement suspendu. Si vous avez commencé un texte, il reste dans ce formulaire tant que cette page est ouverte."
+						: real
+							? "Vous pouvez raconter une situation de violence ou de harcèlement que vous avez vécue ou dont vous avez été témoin, à votre rythme et avec vos propres mots. Partagez seulement ce que vous souhaitez rendre public ; évitez les noms de tiers, lieux précis et détails permettant de reconnaître quelqu’un."
+							: "Cette bêta teste le parcours, pas une situation réelle. N’indiquez aucun nom, lieu précis ou détail permettant d’identifier quelqu’un."}
 				</p>
 			</header>
 
@@ -228,14 +290,24 @@ export function ScenarioForm({
 				<form.Field name="body">
 					{(field) => (
 						<section className="space-y-3">
-							<Label id={bodyLabelId} htmlFor={bodyId} className="text-base font-semibold">
-								1. Que se passe-t-il dans cette situation fictive ?
+							<Label
+								id={bodyLabelId}
+								htmlFor={bodyId}
+								className="text-base font-semibold"
+							>
+								{real
+									? "1. Que souhaitez-vous partager ?"
+									: "1. Que se passe-t-il dans cette situation fictive ?"}
 							</Label>
 							<TipTap
 								id={bodyId}
 								ariaLabelledBy={bodyLabelId}
 								content={field.state.value}
-								placeholder="Décrivez une situation inventée, avec vos propres mots…"
+								placeholder={
+									real
+										? "Racontez uniquement ce que vous souhaitez partager…"
+										: "Décrivez une situation inventée, avec vos propres mots…"
+								}
 								ariaInvalid={Boolean(errors.body)}
 								ariaDescribedBy={errors.body ? bodyErrorId : undefined}
 								onChange={(html) => {
@@ -304,9 +376,21 @@ export function ScenarioForm({
 						Besoin d’aide pour commencer ?
 					</summary>
 					<ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-muted-foreground">
-						<li>Qui intervient dans cette situation inventée ?</li>
-						<li>Quel comportement pose question, concrètement ?</li>
-						<li>Que se passe-t-il ensuite dans la situation fictive ?</li>
+						<li>
+							{real
+								? "Que souhaitez-vous dire de ce que vous avez vécu ou observé ?"
+								: "Qui intervient dans cette situation inventée ?"}
+						</li>
+						<li>
+							{real
+								? "Quels éléments vous semblent importants, sans détail identifiant ?"
+								: "Quel comportement pose question, concrètement ?"}
+						</li>
+						<li>
+							{real
+								? "Vous pouvez vous arrêter ou faire une pause quand vous le souhaitez."
+								: "Que se passe-t-il ensuite dans la situation fictive ?"}
+						</li>
 					</ul>
 				</details>
 
@@ -329,7 +413,11 @@ export function ScenarioForm({
 								minLength={3}
 								required
 								maxLength={200}
-								placeholder="Ex. Une relation fictive devient contrôlante"
+								placeholder={
+									real
+										? "Choisissez un titre sans nom ni détail identifiant"
+										: "Ex. Une relation fictive devient contrôlante"
+								}
 								aria-invalid={Boolean(errors.title)}
 								aria-describedby={errors.title ? titleErrorId : undefined}
 							/>
@@ -372,44 +460,50 @@ export function ScenarioForm({
 								))}
 							</select>
 							<p className="text-sm leading-6 text-muted-foreground">
-								{selectedCategory?.description ??
-									"Vous pouvez envoyer la situation fictive sans choisir de catégorie."}
+								{(real && selectedCategory
+									? realCategoryDescriptions[selectedCategory.id]
+									: selectedCategory?.description) ??
+									(real
+										? "Vous pouvez envoyer votre témoignage sans choisir de catégorie."
+										: "Vous pouvez envoyer la situation fictive sans choisir de catégorie.")}
 							</p>
 						</div>
 					)}
 				</form.Field>
 
 				<section className="civic-review-block">
-						<h2 className="font-serif text-2xl font-semibold">Avant l'envoi</h2>
-						{aliasName ? (
-							<p>
-								Si cette situation fictive est publiée, elle apparaîtra sous « Auteur anonyme ».
-								Votre pseudonyme reste interne et n’est pas affiché publiquement.
-							</p>
-						) : (
-							<p role="alert">
-								Votre session n’a pas pu être vérifiée. L’envoi est désactivé.
-								Rechargez la page pour réessayer ; conservez votre texte avant de le faire.
-							</p>
-						)}
+					<h2 className="font-serif text-2xl font-semibold">Avant l'envoi</h2>
+					{aliasName ? (
 						<p>
-							Le libellé « Auteur anonyme » ne garantit pas un anonymat absolu :
-							l’administration technique peut relier votre session à ses
-							pseudonymes. Le contenu peut aussi permettre de vous reconnaître.
+							{real
+								? "Si votre témoignage est publié, il apparaîtra sous « Auteur anonyme ». La publication sous votre nom n’est pas proposée actuellement. Votre pseudonyme reste interne et n’est pas affiché publiquement."
+								: "Si cette situation fictive est publiée, elle apparaîtra sous « Auteur anonyme ». Votre pseudonyme reste interne et n’est pas affiché publiquement."}
 						</p>
-						<p>
-							La modération décide de la publication ; elle ne constitue pas une aide professionnelle
-							et ne promet aucune réponse de soutien.
+					) : (
+						<p role="alert">
+							Votre session n’a pas pu être vérifiée. L’envoi est désactivé.
+							Rechargez la page pour réessayer ; conservez votre texte avant de
+							le faire.
 						</p>
-						<p>
-							Une personne l’examinera avant toute publication. Elle pourra la
-							publier ou la garder non publiée. Si nécessaire, un contenu publié
-							sera masqué derrière un avertissement de sensibilité.
-						</p>
-						<p className="font-medium">
-							Après l'envoi, son statut sera « À examiner ».
-						</p>
-					</section>
+					)}
+					<p>
+						Le libellé « Auteur anonyme » ne garantit pas un anonymat absolu :
+						l’administration technique peut relier votre session à ses
+						pseudonymes. Le contenu peut aussi permettre de vous reconnaître.
+					</p>
+					<p>
+						La modération décide de la publication ; elle ne constitue pas une
+						aide professionnelle et ne promet aucune réponse de soutien.
+					</p>
+					<p>
+						{real
+							? "Chaque témoignage est examiné par une personne avant d’être rendu public. La modération décide de le publier ou de le garder non publié. Si nécessaire, un contenu publié sera masqué derrière un avertissement de sensibilité."
+							: "Une personne l’examinera avant toute publication. Elle pourra la publier ou la garder non publiée. Si nécessaire, un contenu publié sera masqué derrière un avertissement de sensibilité."}
+					</p>
+					<p className="font-medium">
+						Après l'envoi, son statut sera « À examiner ».
+					</p>
+				</section>
 
 				{errors.submit && (
 					<p
@@ -431,7 +525,7 @@ export function ScenarioForm({
 					<Button
 						type="submit"
 						size="lg"
-						disabled={isSubmitting || !aliasName}
+						disabled={isSubmitting || !aliasName || contributionsSuspended}
 						className="min-h-12 gap-2 px-6"
 					>
 						{isSubmitting ? (

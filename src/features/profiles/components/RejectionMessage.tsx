@@ -1,11 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { AlertCircle } from "lucide-react";
+import { useBetaPresentation } from "@/features/beta/components/beta-presentation";
 
 interface RejectionMessageProps {
 	reason: string;
 }
 
 export function RejectionMessage({ reason }: RejectionMessageProps) {
+	const real = useBetaPresentation().publicationMode === "real";
 	const needsSupportOrientation =
 		reason.includes("situation réelle ou urgente") ||
 		reason.includes("permettre d’identifier une personne");
@@ -19,16 +21,21 @@ export function RejectionMessage({ reason }: RejectionMessageProps) {
 				/>
 				<div className="space-y-2">
 					<h4 className="font-semibold text-warning-foreground dark:text-warning">
-						Pourquoi cette situation fictive n’a pas été publiée
+						{real
+							? "Pourquoi ce témoignage n’a pas été publié"
+							: "Pourquoi cette situation fictive n’a pas été publiée"}
 					</h4>
 					<p className="text-sm text-foreground/80">{reason}</p>
 					<p className="text-sm text-muted-foreground">
-						Vous pouvez créer une nouvelle situation fictive en tenant compte de ce
-						motif.
+						{real
+							? "Vous pouvez rédiger un nouveau témoignage en tenant compte de ce motif, si vous le souhaitez."
+							: "Vous pouvez créer une nouvelle situation fictive en tenant compte de ce motif."}
 					</p>
 					{needsSupportOrientation && (
 						<p className="text-sm text-muted-foreground">
-							Cette bêta ne traite pas les demandes réelles ou urgentes.
+							{real
+								? "Cet espace ne prend pas en charge les urgences et ne propose pas d’accompagnement professionnel."
+								: "Cette bêta ne traite pas les demandes réelles ou urgentes."}
 							Consultez{" "}
 							<Link
 								to="/help"

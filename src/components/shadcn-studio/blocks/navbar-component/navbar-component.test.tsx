@@ -18,12 +18,16 @@ const state = vi.hoisted(() => ({
 	setTheme: vi.fn(),
 	signOut: vi.fn(),
 	loading: false,
+	submissionsOpen: true,
 }));
 vi.mock("@tanstack/react-router", () => ({
 	getRouteApi: () => ({
 		useLoaderData: () => ({
 			authSession: { user: state.user },
-			beta: { submissionsOpen: true, moderationSchedule: "Test" },
+			beta: {
+				submissionsOpen: state.submissionsOpen,
+				moderationSchedule: "Test",
+			},
 		}),
 	}),
 	useRouterState: () => ({
@@ -46,6 +50,7 @@ vi.mock("@/components/theme", () => ({
 vi.mock("@/hooks/use-is-client", () => ({ useIsClient: () => true }));
 vi.mock("@/features/auth/lib/auth-client", () => ({ signOut: state.signOut }));
 
+import { BetaPresentationProvider } from "@/features/beta/components/beta-presentation";
 import Navbar from "./navbar-component";
 
 afterEach(cleanup);
@@ -54,6 +59,7 @@ beforeEach(() => {
 	state.user = null;
 	state.theme = "light";
 	state.loading = false;
+	state.submissionsOpen = true;
 });
 
 describe("Civic navbar", () => {
@@ -178,3 +184,73 @@ describe("Civic navbar", () => {
 		expect(screen.queryByRole("menuitem", { name: /Déconnexion/ })).toBeNull();
 	});
 });
+
+it.each([true, false])(
+	"labels the navbar from the access flag (%s)",
+	(accessRequired) => {
+		render(
+			<BetaPresentationProvider
+				value={{ accessRequired, submissionsOpen: true }}
+			>
+				<Navbar />
+			</BetaPresentationProvider>,
+		);
+		expect(
+			screen.getByText(accessRequired ? "Bêta privée" : "Accès public"),
+		).toBeInTheDocument();
+		if (!accessRequired)
+			expect(screen.queryByText("Bêta privée")).not.toBeInTheDocument();
+	},
+);
+
+it.each(
+	[true, false].flatMap((accessRequired) =>
+		[true, false].map((submissionsOpen) => ({
+			accessRequired,
+			submissionsOpen,
+		})),
+	),
+)(
+	"real navbar access=$accessRequired, submissions=$submissionsOpen",
+	async ({ accessRequired, submissionsOpen }) => {
+		state.submissionsOpen = submissionsOpen;
+		state.user = {
+			id: "user-1",
+			displayUsername: "Nom interne",
+			username: "internal",
+			email: "fixture@example.invalid",
+			isAnonymous: true,
+			role: "USER",
+			image: null,
+		};
+		const user = userEvent.setup();
+		const { container } = render(
+			<BetaPresentationProvider
+				value={{ publicationMode: "real", accessRequired, submissionsOpen }}
+			>
+				<Navbar />
+			</BetaPresentationProvider>,
+		);
+		expect(
+			screen.getByText(accessRequired ? "Sur invitation" : "Accès public"),
+		).toBeInTheDocument();
+		expect(container).toHaveTextContent(
+			submissionsOpen
+				? "Envoi de témoignages ouvert"
+				: "Envoi de témoignages suspendu",
+		);
+		expect(
+			screen.getByRole("link", { name: "Mes témoignages" }),
+		).toHaveAttribute("href", "/account/profile");
+		await user.click(
+			screen.getByRole("button", { name: /Menu de navigation/ }),
+		);
+		expect(
+			screen.getByRole("menuitem", { name: /Témoignages publiés/ }),
+		).toHaveAttribute("href", "/threads");
+		expect(
+			screen.getByRole("menuitem", { name: /Mes témoignages/ }),
+		).toHaveAttribute("href", "/account/profile");
+		expect(container).not.toHaveTextContent(/situations fictives|bêta privée/i);
+	},
+);

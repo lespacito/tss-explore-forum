@@ -1,5 +1,6 @@
 import { AlertCircle, CheckCircle, Clock } from "lucide-react";
 import type { ThreadStatus } from "@/db/schemas/thread";
+import { useBetaPresentation } from "@/features/beta/components/beta-presentation";
 import { cn } from "@/lib/utils";
 
 const STATUS_CONFIG = {
@@ -30,7 +31,14 @@ export function ThreadStatusBadge({
 	status,
 	className,
 }: ThreadStatusBadgeProps) {
+	const real = useBetaPresentation().publicationMode === "real";
 	const config = STATUS_CONFIG[status];
+	const label =
+		real && status !== "pending"
+			? status === "published"
+				? "Publié"
+				: "Non publié"
+			: config.label;
 	const Icon = config.icon;
 
 	return (
@@ -43,10 +51,10 @@ export function ThreadStatusBadge({
 					className,
 				)}
 				role="status"
-				aria-label={`Statut: ${config.label}`}
+				aria-label={`Statut: ${label}`}
 			>
 				<Icon className="h-3.5 w-3.5" aria-hidden="true" />
-				<span>{config.label}</span>
+				<span>{label}</span>
 			</div>
 		</>
 	);

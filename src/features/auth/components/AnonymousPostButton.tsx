@@ -3,6 +3,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { createAnonymousSessionFn } from "@/features/auth/server/create-anonymous-session";
+import { useBetaPresentation } from "@/features/beta/components/beta-presentation";
 import { cn } from "@/lib/utils";
 
 type AnonymousPostButtonProps = {
@@ -12,8 +13,11 @@ type AnonymousPostButtonProps = {
 
 export function AnonymousPostButton({
 	className,
-	label = "Créer une situation fictive",
+	label,
 }: AnonymousPostButtonProps = {}) {
+	const real = useBetaPresentation().publicationMode === "real";
+	const displayLabel =
+		label ?? (real ? "Rédiger un témoignage" : "Créer une situation fictive");
 	const router = useRouter();
 	const data = getRouteApi("__root__").useLoaderData();
 	const paused = data?.beta?.submissionsOpen === false;
@@ -49,7 +53,7 @@ export function AnonymousPostButton({
 			className={cn("min-w-[200px]", className)}
 			aria-busy={isLoading}
 		>
-			{isLoading ? "Chargement…" : paused ? "Dépôts suspendus" : label}
+			{isLoading ? "Chargement…" : paused ? "Dépôts suspendus" : displayLabel}
 		</Button>
 	);
 }

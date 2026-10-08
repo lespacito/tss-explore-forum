@@ -1,9 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
 import { useId } from "react";
+import { useBetaPresentation } from "@/features/beta/components/beta-presentation";
 import { SafetyNotice } from "@/features/beta/components/safety-notice";
 
 export default function FeaturesSection() {
+	const { accessRequired, submissionsOpen, publicationMode } =
+		useBetaPresentation();
+	const real = publicationMode === "real";
 	const privacyId = useId();
 	const contributionId = useId();
 	const helpId = useId();
@@ -19,7 +23,9 @@ export default function FeaturesSection() {
 					</header>
 					<div className="landing-trust-copy">
 						<p>
-							Si votre situation est publiée, elle porte la mention
+							{real
+								? "Si votre témoignage est publié, il porte la mention"
+								: "Si votre situation est publiée, elle porte la mention"}
 							<strong> « Auteur anonyme »</strong>. Le pseudonyme reste interne
 							: il n’est pas affiché comme nom d’auteur dans le fil.
 						</p>
@@ -47,33 +53,54 @@ export default function FeaturesSection() {
 					<header>
 						<h2 id={contributionId}>Contribuer, à votre rythme</h2>
 						<p>
-							Consulter ne vous oblige pas à écrire. Si vous participez au test,
-							voici le parcours.
+							{real
+								? submissionsOpen
+									? "Consulter ne vous oblige pas à écrire. Vous choisissez ce que vous souhaitez partager."
+									: "Les contributions sont temporairement suspendues. Vous pouvez continuer à lire les témoignages déjà publiés."
+								: !accessRequired && !submissionsOpen
+									? "La lecture reste accessible à tous les adultes. Les contributions sont temporairement suspendues ; voici le parcours lorsqu’elles sont ouvertes."
+									: "Consulter ne vous oblige pas à écrire. Si vous participez au test, voici le parcours."}
 						</p>
 						<Link to="/rules" className="landing-text-link">
-							Lire les règles de la bêta <ArrowUpRight aria-hidden="true" />
+							{accessRequired && !real
+								? "Lire les règles de la bêta"
+								: "Lire les règles"}{" "}
+							<ArrowUpRight aria-hidden="true" />
 						</Link>
 					</header>
 					<ol className="landing-steps">
 						<li>
-							<h3>Rédiger la situation fournie</h3>
+							<h3>
+								{real
+									? "Rédiger à votre rythme"
+									: accessRequired
+										? "Rédiger la situation fournie"
+										: "Rédiger une situation fictive"}
+							</h3>
 							<p>
-								Utilisez uniquement la situation fictive fournie avec votre
-								invitation, sans récit personnel ni détail identifiant.
+								{real
+									? "Vous pouvez parler d’une expérience vécue ou dont vous avez été témoin. Évitez les noms, coordonnées et détails permettant d’identifier une autre personne."
+									: accessRequired
+										? "Utilisez uniquement la situation fictive fournie avec votre invitation, sans récit personnel ni détail identifiant."
+										: "Utilisez uniquement une situation fictive, sans récit personnel ni détail identifiant."}
 							</p>
 						</li>
 						<li>
 							<h3>Envoyer pour examen</h3>
 							<p>
-								Un examen humain précède toute publication. L’envoi ne rend pas
-								la situation immédiatement visible.
+								Un examen humain précède toute publication. L’envoi ne rend pas{" "}
+								{real ? "le témoignage" : "la situation"} immédiatement visible.
 							</p>
 						</li>
 						<li>
 							<h3>Retrouver la décision</h3>
 							<p>
-								Dans Mes situations fictives, suivez le statut : À examiner,
-								Publiée ou Non publiée. Un motif accompagne une non-publication.
+								Dans {real ? "Mes témoignages" : "Mes situations fictives"},
+								suivez le statut :{" "}
+								{real
+									? "À examiner, Publié ou Non publié"
+									: "À examiner, Publiée ou Non publiée"}
+								. Un motif accompagne une non-publication.
 							</p>
 						</li>
 					</ol>
@@ -83,11 +110,16 @@ export default function FeaturesSection() {
 				<div className="landing-section-layout">
 					<header>
 						<h2 id={helpId}>
-							Pour une situation réelle, trouver une aide adaptée
+							{real
+								? "Trouver une aide adaptée"
+								: "Pour une situation réelle, trouver une aide adaptée"}
 						</h2>
 						<p>
-							Des ressources extérieures à la bêta sont accessibles sans
-							invitation.
+							{real
+								? "Cet espace ne remplace ni un service d’urgence ni un accompagnement professionnel. Des ressources extérieures peuvent vous orienter."
+								: accessRequired
+									? "Des ressources extérieures à la bêta sont accessibles sans invitation."
+									: "Des ressources extérieures sont accessibles pour une situation réelle."}
 						</p>
 						<Link to="/help" className="landing-text-link">
 							Consulter les ressources d’aide{" "}

@@ -27,3 +27,45 @@ it.each(["true", "false"])(
 		expect(betaSettings().submissionsOpen).toBe(false);
 	},
 );
+
+it.each([undefined, "true", "false", "invalid"])(
+	"exposes the actual gate flag to presentation (%s)",
+	(flag) => {
+		vi.stubEnv("BETA_ACCESS_REQUIRED", flag);
+		vi.stubEnv("BETA_INVITATION_CODES", "never-send-this-to-client");
+		const settings = betaSettings();
+		expect(settings.accessRequired).toBe(flag !== "false");
+		expect(settings).not.toHaveProperty("invitationCodes");
+		expect(JSON.stringify(settings)).not.toContain("never-send-this-to-client");
+	},
+);
+
+it.each([undefined, "", "invalid", "REAL", "test", "real"])(
+	"defaults publication presentation to test unless explicitly real (%s)",
+	(mode) => {
+		vi.stubEnv("PUBLICATION_MODE", mode);
+		expect(betaSettings().publicationMode).toBe(
+			mode === "real" ? "real" : "test",
+		);
+	},
+);
+it.each(["test", "real"])(
+	"keeps access and submission flags independent of %s presentation",
+	(mode) => {
+		vi.stubEnv("PUBLICATION_MODE", mode);
+		for (const gate of ["true", "false"]) {
+			vi.stubEnv("BETA_ACCESS_REQUIRED", gate);
+			for (const open of ["true", "false"]) {
+				vi.stubEnv("BETA_SUBMISSIONS_OPEN", open);
+				vi.stubEnv("BETA_MODERATION_SCHEDULE", "Lundi 18–19 h");
+				expect(betaSettings()).toMatchObject({
+					publicationMode: mode,
+					accessRequired: gate !== "false",
+					submissionsOpen: open === "true",
+				});
+				vi.stubEnv("BETA_MODERATION_SCHEDULE", "");
+				expect(betaSettings().submissionsOpen).toBe(false);
+			}
+		}
+	},
+);

@@ -14,9 +14,8 @@ import {
 	getCategoryConfig,
 	type ThreadCategory,
 } from "@/data/threads-categories";
-import {
-	getCategoryColor,
-} from "@/lib/utils/thread-utils";
+import { useBetaPresentation } from "@/features/beta/components/beta-presentation";
+import { getCategoryColor } from "@/lib/utils/thread-utils";
 
 interface ThreadCardProps {
 	thread: {
@@ -36,6 +35,7 @@ interface ThreadCardProps {
 export const ThreadCard = memo(function ThreadCard({
 	thread,
 }: ThreadCardProps) {
+	const real = useBetaPresentation().publicationMode === "real";
 	const categoryLabel = thread.category
 		? getCategoryConfig(thread.category as ThreadCategory)?.label
 		: "Non classé";
@@ -87,7 +87,9 @@ export const ThreadCard = memo(function ThreadCard({
 					</h3>
 					{thread.isSensitive ? (
 						<p className="text-sm text-muted-foreground">
-							Contenu sensible. Ouvrez la situation fictive pour choisir de lire son contenu.
+							{real
+								? "Contenu sensible. Ouvrez le témoignage pour choisir de lire son contenu."
+								: "Contenu sensible. Ouvrez la situation fictive pour choisir de lire son contenu."}
 						</p>
 					) : (
 						<SafeHtmlDisplay
@@ -99,7 +101,7 @@ export const ThreadCard = memo(function ThreadCard({
 				</CardContent>
 				<CardFooter className="p-4 border-t flex justify-end text-muted-foreground">
 					<span className="text-xs font-medium text-primary">
-						Lire la situation fictive →
+						{real ? "Lire le témoignage →" : "Lire la situation fictive →"}
 					</span>
 				</CardFooter>
 			</Card>

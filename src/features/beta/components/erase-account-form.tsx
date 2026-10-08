@@ -2,6 +2,7 @@ import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useBetaPresentation } from "@/features/beta/components/beta-presentation";
 import { eraseBetaAccount } from "@/features/beta/server/erase-account";
 export function EraseAccountForm({
 	anonymous,
@@ -10,6 +11,7 @@ export function EraseAccountForm({
 	anonymous: boolean;
 	userId: string;
 }) {
+	const real = useBetaPresentation().publicationMode === "real";
 	const confirmationId = useId();
 	const passwordId = useId();
 	const descriptionId = useId();
@@ -50,9 +52,9 @@ export function EraseAccountForm({
 			}}
 		>
 			<p id={descriptionId} className="leading-7 text-muted-foreground">
-				Cette action définitive supprime vos situations fictives, pseudonymes, code de
-				récupération et sessions de la base active. Une copie peut subsister
-				sept jours supplémentaires dans une sauvegarde.
+				{real
+					? "Cette action définitive supprime vos témoignages, pseudonymes, code de récupération et sessions de la base active. Des copies peuvent subsister dans des sauvegardes ou avoir été conservées par des tiers. La durée effective de conservation des sauvegardes reste à confirmer avant l’ouverture aux témoignages réels."
+					: "Cette action définitive supprime vos situations fictives, pseudonymes, code de récupération et sessions de la base active. Une copie peut subsister sept jours supplémentaires dans une sauvegarde."}
 			</p>
 			<Label htmlFor={confirmationId}>Saisissez EFFACER pour confirmer</Label>
 			<Input

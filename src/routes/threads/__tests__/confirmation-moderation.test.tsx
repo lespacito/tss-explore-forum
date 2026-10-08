@@ -13,6 +13,15 @@ vi.mock("@tanstack/react-router", () => ({
 	),
 }));
 
+const flags = vi.hoisted(() => ({
+	accessRequired: true,
+	publicationMode: "test",
+	submissionsOpen: false,
+}));
+vi.mock("@/features/beta/components/beta-presentation", () => ({
+	useBetaPresentation: () => flags,
+}));
+
 const ConfirmationPage = Route.options.component;
 if (!ConfirmationPage) throw new Error("Confirmation route component missing");
 
@@ -85,3 +94,45 @@ describe("Publication tracking", () => {
 		).toEqual({});
 	});
 });
+
+it("does not refer public readers to an invitation", () => {
+	flags.accessRequired = false;
+	const { container } = render(
+		<PublicationReceiptProvider>
+			<ConfirmationPage />
+		</PublicationReceiptProvider>,
+	);
+	expect(container.textContent).not.toContain("votre invitation");
+	expect(container.textContent).toContain("Aucune notification par email");
+	flags.accessRequired = true;
+});
+
+it.each([true, false])(
+	"explains real testimony review with accessRequired=%s",
+	(accessRequired) => {
+		flags.publicationMode = "real";
+		flags.accessRequired = accessRequired;
+		const { container } = render(
+			<PublicationReceiptProvider>
+				<ConfirmSubmission />
+				<ConfirmationPage />
+			</PublicationReceiptProvider>,
+		);
+		fireEvent.click(screen.getByRole("button", { name: "Confirm submission" }));
+		expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(
+			"Votre témoignage a été envoyé",
+		);
+		expect(container.textContent).toContain("Statut : À examiner");
+		expect(container.textContent).toContain(
+			"avant de décider s’il peut être rendu public",
+		);
+		expect(container.textContent).not.toContain("situation fictive");
+		expect(
+			screen
+				.getByRole("link", { name: "Voir mes témoignages" })
+				.getAttribute("href"),
+		).toBe("/account/profile");
+		flags.publicationMode = "test";
+		flags.accessRequired = true;
+	},
+);

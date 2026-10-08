@@ -10,6 +10,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useBetaPresentation } from "@/features/beta/components/beta-presentation";
 import { AuthButtons } from "./auth-buttons";
 import { NavbarThemeControl } from "./navbar-theme-control";
 import { UserProfileMenu, UserProfileMenuItems } from "./user-profile-menu";
@@ -18,6 +19,8 @@ import { UserSkeleton } from "./user-skeleton";
 const routeApi = getRouteApi("__root__");
 
 const Navbar = () => {
+	const { accessRequired, publicationMode } = useBetaPresentation();
+	const real = publicationMode === "real";
 	const loaderData = routeApi.useLoaderData();
 	const user = loaderData?.authSession?.user;
 	const routerState = useRouterState();
@@ -35,7 +38,11 @@ const Navbar = () => {
 						<span>Parlons</span> Violence
 					</Link>
 					<span className="civic-beta-mark civic-nav__desktop-only">
-						Bêta privée
+						{accessRequired
+							? real
+								? "Sur invitation"
+								: "Bêta privée"
+							: "Accès public"}
 					</span>
 					{user && (
 						<Link
@@ -43,7 +50,7 @@ const Navbar = () => {
 							className="civic-scenarios-link civic-nav__desktop-only"
 							aria-current={spaceActive ? "page" : undefined}
 						>
-							Mes situations fictives
+							{real ? "Mes témoignages" : "Mes situations fictives"}
 						</Link>
 					)}
 				</div>
@@ -68,7 +75,10 @@ const Navbar = () => {
 								<DropdownMenuLabel>Navigation</DropdownMenuLabel>
 								<DropdownMenuItem asChild>
 									<Link to="/threads">
-										<BookOpen /> Situations fictives publiées
+										<BookOpen />{" "}
+										{real
+											? "Témoignages publiés"
+											: "Situations fictives publiées"}
 									</Link>
 								</DropdownMenuItem>
 								{user && (
@@ -77,7 +87,8 @@ const Navbar = () => {
 											to="/account/profile"
 											aria-current={spaceActive ? "page" : undefined}
 										>
-											<BookOpen /> Mes situations fictives
+											<BookOpen />{" "}
+											{real ? "Mes témoignages" : "Mes situations fictives"}
 										</Link>
 									</DropdownMenuItem>
 								)}
@@ -145,8 +156,12 @@ const Navbar = () => {
 			<div className="civic-service-status">
 				<p>
 					{loaderData?.beta?.submissionsOpen
-						? "Envoi de situations fictives ouvert · "
-						: "Envoi de situations fictives suspendu · "}
+						? real
+							? "Envoi de témoignages ouvert · "
+							: "Envoi de situations fictives ouvert · "
+						: real
+							? "Envoi de témoignages suspendu · "
+							: "Envoi de situations fictives suspendu · "}
 					{loaderData?.beta?.moderationSchedule}
 				</p>
 			</div>

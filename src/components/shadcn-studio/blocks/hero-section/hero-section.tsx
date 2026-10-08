@@ -2,36 +2,73 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { useId } from "react";
 import { AnonymousPostButton } from "@/features/auth/components/AnonymousPostButton";
+import { useBetaPresentation } from "@/features/beta/components/beta-presentation";
 
 export default function HeroSection() {
+	const { accessRequired, submissionsOpen, publicationMode } =
+		useBetaPresentation();
+	const real = publicationMode === "real";
 	const titleId = useId();
 	const exampleId = useId();
 	return (
 		<section className="landing-hero" aria-labelledby={titleId}>
 			<div className="landing-sheet">
 				<div className="landing-intro">
-					<h1 id={titleId}>Mieux comprendre les situations de violence.</h1>
+					<h1 id={titleId}>
+						{real
+							? "Un espace de témoignage et d’entraide face aux violences."
+							: "Mieux comprendre les situations de violence."}
+					</h1>
 					<p className="landing-mission">
-						Parlons Violence explore une façon d’aborder ces situations à partir
-						de récits fictifs. Découvrez le parcours et contribuez à son
-						amélioration.
+						{real ? (
+							"Pour les adultes victimes ou témoins de violences et de harcèlement. Vous pouvez lire à votre rythme, sans obligation de raconter votre expérience."
+						) : (
+							<>
+								Parlons Violence explore une façon d’aborder ces situations à
+								partir de récits fictifs.{" "}
+								{accessRequired || submissionsOpen
+									? "Découvrez le parcours et contribuez à son amélioration."
+									: "Découvrez les situations fictives publiées."}
+							</>
+						)}
 					</p>
 					<p className="landing-beta-label">
-						Bêta privée pour adultes invités · Situations fictives uniquement
+						{real
+							? accessRequired
+								? "Accès sur invitation pour adultes · Témoignages réels"
+								: "Accès public pour adultes · Témoignages réels"
+							: accessRequired
+								? "Bêta privée pour adultes invités · Situations fictives uniquement"
+								: "Accès public pour adultes · Situations fictives uniquement"}
 					</p>
 					<div className="landing-actions">
 						<Link to="/threads" className="landing-cta">
-							Consulter les situations fictives
+							{real
+								? "Lire les témoignages"
+								: "Consulter les situations fictives"}
 							<ArrowRight aria-hidden="true" />
 						</Link>
 						<AnonymousPostButton
 							className="landing-secondary-action"
-							label="Proposer une situation fictive"
+							label={
+								real
+									? "Rédiger un témoignage"
+									: "Proposer une situation fictive"
+							}
 						/>
 					</div>
 					<p className="landing-contribution-note">
-						Pour contribuer, utilisez uniquement la situation fictive fournie
-						avec votre invitation. Environ 10 minutes.
+						{real
+							? submissionsOpen
+								? "Partagez uniquement ce que vous souhaitez. Chaque témoignage est examiné par une personne avant publication ; l’envoi ne le rend pas immédiatement visible."
+								: accessRequired
+									? "La lecture est accessible sur invitation. Les contributions sont temporairement suspendues."
+									: "Le site est accessible publiquement en lecture. Les contributions sont temporairement suspendues."
+							: accessRequired
+								? "Pour contribuer, utilisez uniquement la situation fictive fournie avec votre invitation. Environ 10 minutes."
+								: submissionsOpen
+									? "Pour contribuer, rédigez uniquement une situation fictive, sans récit personnel ni détail identifiant. Environ 10 minutes."
+									: "Le site est accessible publiquement en lecture. Les contributions sont temporairement suspendues."}
 					</p>
 					<Link to="/help" className="landing-text-link">
 						Trouver une aide adaptée <ArrowUpRight aria-hidden="true" />

@@ -25,6 +25,7 @@ x-app-environment: &app-environment
   LOG_LEVEL: ${LOG_LEVEL:-info}
   BETA_ACCESS_REQUIRED: ${BETA_ACCESS_REQUIRED:?Set true for invitations or false for public access}
   BETA_INVITATION_CODES: ${BETA_INVITATION_CODES:-}
+  PUBLICATION_MODE: ${PUBLICATION_MODE:-test}
   BETA_SUBMISSIONS_OPEN: ${BETA_SUBMISSIONS_OPEN:-false}
   BETA_MODERATION_SCHEDULE: ${BETA_MODERATION_SCHEDULE:?Describe the production moderation schedule}
 
