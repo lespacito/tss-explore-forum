@@ -215,6 +215,20 @@ describe("continuous scenario form", () => {
 	});
 });
 
+describe("test-mode form wording", () => {
+	it.each([
+		[true, /Cette bêta teste le parcours, pas une situation réelle/i],
+		[false, /Cette version de démonstration permet uniquement de tester le parcours/i],
+	] as const)("shows the appropriate copy when accessRequired=%s", (accessRequired, expected) => {
+		render(
+			<BetaPresentationProvider value={{ publicationMode: "test", accessRequired, submissionsOpen: true }}>
+				<ScenarioForm user={user as never} aliasName="Érable calme" />
+			</BetaPresentationProvider>,
+		);
+		expect(screen.getByText(expected)).toBeInTheDocument();
+	});
+});
+
 describe("real testimony presentation", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
