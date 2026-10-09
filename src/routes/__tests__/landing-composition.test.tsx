@@ -355,11 +355,15 @@ describe("Entre nous preproduction showcase", () => {
 			).not.toBeInTheDocument();
 			expect(container).toHaveTextContent("Entre nous, sur Parlons Violence");
 			expect(container).toHaveTextContent("Scénarios exclusivement fictifs");
-			expect(container).toHaveTextContent("prévues, non implémentées");
-			expect(container).toHaveTextContent("réponses et commentaires fermés");
+			expect(container).toHaveTextContent(
+				"Elles ne sont pas encore disponibles",
+			);
+			expect(container).toHaveTextContent(
+				"réponses et commentaires sont fermés",
+			);
 			expect(container).toHaveTextContent("ni nom réel ni email");
 			expect(container).toHaveTextContent("ne garantit pas un anonymat absolu");
-			expect(container).toHaveTextContent("À examiner, Publié, Non publié");
+			expect(container).toHaveTextContent("À examiner, Publié ou Non publié");
 			expect(container).not.toHaveTextContent(
 				/adresse e-mail peut être demandée|pseudonyme|Mes situations fictives/,
 			);
@@ -371,8 +375,8 @@ describe("Entre nous preproduction showcase", () => {
 			).toHaveAttribute("href", "/threads");
 			expect(container).toHaveTextContent(
 				accessRequired
-					? "nécessite une invitation valide"
-					: "accessible en lecture sans invitation",
+					? "Une invitation valide est nécessaire"
+					: "se lit sans invitation",
 			);
 			for (const [name, href] of [
 				[/117.*police/i, "tel:117"],
