@@ -7,12 +7,14 @@ on:
       - .github/workflows/preprod-ghcr.yml
       - .github/workflows/preprod-ghcr-checks.yml
       - tests/ci/**
+      - tests/preprod-workflow-test.rb
   push:
     branches: [dev, master]
     paths:
       - .github/workflows/preprod-ghcr.yml
       - .github/workflows/preprod-ghcr-checks.yml
       - tests/ci/**
+      - tests/preprod-workflow-test.rb
 
 permissions:
   contents: read
@@ -25,5 +27,12 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+      - name: Install Bun for offline migration payload tests
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.4.2
+      - name: Test Ruby publisher contract and offline payload
+        run: ruby tests/preprod-workflow-test.rb
       - name: Test publisher admission and freshness guards without publishing
+        if: ${{ !cancelled() }}
         run: python3 -m unittest discover -s tests/ci -v

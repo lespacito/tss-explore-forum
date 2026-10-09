@@ -13,23 +13,37 @@ class PreprodWorkflowTest < Minitest::Test
     STEPS.find { |s| s['name'] == name }.fetch('run')
   end
 
-  def test_manual_only_minimal_permissions_and_event_sha
-    assert_equal ['workflow_dispatch'], (WORKFLOW['on'] || WORKFLOW[true]).keys
-    assert_equal({'contents' => 'read', 'packages' => 'write'}, WORKFLOW['permissions'])
+  def test_manual_and_ci_triggers_minimal_permissions_and_verified_sha
+    triggers = WORKFLOW['on'] || WORKFLOW[true]
+    assert_equal %w[workflow_dispatch workflow_run], triggers.keys
+    assert_equal({'workflows' => ['Playwright Tests'], 'types' => ['completed'], 'branches' => ['dev']}, triggers['workflow_run'])
+    assert_equal({'contents' => 'read', 'actions' => 'read', 'packages' => 'write'}, WORKFLOW['permissions'])
     refute WORKFLOW['env'].key?('SOURCE_SHA')
     checkout = STEPS.find { |s| s['uses'].to_s.start_with?('actions/checkout@') }
-    assert_equal '${{ github.sha }}', checkout['with']['ref']
+    assert_equal '${{ env.SOURCE_SHA }}', checkout['with']['ref']
     assert_equal false, checkout['with']['persist-credentials']
     assert_includes step('Verify source SHA and Dockerfile contract'), 'git -C source rev-parse HEAD'
     assert_includes WORKFLOW['jobs']['publish']['if'], "github.ref == 'refs/heads/dev'"
+    assert_equal 'parlons-violence-preprod-ghcr', WORKFLOW['concurrency']['group']
     assert_equal false, WORKFLOW['concurrency']['cancel-in-progress']
+    gate = WORKFLOW['jobs']['publish']['if']
+    assert_includes gate, "github.event_name == 'workflow_dispatch'"
+    assert_includes gate, "github.event_name == 'workflow_run'"
+    assert_includes gate, "github.event.workflow_run.event == 'push'"
+    assert_includes gate, "github.event.workflow_run.head_branch == 'dev'"
+    assert_includes gate, 'github.event.workflow_run.head_repository.full_name == github.repository'
+    assert_includes gate, "github.event.workflow_run.conclusion == 'success'"
+    admission = step('Verify successful CI for the current dev SHA')
+    assert_includes admission, "sha = trigger['head_sha']"
+    assert_includes admission, 'SOURCE_SHA={sha}'
+    assert_includes admission, "api('git/ref/heads/dev')['object']['sha'] == sha"
   end
 
-  def test_verifies_event_sha_and_generates_complete_sha_tags
+  def test_verifies_source_sha_and_generates_complete_sha_tags
     verify = step('Verify source SHA and Dockerfile contract')
     build = step('Build both targets without publishing')
-    assert_includes verify, 'test "$actual_sha" = "$GITHUB_SHA"'
-    assert_includes build, 'org.opencontainers.image.revision=$GITHUB_SHA'
+    assert_includes verify, 'test "$actual_sha" = "$SOURCE_SHA"'
+    assert_includes build, 'org.opencontainers.image.revision=$SOURCE_SHA'
     Dir.mktmpdir('pv-source-') do |dir|
       FileUtils.mkdir_p("#{dir}/source/drizzle/meta")
       File.write("#{dir}/source/Dockerfile", "FROM oven/bun:1-alpine AS base\nFROM base AS builder\nFROM base AS runner\n")
@@ -45,13 +59,13 @@ class PreprodWorkflowTest < Minitest::Test
       git.call('add', '.')
       git.call('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.org', 'commit', '-qm', 'fixture')
       sha = git.call('rev-parse', 'HEAD')
-      env = {'GITHUB_SHA' => sha, 'GITHUB_RUN_ID' => '123', 'GITHUB_RUN_ATTEMPT' => '2',
+      env = {'SOURCE_SHA' => sha, 'GITHUB_SHA' => 'f' * 40, 'GITHUB_RUN_ID' => '123', 'GITHUB_RUN_ATTEMPT' => '2',
         'GITHUB_OUTPUT' => "#{dir}/output", 'GITHUB_ENV' => "#{dir}/env"}
       _out, err, status = Open3.capture3(env, 'bash', '-c', verify, chdir: dir)
       assert status.success?, err
       assert_equal "actual_sha=#{sha}\n", File.read("#{dir}/output")
       assert_equal "SHA_TAG=sha-#{sha}\nRUN_TAG=sha-#{sha}-run-123-attempt-2\n", File.read("#{dir}/env")
-      env['GITHUB_SHA'] = '0' * 40
+      env['SOURCE_SHA'] = '0' * 40
       refute Open3.capture3(env, 'bash', '-c', verify, chdir: dir)[2].success?
       assert_equal "actual_sha=#{sha}\n", File.read("#{dir}/output")
     end
@@ -63,7 +77,7 @@ class PreprodWorkflowTest < Minitest::Test
     assert_includes publish, '{{.Manifest.Digest}}'
     assert_includes publish, '%s@%s'
     summary = step('Publication summary')
-    %w[ACTUAL_SHA GITHUB_RUN_ID GITHUB_RUN_ATTEMPT BASE_DIGEST].each do |name|
+    %w[ACTUAL_SHA GITHUB_RUN_ID GITHUB_RUN_ATTEMPT BASE_DIGEST CI_RUN_ID CI_RUN_ATTEMPT].each do |name|
       assert_includes summary, name
     end
   end
@@ -74,6 +88,12 @@ class PreprodWorkflowTest < Minitest::Test
       names.index('Publish and verify exact registry digests')
     assert_operator names.index('Recheck all tags immediately before publication'), :<,
       names.index('Publish and verify exact registry digests')
+    assert_operator names.index('Recheck CI and dev immediately before publication'), :<,
+      names.index('Publish and verify exact registry digests')
+    publish = step('Publish and verify exact registry digests')
+    %w[RUN_TAG SHA_TAG].each do |tag|
+      assert_includes publish, %(python3 "$RUNNER_TEMP/verify-preprod-ci.py"\n  docker push "$image:$#{tag}")
+    end
     build = step('Build both targets without publishing')
     assert_includes build, '--platform linux/amd64 --load'
     assert_includes build, '--target builder'
@@ -85,7 +105,7 @@ class PreprodWorkflowTest < Minitest::Test
     refute_match(/db:migrate|drizzle-kit migrate|db:push/, payload)
     text = File.read(File.expand_path('../.github/workflows/preprod-ghcr.yml', __dir__), encoding: 'UTF-8')
     assert_equal ['GITHUB_TOKEN'], text.scan(/secrets\.([A-Z_]+)/).flatten.uniq
-    refute_match(/:latest\b|:dev\b|workflow_run:|repository_dispatch:|\bssh\b|dokploy/i, text)
+    refute_match(/:latest\b|:dev\b|repository_dispatch:|\bssh\b|dokploy/i, text)
   end
 
   def test_shell_syntax_for_all_run_steps

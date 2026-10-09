@@ -18,14 +18,25 @@ Fusionner cette PR dans `dev` ne suffit donc pas à activer l'automatisation.
    validation. Remplacer l'ancien publisher à SHA fixe, ne pas créer un second
    publisher ni porter seulement le bloc `on`. Aucune modification applicative
    de production ni changement de branche par défaut n'est nécessaire.
-3. Après un GO d'activation, fusionner cette PR vers `master`. GitHub charge le
-   workflow `workflow_run` depuis la branche par défaut. Les anciens événements
-   ne sont pas rejoués : le prochain push sur `dev`, suivi de sa CI réussie,
-   devient éligible à la publication automatique.
-4. Vérifier les droits GHCR des deux packages pour le `GITHUB_TOKEN` du dépôt
-   (`packages: write`), ainsi que l'autorisation des actions Docker épinglées.
-   Les lectures CI exigent `actions: read`, la lecture de `dev` `contents: read`.
-   Le prochain run doit présenter le SHA testé, le run CI et sa tentative,
+3. **Avant toute activation**, vérifier les droits GHCR des deux packages pour
+   le `GITHUB_TOKEN` du dépôt (`packages: write`) et l'autorisation des actions
+   Docker épinglées. Les lectures CI exigent `actions: read`, la lecture de `dev`
+   `contents: read`. Cette vérification est un prérequis, pas un test de push.
+4. Vérifier qu'**aucune CI `dev` n'est en cours ou en attente**, y compris les
+   reruns, et convenir d'une fenêtre sans nouveau push ni rerun sur `dev`.
+   Une CI `dev` commencée **avant** l'activation sur `master` peut se terminer
+   **après** celle-ci et déclencher GHCR si les garde-fous l'admettent. Il n'est
+   donc pas nécessaire qu'un nouveau push ait lieu après l'activation.
+5. Obtenir une **autorisation d'activation distincte**, après présentation des
+   droits GHCR vérifiés et de l'absence de CI `dev` en cours/en attente. Le GO de
+   fusion de la PR vers `dev` n'autorise pas l'activation sur `master`.
+6. Juste avant la fusion vers `master`, revérifier l'absence de CI `dev` en
+   cours/en attente et le respect de la fenêtre convenue. Fusionner uniquement
+   après cette autorisation distincte. GitHub charge le workflow `workflow_run`
+   depuis la branche par défaut : dès son activation, toute nouvelle complétion
+   CI éligible peut publier. Les événements de complétion déjà terminés ne sont
+   pas rejoués.
+7. Le run autorisé doit présenter le SHA testé, le run CI et sa tentative,
    les tags immuables et les références par digest dans son résumé.
 
 Ne pas lancer de `workflow_dispatch`, de rerun de CI sur `dev`, ni de push de
@@ -33,6 +44,23 @@ validation sur `dev` avant le GO : après activation, cela peut publier.
 Cette PR n'effectue aucune activation, publication ou fusion.
 
 Référence : [événement workflow_run dans la documentation GitHub](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflow_run).
+
+## Protections de branches recommandées avant activation
+
+État vérifié via l'API GitHub le 9 octobre 2026 : **`dev` et `master` ne sont
+actuellement pas protégées** (`protected: false`). Cette PR ne change pas leur
+configuration. Les contrôles CI du publisher ne remplacent pas la protection
+des sources ni celle du workflow de confiance chargé depuis `master`.
+
+Avant activation, mettre en place des protections de branches ou rulesets pour
+`dev` et `master` : PR obligatoire, revue approuvée, checks `test` (Playwright) et
+`guards` requis, interdiction des force pushes et suppressions, et restrictions
+des pushes directs et des contournements. Imposer une **revue obligatoire des
+workflows** `.github/workflows/**`, par exemple avec CODEOWNERS et l'approbation
+des propriétaires requise. Étendre cette revue aux tests du publisher afin que
+ses contrôles ne puissent pas être affaiblis sans validation. Ces protections
+sont recommandées ; leur configuration doit être traitée séparément avant
+l'autorisation d'activation.
 
 ## SHA, fraîcheur et doubles déclenchements
 
@@ -76,13 +104,18 @@ atomique du registre.
 ## Validation sans effet externe
 
 ```sh
+ruby tests/preprod-workflow-test.rb
 python3 -m unittest discover -s tests/ci -v
 actionlint -shellcheck= -pyflakes= .github/workflows/preprod-ghcr.yml .github/workflows/preprod-ghcr-checks.yml
 git diff --check
 ```
 
-Les tests exécutent le code exact du garde-fou embarqué avec une API simulée.
-Le workflow `Preproduction publisher guard tests` les exécute sur les PR et
+La suite Ruby vérifie le contrat du workflow, les collisions GHCR, le payload
+migrations hors réseau et les digests. Elle exige Bun (version CI : 1.4.2).
+Les 11 tests Python exécutent le code exact du garde-fou embarqué avec une API
+simulée. Le workflow `Preproduction publisher guard tests` les exécute sur les PR et
 changements concernés de `dev`/`master`, sans accès packages en écriture.
+Le job `guards` installe Bun puis exécute Ruby et Python dans deux étapes
+obligatoires : l'échec de l'une ou l'autre suite fait échouer le check.
 Aucun build ni push GHCR réel n'est requis pour ces vérifications.
 Dokploy, PostgreSQL et la production sont hors périmètre.
