@@ -1,6 +1,5 @@
 import { AlertCircle, CheckCircle, Clock } from "lucide-react";
 import type { ThreadStatus } from "@/db/schemas/thread";
-import { useBetaPresentation } from "@/features/beta/components/beta-presentation";
 import { cn } from "@/lib/utils";
 
 const STATUS_CONFIG = {
@@ -10,12 +9,12 @@ const STATUS_CONFIG = {
 		className: "bg-warning/15 border-warning/50 text-warning-foreground",
 	},
 	published: {
-		label: "Publiée",
+		label: "Publié",
 		icon: CheckCircle,
 		className: "bg-primary/10 border-primary/30 text-primary",
 	},
 	rejected: {
-		label: "Non publiée",
+		label: "Non publié",
 		icon: AlertCircle,
 		className:
 			"bg-warning/10 border-warning/30 text-warning-foreground dark:text-warning",
@@ -31,14 +30,8 @@ export function ThreadStatusBadge({
 	status,
 	className,
 }: ThreadStatusBadgeProps) {
-	const real = useBetaPresentation().publicationMode === "real";
 	const config = STATUS_CONFIG[status];
-	const label =
-		real && status !== "pending"
-			? status === "published"
-				? "Publié"
-				: "Non publié"
-			: config.label;
+	const label = config.label;
 	const Icon = config.icon;
 
 	return (

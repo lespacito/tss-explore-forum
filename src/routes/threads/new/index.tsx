@@ -90,7 +90,8 @@ export function ScenarioForm({
 	user: NonNullable<Awaited<ReturnType<typeof getAuthSession>>["user"]>;
 	aliasName: string | null;
 }) {
-	const { publicationMode, accessRequired, submissionsOpen } = useBetaPresentation();
+	const { publicationMode, accessRequired, submissionsOpen } =
+		useBetaPresentation();
 	const real = publicationMode === "real";
 	const contributionsSuspended = real && !submissionsOpen;
 	const navigate = useNavigate();
@@ -245,8 +246,8 @@ export function ScenarioForm({
 						: real
 							? "Vous pouvez raconter une situation de violence ou de harcèlement que vous avez vécue ou dont vous avez été témoin, à votre rythme et avec vos propres mots. Partagez seulement ce que vous souhaitez rendre public ; évitez les noms de tiers, lieux précis et détails permettant de reconnaître quelqu’un."
 							: accessRequired
-							? "Cette bêta teste le parcours, pas une situation réelle. N’indiquez aucun nom, lieu précis ou détail permettant d’identifier quelqu’un."
-							: "Cette version de démonstration permet uniquement de tester le parcours avec une situation fictive. N’indiquez aucun nom, lieu précis ou détail permettant d’identifier quelqu’un."}
+								? "Cette bêta teste le parcours, pas une situation réelle. N’indiquez aucun nom, lieu précis ou détail permettant d’identifier quelqu’un."
+								: "Cette version de démonstration permet uniquement de tester le parcours avec une situation fictive. N’indiquez aucun nom, lieu précis ou détail permettant d’identifier quelqu’un."}
 				</p>
 			</header>
 
@@ -478,8 +479,8 @@ export function ScenarioForm({
 					{aliasName ? (
 						<p>
 							{real
-								? "Si votre témoignage est publié, il apparaîtra sous « Auteur anonyme ». La publication sous votre nom n’est pas proposée actuellement. Votre pseudonyme reste interne et n’est pas affiché publiquement."
-								: "Si cette situation fictive est publiée, elle apparaîtra sous « Auteur anonyme ». Votre pseudonyme reste interne et n’est pas affiché publiquement."}
+								? "Si votre témoignage est publié, il apparaîtra sous « Auteur anonyme ». La publication sous votre nom n’est pas proposée actuellement. Votre alias reste interne et n’est pas affiché publiquement."
+								: "Si cette situation fictive est publiée, elle apparaîtra sous « Auteur anonyme ». Votre alias reste interne et n’est pas affiché publiquement."}
 						</p>
 					) : (
 						<p role="alert">
@@ -490,8 +491,8 @@ export function ScenarioForm({
 					)}
 					<p>
 						Le libellé « Auteur anonyme » ne garantit pas un anonymat absolu :
-						l’administration technique peut relier votre session à ses
-						pseudonymes. Le contenu peut aussi permettre de vous reconnaître.
+						l’administration technique peut relier votre session à ses alias. Le
+						contenu peut aussi permettre de vous reconnaître.
 					</p>
 					<p>
 						La modération décide de la publication ; elle ne constitue pas une

@@ -50,7 +50,7 @@ const Navbar = () => {
 							className="civic-scenarios-link civic-nav__desktop-only"
 							aria-current={spaceActive ? "page" : undefined}
 						>
-							{real ? "Mes témoignages" : "Mes situations fictives"}
+							{real ? "Mes témoignages" : "Mes scénarios"}
 						</Link>
 					)}
 				</div>
@@ -87,8 +87,7 @@ const Navbar = () => {
 											to="/account/profile"
 											aria-current={spaceActive ? "page" : undefined}
 										>
-											<BookOpen />{" "}
-											{real ? "Mes témoignages" : "Mes situations fictives"}
+											<BookOpen /> {real ? "Mes témoignages" : "Mes scénarios"}
 										</Link>
 									</DropdownMenuItem>
 								)}

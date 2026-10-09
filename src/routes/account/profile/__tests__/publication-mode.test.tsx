@@ -70,14 +70,13 @@ it.each(["test", "real"] as const)(
 					</BetaPresentationProvider>
 				);
 				expect(renderToString(page)).toContain(
-					mode === "real" ? "Mes témoignages" : "Mes situations fictives",
+					mode === "real" ? "Mes témoignages" : "Mes scénarios",
 				);
 				const view = render(page);
 				expect(
 					screen.getByRole("heading", {
 						level: 1,
-						name:
-							mode === "real" ? "Mes témoignages" : "Mes situations fictives",
+						name: mode === "real" ? "Mes témoignages" : "Mes scénarios",
 					}),
 				).toBeInTheDocument();
 				if (mode === "real" && open === "false") {

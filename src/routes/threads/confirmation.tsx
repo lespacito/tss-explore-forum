@@ -49,7 +49,7 @@ function Confirmation() {
 				<p>
 					{real
 						? "Consultez Mes témoignages pour vérifier son statut et lire un éventuel motif de non-publication."
-						: "Consultez Mes situations fictives pour vérifier son statut et lire un éventuel motif de non-publication."}
+						: "Consultez Mes scénarios pour vérifier son statut et lire un éventuel motif de non-publication."}
 				</p>
 			)}
 			{submissionConfirmed &&
@@ -85,9 +85,7 @@ function Confirmation() {
 								</span>
 								<span>
 									<strong className="font-semibold">
-										{real
-											? "Ouvrez Mes témoignages."
-											: "Ouvrez Mes situations fictives."}
+										{real ? "Ouvrez Mes témoignages." : "Ouvrez Mes scénarios."}
 									</strong>{" "}
 									Vous y verrez la décision du modérateur.
 								</span>
@@ -98,7 +96,7 @@ function Confirmation() {
 					<p className="font-medium">
 						{real
 							? "Prochaine étape : ouvrez Mes témoignages pour suivre la décision de la modération."
-							: "Prochaine étape : ouvrez Mes situations fictives pour suivre la décision du modérateur."}
+							: "Prochaine étape : ouvrez Mes scénarios pour suivre la décision du modérateur."}
 					</p>
 				))}
 			{secretCode && <SecretCodeDisplay secretCode={secretCode} />}
@@ -115,7 +113,7 @@ function Confirmation() {
 			<p className="text-sm text-muted-foreground">
 				{real
 					? "Après un rechargement, votre code de récupération reste consultable depuis Mes témoignages tant que votre session est ouverte."
-					: "Après un rechargement, votre code de récupération reste consultable depuis Mes situations fictives tant que votre session est ouverte."}
+					: "Après un rechargement, votre code de récupération reste consultable depuis Mes scénarios tant que votre session est ouverte."}
 			</p>
 		</div>
 	);

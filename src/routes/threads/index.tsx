@@ -55,7 +55,7 @@ function ThreadsPage() {
 						<p className="mt-2 text-muted-foreground">
 							{real
 								? "Un témoignage envoyé reste dans Mes témoignages jusqu’à la décision de la modération."
-								: "Une situation fictive envoyée reste dans Mes situations fictives jusqu’à la décision du modérateur."}
+								: "Une situation fictive envoyée reste dans Mes scénarios jusqu’à la décision du modérateur."}
 						</p>
 					</div>
 				)}

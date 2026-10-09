@@ -116,7 +116,7 @@ describe("Moderation decisions", () => {
 		);
 		expect(screen.getByText("Situation fictive publiée")).toBeDefined();
 		expect(
-			screen.getByRole("button", { name: "Voir dans Publiées" }),
+			screen.getByRole("button", { name: "Voir dans Publiés" }),
 		).toBeDefined();
 	});
 

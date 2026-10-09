@@ -34,11 +34,13 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 				content: "width=device-width, initial-scale=1",
 			},
 			{
-				title: loaderData?.beta.accessRequired
-					? loaderData.beta.publicationMode === "real"
-						? "Parlons Violence — Accès sur invitation"
-						: "Parlons Violence — Bêta privée"
-					: "Parlons Violence",
+				title: loaderData?.beta.preprodShowcase
+					? "Entre nous — Vitrine de préproduction | Parlons Violence"
+					: loaderData?.beta.accessRequired
+						? loaderData.beta.publicationMode === "real"
+							? "Parlons Violence — Accès sur invitation"
+							: "Parlons Violence — Bêta privée"
+						: "Parlons Violence",
 			},
 		],
 		links: [

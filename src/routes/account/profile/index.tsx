@@ -73,14 +73,14 @@ function Profile() {
 		},
 		{
 			status: "rejected" as const,
-			title: real ? "Non publiés" : "Non publiées",
+			title: "Non publiés",
 			description: real
 				? "Ces témoignages n’ont pas été publiés. Le motif est indiqué sous chaque témoignage."
 				: "Ces situations fictives n'ont pas été publiées. Le motif est indiqué sous chaque situation fictive.",
 		},
 		{
 			status: "published" as const,
-			title: real ? "Publiés" : "Publiées",
+			title: "Publiés",
 			description: accessRequired
 				? real
 					? "Ces témoignages sont visibles par les participants invités."
@@ -96,7 +96,7 @@ function Profile() {
 			<header className="border-b pb-7 flex flex-wrap items-end gap-x-4">
 				<div>
 					<h1 className="font-serif text-4xl font-semibold tracking-tight">
-						{real ? "Mes témoignages" : "Mes situations fictives"}
+						{real ? "Mes témoignages" : "Mes scénarios"}
 					</h1>
 					<p className="mt-3 max-w-2xl leading-7 text-muted-foreground">
 						{real
@@ -163,7 +163,7 @@ function Profile() {
 			<Card className="border-muted">
 				<CardHeader className="pb-4">
 					<CardTitle className="font-serif text-xl">
-						{real ? "Mes témoignages" : "Mes situations fictives"}
+						{real ? "Mes témoignages" : "Mes scénarios"}
 					</CardTitle>
 					<CardDescription className="mt-1">
 						{real
@@ -180,8 +180,8 @@ function Profile() {
 					</div>
 					<p className="text-sm text-muted-foreground leading-relaxed">
 						{real
-							? "Si un témoignage est publié, il apparaît sous « Auteur anonyme ». Votre pseudonyme reste interne et n’est pas affiché publiquement. L’administration technique peut relier votre session à ses pseudonymes ; le contenu peut aussi permettre de vous reconnaître."
-							: "Si une situation fictive est publiée, elle apparaît sous « Auteur anonyme ». Votre pseudonyme reste interne et n’est pas affiché publiquement. L’administration technique peut relier votre session à ses pseudonymes ; le contenu peut aussi permettre de vous reconnaître."}
+							? "Si un témoignage est publié, il apparaît sous « Auteur anonyme ». Votre alias reste interne et n’est pas affiché publiquement. L’administration technique peut relier votre session à ses alias ; le contenu peut aussi permettre de vous reconnaître."
+							: "Si une situation fictive est publiée, elle apparaît sous « Auteur anonyme ». Votre alias reste interne et n’est pas affiché publiquement. L’administration technique peut relier votre session à ses alias ; le contenu peut aussi permettre de vous reconnaître."}
 					</p>
 				</CardContent>
 			</Card>

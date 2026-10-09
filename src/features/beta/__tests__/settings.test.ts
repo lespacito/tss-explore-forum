@@ -69,3 +69,29 @@ it.each(["test", "real"])(
 		}
 	},
 );
+
+it.each([
+	[undefined, "test", "false", false],
+	["false", "test", "false", false],
+	["invalid", "test", "false", false],
+	["true", "test", "false", true],
+	["true", "test", "true", false],
+	["true", "real", "false", false],
+] as const)(
+	"showcase opt-in=%s mode=%s submissions=%s produces %s without changing authorization",
+	(flag, mode, open, expected) => {
+		vi.stubEnv("PREPROD_SHOWCASE", flag);
+		vi.stubEnv("PUBLICATION_MODE", mode);
+		vi.stubEnv("BETA_SUBMISSIONS_OPEN", open);
+		vi.stubEnv("BETA_MODERATION_SCHEDULE", "Lundi 18–19 h");
+		for (const gate of ["true", "false"]) {
+			vi.stubEnv("BETA_ACCESS_REQUIRED", gate);
+			expect(betaSettings()).toMatchObject({
+				preprodShowcase: expected,
+				publicationMode: mode,
+				submissionsOpen: open === "true",
+				accessRequired: gate !== "false",
+			});
+		}
+	},
+);

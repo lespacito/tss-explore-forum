@@ -102,7 +102,7 @@ describe("Civic navbar", () => {
 				screen.getByRole("button", { name: /Menu de navigation/ }),
 			);
 			expect(
-				screen.getByRole("menuitem", { name: /Mes situations fictives/ }),
+				screen.getByRole("menuitem", { name: /Mes scénarios/ }),
 			).toHaveAttribute("href", "/account/profile");
 			expect(
 				screen.getByRole("menuitem", { name: /Paramètres/ }),

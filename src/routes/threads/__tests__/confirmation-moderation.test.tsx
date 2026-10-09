@@ -83,7 +83,7 @@ describe("Publication tracking", () => {
 		expect(
 			screen.getByText("Conservez ce code dans un endroit privé."),
 		).toBeDefined();
-		expect(screen.getByText("Ouvrez Mes situations fictives.")).toBeDefined();
+		expect(screen.getByText("Ouvrez Mes scénarios.")).toBeDefined();
 	});
 	it("discards legacy URL credentials", () => {
 		const validate = Route.options.validateSearch as (

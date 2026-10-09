@@ -37,9 +37,9 @@ function Page() {
 				Un modérateur examine chaque situation fictive. Les situations fictives
 				publiées sont lisibles{" "}
 				{accessRequired ? "par les invités" : "publiquement"} sous « Auteur
-				anonyme », sans affichage du pseudonyme interne. En cas de
-				non-publication, le motif apparaît dans Mes situations fictives. Les
-				réponses et commentaires sont désactivés.
+				anonyme », sans affichage de l’alias interne. En cas de non-publication,
+				le motif apparaît dans Mes scénarios. Les réponses et commentaires sont
+				désactivés.
 			</p>
 			<p>
 				La modération décide de la publication ; elle ne constitue pas une aide
@@ -101,7 +101,7 @@ function RealRules({
 				{accessRequired
 					? "Un modérateur examine chaque témoignage avant publication. Les témoignages publiés sont lisibles par les personnes invitées sous « Auteur anonyme »."
 					: "Un modérateur examine chaque témoignage avant publication. Les témoignages publiés sont lisibles publiquement sous « Auteur anonyme »."}{" "}
-				Le pseudonyme interne n’est pas affiché. Le statut et le motif d’une
+				L’alias interne n’est pas affiché. Le statut et le motif d’une
 				éventuelle non-publication sont consultables dans votre espace de suivi.
 				Les réponses et commentaires sont désactivés.
 			</p>

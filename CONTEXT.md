@@ -12,6 +12,14 @@ _Avoid_: Service, forum public, produit final
 Expérience durable envisagée pour des personnes concernées par la violence, l’abus ou la détresse. Sa conception reste distincte des limitations temporaires de la bêta privée.
 _Avoid_: Bêta, expérience de test
 
+**Vitrine de préproduction** (décision du 9 octobre 2026):
+Présentation de l’offre future « Entre nous » au sein de Parlons Violence. Elle
+utilise uniquement des scénarios fictifs et un CTA désactivé. Les réponses entre
+pairs sont prévues, non implémentées ; cette présentation ne constitue pas une
+ouverture de la bêta privée ou du service cible. Activation isolée et limites :
+[`docs/entre-nous-preprod-showcase.md`](docs/entre-nous-preprod-showcase.md).
+_Avoid_: Service ouvert, réponses disponibles, communauté active
+
 ## Apprentissage de la bêta
 
 **Envoi autonome**:
@@ -53,7 +61,11 @@ Personne chargée d’examiner les scénarios, de décider de leur publication e
 _Avoid_: Administrateur, support, conseiller
 
 **Alias**:
-Nom public généré automatiquement pour représenter le participant lorsqu’un scénario est publié. L’alias est montré avant l’envoi mais ne constitue pas une garantie d’anonymat absolu.
+Nom généré automatiquement pour relier une session à ses scénarios. Dans le
+fonctionnement actuel, l’alias reste interne et le fil affiche « Auteur anonyme ».
+Le parcours d’écriture sous alias de l’offre future ne constitue pas une garantie
+d’anonymat absolu. Cette définition décrit le code actuel, plutôt que l’ancienne
+intention d’afficher l’alias publiquement.
 _Avoid_: Identité, nom d’utilisateur, pseudonyme choisi
 
 **Scénario fictif**:
@@ -89,7 +101,7 @@ Code transmis à un participant pour lui ouvrir l’accès à la bêta privée. 
 _Avoid_: Code de récupération, code d’accès personnel
 
 **Session sous alias**:
-Accès sans nom ni adresse e-mail, associé à un alias public et à un code de récupération confidentiel. L’administration technique peut relier cette session à ses alias et son contenu peut rester identifiant.
+Accès sans nom ni adresse e-mail, associé à un alias interne et à un code de récupération confidentiel. L’administration technique peut relier cette session à ses alias et son contenu peut rester identifiant.
 _Avoid_: Anonymat garanti, compte invisible, session intraçable
 
 **Mes scénarios**:

@@ -90,12 +90,12 @@ describe("Landing composition B", () => {
 			name: "Ce qui est public, ce qui reste interne",
 		});
 		expect(privacy).toHaveTextContent("Auteur anonyme");
-		expect(privacy).toHaveTextContent("Le pseudonyme reste interne");
-		expect(privacy).toHaveTextContent("Selon le parcours de compte");
+		expect(privacy).toHaveTextContent("L’alias reste interne");
+		expect(privacy).toHaveTextContent("ni nom réel ni email");
 		expect(privacy).toHaveTextContent("certaines données techniques");
 		expect(privacy).toHaveTextContent("peuvent permettre de vous reconnaître");
 		expect(container).not.toHaveTextContent(
-			/Aucun nom ni e-mail n’est demandé|publication sous alias/i,
+			/anonymat garanti|session intraçable/i,
 		);
 	});
 
@@ -107,7 +107,7 @@ describe("Landing composition B", () => {
 		expect(contribution.querySelectorAll("ol > li")).toHaveLength(3);
 		expect(contribution).toHaveTextContent("fournie avec votre invitation");
 		expect(contribution).toHaveTextContent("examen humain");
-		expect(contribution).toHaveTextContent("Mes situations fictives");
+		expect(contribution).toHaveTextContent("Mes scénarios");
 		const help = screen.getByRole("region", {
 			name: "Pour une situation réelle, trouver une aide adaptée",
 		});
@@ -133,7 +133,7 @@ describe("Landing composition B", () => {
 		expect(faq).toHaveTextContent("Auteur anonyme");
 		expect(faq).toHaveTextContent("certaines données techniques");
 		expect(faq).toHaveTextContent("code de récupération");
-		expect(faq).toHaveTextContent("À examiner, Publiée ou Non publiée");
+		expect(faq).toHaveTextContent("À examiner, Publié ou Non publié");
 	});
 
 	it("shows one short illustration without posing as a published situation", () => {
@@ -313,6 +313,102 @@ describe("Landing publication modes and flags", () => {
 					/bêta privée|adultes invités|code d’invitation/i,
 				);
 			expect(state.createSession).not.toHaveBeenCalled();
+		},
+	);
+});
+
+describe("Entre nous preproduction showcase", () => {
+	it.each([true, false])(
+		"shows only a disabled future action with invitation=%s",
+		(accessRequired) => {
+			state.submissionsOpen = false;
+			const { container } = render(
+				<BetaPresentationProvider
+					value={{
+						preprodShowcase: true,
+						publicationMode: "test",
+						submissionsOpen: false,
+						accessRequired,
+					}}
+				>
+					<Home />
+				</BetaPresentationProvider>,
+			);
+			expect(
+				screen.getByRole("heading", {
+					level: 1,
+					name: "Pas assez grave pour appeler ? Assez pour en parler.",
+				}),
+			).toBeInTheDocument();
+			const action = screen.getByRole("button", {
+				name: "En parler, entre nous",
+			});
+			expect(action).toBeDisabled();
+			expect(action).toHaveAccessibleDescription(
+				/Indisponible en préproduction/,
+			);
+			fireEvent.click(action);
+			expect(state.createSession).not.toHaveBeenCalled();
+			expect(state.navigate).not.toHaveBeenCalled();
+			expect(
+				screen.queryByRole("link", { name: "En parler, entre nous" }),
+			).not.toBeInTheDocument();
+			expect(container).toHaveTextContent("Entre nous, sur Parlons Violence");
+			expect(container).toHaveTextContent("Scénarios exclusivement fictifs");
+			expect(container).toHaveTextContent("prévues, non implémentées");
+			expect(container).toHaveTextContent("réponses et commentaires fermés");
+			expect(container).toHaveTextContent("ni nom réel ni email");
+			expect(container).toHaveTextContent("ne garantit pas un anonymat absolu");
+			expect(container).toHaveTextContent("À examiner, Publié, Non publié");
+			expect(container).not.toHaveTextContent(
+				/adresse e-mail peut être demandée|pseudonyme|Mes situations fictives/,
+			);
+			expect(screen.getByRole("figure")).toHaveTextContent(
+				"Scénario fictif — illustration, pas une publication",
+			);
+			expect(
+				screen.getByRole("link", { name: "Lire les scénarios fictifs" }),
+			).toHaveAttribute("href", "/threads");
+			expect(container).toHaveTextContent(
+				accessRequired
+					? "nécessite une invitation valide"
+					: "accessible en lecture sans invitation",
+			);
+			for (const [name, href] of [
+				[/117.*police/i, "tel:117"],
+				[/144.*urgence médicale/i, "tel:144"],
+				[/142.*aide aux victimes/i, "tel:142"],
+				[/143.*main tendue/i, "tel:143"],
+			] as const)
+				expect(screen.getByRole("link", { name })).toHaveAttribute(
+					"href",
+					href,
+				);
+		},
+	);
+
+	it.each([
+		{ publicationMode: "real" as const, submissionsOpen: false },
+		{ publicationMode: "test" as const, submissionsOpen: true },
+	])(
+		"does not substitute showcase for $publicationMode with open=$submissionsOpen",
+		({ publicationMode, submissionsOpen }) => {
+			state.submissionsOpen = submissionsOpen;
+			render(
+				<BetaPresentationProvider
+					value={{
+						preprodShowcase: true,
+						publicationMode,
+						submissionsOpen,
+						accessRequired: true,
+					}}
+				>
+					<Home />
+				</BetaPresentationProvider>,
+			);
+			expect(
+				screen.queryByRole("button", { name: "En parler, entre nous" }),
+			).not.toBeInTheDocument();
 		},
 	);
 });

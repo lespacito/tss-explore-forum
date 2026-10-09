@@ -117,7 +117,7 @@ export const AccountDeletion = () => {
 										<li>
 											• Toutes vos données personnelles (email, mot de passe)
 										</li>
-										<li>• Votre profil et vos pseudonymes</li>
+										<li>• Votre profil et vos alias</li>
 										<li>• Toutes vos sessions actives (tous les appareils)</li>
 										<li>• Votre code de récupération (si vous en avez un)</li>
 									</ul>
