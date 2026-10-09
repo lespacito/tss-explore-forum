@@ -2,9 +2,14 @@ name: Build and publish preproduction images
 
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows: [Playwright Tests]
+    types: [completed]
+    branches: [dev]
 
 permissions:
   contents: read
+  actions: read
   packages: write
 
 # Serializes publishers across branches and retries. Never cancel a push midway.
@@ -18,17 +23,112 @@ env:
 
 jobs:
   publish:
-    if: github.repository == 'lespacito/tss-explore-forum' && github.ref == 'refs/heads/dev'
+    if: >-
+      github.repository == 'lespacito/tss-explore-forum' &&
+      ((github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/dev') ||
+       (github.event_name == 'workflow_run' &&
+        github.event.workflow_run.event == 'push' &&
+        github.event.workflow_run.head_branch == 'dev' &&
+        github.event.workflow_run.head_repository.full_name == github.repository &&
+        github.event.workflow_run.conclusion == 'success'))
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     defaults:
       run:
         shell: bash
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Checkout the workflow source commit
+      # This guard belongs to the trusted workflow, never to the application checkout.
+      - name: Verify successful CI for the current dev SHA
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/verify-preprod-ci.py" <<'CI_GUARD'
+          import json
+          import os
+          import re
+          import urllib.parse
+          import urllib.request
+
+          REPO = 'lespacito/tss-explore-forum'
+          WORKFLOW = '.github/workflows/playwright.yml'
+
+
+          def require(condition, message):
+              if not condition:
+                  raise RuntimeError(message)
+
+
+          def api(path):
+              request = urllib.request.Request(
+                  f'{os.environ["GITHUB_API_URL"]}/repos/{REPO}/{path}',
+                  headers={'Authorization': f'Bearer {os.environ["GH_TOKEN"]}',
+                           'Accept': 'application/vnd.github+json',
+                           'X-GitHub-Api-Version': '2022-11-28'},
+              )
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  return json.load(response)
+
+
+          def verify(event_name, event, source_sha=None, ci_run_id=None, ci_attempt=None):
+              require(os.environ['GITHUB_REPOSITORY'] == REPO, 'Unexpected repository')
+              if event_name == 'workflow_run':
+                  trigger = event['workflow_run']
+                  require(event.get('action') == 'completed', 'Unexpected activity')
+                  require(trigger['head_repository']['full_name'] == REPO, 'Foreign source repository')
+                  require(trigger['event'] == 'push' and trigger['head_branch'] == 'dev', 'Expected dev push CI')
+                  require(trigger['status'] == 'completed' and trigger['conclusion'] == 'success', 'CI did not succeed')
+                  sha = trigger['head_sha']
+              else:
+                  require(event_name == 'workflow_dispatch', 'Unexpected trigger')
+                  require(os.environ['GITHUB_REF'] == 'refs/heads/dev', 'Dispatch must target dev')
+                  sha = os.environ['GITHUB_SHA']
+              require(re.fullmatch('[0-9a-f]{40}', sha) is not None, 'Invalid source SHA')
+              require(source_sha is None or sha == source_sha, 'Source SHA changed')
+              require(api('git/ref/heads/dev')['object']['sha'] == sha, 'Obsolete source: dev has advanced')
+              workflow = api('actions/workflows/playwright.yml')
+              require(workflow['path'] == WORKFLOW and workflow['name'] == 'Playwright Tests'
+                      and workflow['state'] == 'active', 'Unexpected CI workflow')
+              query = urllib.parse.urlencode({'branch': 'dev', 'event': 'push', 'head_sha': sha, 'per_page': 1})
+              runs = api(f'actions/workflows/{workflow["id"]}/runs?{query}')['workflow_runs']
+              require(bool(runs), 'No push CI for this SHA')
+              # Never fall back to an older successful run while a newer run/attempt fails or runs.
+              run = api(f'actions/runs/{runs[0]["id"]}')
+              require(run['workflow_id'] == workflow['id'] and run['path'] == WORKFLOW, 'Wrong workflow identity')
+              require(run['head_repository']['full_name'] == REPO, 'Foreign CI repository')
+              require(run['event'] == 'push' and run['head_branch'] == 'dev' and run['head_sha'] == sha,
+                      'CI source mismatch')
+              require(run['status'] == 'completed' and run['conclusion'] == 'success', 'Latest CI is not successful')
+              if event_name == 'workflow_run':
+                  require(run['id'] == trigger['id'] and run['run_attempt'] == trigger['run_attempt'],
+                          'Obsolete CI completion or attempt')
+              require(ci_run_id is None or str(run['id']) == ci_run_id, 'CI run changed during build')
+              require(ci_attempt is None or str(run['run_attempt']) == ci_attempt, 'CI attempt changed during build')
+              # Re-read after CI queries, including when called immediately before each push.
+              require(api('git/ref/heads/dev')['object']['sha'] == sha, 'Obsolete source: dev has advanced')
+              return sha, str(run['id']), str(run['run_attempt'])
+
+
+          def main():
+              with open(os.environ['GITHUB_EVENT_PATH']) as stream:
+                  event = json.load(stream)
+              sha, run_id, attempt = verify(os.environ['GITHUB_EVENT_NAME'], event,
+                                            os.environ.get('SOURCE_SHA'), os.environ.get('CI_RUN_ID'),
+                                            os.environ.get('CI_RUN_ATTEMPT'))
+              with open(os.environ['GITHUB_ENV'], 'a') as stream:
+                  stream.write(f'SOURCE_SHA={sha}\nCI_RUN_ID={run_id}\nCI_RUN_ATTEMPT={attempt}\n')
+              print(f'Verified dev SHA {sha}, Playwright push run {run_id}, attempt {attempt}')
+
+
+          if __name__ == '__main__':
+              main()
+          CI_GUARD
+          python3 "$RUNNER_TEMP/verify-preprod-ci.py"
+
+      - name: Checkout the tested dev source commit
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ env.SOURCE_SHA }}
           path: source
           persist-credentials: false
 
@@ -37,7 +137,7 @@ jobs:
         run: |
           set -euo pipefail
           actual_sha=$(git -C source rev-parse HEAD)
-          test "$actual_sha" = "$GITHUB_SHA"
+          test "$actual_sha" = "$SOURCE_SHA"
           test "$(sed -n '1p' source/Dockerfile)" = 'FROM oven/bun:1-alpine AS base'
           grep -qx 'FROM base AS builder' source/Dockerfile
           grep -qx 'FROM base AS runner' source/Dockerfile
@@ -109,7 +209,7 @@ jobs:
             --build-arg 'VITE_APP_URL=https://preprod.parlonsviolence.ch'
             --build-arg 'VITE_BETTER_AUTH_URL=https://preprod.parlonsviolence.ch'
             --build-arg 'VITE_ENABLE_OAUTH=false'
-            --label "org.opencontainers.image.revision=$GITHUB_SHA"
+            --label "org.opencontainers.image.revision=$SOURCE_SHA"
             --label 'org.opencontainers.image.source=https://github.com/lespacito/tss-explore-forum'
             --label "org.opencontainers.image.base.name=$BASE_REF"
             --label "org.opencontainers.image.base.digest=$BASE_DIGEST"
@@ -144,6 +244,9 @@ jobs:
               console.log(`Verified ${journal.entries.length} SQL migrations and drizzle-kit ${kit.version}`);
             '
 
+      - name: Recheck CI and dev immediately before publication
+        run: python3 "$RUNNER_TEMP/verify-preprod-ci.py"
+
       - name: Recheck all tags immediately before publication
         env:
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -153,12 +256,14 @@ jobs:
         run: |
           set -euo pipefail
           for image in "$APP_IMAGE" "$MIGRATE_IMAGE"; do
+            python3 "$RUNNER_TEMP/verify-preprod-ci.py"
             docker push "$image:$RUN_TAG"
             run_digest=$(docker buildx imagetools inspect "$image:$RUN_TAG" --format '{{.Manifest.Digest}}')
             [[ "$run_digest" =~ ^sha256:[0-9a-f]{64}$ ]]
             printf '| `%s` | `%s` | `%s@%s` |\n' \
               "$image" "$RUN_TAG" "$image" "$run_digest" >> "$RUNNER_TEMP/published-images.md"
             docker tag "$image:$RUN_TAG" "$image:$SHA_TAG"
+            python3 "$RUNNER_TEMP/verify-preprod-ci.py"
             docker push "$image:$SHA_TAG"
             sha_digest=$(docker buildx imagetools inspect "$image:$SHA_TAG" --format '{{.Manifest.Digest}}')
             test "$sha_digest" = "$run_digest"
@@ -178,6 +283,7 @@ jobs:
             echo '## Preproduction image publication'
             echo "Status: $JOB_STATUS"
             echo "Source HEAD verified: ${ACTUAL_SHA:-not verified}"
+            echo "Verified Playwright push CI: ${CI_RUN_ID:-not verified} / attempt: ${CI_RUN_ATTEMPT:-not verified}"
             echo "Run: $GITHUB_RUN_ID / attempt: $GITHUB_RUN_ATTEMPT"
             echo "Platform: linux/amd64"
             echo "Requested tags: ${SHA_TAG:-not prepared}, ${RUN_TAG:-not prepared}"
