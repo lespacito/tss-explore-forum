@@ -123,3 +123,24 @@ nommés, une navigation au clavier et un focus visible, des textes lisibles et d
 statuts compréhensibles sans dépendre uniquement de la couleur. Présenter les
 contenus sensibles de manière à permettre un choix de lecture. Ne pas revendiquer
 une certification WCAG à partir de seuls tests automatiques ou contrôles ponctuels.
+
+## Vitrine Entre nous en préproduction — 9 octobre 2026
+
+La préproduction peut présenter l’offre future « Entre nous », avec l’accroche
+« Pas assez grave pour appeler ? Assez pour en parler. » et le CTA
+« En parler, entre nous » désactivé. Elle conserve exclusivement des scénarios
+fictifs, les dépôts fermés et les réponses/commentaires fermés. Les échanges entre
+pairs relus appartiennent à l’offre future et ne sont pas implémentés.
+
+Cette décision de présentation est distincte de la bêta privée sur invitation
+et de toute ouverture du service cible aux situations réelles. Aucun résultat
+d’usage, délai de réponse ou anonymat absolu n’est promis. Le fil actuel affiche
+« Auteur anonyme » ; l’alias reste interne. Le parcours sous alias ne demande ni
+nom réel ni email.
+
+Le réglage serveur `PREPROD_SHOWCASE` reste désactivé par défaut, en staging et
+en production. Il n’est effectif qu’en mode fictif avec les dépôts fermés. Son
+activation sur la préproduction isolée relève d’un GO de déploiement distinct.
+Conserver `PUBLICATION_MODE=test`, `BETA_SUBMISSIONS_OPEN=false`,
+`noindex, nofollow`, les contrôles serveur, et les bases/secrets séparés.
+Voir [`docs/entre-nous-preprod-showcase.md`](docs/entre-nous-preprod-showcase.md).

@@ -19,21 +19,21 @@ function Page() {
 			<h2>Anonymat et identité</h2>
 			<p>
 				Aucun nom réel ni email n’est nécessaire pour une session anonyme. Un
-				pseudonyme interne relie votre session à vos situations fictives. Si
-				elles sont publiées, elles apparaissent sous « Auteur anonyme », sans
-				pseudonyme public. L’administration technique peut relier une session à
-				ses pseudonymes : cette séparation ne constitue pas une garantie
-				d’anonymat absolu. Un récit peut également contenir des détails
-				identifiants ; utilisez uniquement des situations fictives.
+				alias interne relie votre session à vos situations fictives. Si elles
+				sont publiées, elles apparaissent sous « Auteur anonyme », sans alias
+				public. L’administration technique peut relier une session à ses alias :
+				cette séparation ne constitue pas une garantie d’anonymat absolu. Un
+				récit peut également contenir des détails identifiants ; utilisez
+				uniquement des situations fictives.
 			</p>
 			<h2>Données conservées</h2>
 			<p>
-				Le service conserve les sessions, leurs données techniques, les
-				pseudonymes, les situations fictives, les décisions de modération et le
-				code de récupération. Les données techniques de session peuvent inclure
-				une adresse IP et des informations de navigateur. Le modérateur dispose
-				du contenu et des décisions, sans affichage de l’adresse IP dans sa file
-				de modération.
+				Le service conserve les sessions, leurs données techniques, les alias,
+				les situations fictives, les décisions de modération et le code de
+				récupération. Les données techniques de session peuvent inclure une
+				adresse IP et des informations de navigateur. Le modérateur dispose du
+				contenu et des décisions, sans affichage de l’adresse IP dans sa file de
+				modération.
 			</p>
 			<h2>Retours anonymes</h2>
 			<p>
@@ -58,8 +58,7 @@ function Page() {
 			<p>
 				Quiconque détient ce code peut retrouver votre session. Conservez-le
 				dans un endroit privé. Il n’est pas placé dans l’URL. Tant que votre
-				session est ouverte, vous pouvez le consulter depuis Mes situations
-				fictives.
+				session est ouverte, vous pouvez le consulter depuis Mes scénarios.
 			</p>
 			<h2>Effacement et limites</h2>
 			<p>
@@ -112,23 +111,23 @@ function RealPrivacy({ accessRequired }: { accessRequired: boolean }) {
 			<h2>Identité et limites de l’anonymat</h2>
 			<p>
 				Une session anonyme ne nécessite ni nom réel ni email. Les publications
-				apparaissent sous « Auteur anonyme » ; leur pseudonyme reste interne. Un
+				apparaissent sous « Auteur anonyme » ; leur alias reste interne. Un
 				compte avec email ne change pas cette présentation. Aucun parcours de
 				publication nominative n’est proposé actuellement.
 			</p>
 			<p>
-				L’administration technique peut relier une session à ses pseudonymes. Le
+				L’administration technique peut relier une session à ses alias. Le
 				contenu d’un récit et les données techniques peuvent permettre de
 				reconnaître une personne. Aucun anonymat absolu n’est garanti. Évitez
 				les noms, coordonnées, lieux précis et autres détails identifiants.
 			</p>
 			<h2>Données conservées</h2>
 			<p>
-				Le service conserve les sessions et leurs données techniques, les
-				pseudonymes, les témoignages, les décisions de modération et les codes
-				de récupération. Les données de session peuvent inclure une adresse IP
-				et des informations de navigateur. Les modérateurs disposent du contenu
-				et des décisions, sans affichage de l’adresse IP dans leur file.
+				Le service conserve les sessions et leurs données techniques, les alias,
+				les témoignages, les décisions de modération et les codes de
+				récupération. Les données de session peuvent inclure une adresse IP et
+				des informations de navigateur. Les modérateurs disposent du contenu et
+				des décisions, sans affichage de l’adresse IP dans leur file.
 			</p>
 			<h2>Sur votre appareil</h2>
 			<p>

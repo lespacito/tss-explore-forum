@@ -904,3 +904,10 @@ html { scroll-padding-top: 6rem; }
     outline-color: Highlight;
   }
 }
+
+.landing-cta:disabled {
+  cursor: not-allowed;
+  background: var(--landing-paper);
+  color: var(--landing-muted);
+  border: 1px solid currentColor;
+}

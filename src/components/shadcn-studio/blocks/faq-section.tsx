@@ -9,7 +9,7 @@ const privateFaqs = [
 	},
 	{
 		q: "Que signifie « Auteur anonyme » ?",
-		a: "La publication porte la mention « Auteur anonyme ». Le pseudonyme reste interne et n’est pas affiché comme nom d’auteur ; les informations du compte ne sont pas affichées comme signature. Selon le parcours de compte utilisé, une adresse e-mail peut être demandée. Cela ne garantit pas un anonymat absolu : le contenu et certaines données techniques peuvent permettre de vous reconnaître. L’administration technique peut relier votre session à ses pseudonymes internes.",
+		a: "La publication porte la mention « Auteur anonyme ». L’alias reste interne et n’est pas affiché comme nom d’auteur ; les informations du compte ne sont pas affichées comme signature. Une session sous alias ne nécessite ni nom réel ni email. Cela ne garantit pas un anonymat absolu : le contenu et certaines données techniques peuvent permettre de vous reconnaître. L’administration technique peut relier votre session à ses alias internes.",
 	},
 	{
 		q: "À quoi servent les deux codes ?",
@@ -17,7 +17,7 @@ const privateFaqs = [
 	},
 	{
 		q: "Comment connaître la décision ?",
-		a: "Le statut — À examiner, Publiée ou Non publiée — apparaît dans Mes situations fictives, avec un motif en cas de non-publication. La modération n’est ni immédiate ni permanente et ne constitue pas une aide professionnelle.",
+		a: "Le statut — À examiner, Publié ou Non publié — apparaît dans Mes scénarios, avec un motif en cas de non-publication. La modération n’est ni immédiate ni permanente et ne constitue pas une aide professionnelle.",
 	},
 ];
 

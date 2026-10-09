@@ -26,19 +26,19 @@ export default function FeaturesSection() {
 							{real
 								? "Si votre témoignage est publié, il porte la mention"
 								: "Si votre situation est publiée, elle porte la mention"}
-							<strong> « Auteur anonyme »</strong>. Le pseudonyme reste interne
-							: il n’est pas affiché comme nom d’auteur dans le fil.
+							<strong> « Auteur anonyme »</strong>. L’alias reste interne : il
+							n’est pas affiché comme nom d’auteur dans le fil.
 						</p>
 						<p>
-							Selon le parcours de compte utilisé, une adresse e-mail peut être
-							demandée. Les informations du compte ne sont pas affichées comme
-							signature de la publication.
+							Une session sous alias ne nécessite ni nom réel ni email. Le code
+							de récupération permet de retrouver la session. Les informations
+							du compte ne sont pas affichées comme signature de la publication.
 						</p>
 						<p className="landing-privacy-limit">
 							Cela ne garantit pas un anonymat absolu. Le contenu et certaines
 							données techniques peuvent permettre de vous reconnaître.
-							L’administration technique peut relier votre session à ses
-							pseudonymes internes.
+							L’administration technique peut relier votre session à ses alias
+							internes.
 						</p>
 					</div>
 				</div>
@@ -95,12 +95,9 @@ export default function FeaturesSection() {
 						<li>
 							<h3>Retrouver la décision</h3>
 							<p>
-								Dans {real ? "Mes témoignages" : "Mes situations fictives"},
-								suivez le statut :{" "}
-								{real
-									? "À examiner, Publié ou Non publié"
-									: "À examiner, Publiée ou Non publiée"}
-								. Un motif accompagne une non-publication.
+								Dans {real ? "Mes témoignages" : "Mes scénarios"}, suivez le
+								statut : À examiner, Publié ou Non publié. Un motif accompagne
+								une non-publication.
 							</p>
 						</li>
 					</ol>

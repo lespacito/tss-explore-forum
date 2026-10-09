@@ -53,8 +53,8 @@ export function EraseAccountForm({
 		>
 			<p id={descriptionId} className="leading-7 text-muted-foreground">
 				{real
-					? "Cette action définitive supprime vos témoignages, pseudonymes, code de récupération et sessions de la base active. Des copies peuvent subsister dans des sauvegardes ou avoir été conservées par des tiers. La durée effective de conservation des sauvegardes reste à confirmer avant l’ouverture aux témoignages réels."
-					: "Cette action définitive supprime vos situations fictives, pseudonymes, code de récupération et sessions de la base active. Une copie peut subsister sept jours supplémentaires dans une sauvegarde."}
+					? "Cette action définitive supprime vos témoignages, alias, code de récupération et sessions de la base active. Des copies peuvent subsister dans des sauvegardes ou avoir été conservées par des tiers. La durée effective de conservation des sauvegardes reste à confirmer avant l’ouverture aux témoignages réels."
+					: "Cette action définitive supprime vos situations fictives, alias, code de récupération et sessions de la base active. Une copie peut subsister sept jours supplémentaires dans une sauvegarde."}
 			</p>
 			<Label htmlFor={confirmationId}>Saisissez EFFACER pour confirmer</Label>
 			<Input

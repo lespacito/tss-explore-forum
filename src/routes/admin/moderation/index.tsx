@@ -128,14 +128,14 @@ function ModerationPage() {
 						count={counts.published}
 						onClick={() => setFilter("published")}
 					>
-						{real ? "Publiés" : "Publiées"}
+						Publiés
 					</FilterButton>
 					<FilterButton
 						active={filter === "rejected"}
 						count={counts.rejected}
 						onClick={() => setFilter("rejected")}
 					>
-						{real ? "Non publiés" : "Non publiées"}
+						Non publiés
 					</FilterButton>
 				</div>
 			</nav>
@@ -154,7 +154,7 @@ function ModerationPage() {
 						className="shrink-0"
 						onClick={() => setFilter(lastDecision.filter)}
 					>
-						Voir dans {filterLabel(lastDecision.filter, real)}
+						Voir dans {filterLabel(lastDecision.filter)}
 					</Button>
 				</div>
 			)}
@@ -527,10 +527,10 @@ function decisionNoticeFor(
 	};
 }
 
-function filterLabel(status: QueueStatus, real = false) {
+function filterLabel(status: QueueStatus) {
 	if (status === "pending") return "À examiner";
-	if (status === "published") return real ? "Publiés" : "Publiées";
-	return real ? "Non publiés" : "Non publiées";
+	if (status === "published") return "Publiés";
+	return "Non publiés";
 }
 
 function EmptyQueue({ status }: { status: QueueStatus }) {
