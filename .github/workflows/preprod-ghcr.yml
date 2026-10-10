@@ -148,12 +148,35 @@ jobs:
           echo "SHA_TAG=sha-$actual_sha" >> "$GITHUB_ENV"
           echo "RUN_TAG=sha-$actual_sha-run-$GITHUB_RUN_ID-attempt-$GITHUB_RUN_ATTEMPT" >> "$GITHUB_ENV"
 
+      - name: Configure the BuildKit mirror on the ephemeral CI runner
+        run: |
+          set -euo pipefail
+          # Never restart a daemon with running workloads. This is a GitHub runner only.
+          test -z "$(docker ps -q)"
+          sudo python3 - /etc/docker/daemon.json <<'DOCKER_MIRROR'
+          import json
+          import sys
+          from pathlib import Path
+
+          path = Path(sys.argv[1])
+          config = json.loads(path.read_text()) if path.exists() else {}
+          if not isinstance(config, dict):
+              raise SystemExit('Expected a Docker daemon configuration object')
+          mirrors = config.get('registry-mirrors', [])
+          if not isinstance(mirrors, list) or not all(isinstance(url, str) for url in mirrors):
+              raise SystemExit('Expected a list of registry mirror URLs')
+          mirror = 'https://mirror.gcr.io'
+          config['registry-mirrors'] = [mirror] + [url for url in mirrors if url.rstrip('/') != mirror]
+          path.write_text(json.dumps(config, indent=2) + '\n')
+          DOCKER_MIRROR
+          sudo systemctl restart docker
+
       - name: Set up Buildx
         uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
         with:
-          # Same upstream BuildKit index, fetched from Google's cache without Hub auth.
+          # Pinned upstream image; Docker's configured mirror handles the download.
           driver-opts: |
-            image=mirror.gcr.io/moby/buildkit@sha256:cec9f139f45e93c5c69c60f8b07cfad9f43f4ef6b6a6cd917527fea5ff2e3dea
+            image=moby/buildkit@sha256:cec9f139f45e93c5c69c60f8b07cfad9f43f4ef6b6a6cd917527fea5ff2e3dea
 
       - name: Authenticate to GHCR
         uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
