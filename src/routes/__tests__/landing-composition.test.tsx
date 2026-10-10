@@ -354,7 +354,9 @@ describe("Entre nous preproduction showcase", () => {
 				screen.queryByRole("link", { name: "En parler, entre nous" }),
 			).not.toBeInTheDocument();
 			expect(container).toHaveTextContent("Entre nous, sur Parlons Violence");
-			expect(container).toHaveTextContent("Scénarios exclusivement fictifs");
+			expect(container).toHaveTextContent(
+				"Démonstration fictive · Contributions fermées",
+			);
 			expect(container).toHaveTextContent(
 				"Elles ne sont pas encore disponibles",
 			);
@@ -384,10 +386,8 @@ describe("Entre nous preproduction showcase", () => {
 				[/142.*aide aux victimes/i, "tel:142"],
 				[/143.*main tendue/i, "tel:143"],
 			] as const)
-				expect(screen.getByRole("link", { name })).toHaveAttribute(
-					"href",
-					href,
-				);
+				for (const link of screen.getAllByRole("link", { name }))
+					expect(link).toHaveAttribute("href", href);
 		},
 	);
 
