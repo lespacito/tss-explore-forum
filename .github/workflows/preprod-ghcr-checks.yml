@@ -36,3 +36,28 @@ jobs:
       - name: Test publisher admission and freshness guards without publishing
         if: ${{ !cancelled() }}
         run: python3 -m unittest discover -s tests/ci -v
+      - name: Configure the BuildKit mirror on the ephemeral CI runner
+        run: |
+          ruby -ryaml -e 'workflow = YAML.load_file(".github/workflows/preprod-ghcr.yml"); step = workflow.fetch("jobs").fetch("publish").fetch("steps").find { |s| s["name"] == "Configure the BuildKit mirror on the ephemeral CI runner" }; puts step.fetch("run")' > "$RUNNER_TEMP/configure-buildkit-mirror.sh"
+          bash "$RUNNER_TEMP/configure-buildkit-mirror.sh"
+      - name: Read the publisher BuildKit pin for the bootstrap test
+        id: buildkit
+        run: |
+          python3 <<'BUILDKIT_PIN'
+          import os
+          import re
+          from pathlib import Path
+
+          text = Path('.github/workflows/preprod-ghcr.yml').read_text()
+          setup = text.split('      - name: Set up Buildx\n', 1)[1].split('\n      - name:', 1)[0]
+          images = re.findall(r'^\s+image=(\S+)\s*$', setup, re.MULTILINE)
+          if len(images) != 1 or re.fullmatch(r'moby/buildkit@sha256:[0-9a-f]{64}', images[0]) is None:
+              raise SystemExit('Expected exactly one digest-pinned BuildKit mirror image')
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f'image={images[0]}\n')
+          BUILDKIT_PIN
+      - name: Test the actual BuildKit bootstrap without building or publishing
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+        with:
+          driver-opts: |
+            image=${{ steps.buildkit.outputs.image }}

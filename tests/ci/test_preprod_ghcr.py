@@ -1,7 +1,10 @@
 """Exercise the exact trusted guard embedded in the workflow, without network/pushes."""
 import copy
+import json
 import os
 import subprocess
+import sys
+import tempfile
 from pathlib import Path
 import types
 import unittest
@@ -158,6 +161,75 @@ class GuardTests(unittest.TestCase):
                                         capture_output=True, text=True)
                 self.assertEqual(result.returncode == 0, success, result.stdout + result.stderr)
                 self.assertIn(message, result.stdout)
+
+    def test_buildkit_bootstrap_uses_digest_pinned_hub_mirror(self):
+        setup = TEXT.split('      - name: Set up Buildx\n', 1)[1].split('\n      - name:', 1)[0]
+        self.assertRegex(setup, r'(?m)^\s+image=moby/buildkit@sha256:[0-9a-f]{64}\s*$')
+        self.assertIn('driver-opts:', setup)
+        self.assertIn('docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f', setup)
+
+    def test_buildkit_daemon_mirror_preserves_settings_and_rejects_invalid_config(self):
+        self.assertIn("<<'DOCKER_MIRROR'", TEXT)
+        code = TEXT.split("<<'DOCKER_MIRROR'\n", 1)[1].split('          DOCKER_MIRROR\n', 1)[0]
+        code = '\n'.join(line[10:] for line in code.splitlines())
+        for config in [{}, {'log-driver': 'json-file', 'features': {'containerd-snapshotter': True}},
+                       {'registry-mirrors': ['https://other.example', 'https://mirror.gcr.io/']}]:
+            with self.subTest(config=config), tempfile.TemporaryDirectory() as directory:
+                path = Path(directory) / 'daemon.json'
+                path.write_text(json.dumps(config))
+                result = subprocess.run([sys.executable, '-c', code, str(path)], capture_output=True, text=True)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                actual = json.loads(path.read_text())
+                self.assertEqual(actual['registry-mirrors'][0], 'https://mirror.gcr.io')
+                self.assertEqual({k: v for k, v in actual.items() if k != 'registry-mirrors'},
+                                 {k: v for k, v in config.items() if k != 'registry-mirrors'})
+                again = subprocess.run([sys.executable, '-c', code, str(path)], capture_output=True, text=True)
+                self.assertEqual(again.returncode, 0, again.stderr)
+                self.assertEqual(json.loads(path.read_text()), actual)
+        for invalid in ['not json', '[]', '{"registry-mirrors":"invalid"}', '{"registry-mirrors":[123]}']:
+            with self.subTest(invalid=invalid), tempfile.TemporaryDirectory() as directory:
+                path = Path(directory) / 'daemon.json'
+                path.write_text(invalid)
+                result = subprocess.run([sys.executable, '-c', code, str(path)], capture_output=True, text=True)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertEqual(path.read_text(), invalid)
+        self.assertIn('test -z "$(docker ps -q)"', TEXT)
+        checks = WORKFLOW.with_name('preprod-ghcr-checks.yml').read_text()
+        self.assertIn('Configure the BuildKit mirror on the ephemeral CI runner', checks)
+
+    def test_buildkit_probe_reads_the_publisher_pin_and_fails_closed(self):
+        checks = WORKFLOW.with_name('preprod-ghcr-checks.yml').read_text()
+        self.assertIn("<<'BUILDKIT_PIN'", checks)
+        code = checks.split("<<'BUILDKIT_PIN'\n", 1)[1].split('          BUILDKIT_PIN\n', 1)[0]
+        code = '\n'.join(line[10:] for line in code.splitlines())
+        image_line = next(line for line in TEXT.splitlines() if 'image=moby/buildkit@' in line)
+        expected = image_line.strip().removeprefix('image=')
+        cases = [
+            ('valid', TEXT, True),
+            ('missing', TEXT.replace(image_line, ''), False),
+            ('wrong registry', TEXT.replace('image=moby/buildkit@', 'image=other.example/moby/buildkit@'), False),
+            ('mutable tag', TEXT.replace(expected, 'moby/buildkit:buildx-stable-1'), False),
+            ('malformed digest', TEXT.replace(expected, 'moby/buildkit@sha256:bad'), False),
+            ('duplicate', TEXT.replace(image_line, image_line + '\n' + image_line), False),
+        ]
+        for name, text, succeeds in cases:
+            with self.subTest(name=name), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                (root / '.github/workflows').mkdir(parents=True)
+                (root / '.github/workflows/preprod-ghcr.yml').write_text(text)
+                output = root / 'output'
+                result = subprocess.run([sys.executable, '-c', code], cwd=root,
+                                        env=dict(os.environ, GITHUB_OUTPUT=str(output)),
+                                        capture_output=True, text=True)
+                self.assertEqual(result.returncode == 0, succeeds, result.stdout + result.stderr)
+                if succeeds:
+                    self.assertEqual(output.read_text(), 'image=' + expected + '\n')
+                else:
+                    self.assertFalse(output.exists())
+        self.assertIn('image=${{ steps.buildkit.outputs.image }}', checks)
+        self.assertNotIn('packages: write', checks)
+        self.assertNotIn('docker push', checks)
+        self.assertNotIn('docker buildx build', checks)
 
     def test_existing_publication_guards_remain(self):
         self.assertIn('group: parlons-violence-preprod-ghcr\n  cancel-in-progress: false', TEXT)
