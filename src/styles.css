@@ -911,3 +911,92 @@ html { scroll-padding-top: 6rem; }
   color: var(--landing-muted);
   border: 1px solid currentColor;
 }
+
+/* Entre nous: scoped polish for the closed, fictional showcase only. */
+.entre-nous-showcase {
+  --landing-inset: clamp(1rem, 3.5vw, 3.5rem);
+}
+
+.entre-nous-showcase .showcase-status {
+  margin-block-end: 1rem;
+  color: var(--landing-muted);
+  font-size: .875rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.entre-nous-showcase .landing-intro h1 {
+  max-width: 22ch;
+  font-size: clamp(2rem, 4.8vw, 4.5rem);
+  line-height: 1.15;
+}
+
+.entre-nous-showcase .landing-mission {
+  margin-block-start: 1.25rem;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.entre-nous-showcase .showcase-future {
+  max-width: 52ch;
+  margin-block-start: 1rem;
+}
+
+.entre-nous-showcase .landing-actions {
+  margin-block-start: 1.25rem;
+}
+
+.entre-nous-showcase .landing-cta {
+  border-radius: .5rem;
+}
+
+.entre-nous-showcase .showcase-urgent {
+  max-width: 52ch;
+  margin-block-start: 1rem;
+  font-size: .875rem;
+}
+
+.entre-nous-showcase .showcase-urgent a {
+  text-decoration: underline;
+  text-underline-offset: .2em;
+}
+
+.entre-nous-showcase .landing-example {
+  border: 1px solid var(--landing-muted);
+  border-inline-start: .25rem solid var(--landing-blue);
+  border-radius: .75rem;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  background: var(--landing-sky);
+}
+
+.entre-nous-showcase .landing-example figcaption {
+  margin-block-end: 1rem;
+  font-family: var(--font-sans);
+  font-weight: 650;
+}
+
+.entre-nous-showcase .landing-example blockquote {
+  font-family: var(--font-serif);
+  line-height: 1.65;
+}
+
+.entre-nous-showcase .landing-example-note {
+  margin-block-start: .75rem;
+}
+
+.entre-nous-showcase :is(.landing-contribution, .landing-help, .landing-faq) {
+  padding-block: clamp(2.5rem, 5vw, 5rem);
+}
+
+.entre-nous-showcase .landing-section-layout h2 {
+  font-size: clamp(1.75rem, 3.2vw, 3rem);
+}
+
+.entre-nous-showcase .landing-steps li {
+  border-block-end: 0;
+  padding-block: 0;
+}
+
+.entre-nous-showcase .landing-steps li + li {
+  margin-block-start: 2rem;
+}
