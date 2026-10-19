@@ -1,12 +1,14 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import "@testing-library/jest-dom/vitest";
+import { getModerationReasons } from "@/features/moderation/lib/moderation-reasons";
 import { Route } from "../index";
 
 const flags = vi.hoisted(() => ({
 	publicationMode: "test" as "test" | "real",
 	accessRequired: true,
 	submissionsOpen: false,
+	historicalReason: null as string | null,
 }));
 vi.mock("@/features/beta/components/beta-presentation", () => ({
 	useBetaPresentation: () => flags,
@@ -29,9 +31,9 @@ vi.mock("@tanstack/react-router", () => ({
 					title: "Situation fictive à examiner",
 					body: "<p>Contenu fictif</p>",
 					category: "AUTRE",
-					status: "pending",
+					status: flags.historicalReason ? "rejected" : "pending",
 					isSensitive: false,
-					rejectionReason: null,
+					rejectionReason: flags.historicalReason,
 					createdAt: "2026-09-10T10:00:00.000Z",
 					moderatedAt: null,
 					aliasName: "Érable calme",
@@ -56,14 +58,10 @@ vi.mock("@/features/auth/server/get-auth-session", () => ({
 	getAuthSession: vi.fn(),
 }));
 
-vi.mock("@/features/moderation/server/thread-moderation", () => ({
+vi.mock("@/features/moderation/server/thread-moderation", async () => ({
+	...(await import("@/features/moderation/lib/moderation-reasons")),
 	getModerationQueueFn: vi.fn(),
 	moderateThreadFn: mocks.moderateThread,
-	moderationReasonCodes: ["OUT_OF_SCOPE"],
-	moderationReasonLabels: {
-		OUT_OF_SCOPE:
-			"Cette situation fictive ne correspond pas au périmètre de cette bêta.",
-	},
 }));
 
 vi.mock("sonner", () => ({
@@ -236,6 +234,67 @@ it("warns moderators that publishing makes the scenario public when access is pu
 	expect(screen.queryByText(/visible par les invités/)).toBeNull();
 });
 
+it("displays historical rejection text verbatim after switching to real mode", () => {
+	flags.publicationMode = "real";
+	flags.historicalReason =
+		"Cette situation fictive semble décrire une situation réelle ou urgente, hors du cadre fictif de cette bêta. Précision historique.";
+	render(<ModerationPage />);
+	fireEvent.click(screen.getByRole("button", { name: /Non publiés/ }));
+	expect(screen.getByText(/Précision historique/).textContent).toBe(
+		`Motif transmis : ${flags.historicalReason}`,
+	);
+	flags.historicalReason = null;
+});
+
+it.each(["test", "real"] as const)(
+	"offers and submits the shared %s-mode reasons",
+	async (mode) => {
+		flags.publicationMode = mode;
+		mocks.moderateThread.mockClear();
+		render(<ModerationPage />);
+		fireEvent.click(screen.getByRole("button", { name: "Rejeter" }));
+		const select = screen.getByLabelText(
+			"Motif de non-publication",
+		) as HTMLSelectElement;
+		const options = Array.from(select.options)
+			.slice(1)
+			.map((option) => ({ code: option.value, label: option.text }));
+		expect(options).toEqual(getModerationReasons(mode));
+		expect(options.map(({ code }) => code)).toEqual(
+			mode === "real"
+				? [
+						"IDENTIFYING_DETAIL",
+						"URGENT",
+						"OUT_OF_SCOPE",
+						"INSUFFICIENT_INFORMATION",
+					]
+				: [
+						"IDENTIFYING_DETAIL",
+						"REAL_OR_URGENT",
+						"OUT_OF_SCOPE",
+						"INSUFFICIENT_INFORMATION",
+					],
+		);
+		if (mode === "real")
+			expect(options.map(({ label }) => label).join(" ")).not.toMatch(
+				/ficti[fv]|bêta/,
+			);
+		const code = mode === "real" ? "URGENT" : "REAL_OR_URGENT";
+		fireEvent.change(select, { target: { value: code } });
+		fireEvent.click(screen.getByRole("button", { name: "Confirmer le rejet" }));
+		await waitFor(() =>
+			expect(mocks.moderateThread).toHaveBeenCalledWith({
+				data: {
+					threadId: "46cc031d-7a75-4cf0-88c6-6aac14dd80f7",
+					action: "reject",
+					reasonCode: code,
+					details: "",
+				},
+			}),
+		);
+	},
+);
+
 it.each([true, false])(
 	"real mode keeps explicit moderation with accessRequired=%s",
 	async (accessRequired) => {
@@ -244,7 +303,9 @@ it.each([true, false])(
 		mocks.moderateThread.mockClear();
 		render(<ModerationPage />);
 		expect(
-			screen.getByText(/Les motifs de non-publication restent ceux du test/),
+			screen.getByText(
+				/Le caractère réel d’un témoignage ne constitue pas un motif de rejet/,
+			),
 		).toBeInTheDocument();
 		fireEvent.click(screen.getByRole("button", { name: "Approuver" }));
 		expect(mocks.moderateThread).not.toHaveBeenCalled();

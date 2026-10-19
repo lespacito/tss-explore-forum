@@ -47,15 +47,23 @@ describe("Public beta information", () => {
 		flags.accessRequired = true;
 		flags.publicationMode = "test";
 		render(<HelpPage />);
-		expect(screen.getByText(/Cette bêta n’est pas un service d’urgence/)).toBeDefined();
+		expect(
+			screen.getByText(/Cette bêta n’est pas un service d’urgence/),
+		).toBeDefined();
 	});
 
 	it("uses demonstration safety wording for public test access", () => {
 		flags.accessRequired = false;
 		flags.publicationMode = "test";
 		render(<HelpPage />);
-		expect(screen.getByText(/Cet espace de démonstration n’est pas un service d’urgence/)).toBeDefined();
-		expect(screen.queryByText(/Cette bêta n’est pas un service d’urgence/)).toBeNull();
+		expect(
+			screen.getByText(
+				/Cet espace de démonstration n’est pas un service d’urgence/,
+			),
+		).toBeDefined();
+		expect(
+			screen.queryByText(/Cette bêta n’est pas un service d’urgence/),
+		).toBeNull();
 	});
 
 	it("states the retention policy and distinguishes unverified operations", () => {
@@ -137,6 +145,42 @@ describe("Access wording on information pages", () => {
 });
 
 describe("Real testimony information", () => {
+	it("states confirmed operations without presenting seven-day retention as implemented or applying it to testimonies", () => {
+		flags.publicationMode = "real";
+		flags.accessRequired = false;
+		const { container } = render(<PrivacyPage />);
+		const text = container.textContent || "";
+		expect(text).toContain("Équipe Parlons Violence");
+		for (const provider of [
+			"Netcup",
+			"Dokploy",
+			"Infomaniak",
+			"Arcjet",
+			"Resend",
+		])
+			expect(text).toContain(provider);
+		expect(text).toMatch(
+			/politique retenue.*sept jours.*journaux techniques et les sauvegardes/,
+		);
+		expect(text).toContain(
+			"doivent être vérifiées avant l’ouverture aux témoignages réels",
+		);
+		expect(text).toContain(
+			"ne s’applique pas automatiquement aux comptes et aux témoignages",
+		);
+		expect(text).toContain("vérification quotidienne selon les disponibilités");
+		expect(text).toContain("sans horaire fixe ni délai de réponse garanti");
+		expect(text).not.toMatch(
+			/L’identité du responsable.*doivent être précisées/,
+		);
+		expect(
+			screen
+				.getByRole("link", { name: "contact@parlonsviolence.ch" })
+				.getAttribute("href"),
+		).toBe("mailto:contact@parlonsviolence.ch");
+		flags.publicationMode = "test";
+	});
+
 	it.each([
 		[true, true],
 		[true, false],
