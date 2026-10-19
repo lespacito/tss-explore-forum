@@ -145,15 +145,36 @@ function RealPrivacy({ accessRequired }: { accessRequired: boolean }) {
 				Conservez-le dans un endroit privé ; ne le partagez pas et ne le placez
 				pas dans une URL.
 			</p>
+			<h2>Exploitation et prestataires</h2>
+			<p>
+				Le site est exploité sous le nom public « Équipe Parlons Violence ». Il
+				est hébergé sur un VPS Netcup et déployé avec Dokploy. Le domaine et la
+				messagerie de contact sont gérés chez Infomaniak. Les e-mails
+				automatiques de l’application sont envoyés via Resend. Arcjet est
+				utilisé pour la protection anti-abus.
+			</p>
+			<h2>Modération</h2>
+			<p>
+				La modération prévoit une vérification quotidienne selon les
+				disponibilités, sans horaire fixe ni délai de réponse garanti. Cet
+				espace n’est pas un service d’urgence.
+			</p>
 			<h2>Effacement et conservation</h2>
 			<p>
 				Gérer mes données permet de demander l’effacement du compte et de ses
 				publications dans la base active. Cela n’efface pas les copies déjà
-				conservées par des lecteurs. La durée effective des sauvegardes, la
-				conservation des journaux techniques et les conditions d’hébergement
-				restent à confirmer avant l’ouverture aux témoignages réels. Aucune
-				durée de suppression automatique de témoignages réels n’est annoncée
-				ici.
+				conservées par des lecteurs.
+			</p>
+			<p>
+				La politique retenue prévoit une conservation maximale de sept jours
+				pour les journaux techniques et les sauvegardes. Son application et
+				l’expiration effective des copies doivent être vérifiées avant
+				l’ouverture aux témoignages réels.
+			</p>
+			<p>
+				Cette durée de sept jours ne s’applique pas automatiquement aux comptes
+				et aux témoignages. Elle ne déclenche pas leur suppression dans la base
+				active.
 			</p>
 			<h2>Retours sur le site</h2>
 			<p>
@@ -169,9 +190,7 @@ function RealPrivacy({ accessRequired }: { accessRequired: boolean }) {
 					contact@parlonsviolence.ch
 				</a>
 				. N’envoyez pas de code de récupération, de témoignage ou de capture
-				contenant des données sensibles. L’identité du responsable et les
-				informations de conservation doivent être précisées avant l’ouverture
-				aux témoignages réels.
+				contenant des données sensibles.
 			</p>
 		</article>
 	);
