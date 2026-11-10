@@ -99,7 +99,7 @@
     "@fontsource-variable/lora": "^5.2.8",
     "@fontsource-variable/plus-jakarta-sans": "^5.2.8",
     "@fontsource-variable/roboto-mono": "^5.2.8",
-    "@playwright/test": "^1.57.0",
+    "@playwright/test": "1.65.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.2.0",
