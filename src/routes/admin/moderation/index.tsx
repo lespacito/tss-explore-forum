@@ -24,12 +24,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { getAuthSession } from "@/features/auth/server/get-auth-session";
 import { useBetaPresentation } from "@/features/beta/components/beta-presentation";
 import {
+	getModerationReasons,
+	type ModerationReasonCode,
+} from "@/features/moderation/lib/moderation-reasons";
+import {
 	getModerationQueueFn,
 	type ModerationQueueItem,
-	type ModerationReasonCode,
 	moderateThreadFn,
-	moderationReasonCodes,
-	moderationReasonLabels,
 } from "@/features/moderation/server/thread-moderation";
 import { cn } from "@/lib/utils";
 
@@ -108,10 +109,10 @@ function ModerationPage() {
 
 			{real && (
 				<p className="mb-6 border-y py-4 text-sm" role="note">
-					Le mode réel adapte les textes uniquement. Les motifs de
-					non-publication restent ceux du test et doivent être revus dans un
-					ticket distinct avant l’ouverture aux témoignages réels. Chaque
-					publication reste soumise à votre examen.
+					Le caractère réel d’un témoignage ne constitue pas un motif de rejet.
+					Examinez chaque publication avant de l’approuver. En cas d’urgence,
+					utilisez le motif dédié qui oriente vers les ressources d’aide, sans
+					promettre de réponse ni de prise en charge.
 				</p>
 			)}
 			<nav aria-label="Filtrer la file de modération" className="mb-7">
@@ -406,11 +407,13 @@ function ModerationItem({
 						required
 					>
 						<option value="">Choisir un motif</option>
-						{moderationReasonCodes.map((code) => (
-							<option key={code} value={code}>
-								{moderationReasonLabels[code]}
-							</option>
-						))}
+						{getModerationReasons(real ? "real" : "test").map(
+							({ code, label }) => (
+								<option key={code} value={code}>
+									{label}
+								</option>
+							),
+						)}
 					</select>
 					<label
 						htmlFor={`rejection-details-${thread.id}`}

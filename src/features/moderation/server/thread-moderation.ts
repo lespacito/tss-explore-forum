@@ -5,6 +5,11 @@ import { db } from "@/db";
 import { alias, moderationLogs, threads } from "@/db/schema";
 import type { User } from "@/features/auth/lib/map-auth-user";
 import { getAuthSession } from "@/features/auth/server/get-auth-session";
+import { publicationMode } from "@/features/beta/lib/publication-mode";
+import {
+	formatModerationReason,
+	moderationReasonCodes,
+} from "../lib/moderation-reasons";
 
 const moderatorRoles = new Set(["ADMIN", "MODERATOR"]);
 
@@ -21,40 +26,18 @@ export type ModerationQueueItem = {
 	aliasName: string;
 };
 
-export const moderationReasonCodes = [
-	"IDENTIFYING_DETAIL",
-	"REAL_OR_URGENT",
-	"OUT_OF_SCOPE",
-	"INSUFFICIENT_INFORMATION",
-] as const;
-
-export type ModerationReasonCode = (typeof moderationReasonCodes)[number];
-
-export const moderationReasonLabels: Record<ModerationReasonCode, string> = {
-	IDENTIFYING_DETAIL:
-		"Cette situation fictive contient un détail qui pourrait permettre d’identifier une personne.",
-	REAL_OR_URGENT:
-		"Cette situation fictive semble décrire une situation réelle ou urgente, hors du cadre fictif de cette bêta.",
-	OUT_OF_SCOPE: "Cette situation fictive ne correspond pas au périmètre de cette bêta.",
-	INSUFFICIENT_INFORMATION:
-		"Les informations fournies ne permettent pas d’examiner cette situation fictive.",
-};
-
-export function formatModerationReason(
-	reasonCode: ModerationReasonCode,
-	details?: string,
-) {
-	const clarification = details?.trim();
-	return clarification
-		? `${moderationReasonLabels[reasonCode]} ${clarification}`
-		: moderationReasonLabels[reasonCode];
-}
+export {
+	formatModerationReason,
+	type ModerationReasonCode,
+	moderationReasonCodes,
+	moderationReasonLabels,
+} from "../lib/moderation-reasons";
 
 export const moderationActionSchema = z
 	.object({
 		threadId: z.string().uuid(),
 		action: z.enum(["publish", "reject", "mark_sensitive", "unmark_sensitive"]),
-		reasonCode: z.enum(moderationReasonCodes).optional(),
+		reasonCode: z.enum([...moderationReasonCodes, "URGENT"]).optional(),
 		details: z.string().trim().max(300).optional(),
 	})
 	.superRefine((value, context) => {
@@ -113,6 +96,10 @@ export const moderateThreadFn = createServerFn({ method: "POST" })
 		const session = await getAuthSession();
 		assertModerator(session.user);
 		const moderator = session.user;
+		const mode = publicationMode(process.env.PUBLICATION_MODE);
+		const formattedReason = data.reasonCode
+			? formatModerationReason(data.reasonCode, data.details, mode)
+			: null;
 
 		return db.transaction(async (transaction) => {
 			const [currentThread] = await transaction
@@ -130,10 +117,7 @@ export const moderateThreadFn = createServerFn({ method: "POST" })
 			}
 
 			const now = new Date();
-			const rejectionReason =
-				data.action === "reject" && data.reasonCode
-					? formatModerationReason(data.reasonCode, data.details)
-					: null;
+			const rejectionReason = data.action === "reject" ? formattedReason : null;
 			const update =
 				data.action === "publish"
 					? {
