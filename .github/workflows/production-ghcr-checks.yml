@@ -1,0 +1,27 @@
+name: Production publisher checks
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - '.github/production/**'
+      - '.github/workflows/production-ghcr.yml'
+      - '.github/workflows/production-ghcr-checks.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Install pinned YAML parser in isolated test environment
+        run: |
+          python3 -m venv "$RUNNER_TEMP/production-tests"
+          "$RUNNER_TEMP/production-tests/bin/python" -m pip install -r .github/production/requirements-tests.txt
+      - name: Run production guard and workflow contract tests (no registry credentials)
+        run: "$RUNNER_TEMP/production-tests/bin/python -m unittest discover -s .github/production -v"
