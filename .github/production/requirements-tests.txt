@@ -1,0 +1,2 @@
+# YAML contract tests only; publisher itself is Python stdlib.
+PyYAML==6.0.2

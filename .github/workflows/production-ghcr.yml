@@ -1,0 +1,106 @@
+name: Publish production images manually
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_sha:
+        description: Current dev commit (40 lowercase hexadecimal characters)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+  packages: write
+
+concurrency:
+  group: parlons-violence-production-ghcr
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: >-
+      github.repository == 'lespacito/tss-explore-forum' &&
+      github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-26.04
+    timeout-minutes: 60
+    env:
+      RELEASE_SHA: ${{ inputs.release_sha }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      # Trust the workflow commit on master, never the application release scripts.
+      - name: Checkout trusted workflow source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          path: trusted
+          persist-credentials: false
+
+      - name: Verify current dev and freeze successful Playwright push run and attempt
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 trusted/.github/production/publisher.py prepare
+
+      - name: Checkout exact verified application release
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          path: source
+          persist-credentials: false
+
+      - name: Configure ephemeral GitHub runner Docker mirror
+        run: |
+          set -euo pipefail
+          test -z "$(docker ps -q)"
+          sudo python3 - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path('/etc/docker/daemon.json')
+          config = json.loads(path.read_text()) if path.exists() else {}
+          if not isinstance(config, dict):
+              raise SystemExit('Expected Docker configuration object')
+          mirrors = config.get('registry-mirrors', [])
+          if not isinstance(mirrors, list) or not all(isinstance(x, str) for x in mirrors):
+              raise SystemExit('Expected mirror list')
+          config['registry-mirrors'] = ['https://mirror.gcr.io'] + [x for x in mirrors if x.rstrip('/') != 'https://mirror.gcr.io']
+          path.write_text(json.dumps(config) + '\n')
+          PY
+          sudo systemctl restart docker
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069
+        with:
+          driver-opts: |
+            image=moby/buildkit@sha256:cec9f139f45e93c5c69c60f8b07cfad9f43f4ef6b6a6cd917527fea5ff2e3dea
+
+      - name: Build and verify both images offline before registry login
+        run: python3 trusted/.github/production/publisher.py build
+
+      - name: Authenticate to GHCR through standard action
+        uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fail closed on collisions and recheck dev and CI before every push
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 trusted/.github/production/publisher.py publish
+
+      - name: Publication status including partial failures
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          {
+            echo '## Production image publication'
+            echo "Status: $JOB_STATUS"
+            echo "Release verified: ${SOURCE_SHA:-not verified}"
+            echo 'Only Verified entries above establish actual registry digests.'
+            echo 'Failure may leave a partial publication, including a successful push not yet verified.'
+            echo 'Existing tags are never intentionally overwritten. No automatic cleanup or retry.'
+            echo 'No deployment, database migration, DNS change or public opening is performed.'
+          } >> "$GITHUB_STEP_SUMMARY"
