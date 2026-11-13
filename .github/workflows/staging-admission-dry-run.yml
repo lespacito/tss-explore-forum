@@ -1,0 +1,29 @@
+name: Staging admission dry-run tests
+
+on:
+  pull_request:
+    branches: [dev]
+    paths:
+      - '.github/staging/**'
+      - '.github/workflows/staging-admission-dry-run.yml'
+      - 'docs/staging-admission-dry-run.md'
+  push:
+    branches: [dev]
+    paths:
+      - '.github/staging/**'
+      - '.github/workflows/staging-admission-dry-run.yml'
+      - 'docs/staging-admission-dry-run.md'
+
+permissions:
+  contents: read
+
+jobs:
+  staging-admission-tests:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Test admission and CLI offline without deployment credentials
+        run: python3 -m unittest discover -s .github/staging -v
